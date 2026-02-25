@@ -1,0 +1,1155 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/nicolargo/glances/commit/7c9040688e2d7978426dbdab916c1185b6065199",
+    "commit_message": "Improve --issue option with Python version and paths",
+    "commit_snapshots": {
+        "glances/__init__.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2021 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "#\n",
+                "\n",
+                "\"\"\"Init the Glances software.\"\"\"\n",
+                "\n",
+                "# Import system libs\n",
+                "import locale\n",
+                "import platform\n",
+                "import signal\n",
+                "import sys\n",
+                "\n",
+                "# Global name\n",
+                "# Version should start and end with a numerical char\n",
+                "# See https://packaging.python.org/specifications/core-metadata/#version\n",
+                "__version__ = '3.2.4_beta03'\n",
+                "__author__ = 'Nicolas Hennion <nicolas@nicolargo.com>'\n",
+                "__license__ = 'LGPLv3'\n",
+                "\n",
+                "# Import psutil\n",
+                "try:\n",
+                "    from psutil import __version__ as psutil_version\n",
+                "except ImportError:\n",
+                "    print('psutil library not found. Glances cannot start.')\n",
+                "    sys.exit(1)\n",
+                "\n",
+                "# Import Glances libs\n",
+                "# Note: others Glances libs will be imported optionally\n",
+                "from glances.logger import logger\n",
+                "from glances.main import GlancesMain\n",
+                "from glances.timer import Counter\n",
+                "# Check locale\n",
+                "try:\n",
+                "    locale.setlocale(locale.LC_ALL, '')\n",
+                "except locale.Error:\n",
+                "    print(\"Warning: Unable to set locale. Expect encoding problems.\")\n",
+                "\n",
+                "# Check Python version\n",
+                "if sys.version_info < (2, 7) or (3, 0) <= sys.version_info < (3, 4):\n",
+                "    print('Glances requires at least Python 2.7 or 3.4 to run.')\n",
+                "    sys.exit(1)\n",
+                "\n",
+                "# Check psutil version\n",
+                "psutil_min_version = (5, 3, 0)\n",
+                "psutil_version_info = tuple([int(num) for num in psutil_version.split('.')])\n",
+                "if psutil_version_info < psutil_min_version:\n",
+                "    print('psutil 5.3.0 or higher is needed. Glances cannot start.')\n",
+                "    sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def __signal_handler(signal, frame):\n",
+                "    \"\"\"Callback for CTRL-C.\"\"\"\n",
+                "    end()\n",
+                "\n",
+                "\n",
+                "def end():\n",
+                "    \"\"\"Stop Glances.\"\"\"\n",
+                "    try:\n",
+                "        mode.end()\n",
+                "    except NameError:\n",
+                "        # NameError: name 'mode' is not defined in case of interrupt shortly...\n",
+                "        # ...after starting the server mode (issue #1175)\n",
+                "        pass\n",
+                "\n",
+                "    logger.info(\"Glances stopped (keypressed: CTRL-C)\")\n",
+                "\n",
+                "    # The end...\n",
+                "    sys.exit(0)\n",
+                "\n",
+                "\n",
+                "def start(config, args):\n",
+                "    \"\"\"Start Glances.\"\"\"\n",
+                "\n",
+                "    # Load mode\n",
+                "    global mode\n",
+                "\n",
+                "    start_duration = Counter()\n",
+                "\n",
+                "    if core.is_standalone():\n",
+                "        from glances.standalone import GlancesStandalone as GlancesMode\n",
+                "    elif core.is_client():\n",
+                "        if core.is_client_browser():\n",
+                "            from glances.client_browser import GlancesClientBrowser as GlancesMode\n",
+                "        else:\n",
+                "            from glances.client import GlancesClient as GlancesMode\n",
+                "    elif core.is_server():\n",
+                "        from glances.server import GlancesServer as GlancesMode\n",
+                "    elif core.is_webserver():\n",
+                "        from glances.webserver import GlancesWebServer as GlancesMode\n",
+                "\n",
+                "    # Init the mode\n",
+                "    logger.info(\"Start {} mode\".format(GlancesMode.__name__))\n",
+                "    mode = GlancesMode(config=config, args=args)\n",
+                "\n",
+                "    # Start the main loop\n",
+                "    logger.debug(\"Glances started in {} seconds\".format(start_duration.get()))\n",
+                "    if args.stdout_issue or args.stdout_apidoc:\n",
+                "        # Serve once for issue/test mode\n",
+                "        mode.serve_issue()\n",
+                "    else:\n",
+                "        # Serve forever\n",
+                "        mode.serve_forever()\n",
+                "\n",
+                "    # Shutdown\n",
+                "    mode.end()\n",
+                "\n",
+                "\n",
+                "def main():\n",
+                "    \"\"\"Main entry point for Glances.\n",
+                "\n",
+                "    Select the mode (standalone, client or server)\n",
+                "    Run it...\n",
+                "    \"\"\"\n",
+                "    # Catch the CTRL-C signal\n",
+                "    signal.signal(signal.SIGINT, __signal_handler)\n",
+                "\n",
+                "    # Log Glances and psutil version\n",
+                "    logger.info('Start Glances {}'.format(__version__))\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    logger.info('{} {} and psutil {} detected'.format(\n"
+                ],
+                "after": [
+                    "    logger.info('{} {} ({}) and psutil {} detected'.format(\n"
+                ],
+                "parent_version_range": {
+                    "start": 134,
+                    "end": 135
+                },
+                "child_version_range": {
+                    "start": 134,
+                    "end": 135
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main():",
+                        "at_line": 123
+                    },
+                    {
+                        "type": "call",
+                        "name": "logger.info",
+                        "signature": "logger.info('{} {} and psutil {} detected'.format(\n        platform.python_implementation(),\n        platform.python_version(),\n        psutil_version))",
+                        "at_line": 134,
+                        "argument": "'{} {} and psutil {} detected'..."
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: glances/__init__.py\nCode:\n           def main():\n               ...\n131 131    \n132 132        # Log Glances and psutil version\n133 133        logger.info('Start Glances {}'.format(__version__))\n134      -     logger.info('{} {} and psutil {} detected'.format(\n    134  +     logger.info('{} {} ({}) and psutil {} detected'.format(\n135 135            platform.python_implementation(),\n136 136            platform.python_version(),\n         ...\n",
+                "file_path": "glances/__init__.py",
+                "identifiers_before": [
+                    "format",
+                    "info",
+                    "logger"
+                ],
+                "identifiers_after": [
+                    "format",
+                    "info",
+                    "logger"
+                ],
+                "prefix": [
+                    "\n",
+                    "    # Log Glances and psutil version\n",
+                    "    logger.info('Start Glances {}'.format(__version__))\n"
+                ],
+                "suffix": [
+                    "        platform.python_implementation(),\n",
+                    "        platform.python_version(),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        platform.python_implementation(),\n",
+                "        platform.python_version(),\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        sys.executable,\n"
+                ],
+                "parent_version_range": {
+                    "start": 137,
+                    "end": 137
+                },
+                "child_version_range": {
+                    "start": 137,
+                    "end": 138
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main():",
+                        "at_line": 123
+                    },
+                    {
+                        "type": "call",
+                        "name": "logger.info",
+                        "signature": "logger.info('{} {} and psutil {} detected'.format(\n        platform.python_implementation(),\n        platform.python_version(),\n        psutil_version))",
+                        "at_line": 134,
+                        "argument": "'{} {} and psutil {} detected'..."
+                    },
+                    {
+                        "type": "call",
+                        "name": "'{} {} and psutil {} detected'.format",
+                        "signature": "'{} {} and psutil {} detected'.format(\n        platform.python_implementation(),\n        platform.python_version(),\n        psutil_version)",
+                        "at_line": 134,
+                        "argument": "platform.python_version()"
+                    },
+                    {
+                        "type": "call",
+                        "name": "platform.python_version",
+                        "signature": "platform.python_version()",
+                        "at_line": 136
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: glances/__init__.py\nCode:\n           def main():\n               ...\n               logger.info('{} {} and psutil {} detected'.format(\n        platform.python_implementation(),\n        platform.python_version(),\n        psutil_version))\n                   ...\n                   '{} {} and psutil {} detected'.format(\n        platform.python_implementation(),\n        platform.python_version(),\n        psutil_version)\n                       ...\n135 135            platform.python_implementation(),\n136 136            platform.python_version(),\n    137  +         sys.executable,\n137 138            psutil_version))\n138 139    \n139 140        # Share global var\n         ...\n",
+                "file_path": "glances/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "executable",
+                    "sys"
+                ],
+                "prefix": [
+                    "        platform.python_implementation(),\n",
+                    "        platform.python_version(),\n"
+                ],
+                "suffix": [
+                    "        psutil_version))\n",
+                    "\n",
+                    "    # Share global var\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        psutil_version))\n",
+                "\n",
+                "    # Share global var\n",
+                "    global core\n",
+                "\n",
+                "    # Create the Glances main instance\n",
+                "    # Glances options from the command line are readed first (in __init__)\n",
+                "    # then the options from the config file (in parse_args)\n",
+                "    core = GlancesMain()\n",
+                "\n",
+                "    # Glances can be ran in standalone, client or server mode\n",
+                "    start(config=core.get_config(), args= core.get_args())"
+            ]
+        ],
+        "glances/outputs/glances_stdout_issue.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2021 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "\n",
+                "\"\"\"Issue interface class.\"\"\"\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "import time\n"
+                ],
+                "after": [
+                    "import os\n"
+                ],
+                "parent_version_range": {
+                    "start": 21,
+                    "end": 22
+                },
+                "child_version_range": {
+                    "start": 21,
+                    "end": 22
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n  ...\n18 18    \n19 19    \"\"\"Issue interface class.\"\"\"\n20 20    \n21     - import time\n   21  + import os\n22 22    import sys\n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [
+                    "time"
+                ],
+                "identifiers_after": [
+                    "os"
+                ],
+                "prefix": [
+                    "\n",
+                    "\"\"\"Issue interface class.\"\"\"\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "import sys\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import sys\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import platform\n"
+                ],
+                "parent_version_range": {
+                    "start": 23,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 23,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n  ...\n22 22    import sys\n   23  + import platform\n23 24    import shutil\n24 25    \n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "platform"
+                ],
+                "prefix": [
+                    "import sys\n"
+                ],
+                "suffix": [
+                    "import shutil\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "platform",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import shutil\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from glances.logger import logger\n",
+                    "from glances.compat import printandflush\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 25,
+                    "end": 27
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 26
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n  ...\n23 24    import shutil\n24 25    \n25     - from glances.logger import logger\n26     - from glances.compat import printandflush\n27 26    from glances.timer import Counter\n28 27    from glances import __version__, psutil_version\n29 28    \n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [
+                    "compat",
+                    "glances",
+                    "logger",
+                    "printandflush"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "import shutil\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from glances.timer import Counter\n",
+                    "from glances import __version__, psutil_version\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from glances.timer import Counter\n",
+                "from glances import __version__, psutil_version\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import psutil\n",
+                    "import glances\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 30,
+                    "end": 30
+                },
+                "child_version_range": {
+                    "start": 29,
+                    "end": 32
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n  ...\n27 26    from glances.timer import Counter\n28 27    from glances import __version__, psutil_version\n29 28    \n   29  + import psutil\n   30  + import glances\n   31  + \n30 32    try:\n31 33        TERMINAL_WIDTH = shutil.get_terminal_size(fallback=(79, 24)).columns\n32 34    except:\n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "glances",
+                    "psutil"
+                ],
+                "prefix": [
+                    "from glances.timer import Counter\n",
+                    "from glances import __version__, psutil_version\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "try:\n",
+                    "    TERMINAL_WIDTH = shutil.get_terminal_size(fallback=(79, 24)).columns\n",
+                    "except:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "psutil",
+                            "position": {
+                                "start": {
+                                    "line": 29,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 29,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "glances",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "try:\n",
+                "    TERMINAL_WIDTH = shutil.get_terminal_size(fallback=(79, 24)).columns\n",
+                "except:\n",
+                "    TERMINAL_WIDTH = 79\n",
+                "\n",
+                "\n",
+                "class colors:\n",
+                "    RED = '\\033[91m'\n",
+                "    GREEN = '\\033[92m'\n",
+                "    ORANGE = '\\033[93m'\n",
+                "    BLUE = '\\033[94m'\n",
+                "    NO = '\\033[0m'\n",
+                "\n",
+                "    def disable(self):\n",
+                "        self.RED = ''\n",
+                "        self.GREEN = ''\n",
+                "        self.BLUE = ''\n",
+                "        self.ORANGE = ''\n",
+                "        self.NO = ''\n",
+                "\n",
+                "\n",
+                "class GlancesStdoutIssue(object):\n",
+                "\n",
+                "    \"\"\"\n",
+                "    This class manages the Issue display.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, config=None, args=None):\n",
+                "        # Init\n",
+                "        self.config = config\n",
+                "        self.args = args\n",
+                "\n",
+                "    def end(self):\n",
+                "        pass\n",
+                "\n",
+                "    def print_version(self):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        msg = 'Glances version {} with PsUtil {}'.format(\n"
+                ],
+                "after": [
+                    "        sys.stdout.write('=' * 79 + '\\n')\n",
+                    "        sys.stdout.write('Glances {} ({})\\n'.format(\n"
+                ],
+                "parent_version_range": {
+                    "start": 66,
+                    "end": 67
+                },
+                "child_version_range": {
+                    "start": 68,
+                    "end": 70
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GlancesStdoutIssue",
+                        "signature": "class GlancesStdoutIssue(object):",
+                        "at_line": 51
+                    },
+                    {
+                        "type": "function",
+                        "name": "print_version",
+                        "signature": "def print_version(self):",
+                        "at_line": 65
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n         class GlancesStdoutIssue(object):\n             ...\n63 65            pass\n64 66    \n65 67        def print_version(self):\n66     -         msg = 'Glances version {} with PsUtil {}'.format(\n   68  +         sys.stdout.write('=' * 79 + '\\n')\n   69  +         sys.stdout.write('Glances {} ({})\\n'.format(\n67 70                colors.BLUE + __version__ + colors.NO,\n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [
+                    "format",
+                    "msg"
+                ],
+                "identifiers_after": [
+                    "format",
+                    "stdout",
+                    "sys",
+                    "write"
+                ],
+                "prefix": [
+                    "        pass\n",
+                    "\n",
+                    "    def print_version(self):\n"
+                ],
+                "suffix": [
+                    "            colors.BLUE + __version__ + colors.NO,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            colors.BLUE + __version__ + colors.NO,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            colors.BLUE + psutil_version + colors.NO)\n",
+                    "        sys.stdout.write('='*len(msg) + '\\n')\n",
+                    "        sys.stdout.write(msg)\n",
+                    "        sys.stdout.write(colors.NO + '\\n')\n",
+                    "        sys.stdout.write('='*len(msg) + '\\n')\n"
+                ],
+                "after": [
+                    "            os.path.realpath(glances.__file__)))\n",
+                    "        sys.stdout.write('Python {} ({})\\n'.format(\n",
+                    "            colors.BLUE + platform.python_version() + colors.NO,\n",
+                    "            sys.executable))\n",
+                    "        sys.stdout.write('PsUtil {} ({})\\n'.format(\n",
+                    "            colors.BLUE + psutil_version + colors.NO,\n",
+                    "            os.path.realpath(psutil.__file__)))\n",
+                    "        sys.stdout.write('=' * 79 + '\\n')\n"
+                ],
+                "parent_version_range": {
+                    "start": 68,
+                    "end": 73
+                },
+                "child_version_range": {
+                    "start": 71,
+                    "end": 79
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GlancesStdoutIssue",
+                        "signature": "class GlancesStdoutIssue(object):",
+                        "at_line": 51
+                    },
+                    {
+                        "type": "function",
+                        "name": "print_version",
+                        "signature": "def print_version(self):",
+                        "at_line": 65
+                    },
+                    {
+                        "type": "call",
+                        "name": "'Glances version {} with PsUtil {}'.format",
+                        "signature": "'Glances version {} with PsUtil {}'.format(\n            colors.BLUE + __version__ + colors.NO,\n            colors.BLUE + psutil_version + colors.NO)",
+                        "at_line": 66,
+                        "argument": "colors.BLUE + psutil_version +..."
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: glances/outputs/glances_stdout_issue.py\nCode:\n         class GlancesStdoutIssue(object):\n             ...\n             def print_version(self):\n                 ...\n                 'Glances version {} with PsUtil {}'.format(\n            colors.BLUE + __version__ + colors.NO,\n            colors.BLUE + psutil_version + colors.NO)\n                     ...\n67 70                colors.BLUE + __version__ + colors.NO,\n68     -             colors.BLUE + psutil_version + colors.NO)\n69     -         sys.stdout.write('='*len(msg) + '\\n')\n70     -         sys.stdout.write(msg)\n71     -         sys.stdout.write(colors.NO + '\\n')\n72     -         sys.stdout.write('='*len(msg) + '\\n')\n   71  +             os.path.realpath(glances.__file__)))\n   72  +         sys.stdout.write('Python {} ({})\\n'.format(\n   73  +             colors.BLUE + platform.python_version() + colors.NO,\n   74  +             sys.executable))\n   75  +         sys.stdout.write('PsUtil {} ({})\\n'.format(\n   76  +             colors.BLUE + psutil_version + colors.NO,\n   77  +             os.path.realpath(psutil.__file__)))\n   78  +         sys.stdout.write('=' * 79 + '\\n')\n73 79            sys.stdout.flush()\n74 80    \n75 81        def print_issue(self, plugin, result, message):\n       ...\n",
+                "file_path": "glances/outputs/glances_stdout_issue.py",
+                "identifiers_before": [
+                    "BLUE",
+                    "NO",
+                    "colors",
+                    "len",
+                    "msg",
+                    "psutil_version",
+                    "stdout",
+                    "sys",
+                    "write"
+                ],
+                "identifiers_after": [
+                    "BLUE",
+                    "NO",
+                    "__file__",
+                    "colors",
+                    "executable",
+                    "format",
+                    "glances",
+                    "os",
+                    "path",
+                    "platform",
+                    "psutil",
+                    "psutil_version",
+                    "python_version",
+                    "realpath",
+                    "stdout",
+                    "sys",
+                    "write"
+                ],
+                "prefix": [
+                    "            colors.BLUE + __version__ + colors.NO,\n"
+                ],
+                "suffix": [
+                    "        sys.stdout.flush()\n",
+                    "\n",
+                    "    def print_issue(self, plugin, result, message):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 69,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 69,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 70,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 70,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "msg",
+                            "position": {
+                                "start": {
+                                    "line": 72,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 72,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 71,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 71,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "platform",
+                            "position": {
+                                "start": {
+                                    "line": 73,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 73,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "psutil",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "glances",
+                            "position": {
+                                "start": {
+                                    "line": 71,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 71,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/outputs/glances_stdout_issue.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        sys.stdout.flush()\n",
+                "\n",
+                "    def print_issue(self, plugin, result, message):\n",
+                "        sys.stdout.write('{}{}{}'.format(\n",
+                "            colors.BLUE + plugin, result, message))\n",
+                "        sys.stdout.write(colors.NO + '\\n')\n",
+                "        sys.stdout.flush()\n",
+                "\n",
+                "    def update(self,\n",
+                "               stats,\n",
+                "               duration=3):\n",
+                "        \"\"\"Display issue\n",
+                "        \"\"\"\n",
+                "        self.print_version()\n",
+                "        for plugin in sorted(stats._plugins):\n",
+                "            if stats._plugins[plugin].is_disable():\n",
+                "                # If current plugin is disable\n",
+                "                # then continue to next plugin\n",
+                "                result = colors.NO + '[N/A]'.rjust(19 - len(plugin))\n",
+                "                message = colors.NO\n",
+                "                self.print_issue(plugin, result, message)\n",
+                "                continue\n",
+                "            # Start the counter\n",
+                "            counter = Counter()\n",
+                "            counter.reset()\n",
+                "            stat = None\n",
+                "            stat_error = None\n",
+                "            try:\n",
+                "                # Update the stats\n",
+                "                stats._plugins[plugin].update()\n",
+                "                # Get the stats\n",
+                "                stat = stats.get_plugin(plugin).get_export()\n",
+                "            except Exception as e:\n",
+                "                stat_error = e\n",
+                "            if stat_error is None:\n",
+                "                result = (colors.GREEN +\n",
+                "                          '[OK]   ' +\n",
+                "                          colors.BLUE +\n",
+                "                          ' {:.5f}s '.format(counter.get())).rjust(41 - len(plugin))\n",
+                "                if isinstance(stat, list) and len(stat) > 0 and 'key' in stat[0]:\n",
+                "                    key = 'key={} '.format(stat[0]['key'])\n",
+                "                    message = colors.ORANGE + key + colors.NO + str(stat)[0:TERMINAL_WIDTH-41-len(key)]\n",
+                "                else:\n",
+                "                    message = colors.NO + str(stat)[0:TERMINAL_WIDTH-41]\n",
+                "            else:\n",
+                "                result = (colors.RED +\n",
+                "                          '[ERROR]' +\n",
+                "                          colors.BLUE +\n",
+                "                          ' {:.5f}s '.format(counter.get())).rjust(41 - len(plugin))\n",
+                "                message = colors.NO + str(stat_error)[0:TERMINAL_WIDTH-41]\n",
+                "            self.print_issue(plugin, result, message)\n",
+                "\n",
+                "        # Return True to exit directly (no refresh)\n",
+                "        return True"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+        ],
+        [
+            2,
+            3,
+            4,
+            6,
+            7,
+            5,
+            0,
+            1
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "2 edits combined forming a log string update",
+            "scenario of 0 -> 1": "edit 0 updates its logic, and edit 1 follows after edit 0.",
+            "scenario of 1 -> 0": "edit 1 is updated first, then edit 0 is updated."
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "2 edits combined forming a stdout update",
+            "scenario of 0 -> 1": "edit 0 may update its logic first, then edit 1 updates its logic.",
+            "scenario of 1 -> 0": "edit 1 may update its logic first, then edit 0 follows."
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 used os, imported by edit 1",
+            "scenario of 0 -> 1": "edit 0 uses the function `os` first, then the function is imported by edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the function `os` first, then edit 1 uses it."
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 used platform, imported by edit 1",
+            "scenario of 0 -> 1": "edit 0 uses the function `platform` first, then the function is imported by edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the function `platform` first, then edit 1 uses it."
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 used glances and psutil, imported by edit 1",
+            "scenario of 0 -> 1": "edit 0 uses the function `os` first, then the function is imported by edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the function `os` first, then edit 1 uses it."
+        }
+    ]
+}

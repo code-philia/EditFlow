@@ -1,0 +1,911 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/vllm-project/vllm/commit/85de0934727dc2c7b740b1d4a90d1a2e3c2d0585",
+    "commit_message": "[Fix] Do not pin memory when in WSL (#312)",
+    "commit_snapshots": {
+        "vllm/utils.py": [
+            [
+                "import enum\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from platform import uname\n"
+                ],
+                "parent_version_range": {
+                    "start": 1,
+                    "end": 1
+                },
+                "child_version_range": {
+                    "start": 1,
+                    "end": 2
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: vllm/utils.py\nCode:\n  ...\n0 0    import enum\n  1  + from platform import uname\n1 2    import uuid\n2 3    \n3 4    import psutil\n     ...\n",
+                "file_path": "vllm/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "platform",
+                    "uname"
+                ],
+                "prefix": [
+                    "import enum\n"
+                ],
+                "suffix": [
+                    "import uuid\n",
+                    "\n",
+                    "import psutil\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "uname",
+                            "position": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/utils.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import uuid\n",
+                "\n",
+                "import psutil\n",
+                "import torch\n",
+                "\n",
+                "\n",
+                "class Device(enum.Enum):\n",
+                "    GPU = enum.auto()\n",
+                "    CPU = enum.auto()\n",
+                "\n",
+                "\n",
+                "class Counter:\n",
+                "\n",
+                "    def __init__(self, start: int = 0) -> None:\n",
+                "        self.counter = start\n",
+                "\n",
+                "    def __next__(self) -> int:\n",
+                "        id = self.counter\n",
+                "        self.counter += 1\n",
+                "        return id\n",
+                "\n",
+                "    def reset(self) -> None:\n",
+                "        self.counter = 0\n",
+                "\n",
+                "\n",
+                "def get_gpu_memory(gpu: int = 0) -> int:\n",
+                "    \"\"\"Returns the total memory of the GPU in bytes.\"\"\"\n",
+                "    return torch.cuda.get_device_properties(gpu).total_memory\n",
+                "\n",
+                "\n",
+                "def get_cpu_memory() -> int:\n",
+                "    \"\"\"Returns the total CPU memory of the node in bytes.\"\"\"\n",
+                "    return psutil.virtual_memory().total\n",
+                "\n",
+                "\n",
+                "def random_uuid() -> str:\n",
+                "    return str(uuid.uuid4().hex)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "def in_wsl() -> bool:\n",
+                    "    # Reference: https://github.com/microsoft/WSL/issues/4071\n",
+                    "    return \"microsoft\" in \" \".join(uname()).lower()"
+                ],
+                "parent_version_range": {
+                    "start": 38,
+                    "end": 38
+                },
+                "child_version_range": {
+                    "start": 39,
+                    "end": 43
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "random_uuid",
+                        "signature": "def random_uuid()->str:",
+                        "at_line": 36
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: vllm/utils.py\nCode:\n35 36    \n36 37    def random_uuid() -> str:\n37 38        return str(uuid.uuid4().hex)\n   39  + \n   40  + def in_wsl() -> bool:\n   41  +     # Reference: https://github.com/microsoft/WSL/issues/4071\n   42  +     return \"microsoft\" in \" \".join(uname()).lower()\n       ...\n",
+                "file_path": "vllm/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bool",
+                    "in_wsl",
+                    "join",
+                    "lower",
+                    "uname"
+                ],
+                "prefix": [
+                    "\n",
+                    "def random_uuid() -> str:\n",
+                    "    return str(uuid.uuid4().hex)\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "uname",
+                            "position": {
+                                "start": {
+                                    "line": 42,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 42,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/utils.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 10
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/utils.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 10
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/utils.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            }
+        ],
+        "vllm/worker/cache_engine.py": [
+            [
+                "\"\"\"CacheEngine class for managing the KV cache.\"\"\"\n",
+                "from typing import Dict, List, Tuple\n",
+                "\n",
+                "import torch\n",
+                "\n",
+                "from vllm import cache_ops\n",
+                "from vllm.config import CacheConfig, ModelConfig, ParallelConfig\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from vllm.logger import init_logger\n",
+                    "from vllm.utils import in_wsl\n",
+                    "\n",
+                    "logger = init_logger(__name__)\n"
+                ],
+                "parent_version_range": {
+                    "start": 7,
+                    "end": 7
+                },
+                "child_version_range": {
+                    "start": 7,
+                    "end": 11
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: vllm/worker/cache_engine.py\nCode:\n  ...\n 4  4    \n 5  5    from vllm import cache_ops\n 6  6    from vllm.config import CacheConfig, ModelConfig, ParallelConfig\n    7  + from vllm.logger import init_logger\n    8  + from vllm.utils import in_wsl\n    9  + \n   10  + logger = init_logger(__name__)\n 7 11    \n 8 12    KVCache = Tuple[torch.Tensor, torch.Tensor]\n 9 13    \n       ...\n",
+                "file_path": "vllm/worker/cache_engine.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "__name__",
+                    "in_wsl",
+                    "init_logger",
+                    "logger",
+                    "utils",
+                    "vllm"
+                ],
+                "prefix": [
+                    "\n",
+                    "from vllm import cache_ops\n",
+                    "from vllm.config import CacheConfig, ModelConfig, ParallelConfig\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "KVCache = Tuple[torch.Tensor, torch.Tensor]\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 6
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "KVCache = Tuple[torch.Tensor, torch.Tensor]\n",
+                "\n",
+                "\n",
+                "class CacheEngine:\n",
+                "    \"\"\"Manages the KV cache.\n",
+                "\n",
+                "    This class is responsible for initializing and managing the GPU and CPU KV\n",
+                "    caches. It also provides methods for performing KV cache operations, such\n",
+                "    as swapping and copying.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        cache_config: CacheConfig,\n",
+                "        model_config: ModelConfig,\n",
+                "        parallel_config: ParallelConfig,\n",
+                "    ) -> None:\n",
+                "        self.cache_config = cache_config\n",
+                "        self.model_config = model_config\n",
+                "        self.parallel_config = parallel_config\n",
+                "\n",
+                "        self.head_size = model_config.get_head_size()\n",
+                "        self.num_layers = model_config.get_num_layers(parallel_config)\n",
+                "        self.num_heads = model_config.get_num_heads(parallel_config)\n",
+                "        self.dtype = model_config.dtype\n",
+                "\n",
+                "        self.block_size = cache_config.block_size\n",
+                "        self.num_gpu_blocks = cache_config.num_gpu_blocks\n",
+                "        self.num_cpu_blocks = cache_config.num_cpu_blocks\n",
+                "\n",
+                "        # Initialize the cache.\n",
+                "        self.gpu_cache = self.allocate_gpu_cache()\n",
+                "        self.cpu_cache = self.allocate_cpu_cache()\n",
+                "\n",
+                "        # Initialize the stream for caching operations.\n",
+                "        self.cache_stream = torch.cuda.Stream()\n",
+                "        assert self.cache_stream != torch.cuda.current_stream()\n",
+                "        # Initialize the events for stream synchronization.\n",
+                "        self.events = [torch.cuda.Event() for _ in range(self.num_layers)]\n",
+                "\n",
+                "    def get_key_block_shape(self) -> Tuple[int, int, int, int]:\n",
+                "        element_size = torch.tensor([], dtype=self.dtype).element_size()\n",
+                "        x = 16 // element_size\n",
+                "        return (\n",
+                "            self.num_heads,\n",
+                "            self.head_size // x,\n",
+                "            self.block_size,\n",
+                "            x,\n",
+                "        )\n",
+                "\n",
+                "    def get_value_block_shape(self) -> Tuple[int, int, int]:\n",
+                "        return (\n",
+                "            self.num_heads,\n",
+                "            self.head_size,\n",
+                "            self.block_size,\n",
+                "        )\n",
+                "\n",
+                "    def allocate_gpu_cache(self) -> List[KVCache]:\n",
+                "        gpu_cache: List[KVCache] = []\n",
+                "        key_block_shape = self.get_key_block_shape()\n",
+                "        value_block_shape = self.get_value_block_shape()\n",
+                "        for _ in range(self.num_layers):\n",
+                "            key_blocks = torch.empty(\n",
+                "                size=(self.num_gpu_blocks, *key_block_shape),\n",
+                "                dtype=self.dtype,\n",
+                "                device=\"cuda\",\n",
+                "            )\n",
+                "            value_blocks = torch.empty(\n",
+                "                size=(self.num_gpu_blocks, *value_block_shape),\n",
+                "                dtype=self.dtype,\n",
+                "                device=\"cuda\",\n",
+                "            )\n",
+                "            gpu_cache.append((key_blocks, value_blocks))\n",
+                "        return gpu_cache\n",
+                "\n",
+                "    def allocate_cpu_cache(self) -> List[KVCache]:\n",
+                "        cpu_cache: List[KVCache] = []\n",
+                "        key_block_shape = self.get_key_block_shape()\n",
+                "        value_block_shape = self.get_value_block_shape()\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        pin_memory = not in_wsl()\n",
+                    "        if not pin_memory:\n",
+                    "            # Pinning memory in WSL is not supported.\n",
+                    "            # https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations-for-linux-cuda-applications\n",
+                    "            logger.warn(\"Using 'pin_memory=False' as WSL is detected. \"\n",
+                    "                        \"This may slow down the performance.\")\n"
+                ],
+                "parent_version_range": {
+                    "start": 87,
+                    "end": 87
+                },
+                "child_version_range": {
+                    "start": 91,
+                    "end": 97
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CacheEngine",
+                        "signature": "class CacheEngine:",
+                        "at_line": 11
+                    },
+                    {
+                        "type": "function",
+                        "name": "allocate_cpu_cache",
+                        "signature": "def allocate_cpu_cache(self)->List[KVCache]:",
+                        "at_line": 83
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: vllm/worker/cache_engine.py\nCode:\n         class CacheEngine:\n             ...\n             def allocate_cpu_cache(self)->List[KVCache]:\n                 ...\n84 88            cpu_cache: List[KVCache] = []\n85 89            key_block_shape = self.get_key_block_shape()\n86 90            value_block_shape = self.get_value_block_shape()\n   91  +         pin_memory = not in_wsl()\n   92  +         if not pin_memory:\n   93  +             # Pinning memory in WSL is not supported.\n   94  +             # https://docs.nvidia.com/cuda/wsl-user-guide/index.html#known-limitations-for-linux-cuda-applications\n   95  +             logger.warn(\"Using 'pin_memory=False' as WSL is detected. \"\n   96  +                         \"This may slow down the performance.\")\n87 97            for _ in range(self.num_layers):\n88 98                key_blocks = torch.empty(\n89 99                    size=(self.num_cpu_blocks, *key_block_shape),\n       ...\n",
+                "file_path": "vllm/worker/cache_engine.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "in_wsl",
+                    "logger",
+                    "pin_memory",
+                    "warn"
+                ],
+                "prefix": [
+                    "        cpu_cache: List[KVCache] = []\n",
+                    "        key_block_shape = self.get_key_block_shape()\n",
+                    "        value_block_shape = self.get_value_block_shape()\n"
+                ],
+                "suffix": [
+                    "        for _ in range(self.num_layers):\n",
+                    "            key_blocks = torch.empty(\n",
+                    "                size=(self.num_cpu_blocks, *key_block_shape),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "in_wsl",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 95,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 95,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "pin_memory",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "pin_memory",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        for _ in range(self.num_layers):\n",
+                "            key_blocks = torch.empty(\n",
+                "                size=(self.num_cpu_blocks, *key_block_shape),\n",
+                "                dtype=self.dtype,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                pin_memory=True,\n"
+                ],
+                "after": [
+                    "                pin_memory=pin_memory,\n"
+                ],
+                "parent_version_range": {
+                    "start": 91,
+                    "end": 92
+                },
+                "child_version_range": {
+                    "start": 101,
+                    "end": 102
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for _ in range(self.num_layers):",
+                        "start_line": 87,
+                        "end_line": 98
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CacheEngine",
+                        "signature": "class CacheEngine:",
+                        "at_line": 11
+                    },
+                    {
+                        "type": "function",
+                        "name": "allocate_cpu_cache",
+                        "signature": "def allocate_cpu_cache(self)->List[KVCache]:",
+                        "at_line": 83
+                    },
+                    {
+                        "type": "call",
+                        "name": "torch.empty",
+                        "signature": "torch.empty(\n                size=(self.num_cpu_blocks, *key_block_shape),\n                dtype=self.dtype,\n                pin_memory=True,\n            )",
+                        "at_line": 88,
+                        "argument": "pin_memory=..."
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: vllm/worker/cache_engine.py\nCode:\n           class CacheEngine:\n               ...\n               def allocate_cpu_cache(self)->List[KVCache]:\n                   ...\n 88  98                key_blocks = torch.empty(\n 89  99                    size=(self.num_cpu_blocks, *key_block_shape),\n 90 100                    dtype=self.dtype,\n 91      -                 pin_memory=True,\n    101  +                 pin_memory=pin_memory,\n 92 102                )\n 93 103                value_blocks = torch.empty(\n 94 104                    size=(self.num_cpu_blocks, *value_block_shape),\n         ...\n",
+                "file_path": "vllm/worker/cache_engine.py",
+                "identifiers_before": [
+                    "pin_memory"
+                ],
+                "identifiers_after": [
+                    "pin_memory"
+                ],
+                "prefix": [
+                    "            key_blocks = torch.empty(\n",
+                    "                size=(self.num_cpu_blocks, *key_block_shape),\n",
+                    "                dtype=self.dtype,\n"
+                ],
+                "suffix": [
+                    "            )\n",
+                    "            value_blocks = torch.empty(\n",
+                    "                size=(self.num_cpu_blocks, *value_block_shape),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pin_memory",
+                            "position": {
+                                "start": {
+                                    "line": 101,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 101,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "            )\n",
+                "            value_blocks = torch.empty(\n",
+                "                size=(self.num_cpu_blocks, *value_block_shape),\n",
+                "                dtype=self.dtype,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                pin_memory=True,\n"
+                ],
+                "after": [
+                    "                pin_memory=pin_memory,\n"
+                ],
+                "parent_version_range": {
+                    "start": 96,
+                    "end": 97
+                },
+                "child_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for _ in range(self.num_layers):",
+                        "start_line": 87,
+                        "end_line": 98
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CacheEngine",
+                        "signature": "class CacheEngine:",
+                        "at_line": 11
+                    },
+                    {
+                        "type": "function",
+                        "name": "allocate_cpu_cache",
+                        "signature": "def allocate_cpu_cache(self)->List[KVCache]:",
+                        "at_line": 83
+                    },
+                    {
+                        "type": "call",
+                        "name": "torch.empty",
+                        "signature": "torch.empty(\n                size=(self.num_cpu_blocks, *value_block_shape),\n                dtype=self.dtype,\n                pin_memory=True,\n            )",
+                        "at_line": 93,
+                        "argument": "pin_memory=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: vllm/worker/cache_engine.py\nCode:\n           class CacheEngine:\n               ...\n               def allocate_cpu_cache(self)->List[KVCache]:\n                   ...\n 93 103                value_blocks = torch.empty(\n 94 104                    size=(self.num_cpu_blocks, *value_block_shape),\n 95 105                    dtype=self.dtype,\n 96      -                 pin_memory=True,\n    106  +                 pin_memory=pin_memory,\n 97 107                )\n 98 108                cpu_cache.append((key_blocks, value_blocks))\n 99 109            return cpu_cache\n         ...\n",
+                "file_path": "vllm/worker/cache_engine.py",
+                "identifiers_before": [
+                    "pin_memory"
+                ],
+                "identifiers_after": [
+                    "pin_memory"
+                ],
+                "prefix": [
+                    "            value_blocks = torch.empty(\n",
+                    "                size=(self.num_cpu_blocks, *value_block_shape),\n",
+                    "                dtype=self.dtype,\n"
+                ],
+                "suffix": [
+                    "            )\n",
+                    "            cpu_cache.append((key_blocks, value_blocks))\n",
+                    "        return cpu_cache\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pin_memory",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/vllm/vllm/worker/cache_engine.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "            )\n",
+                "            cpu_cache.append((key_blocks, value_blocks))\n",
+                "        return cpu_cache\n",
+                "\n",
+                "    def _swap(\n",
+                "        self,\n",
+                "        src: List[KVCache],\n",
+                "        dst: List[KVCache],\n",
+                "        src_to_dst: Dict[int, int],\n",
+                "    ) -> None:\n",
+                "        with torch.cuda.stream(self.cache_stream):\n",
+                "            for i in range(self.num_layers):\n",
+                "                src_key_cache, src_value_cache = src[i]\n",
+                "                dst_key_cache, dst_value_cache = dst[i]\n",
+                "                # Copy the key blocks.\n",
+                "                cache_ops.swap_blocks(\n",
+                "                    src_key_cache, dst_key_cache, src_to_dst)\n",
+                "                # Copy the value blocks.\n",
+                "                cache_ops.swap_blocks(\n",
+                "                    src_value_cache, dst_value_cache, src_to_dst)\n",
+                "                event = self.events[i]\n",
+                "                event.record(stream=self.cache_stream)\n",
+                "\n",
+                "    def swap_in(self, src_to_dst: Dict[int, int]) -> None:\n",
+                "        self._swap(self.cpu_cache, self.gpu_cache, src_to_dst)\n",
+                "\n",
+                "    def swap_out(self, src_to_dst: Dict[int, int]) -> None:\n",
+                "        self._swap(self.gpu_cache, self.cpu_cache, src_to_dst)\n",
+                "\n",
+                "    def copy(self, src_to_dsts: Dict[int, List[int]]) -> None:\n",
+                "        key_caches = [key_cache for key_cache, _ in self.gpu_cache]\n",
+                "        value_caches = [value_cache for _, value_cache in self.gpu_cache]\n",
+                "        # NOTE(woosuk): This operation implicitly synchronizes the CPU and GPU.\n",
+                "        cache_ops.copy_blocks(key_caches, value_caches, src_to_dsts)\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def get_cache_block_size(\n",
+                "        block_size: int,\n",
+                "        model_config: ModelConfig,\n",
+                "        parallel_config: ParallelConfig,\n",
+                "    ) -> int:\n",
+                "        head_size = model_config.get_head_size()\n",
+                "        num_heads = model_config.get_num_heads(parallel_config)\n",
+                "        num_layers = model_config.get_num_layers(parallel_config)\n",
+                "\n",
+                "        key_cache_block = block_size * num_heads * head_size\n",
+                "        value_cache_block = key_cache_block\n",
+                "        total = num_layers * (key_cache_block + value_cache_block)\n",
+                "        dtype_size = _get_dtype_size(model_config.dtype)\n",
+                "        return dtype_size * total\n",
+                "\n",
+                "\n",
+                "def _get_dtype_size(dtype: torch.dtype) -> int:\n",
+                "    return torch.tensor([], dtype=dtype).element_size()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and def"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and def"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

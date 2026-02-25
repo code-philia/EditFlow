@@ -1,0 +1,970 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/nicolargo/glances/commit/5496fcac2ff3f296853f9df9551a12848085a0c5",
+    "commit_message": "Add view (MVC speeking) for the plugins. LOAD OK.",
+    "commit_snapshots": {
+        "glances/plugins/glances_cpu.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2015 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "\n",
+                "\"\"\"CPU plugin.\"\"\"\n",
+                "\n",
+                "import psutil\n",
+                "\n",
+                "from glances.plugins.glances_plugin import GlancesPlugin\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from glances.core.glances_logging import logger\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 24,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 24,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: glances/plugins/glances_cpu.py\nCode:\n  ...\n21 21    import psutil\n22 22    \n23 23    from glances.plugins.glances_plugin import GlancesPlugin\n24     - from glances.core.glances_logging import logger\n25 24    \n26 25    # SNMP OID\n27 26    # percentage of user CPU time: .1.3.6.1.4.1.2021.11.9.0\n       ...\n",
+                "file_path": "glances/plugins/glances_cpu.py",
+                "identifiers_before": [
+                    "core",
+                    "glances",
+                    "glances_logging",
+                    "logger"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "import psutil\n",
+                    "\n",
+                    "from glances.plugins.glances_plugin import GlancesPlugin\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "# SNMP OID\n",
+                    "# percentage of user CPU time: .1.3.6.1.4.1.2021.11.9.0\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 24,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 24,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/plugins/glances_cpu.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "# SNMP OID\n",
+                "# percentage of user CPU time: .1.3.6.1.4.1.2021.11.9.0\n",
+                "# percentages of system CPU time: .1.3.6.1.4.1.2021.11.10.0\n",
+                "# percentages of idle CPU time: .1.3.6.1.4.1.2021.11.11.0\n",
+                "snmp_oid = {'default': {'user': '1.3.6.1.4.1.2021.11.9.0',\n",
+                "                        'system': '1.3.6.1.4.1.2021.11.10.0',\n",
+                "                        'idle': '1.3.6.1.4.1.2021.11.11.0'},\n",
+                "            'windows': {'percent': '1.3.6.1.2.1.25.3.3.1.2'},\n",
+                "            'esxi': {'percent': '1.3.6.1.2.1.25.3.3.1.2'},\n",
+                "            'netapp': {'system': '1.3.6.1.4.1.789.1.2.1.3.0',\n",
+                "                       'idle': '1.3.6.1.4.1.789.1.2.1.5.0',\n",
+                "                       'nb_log_core': '1.3.6.1.4.1.789.1.2.1.6.0'}}\n",
+                "\n",
+                "# Define the history items list\n",
+                "# - 'name' define the stat identifier\n",
+                "# - 'color' define the graph color in #RGB format\n",
+                "# - 'y_unit' define the Y label\n",
+                "# All items in this list will be historised if the --enable-history tag is set\n",
+                "items_history_list = [{'name': 'user', 'color': '#00FF00', 'y_unit': '%'},\n",
+                "                      {'name': 'system', 'color': '#FF0000', 'y_unit': '%'}]\n",
+                "\n",
+                "\n",
+                "class Plugin(GlancesPlugin):\n",
+                "\n",
+                "    \"\"\"Glances CPU plugin.\n",
+                "\n",
+                "    'stats' is a dictionary that contains the system-wide CPU utilization as a\n",
+                "    percentage.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, args=None):\n",
+                "        \"\"\"Init the CPU plugin.\"\"\"\n",
+                "        GlancesPlugin.__init__(\n",
+                "            self, args=args, items_history_list=items_history_list)\n",
+                "\n",
+                "        # We want to display the stat in the curse interface\n",
+                "        self.display_curse = True\n",
+                "\n",
+                "        # Init stats\n",
+                "        self.reset()\n",
+                "\n",
+                "    def reset(self):\n",
+                "        \"\"\"Reset/init the stats.\"\"\"\n",
+                "        self.stats = {}\n",
+                "\n",
+                "    @GlancesPlugin._log_result_decorator\n",
+                "    def update(self):\n",
+                "        \"\"\"Update CPU stats using the input method.\"\"\"\n",
+                "        # Reset stats\n",
+                "        self.reset()\n",
+                "\n",
+                "        # Grab CPU stats using psutil's cpu_percent and cpu_times_percent\n",
+                "        # methods\n",
+                "        if self.get_input() == 'local':\n",
+                "            # Get all possible values for CPU stats: user, system, idle,\n",
+                "            # nice (UNIX), iowait (Linux), irq (Linux, FreeBSD), steal (Linux 2.6.11+)\n",
+                "            # The following stats are returned by the API but not displayed in the UI:\n",
+                "            # softirq (Linux), guest (Linux 2.6.24+), guest_nice (Linux 3.2.0+)\n",
+                "            self.stats['total'] = psutil.cpu_percent(interval=0.0)\n",
+                "            cpu_times_percent = psutil.cpu_times_percent(interval=0.0)\n",
+                "            for stat in ['user', 'system', 'idle', 'nice', 'iowait',\n",
+                "                         'irq', 'softirq', 'steal', 'guest', 'guest_nice']:\n",
+                "                if hasattr(cpu_times_percent, stat):\n",
+                "                    self.stats[stat] = getattr(cpu_times_percent, stat)\n",
+                "        elif self.get_input() == 'snmp':\n",
+                "            # Update stats using SNMP\n",
+                "            if self.get_short_system_name() in ('windows', 'esxi'):\n",
+                "                # Windows or VMWare ESXi\n",
+                "                # You can find the CPU utilization of windows system by querying the oid\n",
+                "                # Give also the number of core (number of element in the table)\n",
+                "                try:\n",
+                "                    cpu_stats = self.set_stats_snmp(snmp_oid=snmp_oid[self.get_short_system_name()],\n",
+                "                                                    bulk=True)\n",
+                "                except KeyError:\n",
+                "                    self.reset()\n",
+                "\n",
+                "                # Iter through CPU and compute the idle CPU stats\n",
+                "                self.stats['nb_log_core'] = 0\n",
+                "                self.stats['idle'] = 0\n",
+                "                for c in cpu_stats:\n",
+                "                    if c.startswith('percent'):\n",
+                "                        self.stats['idle'] += float(cpu_stats['percent.3'])\n",
+                "                        self.stats['nb_log_core'] += 1\n",
+                "                if self.stats['nb_log_core'] > 0:\n",
+                "                    self.stats['idle'] = self.stats[\n",
+                "                        'idle'] / self.stats['nb_log_core']\n",
+                "                self.stats['idle'] = 100 - self.stats['idle']\n",
+                "                self.stats['total'] = 100 - self.stats['idle']\n",
+                "\n",
+                "            else:\n",
+                "                # Default behavor\n",
+                "                try:\n",
+                "                    self.stats = self.set_stats_snmp(\n",
+                "                        snmp_oid=snmp_oid[self.get_short_system_name()])\n",
+                "                except KeyError:\n",
+                "                    self.stats = self.set_stats_snmp(\n",
+                "                        snmp_oid=snmp_oid['default'])\n",
+                "\n",
+                "                if self.stats['idle'] == '':\n",
+                "                    self.reset()\n",
+                "                    return self.stats\n",
+                "\n",
+                "                # Convert SNMP stats to float\n",
+                "                for key in list(self.stats.keys()):\n",
+                "                    self.stats[key] = float(self.stats[key])\n",
+                "                self.stats['total'] = 100 - self.stats['idle']\n",
+                "\n",
+                "        # Update the history list\n",
+                "        self.update_stats_history()\n",
+                "\n",
+                "        # Update the view\n",
+                "        self.update_views()\n",
+                "\n",
+                "        return self.stats\n",
+                "\n",
+                "    def update_views(self):\n",
+                "        \"\"\"Update stats views\"\"\"\n",
+                "        # Call the father's method\n",
+                "        GlancesPlugin.update_views(self)\n",
+                "\n",
+                "        # Add specifics informations\n",
+                "        # Alert and log\n",
+                "        for key in ['user', 'system', 'iowait']:\n",
+                "            if key in self.stats:\n",
+                "                self.views[key]['decoration'] = self.get_alert_log(self.stats[key], header=key)\n",
+                "        self.views['total']['decoration'] = self.get_alert_log(self.stats['total'], header=\"system\")\n",
+                "        # Alert only\n",
+                "        for key in ['steal']:\n",
+                "            if key in self.stats:\n",
+                "                self.views[key]['decoration'] = self.get_alert(self.stats[key], header=key)\n",
+                "        # Optional\n",
+                "        for key in ['nice', 'irq', 'iowait', 'steal']:\n",
+                "            if key in self.stats:\n",
+                "                self.views[key]['optional'] = True\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        logger.info(self.views)\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 161,
+                    "end": 163
+                },
+                "child_version_range": {
+                    "start": 160,
+                    "end": 160
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Plugin",
+                        "signature": "class Plugin(GlancesPlugin):",
+                        "at_line": 48
+                    },
+                    {
+                        "type": "function",
+                        "name": "update_views",
+                        "signature": "def update_views(self):",
+                        "at_line": 141
+                    },
+                    {
+                        "type": "call",
+                        "name": "logger.info",
+                        "signature": "logger.info(self.views)",
+                        "at_line": 161,
+                        "argument": "self.views"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: glances/plugins/glances_cpu.py\nCode:\n           class Plugin(GlancesPlugin):\n               ...\n               def update_views(self):\n                   ...\n158 157                if key in self.stats:\n159 158                    self.views[key]['optional'] = True\n160 159    \n161      -         logger.info(self.views)\n162      - \n163 160        def msg_curse(self, args=None):\n164 161            \"\"\"Return the list to display in the UI\"\"\"\n165 162            # Init the return message\n         ...\n",
+                "file_path": "glances/plugins/glances_cpu.py",
+                "identifiers_before": [
+                    "info",
+                    "logger",
+                    "self",
+                    "views"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "            if key in self.stats:\n",
+                    "                self.views[key]['optional'] = True\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def msg_curse(self, args=None):\n",
+                    "        \"\"\"Return the list to display in the UI\"\"\"\n",
+                    "        # Init the return message\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 161,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 161,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/plugins/glances_cpu.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def msg_curse(self, args=None):\n",
+                "        \"\"\"Return the list to display in the UI\"\"\"\n",
+                "        # Init the return message\n",
+                "        ret = []\n",
+                "\n",
+                "        # Only process if stats exist...\n",
+                "        if self.stats == {}:\n",
+                "            return ret\n",
+                "\n",
+                "        # Build the string message\n",
+                "        # If user stat is not here, display only idle / total CPU usage (for\n",
+                "        # exemple on Windows OS)\n",
+                "        idle_tag = 'user' not in self.stats\n",
+                "        # Header\n",
+                "        msg = '{0:8}'.format(_(\"CPU\"))\n",
+                "        ret.append(self.curse_add_line(msg, \"TITLE\"))\n",
+                "        # Total CPU usage\n",
+                "        msg = '{0:>5}%'.format(self.stats['total'])\n",
+                "        if idle_tag:\n",
+                "            ret.append(self.curse_add_line(\n",
+                "                msg, self.get_views(key='total', option='decoration')))\n",
+                "        else:\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "        # Nice CPU\n",
+                "        if 'nice' in self.stats:\n",
+                "            msg = '  {0:8}'.format(_(\"nice:\"))\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='nice', option='optional')))\n",
+                "            msg = '{0:>5}%'.format(self.stats['nice'])\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='nice', option='optional')))\n",
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # User CPU\n",
+                "        if 'user' in self.stats:\n",
+                "            msg = '{0:8}'.format(_(\"user:\"))\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "            msg = '{0:>5}%'.format(self.stats['user'])\n",
+                "            ret.append(self.curse_add_line(\n",
+                "                msg, self.get_views(key='user', option='decoration')))\n",
+                "        elif 'idle' in self.stats:\n",
+                "            msg = '{0:8}'.format(_(\"idle:\"))\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "            msg = '{0:>5}%'.format(self.stats['idle'])\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "        # IRQ CPU\n",
+                "        if 'irq' in self.stats:\n",
+                "            msg = '  {0:8}'.format(_(\"irq:\"))\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='irq', option='optional')))\n",
+                "            msg = '{0:>5}%'.format(self.stats['irq'])\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='irq', option='optional')))\n",
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # System CPU\n",
+                "        if 'system' in self.stats and not idle_tag:\n",
+                "            msg = '{0:8}'.format(_(\"system:\"))\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "            msg = '{0:>5}%'.format(self.stats['system'])\n",
+                "            ret.append(self.curse_add_line(\n",
+                "                msg, self.get_views(key='system', option='decoration')))\n",
+                "        else:\n",
+                "            msg = '{0:8}'.format(_(\"core:\"))\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "            msg = '{0:>6}'.format(self.stats['nb_log_core'])\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "        # IOWait CPU\n",
+                "        if 'iowait' in self.stats:\n",
+                "            msg = '  {0:8}'.format(_(\"iowait:\"))\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='iowait', option='optional')))\n",
+                "            msg = '{0:>5}%'.format(self.stats['iowait'])\n",
+                "            ret.append(self.curse_add_line(\n",
+                "                msg, self.get_views(key='iowait', option='decoration'),\n",
+                "                optional=self.get_views(key='iowait', option='optional')))\n",
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # Idle CPU\n",
+                "        if 'idle' in self.stats and not idle_tag:\n",
+                "            msg = '{0:8}'.format(_(\"idle:\"))\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "            msg = '{0:>5}%'.format(self.stats['idle'])\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "        # Steal CPU usage\n",
+                "        if 'steal' in self.stats:\n",
+                "            msg = '  {0:8}'.format(_(\"steal:\"))\n",
+                "            ret.append(self.curse_add_line(msg, optional=self.get_views(key='steal', option='optional')))\n",
+                "            msg = '{0:>5}%'.format(self.stats['steal'])\n",
+                "            ret.append(self.curse_add_line(\n",
+                "                msg, self.get_views(key='steal', option='decoration'),\n",
+                "                optional=self.get_views(key='steal', option='optional')))\n",
+                "\n",
+                "        # Return the message with decoration\n",
+                "        return ret"
+            ]
+        ],
+        "glances/plugins/glances_load.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2015 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "\n",
+                "\"\"\"Load plugin.\"\"\"\n",
+                "\n",
+                "# Import system libs\n",
+                "import os\n",
+                "\n",
+                "# Import Glances libs\n",
+                "from glances.plugins.glances_core import Plugin as CorePlugin\n",
+                "from glances.plugins.glances_plugin import GlancesPlugin\n",
+                "\n",
+                "# SNMP OID\n",
+                "# 1 minute Load: .1.3.6.1.4.1.2021.10.1.3.1\n",
+                "# 5 minute Load: .1.3.6.1.4.1.2021.10.1.3.2\n",
+                "# 15 minute Load: .1.3.6.1.4.1.2021.10.1.3.3\n",
+                "snmp_oid = {'min1': '1.3.6.1.4.1.2021.10.1.3.1',\n",
+                "            'min5': '1.3.6.1.4.1.2021.10.1.3.2',\n",
+                "            'min15': '1.3.6.1.4.1.2021.10.1.3.3'}\n",
+                "\n",
+                "# Define the history items list\n",
+                "# All items in this list will be historised if the --enable-history tag is set\n",
+                "# 'color' define the graph color in #RGB format\n",
+                "items_history_list = [{'name': 'min1', 'color': '#0000FF'},\n",
+                "                      {'name': 'min5', 'color': '#0000AA'},\n",
+                "                      {'name': 'min15', 'color': '#000044'}]\n",
+                "\n",
+                "\n",
+                "class Plugin(GlancesPlugin):\n",
+                "\n",
+                "    \"\"\"Glances' load plugin.\n",
+                "\n",
+                "    stats is a dict\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, args=None):\n",
+                "        \"\"\"Init the plugin.\"\"\"\n",
+                "        GlancesPlugin.__init__(\n",
+                "            self, args=args, items_history_list=items_history_list)\n",
+                "\n",
+                "        # We want to display the stat in the curse interface\n",
+                "        self.display_curse = True\n",
+                "\n",
+                "        # Init stats\n",
+                "        self.reset()\n",
+                "\n",
+                "        # Call CorePlugin in order to display the core number\n",
+                "        try:\n",
+                "            self.nb_log_core = CorePlugin(args=self.args).update()[\"log\"]\n",
+                "        except Exception:\n",
+                "            self.nb_log_core = 0\n",
+                "\n",
+                "    def reset(self):\n",
+                "        \"\"\"Reset/init the stats.\"\"\"\n",
+                "        self.stats = {}\n",
+                "\n",
+                "    @GlancesPlugin._log_result_decorator\n",
+                "    def update(self):\n",
+                "        \"\"\"Update load stats.\"\"\"\n",
+                "        # Reset stats\n",
+                "        self.reset()\n",
+                "\n",
+                "        if self.get_input() == 'local':\n",
+                "            # Update stats using the standard system lib\n",
+                "\n",
+                "            # Get the load using the os standard lib\n",
+                "            try:\n",
+                "                load = os.getloadavg()\n",
+                "            except (OSError, AttributeError):\n",
+                "                self.stats = {}\n",
+                "            else:\n",
+                "                self.stats = {'min1': load[0],\n",
+                "                              'min5': load[1],\n",
+                "                              'min15': load[2],\n",
+                "                              'cpucore': self.nb_log_core}\n",
+                "        elif self.get_input() == 'snmp':\n",
+                "            # Update stats using SNMP\n",
+                "            self.stats = self.set_stats_snmp(snmp_oid=snmp_oid)\n",
+                "\n",
+                "            if self.stats['min1'] == '':\n",
+                "                self.reset()\n",
+                "                return self.stats\n",
+                "\n",
+                "            # Python 3 return a dict like:\n",
+                "            # {'min1': \"b'0.08'\", 'min5': \"b'0.12'\", 'min15': \"b'0.15'\"}\n",
+                "            try:\n",
+                "                iteritems = self.stats.iteritems()\n",
+                "            except AttributeError:\n",
+                "                iteritems = self.stats.items()\n",
+                "            for k, v in iteritems:\n",
+                "                self.stats[k] = float(v)\n",
+                "\n",
+                "            self.stats['cpucore'] = self.nb_log_core\n",
+                "\n",
+                "        # Update the history list\n",
+                "        self.update_stats_history()\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        # Update the view\n",
+                    "        self.update_views()\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 113,
+                    "end": 113
+                },
+                "child_version_range": {
+                    "start": 113,
+                    "end": 116
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Plugin",
+                        "signature": "class Plugin(GlancesPlugin):",
+                        "at_line": 44
+                    },
+                    {
+                        "type": "function",
+                        "name": "update",
+                        "signature": "def update(self):",
+                        "at_line": 73
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: glances/plugins/glances_load.py\nCode:\n           class Plugin(GlancesPlugin):\n               ...\n               def update(self):\n                   ...\n110 110            # Update the history list\n111 111            self.update_stats_history()\n112 112    \n    113  +         # Update the view\n    114  +         self.update_views()\n    115  + \n113 116            return self.stats\n114 117    \n         ...\n",
+                "file_path": "glances/plugins/glances_load.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "self",
+                    "update_views"
+                ],
+                "prefix": [
+                    "        # Update the history list\n",
+                    "        self.update_stats_history()\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        return self.stats\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "update_views",
+                            "position": {
+                                "start": {
+                                    "line": 114,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 114,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/plugins/glances_load.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        return self.stats\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def update_views(self):\n",
+                    "        \"\"\"Update stats views\"\"\"\n",
+                    "        # Call the father's method\n",
+                    "        GlancesPlugin.update_views(self)\n",
+                    "\n",
+                    "        # Add specifics informations\n",
+                    "        # Alert and log\n",
+                    "        self.views['min15']['decoration'] = self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore'])\n",
+                    "        # Alert only\n",
+                    "        self.views['min5']['decoration'] = self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore'])\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 115,
+                    "end": 115
+                },
+                "child_version_range": {
+                    "start": 118,
+                    "end": 129
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Plugin",
+                        "signature": "class Plugin(GlancesPlugin):",
+                        "at_line": 44
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: glances/plugins/glances_load.py\nCode:\n           class Plugin(GlancesPlugin):\n               ...\n113 116            return self.stats\n114 117    \n    118  +     def update_views(self):\n    119  +         \"\"\"Update stats views\"\"\"\n    120  +         # Call the father's method\n    121  +         GlancesPlugin.update_views(self)\n    122  + \n    123  +         # Add specifics informations\n    124  +         # Alert and log\n    125  +         self.views['min15']['decoration'] = self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore'])\n    126  +         # Alert only\n    127  +         self.views['min5']['decoration'] = self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore'])\n    128  + \n115 129        def msg_curse(self, args=None):\n116 130            \"\"\"Return the dict to display in the curse interface.\"\"\"\n117 131            # Init the return message\n         ...\n",
+                "file_path": "glances/plugins/glances_load.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "GlancesPlugin",
+                    "get_alert",
+                    "get_alert_log",
+                    "max",
+                    "self",
+                    "stats",
+                    "update_views",
+                    "views"
+                ],
+                "prefix": [
+                    "        return self.stats\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def msg_curse(self, args=None):\n",
+                    "        \"\"\"Return the dict to display in the curse interface.\"\"\"\n",
+                    "        # Init the return message\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "update_views",
+                            "position": {
+                                "start": {
+                                    "line": 118,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 118,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/plugins/glances_load.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    def msg_curse(self, args=None):\n",
+                "        \"\"\"Return the dict to display in the curse interface.\"\"\"\n",
+                "        # Init the return message\n",
+                "        ret = []\n",
+                "\n",
+                "        # Only process if stats exist...\n",
+                "        if self.stats == {}:\n",
+                "            return ret\n",
+                "\n",
+                "        # Build the string message\n",
+                "        # Header\n",
+                "        msg = '{0:8}'.format(_(\"LOAD\"))\n",
+                "        ret.append(self.curse_add_line(msg, \"TITLE\"))\n",
+                "        # Core number\n",
+                "        if self.stats['cpucore'] > 0:\n",
+                "            msg = _(\"{0:d}-core\").format(int(self.stats['cpucore']), '>1')\n",
+                "            ret.append(self.curse_add_line(msg))\n",
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # 1min load\n",
+                "        msg = '{0:8}'.format(_(\"1 min:\"))\n",
+                "        ret.append(self.curse_add_line(msg))\n",
+                "        msg = '{0:>6.2f}'.format(self.stats['min1'])\n",
+                "        ret.append(self.curse_add_line(msg))\n",
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # 5min load\n",
+                "        msg = '{0:8}'.format(_(\"5 min:\"))\n",
+                "        ret.append(self.curse_add_line(msg))\n",
+                "        msg = '{0:>6.2f}'.format(self.stats['min5'])\n",
+                "        ret.append(self.curse_add_line(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            msg, self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore'])))\n"
+                ],
+                "after": [
+                    "            msg, self.get_views(key='min5', option='decoration')))\n"
+                ],
+                "parent_version_range": {
+                    "start": 146,
+                    "end": 147
+                },
+                "child_version_range": {
+                    "start": 160,
+                    "end": 161
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Plugin",
+                        "signature": "class Plugin(GlancesPlugin):",
+                        "at_line": 44
+                    },
+                    {
+                        "type": "function",
+                        "name": "msg_curse",
+                        "signature": "def msg_curse(self, args=None):",
+                        "at_line": 115
+                    },
+                    {
+                        "type": "call",
+                        "name": "ret.append",
+                        "signature": "ret.append(self.curse_add_line(\n            msg, self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore'])))",
+                        "at_line": 145,
+                        "argument": "self.curse_add_line(\n         ..."
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.curse_add_line",
+                        "signature": "self.curse_add_line(\n            msg, self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore']))",
+                        "at_line": 145,
+                        "argument": "msg"
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: glances/plugins/glances_load.py\nCode:\n           class Plugin(GlancesPlugin):\n               ...\n               def msg_curse(self, args=None):\n                   ...\n143 157            ret.append(self.curse_add_line(msg))\n144 158            msg = '{0:>6.2f}'.format(self.stats['min5'])\n145 159            ret.append(self.curse_add_line(\n146      -             msg, self.get_alert(self.stats['min5'], max=100 * self.stats['cpucore'])))\n    160  +             msg, self.get_views(key='min5', option='decoration')))\n147 161            # New line\n148 162            ret.append(self.curse_new_line())\n149 163            # 15min load\n         ...\n",
+                "file_path": "glances/plugins/glances_load.py",
+                "identifiers_before": [
+                    "get_alert",
+                    "max",
+                    "msg",
+                    "self",
+                    "stats"
+                ],
+                "identifiers_after": [
+                    "get_views",
+                    "key",
+                    "msg",
+                    "option",
+                    "self"
+                ],
+                "prefix": [
+                    "        ret.append(self.curse_add_line(msg))\n",
+                    "        msg = '{0:>6.2f}'.format(self.stats['min5'])\n",
+                    "        ret.append(self.curse_add_line(\n"
+                ],
+                "suffix": [
+                    "        # New line\n",
+                    "        ret.append(self.curse_new_line())\n",
+                    "        # 15min load\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        # New line\n",
+                "        ret.append(self.curse_new_line())\n",
+                "        # 15min load\n",
+                "        msg = '{0:8}'.format(_(\"15 min:\"))\n",
+                "        ret.append(self.curse_add_line(msg))\n",
+                "        msg = '{0:>6.2f}'.format(self.stats['min15'])\n",
+                "        ret.append(self.curse_add_line(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            msg, self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore'])))\n"
+                ],
+                "after": [
+                    "            msg, self.get_views(key='min15', option='decoration')))\n"
+                ],
+                "parent_version_range": {
+                    "start": 154,
+                    "end": 155
+                },
+                "child_version_range": {
+                    "start": 168,
+                    "end": 169
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Plugin",
+                        "signature": "class Plugin(GlancesPlugin):",
+                        "at_line": 44
+                    },
+                    {
+                        "type": "function",
+                        "name": "msg_curse",
+                        "signature": "def msg_curse(self, args=None):",
+                        "at_line": 115
+                    },
+                    {
+                        "type": "call",
+                        "name": "ret.append",
+                        "signature": "ret.append(self.curse_add_line(\n            msg, self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore'])))",
+                        "at_line": 153,
+                        "argument": "self.curse_add_line(\n         ..."
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.curse_add_line",
+                        "signature": "self.curse_add_line(\n            msg, self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore']))",
+                        "at_line": 153,
+                        "argument": "msg"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: glances/plugins/glances_load.py\nCode:\n           class Plugin(GlancesPlugin):\n               ...\n               def msg_curse(self, args=None):\n                   ...\n151 165            ret.append(self.curse_add_line(msg))\n152 166            msg = '{0:>6.2f}'.format(self.stats['min15'])\n153 167            ret.append(self.curse_add_line(\n154      -             msg, self.get_alert_log(self.stats['min15'], max=100 * self.stats['cpucore'])))\n    168  +             msg, self.get_views(key='min15', option='decoration')))\n155 169    \n156 170            return ret\n         ...\n",
+                "file_path": "glances/plugins/glances_load.py",
+                "identifiers_before": [
+                    "get_alert_log",
+                    "max",
+                    "msg",
+                    "self",
+                    "stats"
+                ],
+                "identifiers_after": [
+                    "get_views",
+                    "key",
+                    "msg",
+                    "option",
+                    "self"
+                ],
+                "prefix": [
+                    "        ret.append(self.curse_add_line(msg))\n",
+                    "        msg = '{0:>6.2f}'.format(self.stats['min15'])\n",
+                    "        ret.append(self.curse_add_line(\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        return ret"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "\n",
+                "        return ret"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            3,
+            2,
+            4,
+            5
+        ],
+        [
+            3,
+            2,
+            4,
+            5,
+            0,
+            1
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                1,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Delete dangling references to logger.",
+            "scenario of 0 -> 1": "edit 0 is deleted first, before edit 1 is deleted.",
+            "scenario of 1 -> 0": "edit 1 is deleted first, before edit 0 is deleted."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Add update_views method to Plugin class.",
+            "scenario of 0 -> 1": "edit 0 uses the method `update_views` first, then defines it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 defines the method `update_views` first, then edit 0 uses it."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 move status min15 to views and edit 1 get view min15.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first before edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first before edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 move status min15 to views and edit 1 get view min15.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first before edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first before edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone",
+            "scenario of 0 -> 1": "edit 0 updates the logic first before edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first before edit 0."
+        }
+    ]
+}

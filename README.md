@@ -1,23 +1,26 @@
 # EditFlow
 
-EditFlow is a Visual Studio Code extension that simulates code commits and assists in code generation.
+EditFlow is the official repository for the OOPSLA 2026 paper: **EditFlow: Benchmarking and Optimizing Code Edit Recommendation Systems via Reconstruction of Developer Flows** by Chenyan Liu, Yun Lin, Jiaxin Chang, Jiawei Liu, Binhang Qi, Bo Jiang, Zhiyong Huang, Jin Song Dong.
 
-## 🚀 Systems
+This repository contains both the [prompt auto-tuning implementation](prompt_tuning/README.md) and the VS Code extension for both editing process simulation and developer flow optimization.
 
-### Simulation (digital twin)
-
+## 🚀 Demonstrations
 >[!NOTE]
 >Please click the image to watch the demo video on YouTube.
 
-<div align="center">
-   <a href="https://youtu.be/qfftiPzf5b4">
-   <img src="media\simulator_demo.png" width="600" />
+<table align="center"><tr>
+<td align="center"><b>Optimization</b><br>
+   <a href="https://www.youtube.com/watch?v=_6uc_iH4zG0">
+   <img src="media\optimizer_demo.jpg" width="300" />
    </a>
-</div>
+</td>
+<td align="center"><b>Simulation (digital twin)</b><br>
+   <a href="https://www.youtube.com/watch?v=3ME_UqBphkI">
+   <img src="media\simulator_demo.png" width="300" />
+   </a>
+</td>
+</tr></table>
 
-### Optimization
-
-<!-- Add video -->
 
 ## 💡 Usage and Interaction
 
@@ -57,8 +60,6 @@ EditFlow is a Visual Studio Code extension that simulates code commits and assis
 
 ### Deploy as a user
 
-* (Backend) 
-
 For end-users, simply follow the instructions:
 1. install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=CodePhilia.code-trace).[TBD]
 
@@ -82,22 +83,7 @@ For end-users, simply follow the instructions:
     python src/systemUnderTest/CoEdPilot/download.py
     ```
 
-5. Set configurations at `.config` file, including argumments:
-
-    ```bash
-    REPOS_DIR= # Absolute path to download github repositories for simulation
-    DEVICE_ID= # The CUDA device id
-    MAX_RETRY= # Maximum number of retries for autoGUI action 
-    MAX_WAIT_RESPONSE= # Maximum seconds to wait for an AI response
-    OUTPUT_DIR= # Absolute path the save the simulation records of given commit and system under test
-    LOG_DIR= # Absolute path the save the log of given commit and system under test during simulation
-    OPENAI_TOKEN= # The api for openai model
-    OPENAI_BASE_URL= # The base url for openai model
-    ANTHROPIC_API_KEY= # The api for claude code
-    ANTHROPIC_BASE_URL= # The base url for claude code
-    MEDIA_PATH_NAME= # default path name is media, you may set differently for different devices
-    BACKEND_PORT=5001 # The backend port that frontend will send request to
-    ```
+5. Set configurations at `.config` file.
 
 6. Start backend models via command:
 
@@ -108,8 +94,7 @@ For end-users, simply follow the instructions:
 
     * The default port set for simulation server is `5001`
     * The default port set for optimization server is `5002`
-
-    * If you want to change the port, remember to update the extension configuration as well.
+    * If you want to change the port, please refer to `server_config.ini` and remember to update the extension configuration at: `Settings > editflow` as well. # TODO: jiaxin please check the exact path
 
 ### Deploy as a developer
 
@@ -149,9 +134,21 @@ For debugging, customization purposes, please follow the instructions
 
 8. For personal usage, you may open the VS Code command palette (`Ctrl` + `Shift` + `P` / `Cmd` + `Shift` + `P`), then select `Extensions: Install from VSIX...` and choose the `.vsix` file generated in the previous step.
 
-## 📚 Wiki
+## ✍️ Citation
 
-For more implementation details, we have detailed documents at `/wiki`, to preview the mermaid diagrams in VS Code, please install the [Mermaid Preview](https://marketplace.visualstudio.com/items?itemName=vstirbu.vscode-mermaid-preview) extension.
+If you find our work helpful, please consider citing our paper:
+
+```bibtex
+@article{liu2026editflow,
+  author = {Liu, Chenyan and Lin, Yun and Chang, Jiaxin and Liu, Jiawei and Qi, Binhang and Jiang, Bo and Huang, Zhiyong and Dong, Jin Song},
+  title = {EditFlow: Benchmarking and Optimizing Code Edit Recommendation Systems via Reconstruction of Developer Flows},
+  journal = {Proceedings of the ACM on Programming Languages},
+  volume = {10},
+  number = {OOPSLA1},
+  year = {2026},
+  doi = {10.1145/3798249}
+}
+```
 
 ## 🐛 Issues
 

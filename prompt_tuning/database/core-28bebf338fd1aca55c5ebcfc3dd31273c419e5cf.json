@@ -1,0 +1,2600 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/home-assistant/core/commit/28bebf338fd1aca55c5ebcfc3dd31273c419e5cf",
+    "commit_message": "Fix xiaomi_ble not remembering a device is a sleepy device (#97518)",
+    "commit_snapshots": {
+        "homeassistant/components/xiaomi_ble/__init__.py": [
+            [
+                "\"\"\"The Xiaomi Bluetooth integration.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "import logging\n",
+                "\n",
+                "from xiaomi_ble import EncryptionScheme, SensorUpdate, XiaomiBluetoothDeviceData\n",
+                "\n",
+                "from homeassistant import config_entries\n",
+                "from homeassistant.components.bluetooth import (\n",
+                "    DOMAIN as BLUETOOTH_DOMAIN,\n",
+                "    BluetoothScanningMode,\n",
+                "    BluetoothServiceInfoBleak,\n",
+                "    async_ble_device_from_address,\n",
+                ")\n",
+                "from homeassistant.config_entries import ConfigEntry\n",
+                "from homeassistant.const import Platform\n",
+                "from homeassistant.core import CoreState, HomeAssistant\n",
+                "from homeassistant.helpers.device_registry import DeviceRegistry, async_get\n",
+                "\n",
+                "from .const import (\n",
+                "    CONF_DISCOVERED_EVENT_CLASSES,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    CONF_SLEEPY_DEVICE,\n"
+                ],
+                "parent_version_range": {
+                    "start": 21,
+                    "end": 21
+                },
+                "child_version_range": {
+                    "start": 21,
+                    "end": 22
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/__init__.py\nCode:\n  ...\n18 18    \n19 19    from .const import (\n20 20        CONF_DISCOVERED_EVENT_CLASSES,\n   21  +     CONF_SLEEPY_DEVICE,\n21 22        DOMAIN,\n22 23        XIAOMI_BLE_EVENT,\n23 24        XiaomiBleEvent,\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE"
+                ],
+                "prefix": [
+                    "\n",
+                    "from .const import (\n",
+                    "    CONF_DISCOVERED_EVENT_CLASSES,\n"
+                ],
+                "suffix": [
+                    "    DOMAIN,\n",
+                    "    XIAOMI_BLE_EVENT,\n",
+                    "    XiaomiBleEvent,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    DOMAIN,\n",
+                "    XIAOMI_BLE_EVENT,\n",
+                "    XiaomiBleEvent,\n",
+                ")\n",
+                "from .coordinator import XiaomiActiveBluetoothProcessorCoordinator\n",
+                "\n",
+                "PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]\n",
+                "\n",
+                "_LOGGER = logging.getLogger(__name__)\n",
+                "\n",
+                "\n",
+                "def process_service_info(\n",
+                "    hass: HomeAssistant,\n",
+                "    entry: config_entries.ConfigEntry,\n",
+                "    data: XiaomiBluetoothDeviceData,\n",
+                "    service_info: BluetoothServiceInfoBleak,\n",
+                "    device_registry: DeviceRegistry,\n",
+                ") -> SensorUpdate:\n",
+                "    \"\"\"Process a BluetoothServiceInfoBleak, running side effects and returning sensor data.\"\"\"\n",
+                "    update = data.update(service_info)\n",
+                "    coordinator: XiaomiActiveBluetoothProcessorCoordinator = hass.data[DOMAIN][\n",
+                "        entry.entry_id\n",
+                "    ]\n",
+                "    discovered_device_classes = coordinator.discovered_device_classes\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if entry.data.get(CONF_SLEEPY_DEVICE, False) != data.sleepy_device:\n",
+                    "        hass.config_entries.async_update_entry(\n",
+                    "            entry,\n",
+                    "            data=entry.data | {CONF_SLEEPY_DEVICE: data.sleepy_device},\n",
+                    "        )\n"
+                ],
+                "parent_version_range": {
+                    "start": 45,
+                    "end": 45
+                },
+                "child_version_range": {
+                    "start": 46,
+                    "end": 51
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "process_service_info",
+                        "signature": "def process_service_info(\n    hass: HomeAssistant,\n    entry: config_entries.ConfigEntry,\n    data: XiaomiBluetoothDeviceData,\n    service_info: BluetoothServiceInfoBleak,\n    device_registry: DeviceRegistry,\n)->SensorUpdate:",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/__init__.py\nCode:\n         def process_service_info(\n    hass: HomeAssistant,\n    entry: config_entries.ConfigEntry,\n    data: XiaomiBluetoothDeviceData,\n    service_info: BluetoothServiceInfoBleak,\n    device_registry: DeviceRegistry,\n)->SensorUpdate:\n             ...\n42 43            entry.entry_id\n43 44        ]\n44 45        discovered_device_classes = coordinator.discovered_device_classes\n   46  +     if entry.data.get(CONF_SLEEPY_DEVICE, False) != data.sleepy_device:\n   47  +         hass.config_entries.async_update_entry(\n   48  +             entry,\n   49  +             data=entry.data | {CONF_SLEEPY_DEVICE: data.sleepy_device},\n   50  +         )\n45 51        if update.events:\n46 52            address = service_info.device.address\n47 53            for device_key, event in update.events.items():\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "async_update_entry",
+                    "config_entries",
+                    "data",
+                    "entry",
+                    "get",
+                    "hass",
+                    "sleepy_device"
+                ],
+                "prefix": [
+                    "        entry.entry_id\n",
+                    "    ]\n",
+                    "    discovered_device_classes = coordinator.discovered_device_classes\n"
+                ],
+                "suffix": [
+                    "    if update.events:\n",
+                    "        address = service_info.device.address\n",
+                    "        for device_key, event in update.events.items():\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 46,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 46,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 49,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 49,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 46,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 46,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 49,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 49,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    if update.events:\n",
+                "        address = service_info.device.address\n",
+                "        for device_key, event in update.events.items():\n",
+                "            sensor_device_info = update.devices[device_key.device_id]\n",
+                "            device = device_registry.async_get_or_create(\n",
+                "                config_entry_id=entry.entry_id,\n",
+                "                identifiers={(BLUETOOTH_DOMAIN, address)},\n",
+                "                manufacturer=sensor_device_info.manufacturer,\n",
+                "                model=sensor_device_info.model,\n",
+                "                name=sensor_device_info.name,\n",
+                "                sw_version=sensor_device_info.sw_version,\n",
+                "                hw_version=sensor_device_info.hw_version,\n",
+                "            )\n",
+                "            event_class = event.device_key.key\n",
+                "            event_type = event.event_type\n",
+                "\n",
+                "            if event_class not in discovered_device_classes:\n",
+                "                discovered_device_classes.add(event_class)\n",
+                "                hass.config_entries.async_update_entry(\n",
+                "                    entry,\n",
+                "                    data=entry.data\n",
+                "                    | {CONF_DISCOVERED_EVENT_CLASSES: list(discovered_device_classes)},\n",
+                "                )\n",
+                "\n",
+                "            hass.bus.async_fire(\n",
+                "                XIAOMI_BLE_EVENT,\n",
+                "                dict(\n",
+                "                    XiaomiBleEvent(\n",
+                "                        device_id=device.id,\n",
+                "                        address=address,\n",
+                "                        event_class=event_class,  # ie 'button'\n",
+                "                        event_type=event_type,  # ie 'press'\n",
+                "                        event_properties=event.event_properties,\n",
+                "                    )\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "    # If device isn't pending we know it has seen at least one broadcast with a payload\n",
+                "    # If that payload was encrypted and the bindkey was not verified then we need to reauth\n",
+                "    if (\n",
+                "        not data.pending\n",
+                "        and data.encryption_scheme != EncryptionScheme.NONE\n",
+                "        and not data.bindkey_verified\n",
+                "    ):\n",
+                "        entry.async_start_reauth(hass, data={\"device\": data})\n",
+                "\n",
+                "    return update\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:\n",
+                "    \"\"\"Set up Xiaomi BLE device from a config entry.\"\"\"\n",
+                "    address = entry.unique_id\n",
+                "    assert address is not None\n",
+                "\n",
+                "    kwargs = {}\n",
+                "    if bindkey := entry.data.get(\"bindkey\"):\n",
+                "        kwargs[\"bindkey\"] = bytes.fromhex(bindkey)\n",
+                "    data = XiaomiBluetoothDeviceData(**kwargs)\n",
+                "\n",
+                "    def _needs_poll(\n",
+                "        service_info: BluetoothServiceInfoBleak, last_poll: float | None\n",
+                "    ) -> bool:\n",
+                "        # Only poll if hass is running, we need to poll,\n",
+                "        # and we actually have a way to connect to the device\n",
+                "        return (\n",
+                "            hass.state == CoreState.running\n",
+                "            and data.poll_needed(service_info, last_poll)\n",
+                "            and bool(\n",
+                "                async_ble_device_from_address(\n",
+                "                    hass, service_info.device.address, connectable=True\n",
+                "                )\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "    async def _async_poll(service_info: BluetoothServiceInfoBleak):\n",
+                "        # BluetoothServiceInfoBleak is defined in HA, otherwise would just pass it\n",
+                "        # directly to the Xiaomi code\n",
+                "        # Make sure the device we have is one that we can connect with\n",
+                "        # in case its coming from a passive scanner\n",
+                "        if service_info.connectable:\n",
+                "            connectable_device = service_info.device\n",
+                "        elif device := async_ble_device_from_address(\n",
+                "            hass, service_info.device.address, True\n",
+                "        ):\n",
+                "            connectable_device = device\n",
+                "        else:\n",
+                "            # We have no bluetooth controller that is in range of\n",
+                "            # the device to poll it\n",
+                "            raise RuntimeError(\n",
+                "                f\"No connectable device found for {service_info.device.address}\"\n",
+                "            )\n",
+                "        return await data.async_poll(connectable_device)\n",
+                "\n",
+                "    device_registry = async_get(hass)\n",
+                "    coordinator = hass.data.setdefault(DOMAIN, {})[\n",
+                "        entry.entry_id\n",
+                "    ] = XiaomiActiveBluetoothProcessorCoordinator(\n",
+                "        hass,\n",
+                "        _LOGGER,\n",
+                "        address=address,\n",
+                "        mode=BluetoothScanningMode.PASSIVE,\n",
+                "        update_method=lambda service_info: process_service_info(\n",
+                "            hass, entry, data, service_info, device_registry\n",
+                "        ),\n",
+                "        needs_poll_method=_needs_poll,\n",
+                "        device_data=data,\n",
+                "        discovered_device_classes=set(\n",
+                "            entry.data.get(CONF_DISCOVERED_EVENT_CLASSES, [])\n",
+                "        ),\n",
+                "        poll_method=_async_poll,\n",
+                "        # We will take advertisements from non-connectable devices\n",
+                "        # since we will trade the BLEDevice for a connectable one\n",
+                "        # if we need to poll it\n",
+                "        connectable=False,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        entry=entry,\n"
+                ],
+                "parent_version_range": {
+                    "start": 159,
+                    "end": 159
+                },
+                "child_version_range": {
+                    "start": 165,
+                    "end": 166
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry)->bool:",
+                        "at_line": 94
+                    },
+                    {
+                        "type": "call",
+                        "name": "XiaomiActiveBluetoothProcessorCoordinator",
+                        "signature": "XiaomiActiveBluetoothProcessorCoordinator(\n        hass,\n        _LOGGER,\n        address=address,\n        mode=BluetoothScanningMode.PASSIVE,\n        update_method=lambda service_info: process_service_info(\n            hass, entry, data, service_info, device_registry\n        ),\n        needs_poll_method=_needs_poll,\n        device_data=data,\n        discovered_device_classes=set(\n            entry.data.get(CONF_DISCOVERED_EVENT_CLASSES, [])\n        ),\n        poll_method=_async_poll,\n        # We will take advertisements from non-connectable devices\n        # since we will trade the BLEDevice for a connectable one\n        # if we need to poll it\n        connectable=False,\n    )",
+                        "at_line": 141,
+                        "argument": "connectable=..."
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/__init__.py\nCode:\n           def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry)->bool:\n               ...\n               XiaomiActiveBluetoothProcessorCoordinator(\n        hass,\n        _LOGGER,\n        address=address,\n        mode=BluetoothScanningMode.PASSIVE,\n        update_method=lambda service_info: process_service_info(\n            hass, entry, data, service_info, device_registry\n        ),\n        needs_poll_method=_needs_poll,\n        device_data=data,\n        discovered_device_classes=set(\n            entry.data.get(CONF_DISCOVERED_EVENT_CLASSES, [])\n        ),\n        poll_method=_async_poll,\n        # We will take advertisements from non-connectable devices\n        # since we will trade the BLEDevice for a connectable one\n        # if we need to poll it\n        connectable=False,\n    )\n                   ...\n156 162            # since we will trade the BLEDevice for a connectable one\n157 163            # if we need to poll it\n158 164            connectable=False,\n    165  +         entry=entry,\n159 166        )\n160 167        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)\n161 168        entry.async_on_unload(\n         ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "entry"
+                ],
+                "prefix": [
+                    "        # since we will trade the BLEDevice for a connectable one\n",
+                    "        # if we need to poll it\n",
+                    "        connectable=False,\n"
+                ],
+                "suffix": [
+                    "    )\n",
+                    "    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)\n",
+                    "    entry.async_on_unload(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "entry",
+                            "position": {
+                                "start": {
+                                    "line": 165,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 165,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/__init__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    )\n",
+                "    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)\n",
+                "    entry.async_on_unload(\n",
+                "        coordinator.async_start()\n",
+                "    )  # only start after all platforms have had a chance to subscribe\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:\n",
+                "    \"\"\"Unload a config entry.\"\"\"\n",
+                "    if unload_ok := await hass.config_entries.async_unload_platforms(entry, PLATFORMS):\n",
+                "        hass.data[DOMAIN].pop(entry.entry_id)\n",
+                "\n",
+                "    return unload_ok"
+            ]
+        ],
+        "homeassistant/components/xiaomi_ble/binary_sensor.py": [
+            [
+                "\"\"\"Support for Xiaomi binary sensors.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from xiaomi_ble.parser import (\n",
+                "    BinarySensorDeviceClass as XiaomiBinarySensorDeviceClass,\n",
+                "    ExtendedBinarySensorDeviceClass,\n",
+                "    SensorUpdate,\n",
+                ")\n",
+                "\n",
+                "from homeassistant import config_entries\n",
+                "from homeassistant.components.binary_sensor import (\n",
+                "    BinarySensorDeviceClass,\n",
+                "    BinarySensorEntity,\n",
+                "    BinarySensorEntityDescription,\n",
+                ")\n",
+                "from homeassistant.components.bluetooth.passive_update_processor import (\n",
+                "    PassiveBluetoothDataUpdate,\n",
+                "    PassiveBluetoothProcessorEntity,\n",
+                ")\n",
+                "from homeassistant.core import HomeAssistant\n",
+                "from homeassistant.helpers.entity_platform import AddEntitiesCallback\n",
+                "from homeassistant.helpers.sensor import sensor_device_info_to_hass_device_info\n",
+                "\n",
+                "from .const import DOMAIN\n",
+                "from .coordinator import (\n",
+                "    XiaomiActiveBluetoothProcessorCoordinator,\n",
+                "    XiaomiPassiveBluetoothDataProcessor,\n",
+                ")\n",
+                "from .device import device_key_to_bluetooth_entity_key\n",
+                "\n",
+                "BINARY_SENSOR_DESCRIPTIONS = {\n",
+                "    XiaomiBinarySensorDeviceClass.DOOR: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.DOOR,\n",
+                "        device_class=BinarySensorDeviceClass.DOOR,\n",
+                "    ),\n",
+                "    XiaomiBinarySensorDeviceClass.LIGHT: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.LIGHT,\n",
+                "        device_class=BinarySensorDeviceClass.LIGHT,\n",
+                "    ),\n",
+                "    XiaomiBinarySensorDeviceClass.MOISTURE: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.MOISTURE,\n",
+                "        device_class=BinarySensorDeviceClass.MOISTURE,\n",
+                "    ),\n",
+                "    XiaomiBinarySensorDeviceClass.MOTION: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.MOTION,\n",
+                "        device_class=BinarySensorDeviceClass.MOTION,\n",
+                "    ),\n",
+                "    XiaomiBinarySensorDeviceClass.OPENING: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.OPENING,\n",
+                "        device_class=BinarySensorDeviceClass.OPENING,\n",
+                "    ),\n",
+                "    XiaomiBinarySensorDeviceClass.SMOKE: BinarySensorEntityDescription(\n",
+                "        key=XiaomiBinarySensorDeviceClass.SMOKE,\n",
+                "        device_class=BinarySensorDeviceClass.SMOKE,\n",
+                "    ),\n",
+                "    ExtendedBinarySensorDeviceClass.DEVICE_FORCIBLY_REMOVED: BinarySensorEntityDescription(\n",
+                "        key=ExtendedBinarySensorDeviceClass.DEVICE_FORCIBLY_REMOVED,\n",
+                "        device_class=BinarySensorDeviceClass.PROBLEM,\n",
+                "    ),\n",
+                "    ExtendedBinarySensorDeviceClass.DOOR_LEFT_OPEN: BinarySensorEntityDescription(\n",
+                "        key=ExtendedBinarySensorDeviceClass.DOOR_LEFT_OPEN,\n",
+                "        device_class=BinarySensorDeviceClass.PROBLEM,\n",
+                "    ),\n",
+                "    ExtendedBinarySensorDeviceClass.DOOR_STUCK: BinarySensorEntityDescription(\n",
+                "        key=ExtendedBinarySensorDeviceClass.DOOR_STUCK,\n",
+                "        device_class=BinarySensorDeviceClass.PROBLEM,\n",
+                "    ),\n",
+                "    ExtendedBinarySensorDeviceClass.KNOCK_ON_THE_DOOR: BinarySensorEntityDescription(\n",
+                "        key=ExtendedBinarySensorDeviceClass.KNOCK_ON_THE_DOOR,\n",
+                "    ),\n",
+                "    ExtendedBinarySensorDeviceClass.PRY_THE_DOOR: BinarySensorEntityDescription(\n",
+                "        key=ExtendedBinarySensorDeviceClass.PRY_THE_DOOR,\n",
+                "        device_class=BinarySensorDeviceClass.TAMPER,\n",
+                "    ),\n",
+                "}\n",
+                "\n",
+                "\n",
+                "def sensor_update_to_bluetooth_data_update(\n",
+                "    sensor_update: SensorUpdate,\n",
+                ") -> PassiveBluetoothDataUpdate:\n",
+                "    \"\"\"Convert a sensor update to a bluetooth data update.\"\"\"\n",
+                "    return PassiveBluetoothDataUpdate(\n",
+                "        devices={\n",
+                "            device_id: sensor_device_info_to_hass_device_info(device_info)\n",
+                "            for device_id, device_info in sensor_update.devices.items()\n",
+                "        },\n",
+                "        entity_descriptions={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): BINARY_SENSOR_DESCRIPTIONS[\n",
+                "                description.device_class\n",
+                "            ]\n",
+                "            for device_key, description in sensor_update.binary_entity_descriptions.items()\n",
+                "            if description.device_class\n",
+                "        },\n",
+                "        entity_data={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value\n",
+                "            for device_key, sensor_values in sensor_update.binary_entity_values.items()\n",
+                "        },\n",
+                "        entity_names={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): sensor_values.name\n",
+                "            for device_key, sensor_values in sensor_update.binary_entity_values.items()\n",
+                "        },\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(\n",
+                "    hass: HomeAssistant,\n",
+                "    entry: config_entries.ConfigEntry,\n",
+                "    async_add_entities: AddEntitiesCallback,\n",
+                ") -> None:\n",
+                "    \"\"\"Set up the Xiaomi BLE sensors.\"\"\"\n",
+                "    coordinator: XiaomiActiveBluetoothProcessorCoordinator = hass.data[DOMAIN][\n",
+                "        entry.entry_id\n",
+                "    ]\n",
+                "    processor = XiaomiPassiveBluetoothDataProcessor(\n",
+                "        sensor_update_to_bluetooth_data_update\n",
+                "    )\n",
+                "    entry.async_on_unload(\n",
+                "        processor.async_add_entities_listener(\n",
+                "            XiaomiBluetoothSensorEntity, async_add_entities\n",
+                "        )\n",
+                "    )\n",
+                "    entry.async_on_unload(coordinator.async_register_processor(processor))\n",
+                "\n",
+                "\n",
+                "class XiaomiBluetoothSensorEntity(\n",
+                "    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n",
+                "    BinarySensorEntity,\n",
+                "):\n",
+                "    \"\"\"Representation of a Xiaomi binary sensor.\"\"\"\n",
+                "\n",
+                "    @property\n",
+                "    def is_on(self) -> bool | None:\n",
+                "        \"\"\"Return the native value.\"\"\"\n",
+                "        return self.processor.entity_data.get(self.entity_key)\n",
+                "\n",
+                "    @property\n",
+                "    def available(self) -> bool:\n",
+                "        \"\"\"Return True if entity is available.\"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        coordinator: XiaomiActiveBluetoothProcessorCoordinator = (\n",
+                    "            self.processor.coordinator\n",
+                    "        )\n",
+                    "        return coordinator.device_data.sleepy_device or super().available\n"
+                ],
+                "after": [
+                    "        return self.processor.coordinator.sleepy_device or super().available"
+                ],
+                "parent_version_range": {
+                    "start": 138,
+                    "end": 142
+                },
+                "child_version_range": {
+                    "start": 138,
+                    "end": 139
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "XiaomiBluetoothSensorEntity",
+                        "signature": "class XiaomiBluetoothSensorEntity(\n    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n    BinarySensorEntity,\n):",
+                        "at_line": 124
+                    },
+                    {
+                        "type": "function",
+                        "name": "available",
+                        "signature": "def available(self)->bool:",
+                        "at_line": 136
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/binary_sensor.py\nCode:\n           class XiaomiBluetoothSensorEntity(\n    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n    BinarySensorEntity,\n):\n               ...\n135 135        @property\n136 136        def available(self) -> bool:\n137 137            \"\"\"Return True if entity is available.\"\"\"\n138      -         coordinator: XiaomiActiveBluetoothProcessorCoordinator = (\n139      -             self.processor.coordinator\n140      -         )\n141      -         return coordinator.device_data.sleepy_device or super().available\n    138  +         return self.processor.coordinator.sleepy_device or super().available\n         ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/binary_sensor.py",
+                "identifiers_before": [
+                    "XiaomiActiveBluetoothProcessorCoordinator",
+                    "available",
+                    "coordinator",
+                    "device_data",
+                    "processor",
+                    "self",
+                    "sleepy_device",
+                    "super"
+                ],
+                "identifiers_after": [
+                    "available",
+                    "coordinator",
+                    "processor",
+                    "self",
+                    "sleepy_device",
+                    "super"
+                ],
+                "prefix": [
+                    "    @property\n",
+                    "    def available(self) -> bool:\n",
+                    "        \"\"\"Return True if entity is available.\"\"\"\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "sleepy_device",
+                            "position": {
+                                "start": {
+                                    "line": 138,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 138,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/binary_sensor.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    9
+                ]
+            }
+        ],
+        "homeassistant/components/xiaomi_ble/const.py": [
+            [
+                "\"\"\"Constants for the Xiaomi Bluetooth integration.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from typing import Final, TypedDict\n",
+                "\n",
+                "DOMAIN = \"xiaomi_ble\"\n",
+                "\n",
+                "\n",
+                "CONF_DISCOVERED_EVENT_CLASSES: Final = \"known_events\"\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "CONF_SLEEPY_DEVICE: Final = \"sleepy_device\"\n"
+                ],
+                "parent_version_range": {
+                    "start": 9,
+                    "end": 9
+                },
+                "child_version_range": {
+                    "start": 9,
+                    "end": 10
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/const.py\nCode:\n  ...\n 6  6    \n 7  7    \n 8  8    CONF_DISCOVERED_EVENT_CLASSES: Final = \"known_events\"\n    9  + CONF_SLEEPY_DEVICE: Final = \"sleepy_device\"\n 9 10    CONF_EVENT_PROPERTIES: Final = \"event_properties\"\n10 11    EVENT_PROPERTIES: Final = \"event_properties\"\n11 12    EVENT_TYPE: Final = \"event_type\"\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/const.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "Final"
+                ],
+                "prefix": [
+                    "\n",
+                    "\n",
+                    "CONF_DISCOVERED_EVENT_CLASSES: Final = \"known_events\"\n"
+                ],
+                "suffix": [
+                    "CONF_EVENT_PROPERTIES: Final = \"event_properties\"\n",
+                    "EVENT_PROPERTIES: Final = \"event_properties\"\n",
+                    "EVENT_TYPE: Final = \"event_type\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/const.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "CONF_EVENT_PROPERTIES: Final = \"event_properties\"\n",
+                "EVENT_PROPERTIES: Final = \"event_properties\"\n",
+                "EVENT_TYPE: Final = \"event_type\"\n",
+                "XIAOMI_BLE_EVENT: Final = \"xiaomi_ble_event\"\n",
+                "\n",
+                "\n",
+                "class XiaomiBleEvent(TypedDict):\n",
+                "    \"\"\"Xiaomi BLE event data.\"\"\"\n",
+                "\n",
+                "    device_id: str\n",
+                "    address: str\n",
+                "    event_class: str  # ie 'button'\n",
+                "    event_type: str  # ie 'press'\n",
+                "    event_properties: dict[str, str | int | float | None] | None"
+            ]
+        ],
+        "homeassistant/components/xiaomi_ble/coordinator.py": [
+            [
+                "\"\"\"The Xiaomi BLE integration.\"\"\"\n",
+                "from collections.abc import Callable, Coroutine\n",
+                "from logging import Logger\n",
+                "from typing import Any\n",
+                "\n",
+                "from xiaomi_ble import XiaomiBluetoothDeviceData\n",
+                "\n",
+                "from homeassistant.components.bluetooth import (\n",
+                "    BluetoothScanningMode,\n",
+                "    BluetoothServiceInfoBleak,\n",
+                ")\n",
+                "from homeassistant.components.bluetooth.active_update_processor import (\n",
+                "    ActiveBluetoothProcessorCoordinator,\n",
+                ")\n",
+                "from homeassistant.components.bluetooth.passive_update_processor import (\n",
+                "    PassiveBluetoothDataProcessor,\n",
+                ")\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from homeassistant.config_entries import ConfigEntry\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/coordinator.py\nCode:\n  ...\n14 14    from homeassistant.components.bluetooth.passive_update_processor import (\n15 15        PassiveBluetoothDataProcessor,\n16 16    )\n   17  + from homeassistant.config_entries import ConfigEntry\n17 18    from homeassistant.core import HomeAssistant\n18 19    from homeassistant.helpers.debounce import Debouncer\n19 20    \n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/coordinator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ConfigEntry",
+                    "config_entries",
+                    "homeassistant"
+                ],
+                "prefix": [
+                    "from homeassistant.components.bluetooth.passive_update_processor import (\n",
+                    "    PassiveBluetoothDataProcessor,\n",
+                    ")\n"
+                ],
+                "suffix": [
+                    "from homeassistant.core import HomeAssistant\n",
+                    "from homeassistant.helpers.debounce import Debouncer\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "ConfigEntry",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 52
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from homeassistant.core import HomeAssistant\n",
+                "from homeassistant.helpers.debounce import Debouncer\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from .const import CONF_SLEEPY_DEVICE\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 20,
+                    "end": 20
+                },
+                "child_version_range": {
+                    "start": 21,
+                    "end": 23
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/coordinator.py\nCode:\n  ...\n17 18    from homeassistant.core import HomeAssistant\n18 19    from homeassistant.helpers.debounce import Debouncer\n19 20    \n   21  + from .const import CONF_SLEEPY_DEVICE\n   22  + \n20 23    \n21 24    class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):\n22 25        \"\"\"Define a Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/coordinator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "const"
+                ],
+                "prefix": [
+                    "from homeassistant.core import HomeAssistant\n",
+                    "from homeassistant.helpers.debounce import Debouncer\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):\n",
+                    "    \"\"\"Define a Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):\n",
+                "    \"\"\"Define a Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        hass: HomeAssistant,\n",
+                "        logger: Logger,\n",
+                "        *,\n",
+                "        address: str,\n",
+                "        mode: BluetoothScanningMode,\n",
+                "        update_method: Callable[[BluetoothServiceInfoBleak], Any],\n",
+                "        needs_poll_method: Callable[[BluetoothServiceInfoBleak, float | None], bool],\n",
+                "        device_data: XiaomiBluetoothDeviceData,\n",
+                "        discovered_device_classes: set[str],\n",
+                "        poll_method: Callable[\n",
+                "            [BluetoothServiceInfoBleak],\n",
+                "            Coroutine[Any, Any, Any],\n",
+                "        ]\n",
+                "        | None = None,\n",
+                "        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        entry: ConfigEntry,\n"
+                ],
+                "parent_version_range": {
+                    "start": 41,
+                    "end": 41
+                },
+                "child_version_range": {
+                    "start": 44,
+                    "end": 45
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "XiaomiActiveBluetoothProcessorCoordinator",
+                        "signature": "class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        hass: HomeAssistant,\n        logger: Logger,\n        *,\n        address: str,\n        mode: BluetoothScanningMode,\n        update_method: Callable[[BluetoothServiceInfoBleak], Any],\n        needs_poll_method: Callable[[BluetoothServiceInfoBleak, float | None], bool],\n        device_data: XiaomiBluetoothDeviceData,\n        discovered_device_classes: set[str],\n        poll_method: Callable[\n            [BluetoothServiceInfoBleak],\n            Coroutine[Any, Any, Any],\n        ]\n        | None = None,\n        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n        connectable: bool = True,\n    )->None:",
+                        "at_line": 24
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/coordinator.py\nCode:\n         class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):\n             ...\n             def __init__(\n        self,\n        hass: HomeAssistant,\n        logger: Logger,\n        *,\n        address: str,\n        mode: BluetoothScanningMode,\n        update_method: Callable[[BluetoothServiceInfoBleak], Any],\n        needs_poll_method: Callable[[BluetoothServiceInfoBleak, float | None], bool],\n        device_data: XiaomiBluetoothDeviceData,\n        discovered_device_classes: set[str],\n        poll_method: Callable[\n            [BluetoothServiceInfoBleak],\n            Coroutine[Any, Any, Any],\n        ]\n        | None = None,\n        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n        connectable: bool = True,\n    )->None:\n                 ...\n38 41            ]\n39 42            | None = None,\n40 43            poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n   44  +         entry: ConfigEntry,\n41 45            connectable: bool = True,\n42 46        ) -> None:\n43 47            \"\"\"Initialize the Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/coordinator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ConfigEntry",
+                    "entry"
+                ],
+                "prefix": [
+                    "        ]\n",
+                    "        | None = None,\n",
+                    "        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n"
+                ],
+                "suffix": [
+                    "        connectable: bool = True,\n",
+                    "    ) -> None:\n",
+                    "        \"\"\"Initialize the Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "ConfigEntry",
+                            "position": {
+                                "start": {
+                                    "line": 44,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 44,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "entry",
+                            "position": {
+                                "start": {
+                                    "line": 44,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 44,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "entry",
+                            "position": {
+                                "start": {
+                                    "line": 44,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 44,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        connectable: bool = True,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Initialize the Xiaomi Bluetooth Active Update Processor Coordinator.\"\"\"\n",
+                "        super().__init__(\n",
+                "            hass=hass,\n",
+                "            logger=logger,\n",
+                "            address=address,\n",
+                "            mode=mode,\n",
+                "            update_method=update_method,\n",
+                "            needs_poll_method=needs_poll_method,\n",
+                "            poll_method=poll_method,\n",
+                "            poll_debouncer=poll_debouncer,\n",
+                "            connectable=connectable,\n",
+                "        )\n",
+                "        self.discovered_device_classes = discovered_device_classes\n",
+                "        self.device_data = device_data\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.entry = entry\n",
+                    "\n",
+                    "    @property\n",
+                    "    def sleepy_device(self) -> bool:\n",
+                    "        \"\"\"Return True if the device is a sleepy device.\"\"\"\n",
+                    "        return self.entry.data.get(CONF_SLEEPY_DEVICE, self.device_data.sleepy_device)\n"
+                ],
+                "parent_version_range": {
+                    "start": 57,
+                    "end": 57
+                },
+                "child_version_range": {
+                    "start": 61,
+                    "end": 67
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "XiaomiActiveBluetoothProcessorCoordinator",
+                        "signature": "class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        hass: HomeAssistant,\n        logger: Logger,\n        *,\n        address: str,\n        mode: BluetoothScanningMode,\n        update_method: Callable[[BluetoothServiceInfoBleak], Any],\n        needs_poll_method: Callable[[BluetoothServiceInfoBleak, float | None], bool],\n        device_data: XiaomiBluetoothDeviceData,\n        discovered_device_classes: set[str],\n        poll_method: Callable[\n            [BluetoothServiceInfoBleak],\n            Coroutine[Any, Any, Any],\n        ]\n        | None = None,\n        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n        connectable: bool = True,\n    )->None:",
+                        "at_line": 24
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/coordinator.py\nCode:\n         class XiaomiActiveBluetoothProcessorCoordinator(ActiveBluetoothProcessorCoordinator):\n             ...\n             def __init__(\n        self,\n        hass: HomeAssistant,\n        logger: Logger,\n        *,\n        address: str,\n        mode: BluetoothScanningMode,\n        update_method: Callable[[BluetoothServiceInfoBleak], Any],\n        needs_poll_method: Callable[[BluetoothServiceInfoBleak, float | None], bool],\n        device_data: XiaomiBluetoothDeviceData,\n        discovered_device_classes: set[str],\n        poll_method: Callable[\n            [BluetoothServiceInfoBleak],\n            Coroutine[Any, Any, Any],\n        ]\n        | None = None,\n        poll_debouncer: Debouncer[Coroutine[Any, Any, None]] | None = None,\n        connectable: bool = True,\n    )->None:\n                 ...\n54 58            )\n55 59            self.discovered_device_classes = discovered_device_classes\n56 60            self.device_data = device_data\n   61  +         self.entry = entry\n   62  + \n   63  +     @property\n   64  +     def sleepy_device(self) -> bool:\n   65  +         \"\"\"Return True if the device is a sleepy device.\"\"\"\n   66  +         return self.entry.data.get(CONF_SLEEPY_DEVICE, self.device_data.sleepy_device)\n57 67    \n58 68    \n59 69    class XiaomiPassiveBluetoothDataProcessor(PassiveBluetoothDataProcessor):\n       ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/coordinator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "bool",
+                    "data",
+                    "device_data",
+                    "entry",
+                    "get",
+                    "property",
+                    "self",
+                    "sleepy_device"
+                ],
+                "prefix": [
+                    "        )\n",
+                    "        self.discovered_device_classes = discovered_device_classes\n",
+                    "        self.device_data = device_data\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class XiaomiPassiveBluetoothDataProcessor(PassiveBluetoothDataProcessor):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "entry",
+                            "position": {
+                                "start": {
+                                    "line": 61,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 61,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "sleepy_device",
+                            "position": {
+                                "start": {
+                                    "line": 64,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 64,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "sleepy_device",
+                            "position": {
+                                "start": {
+                                    "line": 64,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 64,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/coordinator.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class XiaomiPassiveBluetoothDataProcessor(PassiveBluetoothDataProcessor):\n",
+                "    \"\"\"Define a Xiaomi Bluetooth Passive Update Data Processor.\"\"\"\n",
+                "\n",
+                "    coordinator: XiaomiActiveBluetoothProcessorCoordinator"
+            ]
+        ],
+        "homeassistant/components/xiaomi_ble/sensor.py": [
+            [
+                "\"\"\"Support for xiaomi ble sensors.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from xiaomi_ble import DeviceClass, SensorUpdate, Units\n",
+                "\n",
+                "from homeassistant import config_entries\n",
+                "from homeassistant.components.bluetooth.passive_update_processor import (\n",
+                "    PassiveBluetoothDataUpdate,\n",
+                "    PassiveBluetoothProcessorEntity,\n",
+                ")\n",
+                "from homeassistant.components.sensor import (\n",
+                "    SensorDeviceClass,\n",
+                "    SensorEntity,\n",
+                "    SensorEntityDescription,\n",
+                "    SensorStateClass,\n",
+                ")\n",
+                "from homeassistant.const import (\n",
+                "    CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,\n",
+                "    CONDUCTIVITY,\n",
+                "    LIGHT_LUX,\n",
+                "    PERCENTAGE,\n",
+                "    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,\n",
+                "    EntityCategory,\n",
+                "    UnitOfElectricPotential,\n",
+                "    UnitOfMass,\n",
+                "    UnitOfPressure,\n",
+                "    UnitOfTemperature,\n",
+                ")\n",
+                "from homeassistant.core import HomeAssistant\n",
+                "from homeassistant.helpers.entity_platform import AddEntitiesCallback\n",
+                "from homeassistant.helpers.sensor import sensor_device_info_to_hass_device_info\n",
+                "\n",
+                "from .const import DOMAIN\n",
+                "from .coordinator import (\n",
+                "    XiaomiActiveBluetoothProcessorCoordinator,\n",
+                "    XiaomiPassiveBluetoothDataProcessor,\n",
+                ")\n",
+                "from .device import device_key_to_bluetooth_entity_key\n",
+                "\n",
+                "SENSOR_DESCRIPTIONS = {\n",
+                "    (DeviceClass.BATTERY, Units.PERCENTAGE): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.BATTERY}_{Units.PERCENTAGE}\",\n",
+                "        device_class=SensorDeviceClass.BATTERY,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    (DeviceClass.CONDUCTIVITY, Units.CONDUCTIVITY): SensorEntityDescription(\n",
+                "        key=str(Units.CONDUCTIVITY),\n",
+                "        device_class=None,\n",
+                "        native_unit_of_measurement=CONDUCTIVITY,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (\n",
+                "        DeviceClass.FORMALDEHYDE,\n",
+                "        Units.CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,\n",
+                "    ): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.FORMALDEHYDE}_{Units.CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER}\",\n",
+                "        native_unit_of_measurement=CONCENTRATION_MILLIGRAMS_PER_CUBIC_METER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (DeviceClass.HUMIDITY, Units.PERCENTAGE): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.HUMIDITY}_{Units.PERCENTAGE}\",\n",
+                "        device_class=SensorDeviceClass.HUMIDITY,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (DeviceClass.ILLUMINANCE, Units.LIGHT_LUX): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.ILLUMINANCE}_{Units.LIGHT_LUX}\",\n",
+                "        device_class=SensorDeviceClass.ILLUMINANCE,\n",
+                "        native_unit_of_measurement=LIGHT_LUX,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    # Impedance sensor (ohm)\n",
+                "    (DeviceClass.IMPEDANCE, Units.OHM): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.IMPEDANCE}_{Units.OHM}\",\n",
+                "        icon=\"mdi:omega\",\n",
+                "        native_unit_of_measurement=Units.OHM,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    # Mass sensor (kg)\n",
+                "    (DeviceClass.MASS, Units.MASS_KILOGRAMS): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.MASS}_{Units.MASS_KILOGRAMS}\",\n",
+                "        device_class=SensorDeviceClass.WEIGHT,\n",
+                "        native_unit_of_measurement=UnitOfMass.KILOGRAMS,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    # Mass non stabilized sensor (kg)\n",
+                "    (DeviceClass.MASS_NON_STABILIZED, Units.MASS_KILOGRAMS): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.MASS_NON_STABILIZED}_{Units.MASS_KILOGRAMS}\",\n",
+                "        device_class=SensorDeviceClass.WEIGHT,\n",
+                "        native_unit_of_measurement=UnitOfMass.KILOGRAMS,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    (DeviceClass.MOISTURE, Units.PERCENTAGE): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.MOISTURE}_{Units.PERCENTAGE}\",\n",
+                "        device_class=SensorDeviceClass.MOISTURE,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (DeviceClass.PRESSURE, Units.PRESSURE_MBAR): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.PRESSURE}_{Units.PRESSURE_MBAR}\",\n",
+                "        device_class=SensorDeviceClass.PRESSURE,\n",
+                "        native_unit_of_measurement=UnitOfPressure.MBAR,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (\n",
+                "        DeviceClass.SIGNAL_STRENGTH,\n",
+                "        Units.SIGNAL_STRENGTH_DECIBELS_MILLIWATT,\n",
+                "    ): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.SIGNAL_STRENGTH}_{Units.SIGNAL_STRENGTH_DECIBELS_MILLIWATT}\",\n",
+                "        device_class=SensorDeviceClass.SIGNAL_STRENGTH,\n",
+                "        native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    (DeviceClass.TEMPERATURE, Units.TEMP_CELSIUS): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.TEMPERATURE}_{Units.TEMP_CELSIUS}\",\n",
+                "        device_class=SensorDeviceClass.TEMPERATURE,\n",
+                "        native_unit_of_measurement=UnitOfTemperature.CELSIUS,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    (DeviceClass.VOLTAGE, Units.ELECTRIC_POTENTIAL_VOLT): SensorEntityDescription(\n",
+                "        key=f\"{DeviceClass.VOLTAGE}_{Units.ELECTRIC_POTENTIAL_VOLT}\",\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    # Used for e.g. consumable sensor on WX08ZM\n",
+                "    (None, Units.PERCENTAGE): SensorEntityDescription(\n",
+                "        key=str(Units.PERCENTAGE),\n",
+                "        device_class=None,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "}\n",
+                "\n",
+                "\n",
+                "def sensor_update_to_bluetooth_data_update(\n",
+                "    sensor_update: SensorUpdate,\n",
+                ") -> PassiveBluetoothDataUpdate:\n",
+                "    \"\"\"Convert a sensor update to a bluetooth data update.\"\"\"\n",
+                "    return PassiveBluetoothDataUpdate(\n",
+                "        devices={\n",
+                "            device_id: sensor_device_info_to_hass_device_info(device_info)\n",
+                "            for device_id, device_info in sensor_update.devices.items()\n",
+                "        },\n",
+                "        entity_descriptions={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): SENSOR_DESCRIPTIONS[\n",
+                "                (description.device_class, description.native_unit_of_measurement)\n",
+                "            ]\n",
+                "            for device_key, description in sensor_update.entity_descriptions.items()\n",
+                "            if description.native_unit_of_measurement\n",
+                "        },\n",
+                "        entity_data={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): sensor_values.native_value\n",
+                "            for device_key, sensor_values in sensor_update.entity_values.items()\n",
+                "        },\n",
+                "        entity_names={\n",
+                "            device_key_to_bluetooth_entity_key(device_key): sensor_values.name\n",
+                "            for device_key, sensor_values in sensor_update.entity_values.items()\n",
+                "        },\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(\n",
+                "    hass: HomeAssistant,\n",
+                "    entry: config_entries.ConfigEntry,\n",
+                "    async_add_entities: AddEntitiesCallback,\n",
+                ") -> None:\n",
+                "    \"\"\"Set up the Xiaomi BLE sensors.\"\"\"\n",
+                "    coordinator: XiaomiActiveBluetoothProcessorCoordinator = hass.data[DOMAIN][\n",
+                "        entry.entry_id\n",
+                "    ]\n",
+                "    processor = XiaomiPassiveBluetoothDataProcessor(\n",
+                "        sensor_update_to_bluetooth_data_update\n",
+                "    )\n",
+                "    entry.async_on_unload(\n",
+                "        processor.async_add_entities_listener(\n",
+                "            XiaomiBluetoothSensorEntity, async_add_entities\n",
+                "        )\n",
+                "    )\n",
+                "    entry.async_on_unload(coordinator.async_register_processor(processor))\n",
+                "\n",
+                "\n",
+                "class XiaomiBluetoothSensorEntity(\n",
+                "    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n",
+                "    SensorEntity,\n",
+                "):\n",
+                "    \"\"\"Representation of a xiaomi ble sensor.\"\"\"\n",
+                "\n",
+                "    @property\n",
+                "    def native_value(self) -> int | float | None:\n",
+                "        \"\"\"Return the native value.\"\"\"\n",
+                "        return self.processor.entity_data.get(self.entity_key)\n",
+                "\n",
+                "    @property\n",
+                "    def available(self) -> bool:\n",
+                "        \"\"\"Return True if entity is available.\"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        coordinator: XiaomiActiveBluetoothProcessorCoordinator = (\n",
+                    "            self.processor.coordinator\n",
+                    "        )\n",
+                    "        return coordinator.device_data.sleepy_device or super().available\n"
+                ],
+                "after": [
+                    "        return self.processor.coordinator.sleepy_device or super().available"
+                ],
+                "parent_version_range": {
+                    "start": 202,
+                    "end": 206
+                },
+                "child_version_range": {
+                    "start": 202,
+                    "end": 203
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "XiaomiBluetoothSensorEntity",
+                        "signature": "class XiaomiBluetoothSensorEntity(\n    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n    SensorEntity,\n):",
+                        "at_line": 188
+                    },
+                    {
+                        "type": "function",
+                        "name": "available",
+                        "signature": "def available(self)->bool:",
+                        "at_line": 200
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: homeassistant/components/xiaomi_ble/sensor.py\nCode:\n           class XiaomiBluetoothSensorEntity(\n    PassiveBluetoothProcessorEntity[XiaomiPassiveBluetoothDataProcessor],\n    SensorEntity,\n):\n               ...\n199 199        @property\n200 200        def available(self) -> bool:\n201 201            \"\"\"Return True if entity is available.\"\"\"\n202      -         coordinator: XiaomiActiveBluetoothProcessorCoordinator = (\n203      -             self.processor.coordinator\n204      -         )\n205      -         return coordinator.device_data.sleepy_device or super().available\n    202  +         return self.processor.coordinator.sleepy_device or super().available\n         ...\n",
+                "file_path": "homeassistant/components/xiaomi_ble/sensor.py",
+                "identifiers_before": [
+                    "XiaomiActiveBluetoothProcessorCoordinator",
+                    "available",
+                    "coordinator",
+                    "device_data",
+                    "processor",
+                    "self",
+                    "sleepy_device",
+                    "super"
+                ],
+                "identifiers_after": [
+                    "available",
+                    "coordinator",
+                    "processor",
+                    "self",
+                    "sleepy_device",
+                    "super"
+                ],
+                "prefix": [
+                    "    @property\n",
+                    "    def available(self) -> bool:\n",
+                    "        \"\"\"Return True if entity is available.\"\"\"\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "sleepy_device",
+                            "position": {
+                                "start": {
+                                    "line": 202,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 202,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/xiaomi_ble/sensor.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            }
+        ],
+        "tests/components/xiaomi_ble/test_binary_sensor.py": [
+            [
+                "\"\"\"Test Xiaomi binary sensors.\"\"\"\n",
+                "\n",
+                "from datetime import timedelta\n",
+                "import time\n",
+                "from unittest.mock import patch\n",
+                "\n",
+                "from homeassistant.components.bluetooth import (\n",
+                "    FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS,\n",
+                ")\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from homeassistant.components.xiaomi_ble.const import DOMAIN\n"
+                ],
+                "after": [
+                    "from homeassistant.components.xiaomi_ble.const import CONF_SLEEPY_DEVICE, DOMAIN\n"
+                ],
+                "parent_version_range": {
+                    "start": 9,
+                    "end": 10
+                },
+                "child_version_range": {
+                    "start": 9,
+                    "end": 10
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 10,
+                "hunk_diff": "File: tests/components/xiaomi_ble/test_binary_sensor.py\nCode:\n  ...\n 6  6    from homeassistant.components.bluetooth import (\n 7  7        FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS,\n 8  8    )\n 9     - from homeassistant.components.xiaomi_ble.const import DOMAIN\n    9  + from homeassistant.components.xiaomi_ble.const import CONF_SLEEPY_DEVICE, DOMAIN\n10 10    from homeassistant.const import (\n11 11        ATTR_FRIENDLY_NAME,\n12 12        STATE_OFF,\n       ...\n",
+                "file_path": "tests/components/xiaomi_ble/test_binary_sensor.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "components",
+                    "const",
+                    "homeassistant",
+                    "xiaomi_ble"
+                ],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "DOMAIN",
+                    "components",
+                    "const",
+                    "homeassistant",
+                    "xiaomi_ble"
+                ],
+                "prefix": [
+                    "from homeassistant.components.bluetooth import (\n",
+                    "    FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS,\n",
+                    ")\n"
+                ],
+                "suffix": [
+                    "from homeassistant.const import (\n",
+                    "    ATTR_FRIENDLY_NAME,\n",
+                    "    STATE_OFF,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 72
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 72
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 72
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from homeassistant.const import (\n",
+                "    ATTR_FRIENDLY_NAME,\n",
+                "    STATE_OFF,\n",
+                "    STATE_ON,\n",
+                "    STATE_UNAVAILABLE,\n",
+                ")\n",
+                "from homeassistant.core import HomeAssistant\n",
+                "from homeassistant.util import dt as dt_util\n",
+                "\n",
+                "from . import make_advertisement\n",
+                "\n",
+                "from tests.common import MockConfigEntry, async_fire_time_changed\n",
+                "from tests.components.bluetooth import (\n",
+                "    inject_bluetooth_service_info_bleak,\n",
+                "    patch_all_discovered_devices,\n",
+                ")\n",
+                "\n",
+                "\n",
+                "async def test_door_problem_sensors(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a door binary sensor with additional problem sensors.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"EE:89:73:44:BE:98\",\n",
+                "        data={\"bindkey\": \"2c3795afa33019a8afdc17ba99e6f217\"},\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"EE:89:73:44:BE:98\",\n",
+                "            b\"HU9\\x0e3\\x9cq\\xc0$\\x1f\\xff\\xee\\x80S\\x00\\x00\\x02\\xb4\\xc59\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 3\n",
+                "\n",
+                "    door_sensor = hass.states.get(\"binary_sensor.door_lock_be98_door\")\n",
+                "    door_sensor_attribtes = door_sensor.attributes\n",
+                "    assert door_sensor.state == STATE_OFF\n",
+                "    assert door_sensor_attribtes[ATTR_FRIENDLY_NAME] == \"Door Lock BE98 Door\"\n",
+                "\n",
+                "    door_left_open = hass.states.get(\"binary_sensor.door_lock_be98_door_left_open\")\n",
+                "    door_left_open_attribtes = door_left_open.attributes\n",
+                "    assert door_left_open.state == STATE_OFF\n",
+                "    assert (\n",
+                "        door_left_open_attribtes[ATTR_FRIENDLY_NAME] == \"Door Lock BE98 Door left open\"\n",
+                "    )\n",
+                "\n",
+                "    pry_the_door = hass.states.get(\"binary_sensor.door_lock_be98_pry_the_door\")\n",
+                "    pry_the_door_attribtes = pry_the_door.attributes\n",
+                "    assert pry_the_door.state == STATE_OFF\n",
+                "    assert pry_the_door_attribtes[ATTR_FRIENDLY_NAME] == \"Door Lock BE98 Pry the door\"\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_light_motion(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a light and motion binary sensor.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"58:2D:34:35:93:21\",\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"58:2D:34:35:93:21\",\n",
+                "            b\"P \\xf6\\x07\\xda!\\x9354-X\\x0f\\x00\\x03\\x01\\x00\\x00\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 2\n",
+                "\n",
+                "    motion_sensor = hass.states.get(\"binary_sensor.nightlight_9321_motion\")\n",
+                "    motion_sensor_attribtes = motion_sensor.attributes\n",
+                "    assert motion_sensor.state == STATE_ON\n",
+                "    assert motion_sensor_attribtes[ATTR_FRIENDLY_NAME] == \"Nightlight 9321 Motion\"\n",
+                "\n",
+                "    light_sensor = hass.states.get(\"binary_sensor.nightlight_9321_light\")\n",
+                "    light_sensor_attribtes = light_sensor.attributes\n",
+                "    assert light_sensor.state == STATE_OFF\n",
+                "    assert light_sensor_attribtes[ATTR_FRIENDLY_NAME] == \"Nightlight 9321 Light\"\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_moisture(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a moisture binary sensor.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"C4:7C:8D:6A:3E:7A\",\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "\n",
+                "    # WARNING: This test data is synthetic, rather than captured from a real device\n",
+                "    # obj type is 0x1014, payload len is 0x2 and payload is 0xf400\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"C4:7C:8D:6A:3E:7A\", b\"q \\x5d\\x01iz>j\\x8d|\\xc4\\r\\x14\\x10\\x02\\xf4\\x00\"\n",
+                "        ),\n",
+                "    )\n",
+                "\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 1\n",
+                "\n",
+                "    sensor = hass.states.get(\"binary_sensor.smart_flower_pot_3e7a_moisture\")\n",
+                "    sensor_attr = sensor.attributes\n",
+                "    assert sensor.state == STATE_ON\n",
+                "    assert sensor_attr[ATTR_FRIENDLY_NAME] == \"Smart Flower Pot 3E7A Moisture\"\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_opening(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a opening binary sensor.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"A4:C1:38:66:E5:67\",\n",
+                "        data={\"bindkey\": \"0fdcc30fe9289254876b5ef7c11ef1f0\"},\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"A4:C1:38:66:E5:67\",\n",
+                "            b\"XY\\x89\\x18\\x9ag\\xe5f8\\xc1\\xa4\\x9d\\xd9z\\xf3&\\x00\\x00\\xc8\\xa6\\x0b\\xd5\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 1\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "    opening_sensor_attribtes = opening_sensor.attributes\n",
+                "\n",
+                "    assert opening_sensor.state == STATE_ON\n",
+                "    assert (\n",
+                "        opening_sensor_attribtes[ATTR_FRIENDLY_NAME]\n",
+                "        == \"Door/Window Sensor E567 Opening\"\n",
+                "    )\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_opening_problem_sensors(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a opening binary sensor with additional problem sensors.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"A4:C1:38:66:E5:67\",\n",
+                "        data={\"bindkey\": \"0fdcc30fe9289254876b5ef7c11ef1f0\"},\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"A4:C1:38:66:E5:67\",\n",
+                "            b\"XY\\x89\\x18ug\\xe5f8\\xc1\\xa4i\\xdd\\xf3\\xa1&\\x00\\x00\\xa2J\\x1bE\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 3\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "    opening_sensor_attribtes = opening_sensor.attributes\n",
+                "    assert opening_sensor.state == STATE_OFF\n",
+                "    assert (\n",
+                "        opening_sensor_attribtes[ATTR_FRIENDLY_NAME]\n",
+                "        == \"Door/Window Sensor E567 Opening\"\n",
+                "    )\n",
+                "\n",
+                "    door_left_open = hass.states.get(\n",
+                "        \"binary_sensor.door_window_sensor_e567_door_left_open\"\n",
+                "    )\n",
+                "    door_left_open_attribtes = door_left_open.attributes\n",
+                "    assert door_left_open.state == STATE_OFF\n",
+                "    assert (\n",
+                "        door_left_open_attribtes[ATTR_FRIENDLY_NAME]\n",
+                "        == \"Door/Window Sensor E567 Door left open\"\n",
+                "    )\n",
+                "\n",
+                "    device_forcibly_removed = hass.states.get(\n",
+                "        \"binary_sensor.door_window_sensor_e567_device_forcibly_removed\"\n",
+                "    )\n",
+                "    device_forcibly_removed_attribtes = device_forcibly_removed.attributes\n",
+                "    assert device_forcibly_removed.state == STATE_OFF\n",
+                "    assert (\n",
+                "        device_forcibly_removed_attribtes[ATTR_FRIENDLY_NAME]\n",
+                "        == \"Door/Window Sensor E567 Device forcibly removed\"\n",
+                "    )\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_smoke(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test setting up a smoke binary sensor.\"\"\"\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"54:EF:44:E3:9C:BC\",\n",
+                "        data={\"bindkey\": \"5b51a7c91cde6707c9ef18dfda143a58\"},\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"54:EF:44:E3:9C:BC\",\n",
+                "            b\"XY\\x97\\tf\\xbc\\x9c\\xe3D\\xefT\\x01\\x08\\x12\\x05\\x00\\x00\\x00q^\\xbe\\x90\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 1\n",
+                "\n",
+                "    smoke_sensor = hass.states.get(\"binary_sensor.smoke_detector_9cbc_smoke\")\n",
+                "    smoke_sensor_attribtes = smoke_sensor.attributes\n",
+                "    assert smoke_sensor.state == STATE_ON\n",
+                "    assert smoke_sensor_attribtes[ATTR_FRIENDLY_NAME] == \"Smoke Detector 9CBC Smoke\"\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "\n",
+                "async def test_unavailable(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test normal device goes to unavailable after 60 minutes.\"\"\"\n",
+                "    start_monotonic = time.monotonic()\n",
+                "\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"A4:C1:38:66:E5:67\",\n",
+                "        data={\"bindkey\": \"0fdcc30fe9289254876b5ef7c11ef1f0\"},\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"A4:C1:38:66:E5:67\",\n",
+                "            b\"XY\\x89\\x18\\x9ag\\xe5f8\\xc1\\xa4\\x9d\\xd9z\\xf3&\\x00\\x00\\xc8\\xa6\\x0b\\xd5\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 1\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "\n",
+                "    assert opening_sensor.state == STATE_ON\n",
+                "\n",
+                "    # Fastforward time without BLE advertisements\n",
+                "    monotonic_now = start_monotonic + FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS + 1\n",
+                "\n",
+                "    with patch(\n",
+                "        \"homeassistant.components.bluetooth.manager.MONOTONIC_TIME\",\n",
+                "        return_value=monotonic_now,\n",
+                "    ), patch_all_discovered_devices([]):\n",
+                "        async_fire_time_changed(\n",
+                "            hass,\n",
+                "            dt_util.utcnow()\n",
+                "            + timedelta(seconds=FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS + 1),\n",
+                "        )\n",
+                "        await hass.async_block_till_done()\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "\n",
+                "    # Normal devices should go to unavailable\n",
+                "    assert opening_sensor.state == STATE_UNAVAILABLE\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    assert CONF_SLEEPY_DEVICE not in entry.data\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 315,
+                    "end": 315
+                },
+                "child_version_range": {
+                    "start": 315,
+                    "end": 317
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 11,
+                "hunk_diff": "File: tests/components/xiaomi_ble/test_binary_sensor.py\nCode:\n  ...\n312 312        assert await hass.config_entries.async_unload(entry.entry_id)\n313 313        await hass.async_block_till_done()\n314 314    \n    315  +     assert CONF_SLEEPY_DEVICE not in entry.data\n    316  + \n315 317    \n316 318    async def test_sleepy_device(hass: HomeAssistant) -> None:\n317 319        \"\"\"Test sleepy device does not go to unavailable after 60 minutes.\"\"\"\n         ...\n",
+                "file_path": "tests/components/xiaomi_ble/test_binary_sensor.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "data",
+                    "entry"
+                ],
+                "prefix": [
+                    "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                    "    await hass.async_block_till_done()\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "async def test_sleepy_device(hass: HomeAssistant) -> None:\n",
+                    "    \"\"\"Test sleepy device does not go to unavailable after 60 minutes.\"\"\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 315,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 315,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 315,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 315,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "async def test_sleepy_device(hass: HomeAssistant) -> None:\n",
+                "    \"\"\"Test sleepy device does not go to unavailable after 60 minutes.\"\"\"\n",
+                "    start_monotonic = time.monotonic()\n",
+                "\n",
+                "    entry = MockConfigEntry(\n",
+                "        domain=DOMAIN,\n",
+                "        unique_id=\"A4:C1:38:66:E5:67\",\n",
+                "    )\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    assert await hass.config_entries.async_setup(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n",
+                "\n",
+                "    assert len(hass.states.async_all()) == 0\n",
+                "    inject_bluetooth_service_info_bleak(\n",
+                "        hass,\n",
+                "        make_advertisement(\n",
+                "            \"A4:C1:38:66:E5:67\",\n",
+                "            b\"@0\\xd6\\x03$\\x19\\x10\\x01\\x00\",\n",
+                "        ),\n",
+                "    )\n",
+                "    await hass.async_block_till_done()\n",
+                "    assert len(hass.states.async_all()) == 1\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "\n",
+                "    assert opening_sensor.state == STATE_ON\n",
+                "\n",
+                "    # Fastforward time without BLE advertisements\n",
+                "    monotonic_now = start_monotonic + FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS + 1\n",
+                "\n",
+                "    with patch(\n",
+                "        \"homeassistant.components.bluetooth.manager.MONOTONIC_TIME\",\n",
+                "        return_value=monotonic_now,\n",
+                "    ), patch_all_discovered_devices([]):\n",
+                "        async_fire_time_changed(\n",
+                "            hass,\n",
+                "            dt_util.utcnow()\n",
+                "            + timedelta(seconds=FALLBACK_MAXIMUM_STALE_ADVERTISEMENT_SECONDS + 1),\n",
+                "        )\n",
+                "        await hass.async_block_till_done()\n",
+                "\n",
+                "    opening_sensor = hass.states.get(\"binary_sensor.door_window_sensor_e567_opening\")\n",
+                "\n",
+                "    # Sleepy devices should keep their state over time\n",
+                "    assert opening_sensor.state == STATE_ON\n",
+                "\n",
+                "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                "    await hass.async_block_till_done()\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "    assert entry.data[CONF_SLEEPY_DEVICE] is True"
+                ],
+                "parent_version_range": {
+                    "start": 365,
+                    "end": 365
+                },
+                "child_version_range": {
+                    "start": 367,
+                    "end": 369
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_sleepy_device",
+                        "signature": "def test_sleepy_device(hass: HomeAssistant)->None:",
+                        "at_line": 316
+                    }
+                ],
+                "idx": 12,
+                "hunk_diff": "File: tests/components/xiaomi_ble/test_binary_sensor.py\nCode:\n           def test_sleepy_device(hass: HomeAssistant)->None:\n               ...\n362 364    \n363 365        assert await hass.config_entries.async_unload(entry.entry_id)\n364 366        await hass.async_block_till_done()\n    367  + \n    368  +     assert entry.data[CONF_SLEEPY_DEVICE] is True\n         ...\n",
+                "file_path": "tests/components/xiaomi_ble/test_binary_sensor.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CONF_SLEEPY_DEVICE",
+                    "data",
+                    "entry"
+                ],
+                "prefix": [
+                    "\n",
+                    "    assert await hass.config_entries.async_unload(entry.entry_id)\n",
+                    "    await hass.async_block_till_done()\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 368,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 368,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "CONF_SLEEPY_DEVICE",
+                            "position": {
+                                "start": {
+                                    "line": 368,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 368,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/tests/components/xiaomi_ble/test_binary_sensor.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            }
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and define"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and implement"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                10,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                10,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        }
+    ]
+}

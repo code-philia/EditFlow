@@ -1,0 +1,2658 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/PostHog/posthog/commit/c147f9114ad1d2d06c80d5a8929c8b5285cc271b",
+    "commit_message": "chore(data-warehouse): update schema should pause, unpause, or create schedules (#21663)\n\nupdate should pause, unpause, or create schedules",
+    "commit_snapshots": {
+        "posthog/tasks/warehouse.py": [
+            [
+                "import datetime\n",
+                "\n",
+                "import structlog\n",
+                "from celery import shared_task\n",
+                "\n",
+                "from posthog.warehouse.data_load.service import (\n",
+                "    cancel_external_data_workflow,\n",
+                "    pause_external_data_schedule,\n",
+                "    unpause_external_data_schedule,\n",
+                ")\n",
+                "from posthog.warehouse.models import ExternalDataJob, ExternalDataSource\n",
+                "\n",
+                "logger = structlog.get_logger(__name__)\n",
+                "\n",
+                "MONTHLY_LIMIT = 100_000_000\n",
+                "\n",
+                "\n",
+                "def check_synced_row_limits() -> None:\n",
+                "    team_ids = ExternalDataSource.objects.values_list(\"team\", flat=True)\n",
+                "    for team_id in team_ids:\n",
+                "        check_synced_row_limits_of_team.delay(team_id)\n",
+                "\n",
+                "\n",
+                "@shared_task(ignore_result=True)\n",
+                "def check_synced_row_limits_of_team(team_id: int) -> None:\n",
+                "    logger.info(\"Checking synced row limits of team\", team_id=team_id)\n",
+                "\n",
+                "    # TODO: Can change this to be billing period based once billing is integrated\n",
+                "    start_of_month = datetime.datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)\n",
+                "    rows_synced_list = [\n",
+                "        x\n",
+                "        for x in ExternalDataJob.objects.filter(team_id=team_id, created_at__gte=start_of_month).values_list(\n",
+                "            \"rows_synced\", flat=True\n",
+                "        )\n",
+                "        if x\n",
+                "    ]\n",
+                "    total_rows_synced = sum(rows_synced_list)\n",
+                "\n",
+                "    if total_rows_synced > MONTHLY_LIMIT:\n",
+                "        running_jobs = ExternalDataJob.objects.filter(team_id=team_id, status=ExternalDataJob.Status.RUNNING)\n",
+                "        for job in running_jobs:\n",
+                "            try:\n",
+                "                cancel_external_data_workflow(job.workflow_id)\n",
+                "            except Exception as e:\n",
+                "                logger.exception(\"Could not cancel external data workflow\", exc_info=e)\n",
+                "\n",
+                "            try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                pause_external_data_schedule(job.pipeline)\n"
+                ],
+                "after": [
+                    "                pause_external_data_schedule(str(job.pipeline.id))\n"
+                ],
+                "parent_version_range": {
+                    "start": 47,
+                    "end": 48
+                },
+                "child_version_range": {
+                    "start": 47,
+                    "end": 48
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if total_rows_synced > MONTHLY_LIMIT:",
+                        "start_line": 38,
+                        "end_line": 65
+                    },
+                    {
+                        "type": "for_statement",
+                        "statement": "for job in running_jobs:",
+                        "start_line": 40,
+                        "end_line": 55
+                    },
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 46,
+                        "end_line": 49
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "check_synced_row_limits_of_team",
+                        "signature": "def check_synced_row_limits_of_team(team_id: int)->None:",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "call",
+                        "name": "pause_external_data_schedule",
+                        "signature": "pause_external_data_schedule(job.pipeline)",
+                        "at_line": 47,
+                        "argument": "job.pipeline"
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: posthog/tasks/warehouse.py\nCode:\n         def check_synced_row_limits_of_team(team_id: int)->None:\n             ...\n44 44                    logger.exception(\"Could not cancel external data workflow\", exc_info=e)\n45 45    \n46 46                try:\n47     -                 pause_external_data_schedule(job.pipeline)\n   47  +                 pause_external_data_schedule(str(job.pipeline.id))\n48 48                except Exception as e:\n49 49                    logger.exception(\"Could not pause external data schedule\", exc_info=e)\n50 50    \n       ...\n",
+                "file_path": "posthog/tasks/warehouse.py",
+                "identifiers_before": [
+                    "job",
+                    "pause_external_data_schedule",
+                    "pipeline"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "job",
+                    "pause_external_data_schedule",
+                    "pipeline",
+                    "str"
+                ],
+                "prefix": [
+                    "                logger.exception(\"Could not cancel external data workflow\", exc_info=e)\n",
+                    "\n",
+                    "            try:\n"
+                ],
+                "suffix": [
+                    "            except Exception as e:\n",
+                    "                logger.exception(\"Could not pause external data schedule\", exc_info=e)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/tasks/warehouse.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/tasks/warehouse.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            except Exception as e:\n",
+                "                logger.exception(\"Could not pause external data schedule\", exc_info=e)\n",
+                "\n",
+                "            job.status = ExternalDataJob.Status.CANCELLED\n",
+                "            job.save()\n",
+                "\n",
+                "            job.pipeline.status = ExternalDataSource.Status.PAUSED\n",
+                "            job.pipeline.save()\n",
+                "    else:\n",
+                "        all_sources = ExternalDataSource.objects.filter(team_id=team_id, status=ExternalDataSource.Status.PAUSED)\n",
+                "        for source in all_sources:\n",
+                "            try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                unpause_external_data_schedule(source)\n"
+                ],
+                "after": [
+                    "                unpause_external_data_schedule(str(source.id))\n"
+                ],
+                "parent_version_range": {
+                    "start": 60,
+                    "end": 61
+                },
+                "child_version_range": {
+                    "start": 60,
+                    "end": 61
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if total_rows_synced > MONTHLY_LIMIT:",
+                        "start_line": 38,
+                        "end_line": 65
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 56,
+                        "end_line": 65
+                    },
+                    {
+                        "type": "for_statement",
+                        "statement": "for source in all_sources:",
+                        "start_line": 58,
+                        "end_line": 65
+                    },
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 59,
+                        "end_line": 62
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "check_synced_row_limits_of_team",
+                        "signature": "def check_synced_row_limits_of_team(team_id: int)->None:",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "call",
+                        "name": "unpause_external_data_schedule",
+                        "signature": "unpause_external_data_schedule(source)",
+                        "at_line": 60,
+                        "argument": "source"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: posthog/tasks/warehouse.py\nCode:\n         def check_synced_row_limits_of_team(team_id: int)->None:\n             ...\n57 57            all_sources = ExternalDataSource.objects.filter(team_id=team_id, status=ExternalDataSource.Status.PAUSED)\n58 58            for source in all_sources:\n59 59                try:\n60     -                 unpause_external_data_schedule(source)\n   60  +                 unpause_external_data_schedule(str(source.id))\n61 61                except Exception as e:\n62 62                    logger.exception(\"Could not unpause external data schedule\", exc_info=e)\n63 63    \n       ...\n",
+                "file_path": "posthog/tasks/warehouse.py",
+                "identifiers_before": [
+                    "source",
+                    "unpause_external_data_schedule"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "source",
+                    "str",
+                    "unpause_external_data_schedule"
+                ],
+                "prefix": [
+                    "        all_sources = ExternalDataSource.objects.filter(team_id=team_id, status=ExternalDataSource.Status.PAUSED)\n",
+                    "        for source in all_sources:\n",
+                    "            try:\n"
+                ],
+                "suffix": [
+                    "            except Exception as e:\n",
+                    "                logger.exception(\"Could not unpause external data schedule\", exc_info=e)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 60,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 60,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/tasks/warehouse.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 60,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 60,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/tasks/warehouse.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            except Exception as e:\n",
+                "                logger.exception(\"Could not unpause external data schedule\", exc_info=e)\n",
+                "\n",
+                "            source.status = ExternalDataSource.Status.COMPLETED\n",
+                "            source.save()"
+            ]
+        ],
+        "posthog/temporal/common/schedule.py": [
+            [
+                "from asgiref.sync import async_to_sync\n",
+                "from temporalio.client import Client, Schedule, ScheduleUpdate, ScheduleUpdateInput\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def create_schedule(temporal: Client, id: str, schedule: Schedule, trigger_immediately: bool = False):\n",
+                "    \"\"\"Create a Temporal Schedule.\"\"\"\n",
+                "    return await temporal.create_schedule(\n",
+                "        id=id,\n",
+                "        schedule=schedule,\n",
+                "        trigger_immediately=trigger_immediately,\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "async def a_create_schedule(temporal: Client, id: str, schedule: Schedule, trigger_immediately: bool = False):\n",
+                "    \"\"\"Async create a Temporal Schedule.\"\"\"\n",
+                "    return await temporal.create_schedule(\n",
+                "        id=id,\n",
+                "        schedule=schedule,\n",
+                "        trigger_immediately=trigger_immediately,\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def update_schedule(temporal: Client, id: str, schedule: Schedule) -> None:\n",
+                "    \"\"\"Update a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(id)\n",
+                "\n",
+                "    async def updater(_: ScheduleUpdateInput) -> ScheduleUpdate:\n",
+                "        return ScheduleUpdate(schedule=schedule)\n",
+                "\n",
+                "    return await handle.update(\n",
+                "        updater=updater,\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "async def a_update_schedule(temporal: Client, id: str, schedule: Schedule) -> None:\n",
+                "    \"\"\"Async update a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(id)\n",
+                "\n",
+                "    async def updater(_: ScheduleUpdateInput) -> ScheduleUpdate:\n",
+                "        return ScheduleUpdate(schedule=schedule)\n",
+                "\n",
+                "    return await handle.update(\n",
+                "        updater=updater,\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def unpause_schedule(temporal: Client, schedule_id: str, note: str | None = None) -> None:\n",
+                "    \"\"\"Unpause a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.unpause(note=note)\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def delete_schedule(temporal: Client, schedule_id: str) -> None:\n",
+                "    \"\"\"Delete a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.delete()\n",
+                "\n",
+                "\n",
+                "async def a_delete_schedule(temporal: Client, schedule_id: str) -> None:\n",
+                "    \"\"\"Async delete a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.delete()\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def describe_schedule(temporal: Client, schedule_id: str):\n",
+                "    \"\"\"Describe a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    return await handle.describe()\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def pause_schedule(temporal: Client, schedule_id: str, note: str | None = None) -> None:\n",
+                "    \"\"\"Pause a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.pause(note=note)\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def trigger_schedule(temporal: Client, schedule_id: str, note: str | None = None) -> None:\n",
+                "    \"\"\"Trigger a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.trigger()\n",
+                "\n",
+                "\n",
+                "async def a_trigger_schedule(temporal: Client, schedule_id: str, note: str | None = None) -> None:\n",
+                "    \"\"\"Trigger a Temporal Schedule.\"\"\"\n",
+                "    handle = temporal.get_schedule_handle(schedule_id)\n",
+                "    await handle.trigger()\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "@async_to_sync\n",
+                    "async def schedule_exists(temporal: Client, schedule_id: str) -> bool:\n",
+                    "    \"\"\"Check whether a schedule exists.\"\"\"\n",
+                    "    try:\n",
+                    "        await temporal.get_schedule_handle(schedule_id).describe()\n",
+                    "        return True\n",
+                    "    except:\n",
+                    "        return False\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 95,
+                    "end": 95
+                },
+                "child_version_range": {
+                    "start": 95,
+                    "end": 105
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: posthog/temporal/common/schedule.py\nCode:\n  ...\n 92  92        await handle.trigger()\n 93  93    \n 94  94    \n     95  + @async_to_sync\n     96  + async def schedule_exists(temporal: Client, schedule_id: str) -> bool:\n     97  +     \"\"\"Check whether a schedule exists.\"\"\"\n     98  +     try:\n     99  +         await temporal.get_schedule_handle(schedule_id).describe()\n    100  +         return True\n    101  +     except:\n    102  +         return False\n    103  + \n    104  + \n 95 105    async def a_schedule_exists(temporal: Client, schedule_id: str) -> bool:\n 96 106        \"\"\"Check whether a schedule exists.\"\"\"\n 97 107        try:\n         ...\n",
+                "file_path": "posthog/temporal/common/schedule.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Client",
+                    "async_to_sync",
+                    "bool",
+                    "describe",
+                    "get_schedule_handle",
+                    "schedule_exists",
+                    "schedule_id",
+                    "str",
+                    "temporal"
+                ],
+                "prefix": [
+                    "    await handle.trigger()\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "async def a_schedule_exists(temporal: Client, schedule_id: str) -> bool:\n",
+                    "    \"\"\"Check whether a schedule exists.\"\"\"\n",
+                    "    try:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 96,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 96,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/temporal/common/schedule.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 96,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 96,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/temporal/common/schedule.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "schedule_id",
+                            "position": {
+                                "start": {
+                                    "line": 96,
+                                    "column": 44
+                                },
+                                "end": {
+                                    "line": 96,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/temporal/common/schedule.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "async def a_schedule_exists(temporal: Client, schedule_id: str) -> bool:\n",
+                "    \"\"\"Check whether a schedule exists.\"\"\"\n",
+                "    try:\n",
+                "        await temporal.get_schedule_handle(schedule_id).describe()\n",
+                "        return True\n",
+                "    except:\n",
+                "        return False"
+            ]
+        ],
+        "posthog/temporal/data_imports/external_data_job.py": [
+            [
+                "import dataclasses\n",
+                "import datetime as dt\n",
+                "import json\n",
+                "import uuid\n",
+                "\n",
+                "from asgiref.sync import sync_to_async\n",
+                "from dlt.common.schema.typing import TSchemaTables\n",
+                "from temporalio import activity, exceptions, workflow\n",
+                "from temporalio.common import RetryPolicy\n",
+                "\n",
+                "# TODO: remove dependency\n",
+                "from posthog.temporal.batch_exports.base import PostHogWorkflow\n",
+                "from posthog.temporal.utils import ExternalDataWorkflowInputs\n",
+                "from posthog.temporal.data_imports.workflow_activities.create_job_model import (\n",
+                "    CreateExternalDataJobModelActivityInputs,\n",
+                "    create_external_data_job_model_activity,\n",
+                ")\n",
+                "from posthog.temporal.data_imports.workflow_activities.import_data import ImportDataActivityInputs, import_data_activity\n",
+                "from posthog.warehouse.data_load.service import (\n",
+                "    a_delete_external_data_schedule,\n",
+                "    a_external_data_workflow_exists,\n",
+                "    a_sync_external_data_job_workflow,\n",
+                "    a_trigger_external_data_workflow,\n",
+                ")\n",
+                "from posthog.warehouse.data_load.source_templates import create_warehouse_templates_for_source\n",
+                "\n",
+                "from posthog.warehouse.data_load.validate_schema import validate_schema_and_update_table\n",
+                "from posthog.warehouse.external_data_source.jobs import (\n",
+                "    update_external_job_status,\n",
+                ")\n",
+                "from posthog.warehouse.models import (\n",
+                "    ExternalDataJob,\n",
+                "    get_active_schemas_for_source_id,\n",
+                "    ExternalDataSource,\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    aget_schema_by_id,\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 34,
+                    "end": 35
+                },
+                "child_version_range": {
+                    "start": 34,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: posthog/temporal/data_imports/external_data_job.py\nCode:\n  ...\n31 31        ExternalDataJob,\n32 32        get_active_schemas_for_source_id,\n33 33        ExternalDataSource,\n34     -     aget_schema_by_id,\n35 34    )\n36 35    from posthog.temporal.common.logger import bind_temporal_worker_logger\n37 36    from typing import Dict\n       ...\n",
+                "file_path": "posthog/temporal/data_imports/external_data_job.py",
+                "identifiers_before": [
+                    "aget_schema_by_id"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    ExternalDataJob,\n",
+                    "    get_active_schemas_for_source_id,\n",
+                    "    ExternalDataSource,\n"
+                ],
+                "suffix": [
+                    ")\n",
+                    "from posthog.temporal.common.logger import bind_temporal_worker_logger\n",
+                    "from typing import Dict\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "aget_schema_by_id",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/temporal/data_imports/external_data_job.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                ")\n",
+                "from posthog.temporal.common.logger import bind_temporal_worker_logger\n",
+                "from typing import Dict\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class UpdateExternalDataJobStatusInputs:\n",
+                "    id: str\n",
+                "    team_id: int\n",
+                "    run_id: str\n",
+                "    status: str\n",
+                "    latest_error: str | None\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def update_external_data_job_model(inputs: UpdateExternalDataJobStatusInputs) -> None:\n",
+                "    await sync_to_async(update_external_job_status)(\n",
+                "        run_id=uuid.UUID(inputs.id),\n",
+                "        status=inputs.status,\n",
+                "        latest_error=inputs.latest_error,\n",
+                "        team_id=inputs.team_id,\n",
+                "    )\n",
+                "\n",
+                "    logger = await bind_temporal_worker_logger(team_id=inputs.team_id)\n",
+                "    logger.info(\n",
+                "        f\"Updated external data job with for external data source {inputs.run_id} to status {inputs.status}\",\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class ValidateSchemaInputs:\n",
+                "    run_id: str\n",
+                "    team_id: int\n",
+                "    schema_id: uuid.UUID\n",
+                "    table_schema: TSchemaTables\n",
+                "    table_row_counts: Dict[str, int]\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def validate_schema_activity(inputs: ValidateSchemaInputs) -> None:\n",
+                "    await validate_schema_and_update_table(\n",
+                "        run_id=inputs.run_id,\n",
+                "        team_id=inputs.team_id,\n",
+                "        schema_id=inputs.schema_id,\n",
+                "        table_schema=inputs.table_schema,\n",
+                "        table_row_counts=inputs.table_row_counts,\n",
+                "    )\n",
+                "\n",
+                "    logger = await bind_temporal_worker_logger(team_id=inputs.team_id)\n",
+                "    logger.info(\n",
+                "        f\"Validated schema for external data job {inputs.run_id}\",\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class CreateSourceTemplateInputs:\n",
+                "    team_id: int\n",
+                "    run_id: str\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def create_source_templates(inputs: CreateSourceTemplateInputs) -> None:\n",
+                "    await create_warehouse_templates_for_source(team_id=inputs.team_id, run_id=inputs.run_id)\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def check_schedule_activity(inputs: ExternalDataWorkflowInputs) -> bool:\n",
+                "    logger = await bind_temporal_worker_logger(team_id=inputs.team_id)\n",
+                "\n",
+                "    # Creates schedules for all schemas if they don't exist yet, and then remove itself as a source schedule\n",
+                "    if inputs.external_data_schema_id is None:\n",
+                "        logger.info(\"Schema ID is none, creating schedules for schemas...\")\n",
+                "        schemas = await get_active_schemas_for_source_id(\n",
+                "            team_id=inputs.team_id, source_id=inputs.external_data_source_id\n",
+                "        )\n",
+                "        for schema in schemas:\n",
+                "            if await a_external_data_workflow_exists(schema.id):\n",
+                "                await a_trigger_external_data_workflow(schema)\n",
+                "                logger.info(f\"Schedule exists for schema {schema.id}. Triggered schedule\")\n",
+                "            else:\n",
+                "                await a_sync_external_data_job_workflow(schema, create=True)\n",
+                "                logger.info(f\"Created schedule for schema {schema.id}\")\n",
+                "        # Delete the source schedule in favour of the schema schedules\n",
+                "        await a_delete_external_data_schedule(ExternalDataSource(id=inputs.external_data_source_id))\n",
+                "        logger.info(f\"Deleted schedule for source {inputs.external_data_source_id}\")\n",
+                "        return True\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    schema_model = await aget_schema_by_id(inputs.external_data_schema_id, inputs.team_id)\n",
+                    "\n",
+                    "    # schema turned off so don't sync\n",
+                    "    if schema_model and not schema_model.should_sync:\n",
+                    "        return True\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 122,
+                    "end": 128
+                },
+                "child_version_range": {
+                    "start": 121,
+                    "end": 121
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "check_schedule_activity",
+                        "signature": "def check_schedule_activity(inputs: ExternalDataWorkflowInputs)->bool:",
+                        "at_line": 101
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: posthog/temporal/data_imports/external_data_job.py\nCode:\n           def check_schedule_activity(inputs: ExternalDataWorkflowInputs)->bool:\n               ...\n119 118            logger.info(f\"Deleted schedule for source {inputs.external_data_source_id}\")\n120 119            return True\n121 120    \n122      -     schema_model = await aget_schema_by_id(inputs.external_data_schema_id, inputs.team_id)\n123      - \n124      -     # schema turned off so don't sync\n125      -     if schema_model and not schema_model.should_sync:\n126      -         return True\n127      - \n128 121        logger.info(\"Schema ID is set. Continuing...\")\n129 122        return False\n130 123    \n         ...\n",
+                "file_path": "posthog/temporal/data_imports/external_data_job.py",
+                "identifiers_before": [
+                    "aget_schema_by_id",
+                    "external_data_schema_id",
+                    "inputs",
+                    "schema_model",
+                    "should_sync",
+                    "team_id"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        logger.info(f\"Deleted schedule for source {inputs.external_data_source_id}\")\n",
+                    "        return True\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    logger.info(\"Schema ID is set. Continuing...\")\n",
+                    "    return False\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "aget_schema_by_id",
+                            "position": {
+                                "start": {
+                                    "line": 122,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 122,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/temporal/data_imports/external_data_job.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    logger.info(\"Schema ID is set. Continuing...\")\n",
+                "    return False\n",
+                "\n",
+                "\n",
+                "# TODO: update retry policies\n",
+                "@workflow.defn(name=\"external-data-job\")\n",
+                "class ExternalDataJobWorkflow(PostHogWorkflow):\n",
+                "    @staticmethod\n",
+                "    def parse_inputs(inputs: list[str]) -> ExternalDataWorkflowInputs:\n",
+                "        loaded = json.loads(inputs[0])\n",
+                "        return ExternalDataWorkflowInputs(**loaded)\n",
+                "\n",
+                "    @workflow.run\n",
+                "    async def run(self, inputs: ExternalDataWorkflowInputs):\n",
+                "        logger = await bind_temporal_worker_logger(team_id=inputs.team_id)\n",
+                "\n",
+                "        should_exit = await workflow.execute_activity(\n",
+                "            check_schedule_activity,\n",
+                "            inputs,\n",
+                "            start_to_close_timeout=dt.timedelta(minutes=1),\n",
+                "            retry_policy=RetryPolicy(\n",
+                "                initial_interval=dt.timedelta(seconds=10),\n",
+                "                maximum_interval=dt.timedelta(seconds=60),\n",
+                "                maximum_attempts=0,\n",
+                "                non_retryable_error_types=[\"NotNullViolation\", \"IntegrityError\"],\n",
+                "            ),\n",
+                "        )\n",
+                "\n",
+                "        if should_exit:\n",
+                "            return\n",
+                "\n",
+                "        assert inputs.external_data_schema_id is not None\n",
+                "\n",
+                "        # create external data job and trigger activity\n",
+                "        create_external_data_job_inputs = CreateExternalDataJobModelActivityInputs(\n",
+                "            team_id=inputs.team_id, schema_id=inputs.external_data_schema_id, source_id=inputs.external_data_source_id\n",
+                "        )\n",
+                "\n",
+                "        run_id = await workflow.execute_activity(\n",
+                "            create_external_data_job_model_activity,\n",
+                "            create_external_data_job_inputs,\n",
+                "            start_to_close_timeout=dt.timedelta(minutes=1),\n",
+                "            retry_policy=RetryPolicy(\n",
+                "                initial_interval=dt.timedelta(seconds=10),\n",
+                "                maximum_interval=dt.timedelta(seconds=60),\n",
+                "                maximum_attempts=0,\n",
+                "                non_retryable_error_types=[\"NotNullViolation\", \"IntegrityError\"],\n",
+                "            ),\n",
+                "        )\n",
+                "\n",
+                "        update_inputs = UpdateExternalDataJobStatusInputs(\n",
+                "            id=run_id, run_id=run_id, status=ExternalDataJob.Status.COMPLETED, latest_error=None, team_id=inputs.team_id\n",
+                "        )\n",
+                "\n",
+                "        try:\n",
+                "            job_inputs = ImportDataActivityInputs(\n",
+                "                team_id=inputs.team_id,\n",
+                "                run_id=run_id,\n",
+                "                schema_id=inputs.external_data_schema_id,\n",
+                "                source_id=inputs.external_data_source_id,\n",
+                "            )\n",
+                "\n",
+                "            table_schemas, table_row_counts = await workflow.execute_activity(\n",
+                "                import_data_activity,\n",
+                "                job_inputs,\n",
+                "                start_to_close_timeout=dt.timedelta(hours=30),\n",
+                "                retry_policy=RetryPolicy(maximum_attempts=5),\n",
+                "                heartbeat_timeout=dt.timedelta(minutes=1),\n",
+                "            )\n",
+                "\n",
+                "            # check schema first\n",
+                "            validate_inputs = ValidateSchemaInputs(\n",
+                "                run_id=run_id,\n",
+                "                team_id=inputs.team_id,\n",
+                "                schema_id=inputs.external_data_schema_id,\n",
+                "                table_schema=table_schemas,\n",
+                "                table_row_counts=table_row_counts,\n",
+                "            )\n",
+                "\n",
+                "            await workflow.execute_activity(\n",
+                "                validate_schema_activity,\n",
+                "                validate_inputs,\n",
+                "                start_to_close_timeout=dt.timedelta(minutes=10),\n",
+                "                retry_policy=RetryPolicy(maximum_attempts=2),\n",
+                "            )\n",
+                "\n",
+                "            # Create source templates\n",
+                "            await workflow.execute_activity(\n",
+                "                create_source_templates,\n",
+                "                CreateSourceTemplateInputs(team_id=inputs.team_id, run_id=run_id),\n",
+                "                start_to_close_timeout=dt.timedelta(minutes=10),\n",
+                "                retry_policy=RetryPolicy(maximum_attempts=2),\n",
+                "            )\n",
+                "\n",
+                "        except exceptions.ActivityError as e:\n",
+                "            if isinstance(e.cause, exceptions.CancelledError):\n",
+                "                update_inputs.status = ExternalDataJob.Status.CANCELLED\n",
+                "            else:\n",
+                "                update_inputs.status = ExternalDataJob.Status.FAILED\n",
+                "            logger.error(\n",
+                "                f\"External data job failed for external data source {inputs.external_data_source_id} with error: {e.cause}\"\n",
+                "            )\n",
+                "            update_inputs.latest_error = str(e.cause)\n",
+                "            raise\n",
+                "        except Exception as e:\n",
+                "            logger.error(\n",
+                "                f\"External data job failed for external data source {inputs.external_data_source_id} with error: {e}\"\n",
+                "            )\n",
+                "            # Catch all\n",
+                "            update_inputs.latest_error = \"An unexpected error has ocurred\"\n",
+                "            update_inputs.status = ExternalDataJob.Status.FAILED\n",
+                "            raise\n",
+                "        finally:\n",
+                "            await workflow.execute_activity(\n",
+                "                update_external_data_job_model,\n",
+                "                update_inputs,\n",
+                "                start_to_close_timeout=dt.timedelta(minutes=1),\n",
+                "                retry_policy=RetryPolicy(\n",
+                "                    initial_interval=dt.timedelta(seconds=10),\n",
+                "                    maximum_interval=dt.timedelta(seconds=60),\n",
+                "                    maximum_attempts=0,\n",
+                "                    non_retryable_error_types=[\"NotNullViolation\", \"IntegrityError\", \"DoesNotExist\"],\n",
+                "                ),\n",
+                "            )"
+            ]
+        ],
+        "posthog/warehouse/api/external_data_schema.py": [
+            [
+                "from rest_framework import serializers\n",
+                "from posthog.warehouse.models import ExternalDataSchema\n",
+                "from typing import Optional, Dict, Any\n",
+                "from posthog.api.routing import TeamAndOrgViewSetMixin\n",
+                "from rest_framework import viewsets, filters\n",
+                "from rest_framework.exceptions import NotAuthenticated\n",
+                "from posthog.models import User\n",
+                "from posthog.hogql.database.database import create_hogql_database\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from posthog.warehouse.data_load.service import (\n",
+                    "    external_data_workflow_exists,\n",
+                    "    sync_external_data_job_workflow,\n",
+                    "    pause_external_data_schedule,\n",
+                    "    unpause_external_data_schedule,\n",
+                    ")\n"
+                ],
+                "parent_version_range": {
+                    "start": 8,
+                    "end": 8
+                },
+                "child_version_range": {
+                    "start": 8,
+                    "end": 14
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: posthog/warehouse/api/external_data_schema.py\nCode:\n  ...\n 5  5    from rest_framework.exceptions import NotAuthenticated\n 6  6    from posthog.models import User\n 7  7    from posthog.hogql.database.database import create_hogql_database\n    8  + from posthog.warehouse.data_load.service import (\n    9  +     external_data_workflow_exists,\n   10  +     sync_external_data_job_workflow,\n   11  +     pause_external_data_schedule,\n   12  +     unpause_external_data_schedule,\n   13  + )\n 8 14    \n 9 15    \n10 16    class ExternalDataSchemaSerializer(serializers.ModelSerializer):\n       ...\n",
+                "file_path": "posthog/warehouse/api/external_data_schema.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "data_load",
+                    "external_data_workflow_exists",
+                    "pause_external_data_schedule",
+                    "posthog",
+                    "service",
+                    "sync_external_data_job_workflow",
+                    "unpause_external_data_schedule",
+                    "warehouse"
+                ],
+                "prefix": [
+                    "from rest_framework.exceptions import NotAuthenticated\n",
+                    "from posthog.models import User\n",
+                    "from posthog.hogql.database.database import create_hogql_database\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class ExternalDataSchemaSerializer(serializers.ModelSerializer):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 12,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 12,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 12,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 12,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "sync_external_data_job_workflow",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class ExternalDataSchemaSerializer(serializers.ModelSerializer):\n",
+                "    table = serializers.SerializerMethodField(read_only=True)\n",
+                "\n",
+                "    class Meta:\n",
+                "        model = ExternalDataSchema\n",
+                "\n",
+                "        fields = [\"id\", \"name\", \"table\", \"should_sync\", \"last_synced_at\", \"latest_error\"]\n",
+                "\n",
+                "    def get_table(self, schema: ExternalDataSchema) -> Optional[dict]:\n",
+                "        from posthog.warehouse.api.table import SimpleTableSerializer\n",
+                "\n",
+                "        hogql_context = self.context.get(\"database\", None)\n",
+                "        if not hogql_context:\n",
+                "            hogql_context = create_hogql_database(team_id=self.context[\"team_id\"])\n",
+                "\n",
+                "        return SimpleTableSerializer(schema.table, context={\"database\": hogql_context}).data or None\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def update(self, instance: ExternalDataSchema, validated_data: Dict[str, Any]) -> ExternalDataSchema:\n",
+                    "        should_sync = validated_data.get(\"should_sync\", None)\n",
+                    "        schedule_exists = external_data_workflow_exists(str(instance.id))\n",
+                    "\n",
+                    "        if schedule_exists:\n",
+                    "            if should_sync is False:\n",
+                    "                pause_external_data_schedule(str(instance.id))\n",
+                    "            elif should_sync is True:\n",
+                    "                unpause_external_data_schedule(str(instance.id))\n",
+                    "        else:\n",
+                    "            if should_sync is True:\n",
+                    "                sync_external_data_job_workflow(instance, create=True)\n",
+                    "\n",
+                    "        return super().update(instance, validated_data)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 27,
+                    "end": 27
+                },
+                "child_version_range": {
+                    "start": 33,
+                    "end": 48
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: posthog/warehouse/api/external_data_schema.py\nCode:\n  ...\n24 30    \n25 31            return SimpleTableSerializer(schema.table, context={\"database\": hogql_context}).data or None\n26 32    \n   33  +     def update(self, instance: ExternalDataSchema, validated_data: Dict[str, Any]) -> ExternalDataSchema:\n   34  +         should_sync = validated_data.get(\"should_sync\", None)\n   35  +         schedule_exists = external_data_workflow_exists(str(instance.id))\n   36  + \n   37  +         if schedule_exists:\n   38  +             if should_sync is False:\n   39  +                 pause_external_data_schedule(str(instance.id))\n   40  +             elif should_sync is True:\n   41  +                 unpause_external_data_schedule(str(instance.id))\n   42  +         else:\n   43  +             if should_sync is True:\n   44  +                 sync_external_data_job_workflow(instance, create=True)\n   45  + \n   46  +         return super().update(instance, validated_data)\n   47  + \n27 48    \n28 49    class SimpleExternalDataSchemaSerializer(serializers.ModelSerializer):\n29 50        class Meta:\n       ...\n",
+                "file_path": "posthog/warehouse/api/external_data_schema.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Any",
+                    "Dict",
+                    "ExternalDataSchema",
+                    "create",
+                    "external_data_workflow_exists",
+                    "get",
+                    "id",
+                    "instance",
+                    "pause_external_data_schedule",
+                    "schedule_exists",
+                    "self",
+                    "should_sync",
+                    "str",
+                    "super",
+                    "sync_external_data_job_workflow",
+                    "unpause_external_data_schedule",
+                    "update",
+                    "validated_data"
+                ],
+                "prefix": [
+                    "\n",
+                    "        return SimpleTableSerializer(schema.table, context={\"database\": hogql_context}).data or None\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "class SimpleExternalDataSchemaSerializer(serializers.ModelSerializer):\n",
+                    "    class Meta:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 39,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 39,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 39,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 39,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 41,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 41,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 41,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 41,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "sync_external_data_job_workflow",
+                            "position": {
+                                "start": {
+                                    "line": 44,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 44,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/api/external_data_schema.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "class SimpleExternalDataSchemaSerializer(serializers.ModelSerializer):\n",
+                "    class Meta:\n",
+                "        model = ExternalDataSchema\n",
+                "        fields = [\"id\", \"name\", \"should_sync\", \"last_synced_at\"]\n",
+                "\n",
+                "\n",
+                "class ExternalDataSchemaViewset(TeamAndOrgViewSetMixin, viewsets.ModelViewSet):\n",
+                "    scope_object = \"INTERNAL\"\n",
+                "    queryset = ExternalDataSchema.objects.all()\n",
+                "    serializer_class = ExternalDataSchemaSerializer\n",
+                "    filter_backends = [filters.SearchFilter]\n",
+                "    search_fields = [\"name\"]\n",
+                "    ordering = \"-created_at\"\n",
+                "\n",
+                "    def get_serializer_context(self) -> Dict[str, Any]:\n",
+                "        context = super().get_serializer_context()\n",
+                "        context[\"database\"] = create_hogql_database(team_id=self.team_id)\n",
+                "        return context\n",
+                "\n",
+                "    def get_queryset(self):\n",
+                "        if not isinstance(self.request.user, User) or self.request.user.current_team is None:\n",
+                "            raise NotAuthenticated()\n",
+                "\n",
+                "        if self.action == \"list\":\n",
+                "            return self.queryset.filter(team_id=self.team_id).prefetch_related(\"created_by\").order_by(self.ordering)\n",
+                "\n",
+                "        return self.queryset.filter(team_id=self.team_id).prefetch_related(\"created_by\").order_by(self.ordering)"
+            ]
+        ],
+        "posthog/warehouse/data_load/service.py": [
+            [
+                "from dataclasses import asdict\n",
+                "from datetime import timedelta\n",
+                "\n",
+                "from temporalio.client import (\n",
+                "    Schedule,\n",
+                "    ScheduleActionStartWorkflow,\n",
+                "    ScheduleIntervalSpec,\n",
+                "    ScheduleOverlapPolicy,\n",
+                "    SchedulePolicy,\n",
+                "    ScheduleSpec,\n",
+                "    ScheduleState,\n",
+                ")\n",
+                "\n",
+                "from posthog.constants import DATA_WAREHOUSE_TASK_QUEUE\n",
+                "from posthog.temporal.common.client import async_connect, sync_connect\n",
+                "from posthog.temporal.common.schedule import (\n",
+                "    a_create_schedule,\n",
+                "    a_delete_schedule,\n",
+                "    a_trigger_schedule,\n",
+                "    a_update_schedule,\n",
+                "    create_schedule,\n",
+                "    pause_schedule,\n",
+                "    a_schedule_exists,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    schedule_exists,\n"
+                ],
+                "parent_version_range": {
+                    "start": 23,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 23,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 7,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n  ...\n20 20        create_schedule,\n21 21        pause_schedule,\n22 22        a_schedule_exists,\n   23  +     schedule_exists,\n23 24        trigger_schedule,\n24 25        update_schedule,\n25 26        delete_schedule,\n       ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "schedule_exists"
+                ],
+                "prefix": [
+                    "    create_schedule,\n",
+                    "    pause_schedule,\n",
+                    "    a_schedule_exists,\n"
+                ],
+                "suffix": [
+                    "    trigger_schedule,\n",
+                    "    update_schedule,\n",
+                    "    delete_schedule,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    trigger_schedule,\n",
+                "    update_schedule,\n",
+                "    delete_schedule,\n",
+                "    unpause_schedule,\n",
+                ")\n",
+                "from posthog.temporal.utils import ExternalDataWorkflowInputs\n",
+                "from posthog.warehouse.models import ExternalDataSource\n",
+                "import temporalio\n",
+                "from temporalio.client import Client as TemporalClient\n",
+                "from asgiref.sync import async_to_sync\n",
+                "\n",
+                "from django.conf import settings\n",
+                "import s3fs\n",
+                "\n",
+                "from posthog.warehouse.models.external_data_schema import ExternalDataSchema\n",
+                "\n",
+                "\n",
+                "def get_sync_schedule(external_data_schema: ExternalDataSchema):\n",
+                "    inputs = ExternalDataWorkflowInputs(\n",
+                "        team_id=external_data_schema.team_id,\n",
+                "        external_data_schema_id=external_data_schema.id,\n",
+                "        external_data_source_id=external_data_schema.source_id,\n",
+                "    )\n",
+                "\n",
+                "    return Schedule(\n",
+                "        action=ScheduleActionStartWorkflow(\n",
+                "            \"external-data-job\",\n",
+                "            asdict(inputs),\n",
+                "            id=str(external_data_schema.id),\n",
+                "            task_queue=str(DATA_WAREHOUSE_TASK_QUEUE),\n",
+                "        ),\n",
+                "        spec=ScheduleSpec(\n",
+                "            intervals=[\n",
+                "                ScheduleIntervalSpec(\n",
+                "                    every=timedelta(hours=24), offset=timedelta(hours=external_data_schema.created_at.hour)\n",
+                "                )\n",
+                "            ],\n",
+                "            jitter=timedelta(hours=2),\n",
+                "        ),\n",
+                "        state=ScheduleState(note=f\"Schedule for external data source: {external_data_schema.pk}\"),\n",
+                "        policy=SchedulePolicy(overlap=ScheduleOverlapPolicy.SKIP),\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def sync_external_data_job_workflow(\n",
+                "    external_data_schema: ExternalDataSchema, create: bool = False\n",
+                ") -> ExternalDataSchema:\n",
+                "    temporal = sync_connect()\n",
+                "\n",
+                "    schedule = get_sync_schedule(external_data_schema)\n",
+                "\n",
+                "    if create:\n",
+                "        create_schedule(temporal, id=str(external_data_schema.id), schedule=schedule, trigger_immediately=True)\n",
+                "    else:\n",
+                "        update_schedule(temporal, id=str(external_data_schema.id), schedule=schedule)\n",
+                "\n",
+                "    return external_data_schema\n",
+                "\n",
+                "\n",
+                "async def a_sync_external_data_job_workflow(\n",
+                "    external_data_schema: ExternalDataSchema, create: bool = False\n",
+                ") -> ExternalDataSchema:\n",
+                "    temporal = await async_connect()\n",
+                "\n",
+                "    schedule = get_sync_schedule(external_data_schema)\n",
+                "\n",
+                "    if create:\n",
+                "        await a_create_schedule(temporal, id=str(external_data_schema.id), schedule=schedule, trigger_immediately=True)\n",
+                "    else:\n",
+                "        await a_update_schedule(temporal, id=str(external_data_schema.id), schedule=schedule)\n",
+                "\n",
+                "    return external_data_schema\n",
+                "\n",
+                "\n",
+                "def trigger_external_data_source_workflow(external_data_source: ExternalDataSource):\n",
+                "    temporal = sync_connect()\n",
+                "    trigger_schedule(temporal, schedule_id=str(external_data_source.id))\n",
+                "\n",
+                "\n",
+                "def trigger_external_data_workflow(external_data_schema: ExternalDataSchema):\n",
+                "    temporal = sync_connect()\n",
+                "    trigger_schedule(temporal, schedule_id=str(external_data_schema.id))\n",
+                "\n",
+                "\n",
+                "async def a_trigger_external_data_workflow(external_data_schema: ExternalDataSchema):\n",
+                "    temporal = await async_connect()\n",
+                "    await a_trigger_schedule(temporal, schedule_id=str(external_data_schema.id))\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "def external_data_workflow_exists(id: str) -> bool:\n",
+                    "    temporal = sync_connect()\n",
+                    "    return schedule_exists(temporal, schedule_id=id)\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 112,
+                    "end": 112
+                },
+                "child_version_range": {
+                    "start": 113,
+                    "end": 118
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 8,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n  ...\n109 110        await a_trigger_schedule(temporal, schedule_id=str(external_data_schema.id))\n110 111    \n111 112    \n    113  + def external_data_workflow_exists(id: str) -> bool:\n    114  +     temporal = sync_connect()\n    115  +     return schedule_exists(temporal, schedule_id=id)\n    116  + \n    117  + \n112 118    async def a_external_data_workflow_exists(id: str) -> bool:\n113 119        temporal = await async_connect()\n114 120        return await a_schedule_exists(temporal, schedule_id=id)\n         ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bool",
+                    "external_data_workflow_exists",
+                    "id",
+                    "schedule_exists",
+                    "schedule_id",
+                    "str",
+                    "sync_connect",
+                    "temporal"
+                ],
+                "prefix": [
+                    "    await a_trigger_schedule(temporal, schedule_id=str(external_data_schema.id))\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "async def a_external_data_workflow_exists(id: str) -> bool:\n",
+                    "    temporal = await async_connect()\n",
+                    "    return await a_schedule_exists(temporal, schedule_id=id)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 115,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 115,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "schedule_exists",
+                            "position": {
+                                "start": {
+                                    "line": 115,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 115,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "schedule_id",
+                            "position": {
+                                "start": {
+                                    "line": 115,
+                                    "column": 37
+                                },
+                                "end": {
+                                    "line": 115,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 113,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 113,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "external_data_workflow_exists",
+                            "position": {
+                                "start": {
+                                    "line": 113,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 113,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "async def a_external_data_workflow_exists(id: str) -> bool:\n",
+                "    temporal = await async_connect()\n",
+                "    return await a_schedule_exists(temporal, schedule_id=id)\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def pause_external_data_schedule(external_data_source: ExternalDataSource):\n"
+                ],
+                "after": [
+                    "def pause_external_data_schedule(id: str):\n"
+                ],
+                "parent_version_range": {
+                    "start": 117,
+                    "end": 118
+                },
+                "child_version_range": {
+                    "start": 123,
+                    "end": 124
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "pause_external_data_schedule",
+                        "signature": "def pause_external_data_schedule(external_data_source: ExternalDataSource):",
+                        "at_line": 117
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n114 120        return await a_schedule_exists(temporal, schedule_id=id)\n115 121    \n116 122    \n117      - def pause_external_data_schedule(external_data_source: ExternalDataSource):\n    123  + def pause_external_data_schedule(id: str):\n118 124        temporal = sync_connect()\n         ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [
+                    "ExternalDataSource",
+                    "external_data_source",
+                    "pause_external_data_schedule"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "pause_external_data_schedule",
+                    "str"
+                ],
+                "prefix": [
+                    "    return await a_schedule_exists(temporal, schedule_id=id)\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    temporal = sync_connect()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 117,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 117,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "external_data_source",
+                            "position": {
+                                "start": {
+                                    "line": 117,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 117,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "pause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "id",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    11
+                ]
+            },
+            [
+                "    temporal = sync_connect()\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    pause_schedule(temporal, schedule_id=str(external_data_source.id))\n"
+                ],
+                "after": [
+                    "    pause_schedule(temporal, schedule_id=id)\n"
+                ],
+                "parent_version_range": {
+                    "start": 119,
+                    "end": 120
+                },
+                "child_version_range": {
+                    "start": 125,
+                    "end": 126
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "pause_external_data_schedule",
+                        "signature": "def pause_external_data_schedule(external_data_source: ExternalDataSource):",
+                        "at_line": 117
+                    },
+                    {
+                        "type": "call",
+                        "name": "pause_schedule",
+                        "signature": "pause_schedule(temporal, schedule_id=str(external_data_source.id))",
+                        "at_line": 119,
+                        "argument": "temporal"
+                    }
+                ],
+                "idx": 10,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n           def pause_external_data_schedule(external_data_source: ExternalDataSource):\n               ...\n118 124        temporal = sync_connect()\n119      -     pause_schedule(temporal, schedule_id=str(external_data_source.id))\n    125  +     pause_schedule(temporal, schedule_id=id)\n120 126    \n121 127    \n         ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [
+                    "external_data_source",
+                    "id",
+                    "pause_schedule",
+                    "schedule_id",
+                    "str",
+                    "temporal"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "pause_schedule",
+                    "schedule_id",
+                    "temporal"
+                ],
+                "prefix": [
+                    "    temporal = sync_connect()\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "external_data_source",
+                            "position": {
+                                "start": {
+                                    "line": 119,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 119,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "id",
+                            "position": {
+                                "start": {
+                                    "line": 125,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 125,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    12
+                ]
+            },
+            [
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def unpause_external_data_schedule(external_data_source: ExternalDataSource):\n"
+                ],
+                "after": [
+                    "def unpause_external_data_schedule(id: str):\n"
+                ],
+                "parent_version_range": {
+                    "start": 122,
+                    "end": 123
+                },
+                "child_version_range": {
+                    "start": 128,
+                    "end": 129
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "unpause_external_data_schedule",
+                        "signature": "def unpause_external_data_schedule(external_data_source: ExternalDataSource):",
+                        "at_line": 122
+                    }
+                ],
+                "idx": 11,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n120 126    \n121 127    \n122      - def unpause_external_data_schedule(external_data_source: ExternalDataSource):\n    128  + def unpause_external_data_schedule(id: str):\n123 129        temporal = sync_connect()\n         ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [
+                    "ExternalDataSource",
+                    "external_data_source",
+                    "unpause_external_data_schedule"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "str",
+                    "unpause_external_data_schedule"
+                ],
+                "prefix": [
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    temporal = sync_connect()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 122,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 122,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "external_data_source",
+                            "position": {
+                                "start": {
+                                    "line": 122,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 122,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 128,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 128,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 128,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 128,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "unpause_external_data_schedule",
+                            "position": {
+                                "start": {
+                                    "line": 128,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 128,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "id",
+                            "position": {
+                                "start": {
+                                    "line": 128,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 128,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    9
+                ]
+            },
+            [
+                "    temporal = sync_connect()\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    unpause_schedule(temporal, schedule_id=str(external_data_source.id))\n"
+                ],
+                "after": [
+                    "    unpause_schedule(temporal, schedule_id=id)\n"
+                ],
+                "parent_version_range": {
+                    "start": 124,
+                    "end": 125
+                },
+                "child_version_range": {
+                    "start": 130,
+                    "end": 131
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "unpause_external_data_schedule",
+                        "signature": "def unpause_external_data_schedule(external_data_source: ExternalDataSource):",
+                        "at_line": 122
+                    },
+                    {
+                        "type": "call",
+                        "name": "unpause_schedule",
+                        "signature": "unpause_schedule(temporal, schedule_id=str(external_data_source.id))",
+                        "at_line": 124,
+                        "argument": "temporal"
+                    }
+                ],
+                "idx": 12,
+                "hunk_diff": "File: posthog/warehouse/data_load/service.py\nCode:\n           def unpause_external_data_schedule(external_data_source: ExternalDataSource):\n               ...\n123 129        temporal = sync_connect()\n124      -     unpause_schedule(temporal, schedule_id=str(external_data_source.id))\n    130  +     unpause_schedule(temporal, schedule_id=id)\n125 131    \n126 132    \n127 133    def delete_external_data_schedule(schedule_id: str):\n         ...\n",
+                "file_path": "posthog/warehouse/data_load/service.py",
+                "identifiers_before": [
+                    "external_data_source",
+                    "id",
+                    "schedule_id",
+                    "str",
+                    "temporal",
+                    "unpause_schedule"
+                ],
+                "identifiers_after": [
+                    "id",
+                    "schedule_id",
+                    "temporal",
+                    "unpause_schedule"
+                ],
+                "prefix": [
+                    "    temporal = sync_connect()\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "def delete_external_data_schedule(schedule_id: str):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "external_data_source",
+                            "position": {
+                                "start": {
+                                    "line": 124,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 124,
+                                    "column": 67
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "id",
+                            "position": {
+                                "start": {
+                                    "line": 130,
+                                    "column": 43
+                                },
+                                "end": {
+                                    "line": 130,
+                                    "column": 45
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/posthog/posthog/warehouse/data_load/service.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    10
+                ]
+            },
+            [
+                "\n",
+                "\n",
+                "def delete_external_data_schedule(schedule_id: str):\n",
+                "    temporal = sync_connect()\n",
+                "    try:\n",
+                "        delete_schedule(temporal, schedule_id=schedule_id)\n",
+                "    except temporalio.service.RPCError as e:\n",
+                "        # Swallow error if schedule does not exist already\n",
+                "        if e.status == temporalio.service.RPCStatusCode.NOT_FOUND:\n",
+                "            return\n",
+                "        raise\n",
+                "\n",
+                "\n",
+                "async def a_delete_external_data_schedule(external_data_source: ExternalDataSource):\n",
+                "    temporal = await async_connect()\n",
+                "    try:\n",
+                "        await a_delete_schedule(temporal, schedule_id=str(external_data_source.id))\n",
+                "    except temporalio.service.RPCError as e:\n",
+                "        # Swallow error if schedule does not exist already\n",
+                "        if e.status == temporalio.service.RPCStatusCode.NOT_FOUND:\n",
+                "            return\n",
+                "        raise\n",
+                "\n",
+                "\n",
+                "def cancel_external_data_workflow(workflow_id: str):\n",
+                "    temporal = sync_connect()\n",
+                "    cancel_workflow(temporal, workflow_id)\n",
+                "\n",
+                "\n",
+                "@async_to_sync\n",
+                "async def cancel_workflow(temporal: TemporalClient, workflow_id: str):\n",
+                "    handle = temporal.get_workflow_handle(workflow_id)\n",
+                "    await handle.cancel()\n",
+                "\n",
+                "\n",
+                "def delete_data_import_folder(folder_path: str):\n",
+                "    s3 = s3fs.S3FileSystem(\n",
+                "        key=settings.AIRBYTE_BUCKET_KEY,\n",
+                "        secret=settings.AIRBYTE_BUCKET_SECRET,\n",
+                "    )\n",
+                "    bucket_name = settings.BUCKET_URL\n",
+                "    s3.delete(f\"{bucket_name}/{folder_path}\", recursive=True)\n",
+                "\n",
+                "\n",
+                "def is_any_external_data_job_paused(team_id: int) -> bool:\n",
+                "    return ExternalDataSource.objects.filter(team_id=team_id, status=ExternalDataSource.Status.PAUSED).exists()"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            9,
+            10,
+            11,
+            12,
+            0,
+            1,
+            2,
+            7,
+            8,
+            5,
+            6,
+            3,
+            4
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and usage",
+            "scenario of 0 -> 1": "user may frist edit the defintion of function in edit 0, then use it in edit 1",
+            "scenario of 1 -> 0": "user may frist use it in edit 1, then edit the defintion of function in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and usage",
+            "scenario of 0 -> 1": "user may frist edit the defintion of function in edit 0, then use it in edit 1",
+            "scenario of 1 -> 0": "user may frist use it in edit 1, then edit the defintion of function in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and import",
+            "scenario of 0 -> 1": "user may define the function in edit 0, then use it in edit 1",
+            "scenario of 1 -> 0": "user may use the function in edit 1, then driven by error, to define it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency between them",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then define it in edit 1, driven by error",
+            "scenario of 1 -> 0": "user may first define the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency between them",
+            "scenario of 0 -> 1": "user may frist remove the import in edit 0, then driven by error, also remove the usage in edit 1",
+            "scenario of 1 -> 0": "user may first remove the usage in edit 1, then also remove the import in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import use",
+            "scenario of 0 -> 1": "user may first use functions in edit 0, then driven by error, import them in edit 1",
+            "scenario of 1 -> 0": "user may first import functions in edit 1, then use them in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and import",
+            "scenario of 0 -> 1": "user may fisrt define the function in edit 0, then import it in edit 1",
+            "scenario of 1 -> 0": "user may frist import the function in edit 1, then driven by error, define it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and import",
+            "scenario of 0 -> 1": "user may fisrt define the function in edit 0, then import it in edit 1",
+            "scenario of 1 -> 0": "user may frist import the function in edit 1, then driven by error, define it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Define function and import",
+            "scenario of 0 -> 1": "user may fisrt define the function in edit 0, then import it in edit 1",
+            "scenario of 1 -> 0": "user may frist import the function in edit 1, then driven by error, define it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency between them",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then define it in edit 1, driven by error",
+            "scenario of 1 -> 0": "user may first define the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency between them",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then define it in edit 1, driven by error",
+            "scenario of 1 -> 0": "user may first define the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and implement",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then implement it in edit 1",
+            "scenario of 1 -> 0": "user may first implement the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency between them",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then define it in edit 1, driven by error",
+            "scenario of 1 -> 0": "user may first define the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and implement",
+            "scenario of 0 -> 1": "user may frist use the function in edit 0, then implement it in edit 1",
+            "scenario of 1 -> 0": "user may first implement the function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import use",
+            "scenario of 0 -> 1": "user may use the function in edit 0, then import it in edit 1, driven by error",
+            "scenario of 1 -> 0": "user may first import function in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "positional",
+            "scenario of 0 -> 1": "user may edit in top-down order from edit 0 to edit 1",
+            "scenario of 1 -> 0": "user may edit in bottom-up order from edit 1 to edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                10,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                11,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "positional",
+            "scenario of 0 -> 1": "user may edit in top-down order from edit 0 to edit 1",
+            "scenario of 1 -> 0": "user may edit in bottom-up order from edit 1 to edit 0"
+        }
+    ]
+}

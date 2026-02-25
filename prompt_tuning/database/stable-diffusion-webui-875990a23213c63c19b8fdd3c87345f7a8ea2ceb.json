@@ -1,0 +1,1082 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/875990a23213c63c19b8fdd3c87345f7a8ea2ceb",
+    "commit_message": "Add option for /_stop route (for graceful shutdown)",
+    "commit_snapshots": {
+        "modules/cmd_args.py": [
+            [
+                "import argparse\n",
+                "import os\n",
+                "from modules.paths_internal import models_path, script_path, data_path, extensions_dir, extensions_builtin_dir, sd_default_config, sd_model_file  # noqa: F401\n",
+                "\n",
+                "parser = argparse.ArgumentParser()\n",
+                "\n",
+                "parser.add_argument(\"-f\", action='store_true', help=argparse.SUPPRESS)  # allows running as root; implemented outside of webui\n",
+                "parser.add_argument(\"--update-all-extensions\", action='store_true', help=\"launch.py argument: download updates for all extensions when starting the program\")\n",
+                "parser.add_argument(\"--skip-python-version-check\", action='store_true', help=\"launch.py argument: do not check python version\")\n",
+                "parser.add_argument(\"--skip-torch-cuda-test\", action='store_true', help=\"launch.py argument: do not check if CUDA is able to work properly\")\n",
+                "parser.add_argument(\"--reinstall-xformers\", action='store_true', help=\"launch.py argument: install the appropriate version of xformers even if you have some version already installed\")\n",
+                "parser.add_argument(\"--reinstall-torch\", action='store_true', help=\"launch.py argument: install the appropriate version of torch even if you have some version already installed\")\n",
+                "parser.add_argument(\"--update-check\", action='store_true', help=\"launch.py argument: chck for updates at startup\")\n",
+                "parser.add_argument(\"--tests\", type=str, default=None, help=\"launch.py argument: run tests in the specified directory\")\n",
+                "parser.add_argument(\"--no-tests\", action='store_true', help=\"launch.py argument: do not run tests even if --tests option is specified\")\n",
+                "parser.add_argument(\"--skip-install\", action='store_true', help=\"launch.py argument: skip installation of packages\")\n",
+                "parser.add_argument(\"--data-dir\", type=str, default=os.path.dirname(os.path.dirname(os.path.realpath(__file__))), help=\"base path where all user data is stored\")\n",
+                "parser.add_argument(\"--config\", type=str, default=sd_default_config, help=\"path to config which constructs model\",)\n",
+                "parser.add_argument(\"--ckpt\", type=str, default=sd_model_file, help=\"path to checkpoint of stable diffusion model; if specified, this checkpoint will be added to the list of checkpoints and loaded\",)\n",
+                "parser.add_argument(\"--ckpt-dir\", type=str, default=None, help=\"Path to directory with stable diffusion checkpoints\")\n",
+                "parser.add_argument(\"--vae-dir\", type=str, default=None, help=\"Path to directory with VAE files\")\n",
+                "parser.add_argument(\"--gfpgan-dir\", type=str, help=\"GFPGAN directory\", default=('./src/gfpgan' if os.path.exists('./src/gfpgan') else './GFPGAN'))\n",
+                "parser.add_argument(\"--gfpgan-model\", type=str, help=\"GFPGAN model file name\", default=None)\n",
+                "parser.add_argument(\"--no-half\", action='store_true', help=\"do not switch the model to 16-bit floats\")\n",
+                "parser.add_argument(\"--no-half-vae\", action='store_true', help=\"do not switch the VAE model to 16-bit floats\")\n",
+                "parser.add_argument(\"--no-progressbar-hiding\", action='store_true', help=\"do not hide progressbar in gradio UI (we hide it because it slows down ML if you have hardware acceleration in browser)\")\n",
+                "parser.add_argument(\"--max-batch-count\", type=int, default=16, help=\"maximum batch count value for the UI\")\n",
+                "parser.add_argument(\"--embeddings-dir\", type=str, default=os.path.join(data_path, 'embeddings'), help=\"embeddings directory for textual inversion (default: embeddings)\")\n",
+                "parser.add_argument(\"--textual-inversion-templates-dir\", type=str, default=os.path.join(script_path, 'textual_inversion_templates'), help=\"directory with textual inversion templates\")\n",
+                "parser.add_argument(\"--hypernetwork-dir\", type=str, default=os.path.join(models_path, 'hypernetworks'), help=\"hypernetwork directory\")\n",
+                "parser.add_argument(\"--localizations-dir\", type=str, default=os.path.join(script_path, 'localizations'), help=\"localizations directory\")\n",
+                "parser.add_argument(\"--allow-code\", action='store_true', help=\"allow custom script execution from webui\")\n",
+                "parser.add_argument(\"--medvram\", action='store_true', help=\"enable stable diffusion model optimizations for sacrificing a little speed for low VRM usage\")\n",
+                "parser.add_argument(\"--lowvram\", action='store_true', help=\"enable stable diffusion model optimizations for sacrificing a lot of speed for very low VRM usage\")\n",
+                "parser.add_argument(\"--lowram\", action='store_true', help=\"load stable diffusion checkpoint weights to VRAM instead of RAM\")\n",
+                "parser.add_argument(\"--always-batch-cond-uncond\", action='store_true', help=\"disables cond/uncond batching that is enabled to save memory with --medvram or --lowvram\")\n",
+                "parser.add_argument(\"--unload-gfpgan\", action='store_true', help=\"does not do anything.\")\n",
+                "parser.add_argument(\"--precision\", type=str, help=\"evaluate at this precision\", choices=[\"full\", \"autocast\"], default=\"autocast\")\n",
+                "parser.add_argument(\"--upcast-sampling\", action='store_true', help=\"upcast sampling. No effect with --no-half. Usually produces similar results to --no-half with better performance while using less memory.\")\n",
+                "parser.add_argument(\"--share\", action='store_true', help=\"use share=True for gradio and make the UI accessible through their site\")\n",
+                "parser.add_argument(\"--ngrok\", type=str, help=\"ngrok authtoken, alternative to gradio --share\", default=None)\n",
+                "parser.add_argument(\"--ngrok-region\", type=str, help=\"The region in which ngrok should start.\", default=\"us\")\n",
+                "parser.add_argument(\"--enable-insecure-extension-access\", action='store_true', help=\"enable extensions tab regardless of other options\")\n",
+                "parser.add_argument(\"--codeformer-models-path\", type=str, help=\"Path to directory with codeformer model file(s).\", default=os.path.join(models_path, 'Codeformer'))\n",
+                "parser.add_argument(\"--gfpgan-models-path\", type=str, help=\"Path to directory with GFPGAN model file(s).\", default=os.path.join(models_path, 'GFPGAN'))\n",
+                "parser.add_argument(\"--esrgan-models-path\", type=str, help=\"Path to directory with ESRGAN model file(s).\", default=os.path.join(models_path, 'ESRGAN'))\n",
+                "parser.add_argument(\"--bsrgan-models-path\", type=str, help=\"Path to directory with BSRGAN model file(s).\", default=os.path.join(models_path, 'BSRGAN'))\n",
+                "parser.add_argument(\"--realesrgan-models-path\", type=str, help=\"Path to directory with RealESRGAN model file(s).\", default=os.path.join(models_path, 'RealESRGAN'))\n",
+                "parser.add_argument(\"--clip-models-path\", type=str, help=\"Path to directory with CLIP model file(s).\", default=None)\n",
+                "parser.add_argument(\"--xformers\", action='store_true', help=\"enable xformers for cross attention layers\")\n",
+                "parser.add_argument(\"--force-enable-xformers\", action='store_true', help=\"enable xformers for cross attention layers regardless of whether the checking code thinks you can run it; do not make bug reports if this fails to work\")\n",
+                "parser.add_argument(\"--xformers-flash-attention\", action='store_true', help=\"enable xformers with Flash Attention to improve reproducibility (supported for SD2.x or variant only)\")\n",
+                "parser.add_argument(\"--deepdanbooru\", action='store_true', help=\"does not do anything\")\n",
+                "parser.add_argument(\"--opt-split-attention\", action='store_true', help=\"force-enables Doggettx's cross-attention layer optimization. By default, it's on for torch cuda.\")\n",
+                "parser.add_argument(\"--opt-sub-quad-attention\", action='store_true', help=\"enable memory efficient sub-quadratic cross-attention layer optimization\")\n",
+                "parser.add_argument(\"--sub-quad-q-chunk-size\", type=int, help=\"query chunk size for the sub-quadratic cross-attention layer optimization to use\", default=1024)\n",
+                "parser.add_argument(\"--sub-quad-kv-chunk-size\", type=int, help=\"kv chunk size for the sub-quadratic cross-attention layer optimization to use\", default=None)\n",
+                "parser.add_argument(\"--sub-quad-chunk-threshold\", type=int, help=\"the percentage of VRAM threshold for the sub-quadratic cross-attention layer optimization to use chunking\", default=None)\n",
+                "parser.add_argument(\"--opt-split-attention-invokeai\", action='store_true', help=\"force-enables InvokeAI's cross-attention layer optimization. By default, it's on when cuda is unavailable.\")\n",
+                "parser.add_argument(\"--opt-split-attention-v1\", action='store_true', help=\"enable older version of split attention optimization that does not consume all the VRAM it can find\")\n",
+                "parser.add_argument(\"--opt-sdp-attention\", action='store_true', help=\"enable scaled dot product cross-attention layer optimization; requires PyTorch 2.*\")\n",
+                "parser.add_argument(\"--opt-sdp-no-mem-attention\", action='store_true', help=\"enable scaled dot product cross-attention layer optimization without memory efficient attention, makes image generation deterministic; requires PyTorch 2.*\")\n",
+                "parser.add_argument(\"--disable-opt-split-attention\", action='store_true', help=\"force-disables cross-attention layer optimization\")\n",
+                "parser.add_argument(\"--disable-nan-check\", action='store_true', help=\"do not check if produced images/latent spaces have nans; useful for running without a checkpoint in CI\")\n",
+                "parser.add_argument(\"--use-cpu\", nargs='+', help=\"use CPU as torch device for specified modules\", default=[], type=str.lower)\n",
+                "parser.add_argument(\"--listen\", action='store_true', help=\"launch gradio with 0.0.0.0 as server name, allowing to respond to network requests\")\n",
+                "parser.add_argument(\"--port\", type=int, help=\"launch gradio with given server port, you need root/admin rights for ports < 1024, defaults to 7860 if available\", default=None)\n",
+                "parser.add_argument(\"--show-negative-prompt\", action='store_true', help=\"does not do anything\", default=False)\n",
+                "parser.add_argument(\"--ui-config-file\", type=str, help=\"filename to use for ui configuration\", default=os.path.join(data_path, 'ui-config.json'))\n",
+                "parser.add_argument(\"--hide-ui-dir-config\", action='store_true', help=\"hide directory configuration from webui\", default=False)\n",
+                "parser.add_argument(\"--freeze-settings\", action='store_true', help=\"disable editing settings\", default=False)\n",
+                "parser.add_argument(\"--ui-settings-file\", type=str, help=\"filename to use for ui settings\", default=os.path.join(data_path, 'config.json'))\n",
+                "parser.add_argument(\"--gradio-debug\",  action='store_true', help=\"launch gradio with --debug option\")\n",
+                "parser.add_argument(\"--gradio-auth\", type=str, help='set gradio authentication like \"username:password\"; or comma-delimit multiple like \"u1:p1,u2:p2,u3:p3\"', default=None)\n",
+                "parser.add_argument(\"--gradio-auth-path\", type=str, help='set gradio authentication file path ex. \"/path/to/auth/file\" same auth format as --gradio-auth', default=None)\n",
+                "parser.add_argument(\"--gradio-img2img-tool\", type=str, help='does not do anything')\n",
+                "parser.add_argument(\"--gradio-inpaint-tool\", type=str, help=\"does not do anything\")\n",
+                "parser.add_argument(\"--opt-channelslast\", action='store_true', help=\"change memory type for stable diffusion to channels last\")\n",
+                "parser.add_argument(\"--styles-file\", type=str, help=\"filename to use for styles\", default=os.path.join(data_path, 'styles.csv'))\n",
+                "parser.add_argument(\"--autolaunch\", action='store_true', help=\"open the webui URL in the system's default browser upon launch\", default=False)\n",
+                "parser.add_argument(\"--theme\", type=str, help=\"launches the UI with light or dark theme\", default=None)\n",
+                "parser.add_argument(\"--use-textbox-seed\", action='store_true', help=\"use textbox for seeds in UI (no up/down, but possible to input long seeds)\", default=False)\n",
+                "parser.add_argument(\"--disable-console-progressbars\", action='store_true', help=\"do not output progressbars to console\", default=False)\n",
+                "parser.add_argument(\"--enable-console-prompts\", action='store_true', help=\"print prompts to console when generating with txt2img and img2img\", default=False)\n",
+                "parser.add_argument('--vae-path', type=str, help='Checkpoint to use as VAE; setting this argument disables all settings related to VAE', default=None)\n",
+                "parser.add_argument(\"--disable-safe-unpickle\", action='store_true', help=\"disable checking pytorch models for malicious code\", default=False)\n",
+                "parser.add_argument(\"--api\", action='store_true', help=\"use api=True to launch the API together with the webui (use --nowebui instead for only the API)\")\n",
+                "parser.add_argument(\"--api-auth\", type=str, help='Set authentication for API like \"username:password\"; or comma-delimit multiple like \"u1:p1,u2:p2,u3:p3\"', default=None)\n",
+                "parser.add_argument(\"--api-log\", action='store_true', help=\"use api-log=True to enable logging of all API requests\")\n",
+                "parser.add_argument(\"--nowebui\", action='store_true', help=\"use api=True to launch the API instead of the webui\")\n",
+                "parser.add_argument(\"--ui-debug-mode\", action='store_true', help=\"Don't load model to quickly launch UI\")\n",
+                "parser.add_argument(\"--device-id\", type=str, help=\"Select the default CUDA device to use (export CUDA_VISIBLE_DEVICES=0,1,etc might be needed before)\", default=None)\n",
+                "parser.add_argument(\"--administrator\", action='store_true', help=\"Administrator rights\", default=False)\n",
+                "parser.add_argument(\"--cors-allow-origins\", type=str, help=\"Allowed CORS origin(s) in the form of a comma-separated list (no spaces)\", default=None)\n",
+                "parser.add_argument(\"--cors-allow-origins-regex\", type=str, help=\"Allowed CORS origin(s) in the form of a single regular expression\", default=None)\n",
+                "parser.add_argument(\"--tls-keyfile\", type=str, help=\"Partially enables TLS, requires --tls-certfile to fully function\", default=None)\n",
+                "parser.add_argument(\"--tls-certfile\", type=str, help=\"Partially enables TLS, requires --tls-keyfile to fully function\", default=None)\n",
+                "parser.add_argument(\"--disable-tls-verify\", action=\"store_false\", help=\"When passed, enables the use of self-signed certificates.\", default=None)\n",
+                "parser.add_argument(\"--server-name\", type=str, help=\"Sets hostname of server\", default=None)\n",
+                "parser.add_argument(\"--gradio-queue\", action='store_true', help=\"does not do anything\", default=True)\n",
+                "parser.add_argument(\"--no-gradio-queue\", action='store_true', help=\"Disables gradio queue; causes the webpage to use http requests instead of websockets; was the defaul in earlier versions\")\n",
+                "parser.add_argument(\"--skip-version-check\", action='store_true', help=\"Do not check versions of torch and xformers\")\n",
+                "parser.add_argument(\"--no-hashing\", action='store_true', help=\"disable sha256 hashing of checkpoints to help loading performance\", default=False)\n",
+                "parser.add_argument(\"--no-download-sd-model\", action='store_true', help=\"don't download SD1.5 model even if no model is found in --ckpt-dir\", default=False)\n",
+                "parser.add_argument('--subpath', type=str, help='customize the subpath for gradio, use with reverse proxy')\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "parser.add_argument('--add-stop-route', action='store_true', help='add /_stop route to stop server')"
+                ],
+                "parent_version_range": {
+                    "start": 105,
+                    "end": 105
+                },
+                "child_version_range": {
+                    "start": 105,
+                    "end": 106
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument('--subpath', type=str, help='customize the subpath for gradio, use with reverse proxy')",
+                        "at_line": 104,
+                        "argument": "'--subpath'"
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: modules/cmd_args.py\nCode:\n102 102    parser.add_argument(\"--no-hashing\", action='store_true', help=\"disable sha256 hashing of checkpoints to help loading performance\", default=False)\n103 103    parser.add_argument(\"--no-download-sd-model\", action='store_true', help=\"don't download SD1.5 model even if no model is found in --ckpt-dir\", default=False)\n104 104    parser.add_argument('--subpath', type=str, help='customize the subpath for gradio, use with reverse proxy')\n    105  + parser.add_argument('--add-stop-route', action='store_true', help='add /_stop route to stop server')\n         ...\n",
+                "file_path": "modules/cmd_args.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "action",
+                    "add_argument",
+                    "help",
+                    "parser"
+                ],
+                "prefix": [
+                    "parser.add_argument(\"--no-hashing\", action='store_true', help=\"disable sha256 hashing of checkpoints to help loading performance\", default=False)\n",
+                    "parser.add_argument(\"--no-download-sd-model\", action='store_true', help=\"don't download SD1.5 model even if no model is found in --ckpt-dir\", default=False)\n",
+                    "parser.add_argument('--subpath', type=str, help='customize the subpath for gradio, use with reverse proxy')\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            }
+        ],
+        "webui.py": [
+            [
+                "import os\n",
+                "import sys\n",
+                "import time\n",
+                "import importlib\n",
+                "import signal\n",
+                "import re\n",
+                "import warnings\n",
+                "import json\n",
+                "from threading import Thread\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from fastapi import FastAPI\n"
+                ],
+                "after": [
+                    "from fastapi import FastAPI, Response\n"
+                ],
+                "parent_version_range": {
+                    "start": 10,
+                    "end": 11
+                },
+                "child_version_range": {
+                    "start": 10,
+                    "end": 11
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: webui.py\nCode:\n  ...\n 7  7    import json\n 8  8    from threading import Thread\n 9  9    \n10     - from fastapi import FastAPI\n   10  + from fastapi import FastAPI, Response\n11 11    from fastapi.middleware.cors import CORSMiddleware\n12 12    from fastapi.middleware.gzip import GZipMiddleware\n13 13    from packaging import version\n       ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [
+                    "FastAPI",
+                    "fastapi"
+                ],
+                "identifiers_after": [
+                    "FastAPI",
+                    "Response",
+                    "fastapi"
+                ],
+                "prefix": [
+                    "import json\n",
+                    "from threading import Thread\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from fastapi.middleware.cors import CORSMiddleware\n",
+                    "from fastapi.middleware.gzip import GZipMiddleware\n",
+                    "from packaging import version\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "Response",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/webui.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from fastapi.middleware.cors import CORSMiddleware\n",
+                "from fastapi.middleware.gzip import GZipMiddleware\n",
+                "from packaging import version\n",
+                "\n",
+                "import logging\n",
+                "logging.getLogger(\"xformers\").addFilter(lambda record: 'A matching Triton is not available' not in record.getMessage())\n",
+                "\n",
+                "from modules import paths, timer, import_hook, errors  # noqa: F401\n",
+                "\n",
+                "startup_timer = timer.Timer()\n",
+                "\n",
+                "import torch\n",
+                "import pytorch_lightning   # noqa: F401 # pytorch_lightning should be imported after torch, but it re-enables warnings on import so import once to disable them\n",
+                "warnings.filterwarnings(action=\"ignore\", category=DeprecationWarning, module=\"pytorch_lightning\")\n",
+                "warnings.filterwarnings(action=\"ignore\", category=UserWarning, module=\"torchvision\")\n",
+                "\n",
+                "\n",
+                "startup_timer.record(\"import torch\")\n",
+                "\n",
+                "import gradio\n",
+                "startup_timer.record(\"import gradio\")\n",
+                "\n",
+                "import ldm.modules.encoders.modules  # noqa: F401\n",
+                "startup_timer.record(\"import ldm\")\n",
+                "\n",
+                "from modules import extra_networks, ui_extra_networks_checkpoints\n",
+                "from modules import extra_networks_hypernet, ui_extra_networks_hypernets, ui_extra_networks_textual_inversion\n",
+                "from modules.call_queue import wrap_gradio_gpu_call, wrap_queued_call, queue_lock  # noqa: F401\n",
+                "\n",
+                "# Truncate version number of nightly/local build of PyTorch to not cause exceptions with CodeFormer or Safetensors\n",
+                "if \".dev\" in torch.__version__ or \"+git\" in torch.__version__:\n",
+                "    torch.__long_version__ = torch.__version__\n",
+                "    torch.__version__ = re.search(r'[\\d.]+[\\d]', torch.__version__).group(0)\n",
+                "\n",
+                "from modules import shared, sd_samplers, upscaler, extensions, localization, ui_tempdir, ui_extra_networks, config_states\n",
+                "import modules.codeformer_model as codeformer\n",
+                "import modules.face_restoration\n",
+                "import modules.gfpgan_model as gfpgan\n",
+                "import modules.img2img\n",
+                "\n",
+                "import modules.lowvram\n",
+                "import modules.scripts\n",
+                "import modules.sd_hijack\n",
+                "import modules.sd_models\n",
+                "import modules.sd_vae\n",
+                "import modules.txt2img\n",
+                "import modules.script_callbacks\n",
+                "import modules.textual_inversion.textual_inversion\n",
+                "import modules.progress\n",
+                "\n",
+                "import modules.ui\n",
+                "from modules import modelloader\n",
+                "from modules.shared import cmd_opts\n",
+                "import modules.hypernetworks.hypernetwork\n",
+                "\n",
+                "startup_timer.record(\"other imports\")\n",
+                "\n",
+                "\n",
+                "if cmd_opts.server_name:\n",
+                "    server_name = cmd_opts.server_name\n",
+                "else:\n",
+                "    server_name = \"0.0.0.0\" if cmd_opts.listen else None\n",
+                "\n",
+                "\n",
+                "def fix_asyncio_event_loop_policy():\n",
+                "    \"\"\"\n",
+                "        The default `asyncio` event loop policy only automatically creates\n",
+                "        event loops in the main threads. Other threads must create event\n",
+                "        loops explicitly or `asyncio.get_event_loop` (and therefore\n",
+                "        `.IOLoop.current`) will fail. Installing this policy allows event\n",
+                "        loops to be created automatically on any thread, matching the\n",
+                "        behavior of Tornado versions prior to 5.0 (or 5.0 on Python 2).\n",
+                "    \"\"\"\n",
+                "\n",
+                "    import asyncio\n",
+                "\n",
+                "    if sys.platform == \"win32\" and hasattr(asyncio, \"WindowsSelectorEventLoopPolicy\"):\n",
+                "        # \"Any thread\" and \"selector\" should be orthogonal, but there's not a clean\n",
+                "        # interface for composing policies so pick the right base.\n",
+                "        _BasePolicy = asyncio.WindowsSelectorEventLoopPolicy  # type: ignore\n",
+                "    else:\n",
+                "        _BasePolicy = asyncio.DefaultEventLoopPolicy\n",
+                "\n",
+                "    class AnyThreadEventLoopPolicy(_BasePolicy):  # type: ignore\n",
+                "        \"\"\"Event loop policy that allows loop creation on any thread.\n",
+                "        Usage::\n",
+                "\n",
+                "            asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())\n",
+                "        \"\"\"\n",
+                "\n",
+                "        def get_event_loop(self) -> asyncio.AbstractEventLoop:\n",
+                "            try:\n",
+                "                return super().get_event_loop()\n",
+                "            except (RuntimeError, AssertionError):\n",
+                "                # This was an AssertionError in python 3.4.2 (which ships with debian jessie)\n",
+                "                # and changed to a RuntimeError in 3.4.3.\n",
+                "                # \"There is no current event loop in thread %r\"\n",
+                "                loop = self.new_event_loop()\n",
+                "                self.set_event_loop(loop)\n",
+                "                return loop\n",
+                "\n",
+                "    asyncio.set_event_loop_policy(AnyThreadEventLoopPolicy())\n",
+                "\n",
+                "\n",
+                "def check_versions():\n",
+                "    if shared.cmd_opts.skip_version_check:\n",
+                "        return\n",
+                "\n",
+                "    expected_torch_version = \"2.0.0\"\n",
+                "\n",
+                "    if version.parse(torch.__version__) < version.parse(expected_torch_version):\n",
+                "        errors.print_error_explanation(f\"\"\"\n",
+                "You are running torch {torch.__version__}.\n",
+                "The program is tested to work with torch {expected_torch_version}.\n",
+                "To reinstall the desired version, run with commandline flag --reinstall-torch.\n",
+                "Beware that this will cause a lot of large files to be downloaded, as well as\n",
+                "there are reports of issues with training tab on the latest version.\n",
+                "\n",
+                "Use --skip-version-check commandline argument to disable this check.\n",
+                "        \"\"\".strip())\n",
+                "\n",
+                "    expected_xformers_version = \"0.0.17\"\n",
+                "    if shared.xformers_available:\n",
+                "        import xformers\n",
+                "\n",
+                "        if version.parse(xformers.__version__) < version.parse(expected_xformers_version):\n",
+                "            errors.print_error_explanation(f\"\"\"\n",
+                "You are running xformers {xformers.__version__}.\n",
+                "The program is tested to work with xformers {expected_xformers_version}.\n",
+                "To reinstall the desired version, run with commandline flag --reinstall-xformers.\n",
+                "\n",
+                "Use --skip-version-check commandline argument to disable this check.\n",
+                "            \"\"\".strip())\n",
+                "\n",
+                "\n",
+                "def initialize():\n",
+                "    fix_asyncio_event_loop_policy()\n",
+                "\n",
+                "    check_versions()\n",
+                "\n",
+                "    extensions.list_extensions()\n",
+                "    localization.list_localizations(cmd_opts.localizations_dir)\n",
+                "    startup_timer.record(\"list extensions\")\n",
+                "\n",
+                "    config_state_file = shared.opts.restore_config_state_file\n",
+                "    shared.opts.restore_config_state_file = \"\"\n",
+                "    shared.opts.save(shared.config_filename)\n",
+                "\n",
+                "    if os.path.isfile(config_state_file):\n",
+                "        print(f\"*** About to restore extension state from file: {config_state_file}\")\n",
+                "        with open(config_state_file, \"r\", encoding=\"utf-8\") as f:\n",
+                "            config_state = json.load(f)\n",
+                "            config_states.restore_extension_config(config_state)\n",
+                "        startup_timer.record(\"restore extension config\")\n",
+                "    elif config_state_file:\n",
+                "        print(f\"!!! Config state backup not found: {config_state_file}\")\n",
+                "\n",
+                "    if cmd_opts.ui_debug_mode:\n",
+                "        shared.sd_upscalers = upscaler.UpscalerLanczos().scalers\n",
+                "        modules.scripts.load_scripts()\n",
+                "        return\n",
+                "\n",
+                "    modelloader.cleanup_models()\n",
+                "    modules.sd_models.setup_model()\n",
+                "    startup_timer.record(\"list SD models\")\n",
+                "\n",
+                "    codeformer.setup_model(cmd_opts.codeformer_models_path)\n",
+                "    startup_timer.record(\"setup codeformer\")\n",
+                "\n",
+                "    gfpgan.setup_model(cmd_opts.gfpgan_models_path)\n",
+                "    startup_timer.record(\"setup gfpgan\")\n",
+                "\n",
+                "    modules.scripts.load_scripts()\n",
+                "    startup_timer.record(\"load scripts\")\n",
+                "\n",
+                "    modelloader.load_upscalers()\n",
+                "    startup_timer.record(\"load upscalers\")\n",
+                "\n",
+                "    modules.sd_vae.refresh_vae_list()\n",
+                "    startup_timer.record(\"refresh VAE\")\n",
+                "\n",
+                "    modules.textual_inversion.textual_inversion.list_textual_inversion_templates()\n",
+                "    startup_timer.record(\"refresh textual inversion templates\")\n",
+                "\n",
+                "    # load model in parallel to other startup stuff\n",
+                "    Thread(target=lambda: shared.sd_model).start()\n",
+                "\n",
+                "    shared.opts.onchange(\"sd_model_checkpoint\", wrap_queued_call(lambda: modules.sd_models.reload_model_weights()), call=False)\n",
+                "    shared.opts.onchange(\"sd_vae\", wrap_queued_call(lambda: modules.sd_vae.reload_vae_weights()), call=False)\n",
+                "    shared.opts.onchange(\"sd_vae_as_default\", wrap_queued_call(lambda: modules.sd_vae.reload_vae_weights()), call=False)\n",
+                "    shared.opts.onchange(\"temp_dir\", ui_tempdir.on_tmpdir_changed)\n",
+                "    shared.opts.onchange(\"gradio_theme\", shared.reload_gradio_theme)\n",
+                "    startup_timer.record(\"opts onchange\")\n",
+                "\n",
+                "    shared.reload_hypernetworks()\n",
+                "    startup_timer.record(\"reload hypernets\")\n",
+                "\n",
+                "    ui_extra_networks.intialize()\n",
+                "    ui_extra_networks.register_page(ui_extra_networks_textual_inversion.ExtraNetworksPageTextualInversion())\n",
+                "    ui_extra_networks.register_page(ui_extra_networks_hypernets.ExtraNetworksPageHypernetworks())\n",
+                "    ui_extra_networks.register_page(ui_extra_networks_checkpoints.ExtraNetworksPageCheckpoints())\n",
+                "\n",
+                "    extra_networks.initialize()\n",
+                "    extra_networks.register_extra_network(extra_networks_hypernet.ExtraNetworkHypernet())\n",
+                "    startup_timer.record(\"extra networks\")\n",
+                "\n",
+                "    if cmd_opts.tls_keyfile is not None and cmd_opts.tls_keyfile is not None:\n",
+                "\n",
+                "        try:\n",
+                "            if not os.path.exists(cmd_opts.tls_keyfile):\n",
+                "                print(\"Invalid path to TLS keyfile given\")\n",
+                "            if not os.path.exists(cmd_opts.tls_certfile):\n",
+                "                print(f\"Invalid path to TLS certfile: '{cmd_opts.tls_certfile}'\")\n",
+                "        except TypeError:\n",
+                "            cmd_opts.tls_keyfile = cmd_opts.tls_certfile = None\n",
+                "            print(\"TLS setup invalid, running webui without TLS\")\n",
+                "        else:\n",
+                "            print(\"Running with TLS\")\n",
+                "        startup_timer.record(\"TLS\")\n",
+                "\n",
+                "    # make the program just exit at ctrl+c without waiting for anything\n",
+                "    def sigint_handler(sig, frame):\n",
+                "        print(f'Interrupted with signal {sig} in {frame}')\n",
+                "        os._exit(0)\n",
+                "\n",
+                "    if not os.environ.get(\"COVERAGE_RUN\"):\n",
+                "        # Don't install the immediate-quit handler when running under coverage,\n",
+                "        # as then the coverage report won't be generated.\n",
+                "        signal.signal(signal.SIGINT, sigint_handler)\n",
+                "\n",
+                "\n",
+                "def setup_middleware(app):\n",
+                "    app.middleware_stack = None # reset current middleware to allow modifying user provided list\n",
+                "    app.add_middleware(GZipMiddleware, minimum_size=1000)\n",
+                "    if cmd_opts.cors_allow_origins and cmd_opts.cors_allow_origins_regex:\n",
+                "        app.add_middleware(CORSMiddleware, allow_origins=cmd_opts.cors_allow_origins.split(','), allow_origin_regex=cmd_opts.cors_allow_origins_regex, allow_methods=['*'], allow_credentials=True, allow_headers=['*'])\n",
+                "    elif cmd_opts.cors_allow_origins:\n",
+                "        app.add_middleware(CORSMiddleware, allow_origins=cmd_opts.cors_allow_origins.split(','), allow_methods=['*'], allow_credentials=True, allow_headers=['*'])\n",
+                "    elif cmd_opts.cors_allow_origins_regex:\n",
+                "        app.add_middleware(CORSMiddleware, allow_origin_regex=cmd_opts.cors_allow_origins_regex, allow_methods=['*'], allow_credentials=True, allow_headers=['*'])\n",
+                "    app.build_middleware_stack() # rebuild middleware stack on-the-fly\n",
+                "\n",
+                "\n",
+                "def create_api(app):\n",
+                "    from modules.api.api import Api\n",
+                "    api = Api(app, queue_lock)\n",
+                "    return api\n",
+                "\n",
+                "\n",
+                "def api_only():\n",
+                "    initialize()\n",
+                "\n",
+                "    app = FastAPI()\n",
+                "    setup_middleware(app)\n",
+                "    api = create_api(app)\n",
+                "\n",
+                "    modules.script_callbacks.app_started_callback(None, app)\n",
+                "\n",
+                "    print(f\"Startup time: {startup_timer.summary()}.\")\n",
+                "    api.launch(server_name=\"0.0.0.0\" if cmd_opts.listen else \"127.0.0.1\", port=cmd_opts.port if cmd_opts.port else 7861)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "def stop_route(request):\n",
+                    "    shared.state.server_command = \"stop\"\n",
+                    "    return Response(\"Stopping.\")\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 272,
+                    "end": 272
+                },
+                "child_version_range": {
+                    "start": 272,
+                    "end": 278
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: webui.py\nCode:\n  ...\n269 269        print(f\"Startup time: {startup_timer.summary()}.\")\n270 270        api.launch(server_name=\"0.0.0.0\" if cmd_opts.listen else \"127.0.0.1\", port=cmd_opts.port if cmd_opts.port else 7861)\n271 271    \n    272  + \n    273  + def stop_route(request):\n    274  +     shared.state.server_command = \"stop\"\n    275  +     return Response(\"Stopping.\")\n    276  + \n    277  + \n272 278    def webui():\n273 279        launch_api = cmd_opts.api\n274 280        initialize()\n         ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Response",
+                    "request",
+                    "server_command",
+                    "shared",
+                    "state",
+                    "stop_route"
+                ],
+                "prefix": [
+                    "    print(f\"Startup time: {startup_timer.summary()}.\")\n",
+                    "    api.launch(server_name=\"0.0.0.0\" if cmd_opts.listen else \"127.0.0.1\", port=cmd_opts.port if cmd_opts.port else 7861)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def webui():\n",
+                    "    launch_api = cmd_opts.api\n",
+                    "    initialize()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "Response",
+                            "position": {
+                                "start": {
+                                    "line": 275,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 275,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/webui.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "stop_route",
+                            "position": {
+                                "start": {
+                                    "line": 273,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 273,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/webui.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "def webui():\n",
+                "    launch_api = cmd_opts.api\n",
+                "    initialize()\n",
+                "\n",
+                "    while 1:\n",
+                "        if shared.opts.clean_temp_dir_at_start:\n",
+                "            ui_tempdir.cleanup_tmpdr()\n",
+                "            startup_timer.record(\"cleanup temp dir\")\n",
+                "\n",
+                "        modules.script_callbacks.before_ui_callback()\n",
+                "        startup_timer.record(\"scripts before_ui_callback\")\n",
+                "\n",
+                "        shared.demo = modules.ui.create_ui()\n",
+                "        startup_timer.record(\"create ui\")\n",
+                "\n",
+                "        if not cmd_opts.no_gradio_queue:\n",
+                "            shared.demo.queue(64)\n",
+                "\n",
+                "        gradio_auth_creds = []\n",
+                "        if cmd_opts.gradio_auth:\n",
+                "            gradio_auth_creds += [x.strip() for x in cmd_opts.gradio_auth.strip('\"').replace('\\n', '').split(',') if x.strip()]\n",
+                "        if cmd_opts.gradio_auth_path:\n",
+                "            with open(cmd_opts.gradio_auth_path, 'r', encoding=\"utf8\") as file:\n",
+                "                for line in file.readlines():\n",
+                "                    gradio_auth_creds += [x.strip() for x in line.split(',') if x.strip()]\n",
+                "\n",
+                "        # this restores the missing /docs endpoint\n",
+                "        if launch_api and not hasattr(FastAPI, 'original_setup'):\n",
+                "            def fastapi_setup(self):\n",
+                "                self.docs_url = \"/docs\"\n",
+                "                self.redoc_url = \"/redoc\"\n",
+                "                self.original_setup()\n",
+                "\n",
+                "            FastAPI.original_setup = FastAPI.setup\n",
+                "            FastAPI.setup = fastapi_setup\n",
+                "\n",
+                "        app, local_url, share_url = shared.demo.launch(\n",
+                "            share=cmd_opts.share,\n",
+                "            server_name=server_name,\n",
+                "            server_port=cmd_opts.port,\n",
+                "            ssl_keyfile=cmd_opts.tls_keyfile,\n",
+                "            ssl_certfile=cmd_opts.tls_certfile,\n",
+                "            ssl_verify=cmd_opts.disable_tls_verify,\n",
+                "            debug=cmd_opts.gradio_debug,\n",
+                "            auth=[tuple(cred.split(':')) for cred in gradio_auth_creds] if gradio_auth_creds else None,\n",
+                "            inbrowser=cmd_opts.autolaunch,\n",
+                "            prevent_thread_lock=True\n",
+                "        )\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if cmd_opts.add_stop_route:\n",
+                    "            app.add_route(\"/_stop\", stop_route, methods=[\"POST\"])\n"
+                ],
+                "parent_version_range": {
+                    "start": 320,
+                    "end": 320
+                },
+                "child_version_range": {
+                    "start": 326,
+                    "end": 328
+                },
+                "control_flow": [
+                    {
+                        "type": "while_statement",
+                        "statement": "while 1:",
+                        "start_line": 276,
+                        "end_line": 422
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "webui",
+                        "signature": "def webui():",
+                        "at_line": 272
+                    },
+                    {
+                        "type": "call",
+                        "name": "shared.demo.launch",
+                        "signature": "shared.demo.launch(\n            share=cmd_opts.share,\n            server_name=server_name,\n            server_port=cmd_opts.port,\n            ssl_keyfile=cmd_opts.tls_keyfile,\n            ssl_certfile=cmd_opts.tls_certfile,\n            ssl_verify=cmd_opts.disable_tls_verify,\n            debug=cmd_opts.gradio_debug,\n            auth=[tuple(cred.split(':')) for cred in gradio_auth_creds] if gradio_auth_creds else None,\n            inbrowser=cmd_opts.autolaunch,\n            prevent_thread_lock=True\n        )",
+                        "at_line": 308
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: webui.py\nCode:\n           def webui():\n               ...\n               shared.demo.launch(\n            share=cmd_opts.share,\n            server_name=server_name,\n            server_port=cmd_opts.port,\n            ssl_keyfile=cmd_opts.tls_keyfile,\n            ssl_certfile=cmd_opts.tls_certfile,\n            ssl_verify=cmd_opts.disable_tls_verify,\n            debug=cmd_opts.gradio_debug,\n            auth=[tuple(cred.split(':')) for cred in gradio_auth_creds] if gradio_auth_creds else None,\n            inbrowser=cmd_opts.autolaunch,\n            prevent_thread_lock=True\n        )\n                   ...\n317 323                inbrowser=cmd_opts.autolaunch,\n318 324                prevent_thread_lock=True\n319 325            )\n    326  +         if cmd_opts.add_stop_route:\n    327  +             app.add_route(\"/_stop\", stop_route, methods=[\"POST\"])\n320 328    \n321 329            # after initial launch, disable --autolaunch for subsequent restarts\n322 330            cmd_opts.autolaunch = False\n         ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "add_route",
+                    "add_stop_route",
+                    "app",
+                    "cmd_opts",
+                    "methods",
+                    "stop_route"
+                ],
+                "prefix": [
+                    "            inbrowser=cmd_opts.autolaunch,\n",
+                    "            prevent_thread_lock=True\n",
+                    "        )\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        # after initial launch, disable --autolaunch for subsequent restarts\n",
+                    "        cmd_opts.autolaunch = False\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "stop_route",
+                            "position": {
+                                "start": {
+                                    "line": 327,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 327,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/webui.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        # after initial launch, disable --autolaunch for subsequent restarts\n",
+                "        cmd_opts.autolaunch = False\n",
+                "\n",
+                "        startup_timer.record(\"gradio launch\")\n",
+                "\n",
+                "        # gradio uses a very open CORS policy via app.user_middleware, which makes it possible for\n",
+                "        # an attacker to trick the user into opening a malicious HTML page, which makes a request to the\n",
+                "        # running web ui and do whatever the attacker wants, including installing an extension and\n",
+                "        # running its code. We disable this here. Suggested by RyotaK.\n",
+                "        app.user_middleware = [x for x in app.user_middleware if x.cls.__name__ != 'CORSMiddleware']\n",
+                "\n",
+                "        setup_middleware(app)\n",
+                "\n",
+                "        modules.progress.setup_progress_api(app)\n",
+                "        modules.ui.setup_ui_api(app)\n",
+                "\n",
+                "        if launch_api:\n",
+                "            create_api(app)\n",
+                "\n",
+                "        ui_extra_networks.add_pages_to_demo(app)\n",
+                "\n",
+                "        modules.script_callbacks.app_started_callback(shared.demo, app)\n",
+                "        startup_timer.record(\"scripts app_started_callback\")\n",
+                "\n",
+                "        print(f\"Startup time: {startup_timer.summary()}.\")\n",
+                "\n",
+                "        if cmd_opts.subpath:\n",
+                "            redirector = FastAPI()\n",
+                "            redirector.get(\"/\")\n",
+                "            gradio.mount_gradio_app(redirector, shared.demo, path=f\"/{cmd_opts.subpath}\")\n",
+                "\n",
+                "        try:\n",
+                "            while True:\n",
+                "                server_command = shared.state.wait_for_server_command(timeout=5)\n",
+                "                if server_command:\n",
+                "                    if server_command in (\"stop\", \"restart\"):\n",
+                "                        break\n",
+                "                    else:\n",
+                "                        print(f\"Unknown server command: {server_command}\")\n",
+                "        except KeyboardInterrupt:\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            print('Caught KeyboardInterrupt, stopping...')\n"
+                ],
+                "parent_version_range": {
+                    "start": 361,
+                    "end": 361
+                },
+                "child_version_range": {
+                    "start": 369,
+                    "end": 370
+                },
+                "control_flow": [
+                    {
+                        "type": "while_statement",
+                        "statement": "while 1:",
+                        "start_line": 276,
+                        "end_line": 422
+                    },
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 352,
+                        "end_line": 361
+                    },
+                    {
+                        "type": "except_clause",
+                        "statement": "except KeyboardInterrupt:",
+                        "start_line": 360,
+                        "end_line": 361
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "webui",
+                        "signature": "def webui():",
+                        "at_line": 272
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: webui.py\nCode:\n           def webui():\n               ...\n358 366                        else:\n359 367                            print(f\"Unknown server command: {server_command}\")\n360 368            except KeyboardInterrupt:\n    369  +             print('Caught KeyboardInterrupt, stopping...')\n361 370                server_command = \"stop\"\n362 371    \n363 372            if server_command == \"stop\":\n         ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "print"
+                ],
+                "prefix": [
+                    "                    else:\n",
+                    "                        print(f\"Unknown server command: {server_command}\")\n",
+                    "        except KeyboardInterrupt:\n"
+                ],
+                "suffix": [
+                    "            server_command = \"stop\"\n",
+                    "\n",
+                    "        if server_command == \"stop\":\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            server_command = \"stop\"\n",
+                "\n",
+                "        if server_command == \"stop\":\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            print(\"Stopping server...\")\n"
+                ],
+                "parent_version_range": {
+                    "start": 364,
+                    "end": 364
+                },
+                "child_version_range": {
+                    "start": 373,
+                    "end": 374
+                },
+                "control_flow": [
+                    {
+                        "type": "while_statement",
+                        "statement": "while 1:",
+                        "start_line": 276,
+                        "end_line": 422
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if server_command == \"stop\":",
+                        "start_line": 363,
+                        "end_line": 367
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "webui",
+                        "signature": "def webui():",
+                        "at_line": 272
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: webui.py\nCode:\n           def webui():\n               ...\n361 370                server_command = \"stop\"\n362 371    \n363 372            if server_command == \"stop\":\n    373  +             print(\"Stopping server...\")\n364 374                # If we catch a keyboard interrupt, we want to stop the server and exit.\n         ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "print"
+                ],
+                "prefix": [
+                    "            server_command = \"stop\"\n",
+                    "\n",
+                    "        if server_command == \"stop\":\n"
+                ],
+                "suffix": [
+                    "            # If we catch a keyboard interrupt, we want to stop the server and exit.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            # If we catch a keyboard interrupt, we want to stop the server and exit.\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "            print('Caught KeyboardInterrupt, stopping...')\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 365,
+                    "end": 366
+                },
+                "child_version_range": {
+                    "start": 375,
+                    "end": 375
+                },
+                "control_flow": [
+                    {
+                        "type": "while_statement",
+                        "statement": "while 1:",
+                        "start_line": 276,
+                        "end_line": 422
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if server_command == \"stop\":",
+                        "start_line": 363,
+                        "end_line": 367
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "webui",
+                        "signature": "def webui():",
+                        "at_line": 272
+                    },
+                    {
+                        "type": "call",
+                        "name": "print",
+                        "signature": "print('Caught KeyboardInterrupt, stopping...')",
+                        "at_line": 365,
+                        "argument": "'Caught KeyboardInterrupt, sto..."
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: webui.py\nCode:\n           def webui():\n               ...\n364 374                # If we catch a keyboard interrupt, we want to stop the server and exit.\n365      -             print('Caught KeyboardInterrupt, stopping...')\n366 375                shared.demo.close()\n367 376                break\n368 377            print('Restarting UI...')\n         ...\n",
+                "file_path": "webui.py",
+                "identifiers_before": [
+                    "print"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "            # If we catch a keyboard interrupt, we want to stop the server and exit.\n"
+                ],
+                "suffix": [
+                    "            shared.demo.close()\n",
+                    "            break\n",
+                    "        print('Restarting UI...')\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            shared.demo.close()\n",
+                "            break\n",
+                "        print('Restarting UI...')\n",
+                "        shared.demo.close()\n",
+                "        time.sleep(0.5)\n",
+                "        modules.script_callbacks.app_reload_callback()\n",
+                "\n",
+                "        startup_timer.reset()\n",
+                "\n",
+                "        sd_samplers.set_samplers()\n",
+                "\n",
+                "        modules.script_callbacks.script_unloaded_callback()\n",
+                "        extensions.list_extensions()\n",
+                "        startup_timer.record(\"list extensions\")\n",
+                "\n",
+                "        config_state_file = shared.opts.restore_config_state_file\n",
+                "        shared.opts.restore_config_state_file = \"\"\n",
+                "        shared.opts.save(shared.config_filename)\n",
+                "\n",
+                "        if os.path.isfile(config_state_file):\n",
+                "            print(f\"*** About to restore extension state from file: {config_state_file}\")\n",
+                "            with open(config_state_file, \"r\", encoding=\"utf-8\") as f:\n",
+                "                config_state = json.load(f)\n",
+                "                config_states.restore_extension_config(config_state)\n",
+                "            startup_timer.record(\"restore extension config\")\n",
+                "        elif config_state_file:\n",
+                "            print(f\"!!! Config state backup not found: {config_state_file}\")\n",
+                "\n",
+                "        localization.list_localizations(cmd_opts.localizations_dir)\n",
+                "\n",
+                "        modules.scripts.reload_scripts()\n",
+                "        startup_timer.record(\"load scripts\")\n",
+                "\n",
+                "        modules.script_callbacks.model_loaded_callback(shared.sd_model)\n",
+                "        startup_timer.record(\"model loaded callback\")\n",
+                "\n",
+                "        modelloader.load_upscalers()\n",
+                "        startup_timer.record(\"load upscalers\")\n",
+                "\n",
+                "        for module in [module for name, module in sys.modules.items() if name.startswith(\"modules.ui\")]:\n",
+                "            importlib.reload(module)\n",
+                "        startup_timer.record(\"reload script modules\")\n",
+                "\n",
+                "        modules.sd_models.list_models()\n",
+                "        startup_timer.record(\"list SD models\")\n",
+                "\n",
+                "        shared.reload_hypernetworks()\n",
+                "        startup_timer.record(\"reload hypernetworks\")\n",
+                "\n",
+                "        ui_extra_networks.intialize()\n",
+                "        ui_extra_networks.register_page(ui_extra_networks_textual_inversion.ExtraNetworksPageTextualInversion())\n",
+                "        ui_extra_networks.register_page(ui_extra_networks_hypernets.ExtraNetworksPageHypernetworks())\n",
+                "        ui_extra_networks.register_page(ui_extra_networks_checkpoints.ExtraNetworksPageCheckpoints())\n",
+                "\n",
+                "        extra_networks.initialize()\n",
+                "        extra_networks.register_extra_network(extra_networks_hypernet.ExtraNetworkHypernet())\n",
+                "        startup_timer.record(\"initialize extra networks\")\n",
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    if cmd_opts.nowebui:\n",
+                "        api_only()\n",
+                "    else:\n",
+                "        webui()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "arg def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "1 before 0",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "less strong relation"
+        }
+    ]
+}

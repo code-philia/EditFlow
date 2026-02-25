@@ -1,0 +1,922 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/scikit-learn/scikit-learn/commit/a707c34d1c91dbd8ea076e137c658327bdc1fe8e",
+    "commit_message": "ENH remove duplicate definition of \"assert_lower\" in tests",
+    "commit_snapshots": {
+        "sklearn/manifold/tests/test_isomap.py": [
+            [
+                "from itertools import product\n",
+                "import numpy as np\n",
+                "from numpy.testing import assert_almost_equal, assert_array_almost_equal\n",
+                "from nose.tools import assert_true\n",
+                "\n",
+                "\n",
+                "from sklearn import datasets\n",
+                "from sklearn import manifold\n",
+                "from sklearn import neighbors\n",
+                "from sklearn import pipeline\n",
+                "from sklearn import preprocessing\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from sklearn.utils.testing import assert_lower\n"
+                ],
+                "parent_version_range": {
+                    "start": 11,
+                    "end": 11
+                },
+                "child_version_range": {
+                    "start": 11,
+                    "end": 12
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: sklearn/manifold/tests/test_isomap.py\nCode:\n  ...\n 8  8    from sklearn import neighbors\n 9  9    from sklearn import pipeline\n10 10    from sklearn import preprocessing\n   11  + from sklearn.utils.testing import assert_lower\n11 12    \n12 13    eigen_solvers = ['auto', 'dense', 'arpack']\n13 14    path_methods = ['auto', 'FW', 'D']\n       ...\n",
+                "file_path": "sklearn/manifold/tests/test_isomap.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "assert_lower",
+                    "sklearn",
+                    "testing",
+                    "utils"
+                ],
+                "prefix": [
+                    "from sklearn import neighbors\n",
+                    "from sklearn import pipeline\n",
+                    "from sklearn import preprocessing\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "eigen_solvers = ['auto', 'dense', 'arpack']\n",
+                    "path_methods = ['auto', 'FW', 'D']\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "assert_lower",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/manifold/tests/test_isomap.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "\n",
+                "eigen_solvers = ['auto', 'dense', 'arpack']\n",
+                "path_methods = ['auto', 'FW', 'D']\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "def assert_lower(a, b, details=None):\n",
+                    "    message = \"%r is not lower than %r\" % (a, b)\n",
+                    "    if details is not None:\n",
+                    "        message += \": \" + details\n",
+                    "    assert a < b, message\n",
+                    "\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 17
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "assert_lower",
+                        "signature": "def assert_lower(a, b, details=None):",
+                        "at_line": 16
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: sklearn/manifold/tests/test_isomap.py\nCode:\n13 14    path_methods = ['auto', 'FW', 'D']\n14 15    \n15 16    \n16     - def assert_lower(a, b, details=None):\n17     -     message = \"%r is not lower than %r\" % (a, b)\n18     -     if details is not None:\n19     -         message += \": \" + details\n20     -     assert a < b, message\n21     - \n22     - \n23 17    def test_isomap_simple_grid():\n24 18        # Isomap should preserve distances when all neighbors are used\n25 19        N_per_side = 5\n       ...\n",
+                "file_path": "sklearn/manifold/tests/test_isomap.py",
+                "identifiers_before": [
+                    "a",
+                    "assert_lower",
+                    "b",
+                    "details",
+                    "message"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "path_methods = ['auto', 'FW', 'D']\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def test_isomap_simple_grid():\n",
+                    "    # Isomap should preserve distances when all neighbors are used\n",
+                    "    N_per_side = 5\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "def test_isomap_simple_grid():\n",
+                "    # Isomap should preserve distances when all neighbors are used\n",
+                "    N_per_side = 5\n",
+                "    Npts = N_per_side ** 2\n",
+                "    n_neighbors = Npts - 1\n",
+                "\n",
+                "    # grid of equidistant points in 2D, out_dim = n_dim\n",
+                "    X = np.array(list(product(range(N_per_side), repeat=2)))\n",
+                "\n",
+                "    # distances from each point to all others\n",
+                "    G = neighbors.kneighbors_graph(X, n_neighbors,\n",
+                "                                   mode='distance').toarray()\n",
+                "\n",
+                "    for eigen_solver in eigen_solvers:\n",
+                "        for path_method in path_methods:\n",
+                "            clf = manifold.Isomap(n_neighbors=n_neighbors, out_dim=2,\n",
+                "                                  eigen_solver=eigen_solver,\n",
+                "                                  path_method=path_method)\n",
+                "            clf.fit(X)\n",
+                "\n",
+                "            G_iso = neighbors.kneighbors_graph(clf.embedding_,\n",
+                "                                               n_neighbors,\n",
+                "                                               mode='distance').toarray()\n",
+                "            assert_array_almost_equal(G, G_iso)\n",
+                "\n",
+                "\n",
+                "def test_isomap_reconstruction_error():\n",
+                "    # Same setup as in test_isomap_simple_grid, with an added dimension\n",
+                "    N_per_side = 5\n",
+                "    Npts = N_per_side ** 2\n",
+                "    n_neighbors = Npts - 1\n",
+                "\n",
+                "    # grid of equidistant points in 2D, out_dim = n_dim\n",
+                "    X = np.array(list(product(range(N_per_side), repeat=2)))\n",
+                "\n",
+                "    # add noise in a third dimension\n",
+                "    rng = np.random.RandomState(0)\n",
+                "    noise = 0.1 * rng.randn(Npts, 1)\n",
+                "    X = np.concatenate((X, noise), 1)\n",
+                "\n",
+                "    # compute input kernel\n",
+                "    G = neighbors.kneighbors_graph(X, n_neighbors,\n",
+                "                                   mode='distance').toarray()\n",
+                "\n",
+                "    centerer = preprocessing.KernelCenterer()\n",
+                "    K = centerer.fit_transform(-0.5 * G ** 2)\n",
+                "\n",
+                "    for eigen_solver in eigen_solvers:\n",
+                "        for path_method in path_methods:\n",
+                "            clf = manifold.Isomap(n_neighbors=n_neighbors, out_dim=2,\n",
+                "                                  eigen_solver=eigen_solver,\n",
+                "                                  path_method=path_method)\n",
+                "            clf.fit(X)\n",
+                "\n",
+                "            # compute output kernel\n",
+                "            G_iso = neighbors.kneighbors_graph(clf.embedding_,\n",
+                "                                               n_neighbors,\n",
+                "                                               mode='distance').toarray()\n",
+                "\n",
+                "            K_iso = centerer.fit_transform(-0.5 * G_iso ** 2)\n",
+                "\n",
+                "            # make sure error agrees\n",
+                "            reconstruction_error = np.linalg.norm(K - K_iso) / Npts\n",
+                "            assert_almost_equal(reconstruction_error,\n",
+                "                                clf.reconstruction_error())\n",
+                "\n",
+                "\n",
+                "def test_transform():\n",
+                "    n_samples = 200\n",
+                "    n_components = 10\n",
+                "    noise_scale = 0.01\n",
+                "\n",
+                "    # Create S-curve dataset\n",
+                "    X, y = datasets.samples_generator.make_s_curve(n_samples)\n",
+                "\n",
+                "    # Compute isomap embedding\n",
+                "    iso = manifold.Isomap(n_components, 2)\n",
+                "    X_iso = iso.fit_transform(X)\n",
+                "\n",
+                "    # Re-embed a noisy version of the points\n",
+                "    rng = np.random.RandomState(0)\n",
+                "    noise = noise_scale * rng.randn(*X.shape)\n",
+                "    X_iso2 = iso.transform(X + noise)\n",
+                "\n",
+                "    # Make sure the rms error on re-embedding is comparable to noise_scale\n",
+                "    assert_true(np.sqrt(np.mean((X_iso - X_iso2) ** 2)) < 2 * noise_scale)\n",
+                "\n",
+                "\n",
+                "def test_pipeline():\n",
+                "    # check that Isomap works fine as a transformer in a Pipeline\n",
+                "    # only checks that no error is raised.\n",
+                "    # TODO check that it actually does something useful\n",
+                "    X, y = datasets.make_blobs(random_state=0)\n",
+                "    clf = pipeline.Pipeline(\n",
+                "        [('isomap', manifold.Isomap()),\n",
+                "         ('clf', neighbors.KNeighborsClassifier())])\n",
+                "    clf.fit(X, y)\n",
+                "    assert_lower(.9, clf.score(X, y))\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    import nose\n",
+                "    nose.runmodule()"
+            ]
+        ],
+        "sklearn/manifold/tests/test_locally_linear.py": [
+            [
+                "from itertools import product\n",
+                "import numpy as np\n",
+                "from nose.tools import assert_true\n",
+                "\n",
+                "from numpy.testing import assert_almost_equal, assert_array_almost_equal\n",
+                "from sklearn import neighbors, manifold\n",
+                "from sklearn.manifold.locally_linear import barycenter_kneighbors_graph\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from sklearn.utils.testing import assert_lower\n"
+                ],
+                "parent_version_range": {
+                    "start": 7,
+                    "end": 7
+                },
+                "child_version_range": {
+                    "start": 7,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: sklearn/manifold/tests/test_locally_linear.py\nCode:\n  ...\n 4  4    from numpy.testing import assert_almost_equal, assert_array_almost_equal\n 5  5    from sklearn import neighbors, manifold\n 6  6    from sklearn.manifold.locally_linear import barycenter_kneighbors_graph\n    7  + from sklearn.utils.testing import assert_lower\n 7  8    \n 8  9    eigen_solvers = ['dense', 'arpack']\n 9 10    \n       ...\n",
+                "file_path": "sklearn/manifold/tests/test_locally_linear.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "assert_lower",
+                    "sklearn",
+                    "testing",
+                    "utils"
+                ],
+                "prefix": [
+                    "from numpy.testing import assert_almost_equal, assert_array_almost_equal\n",
+                    "from sklearn import neighbors, manifold\n",
+                    "from sklearn.manifold.locally_linear import barycenter_kneighbors_graph\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "eigen_solvers = ['dense', 'arpack']\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "assert_lower",
+                            "position": {
+                                "start": {
+                                    "line": 7,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/manifold/tests/test_locally_linear.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "\n",
+                "eigen_solvers = ['dense', 'arpack']\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "def assert_lower(a, b, details=None):\n",
+                    "    message = \"%r is not lower than %r\" % (a, b)\n",
+                    "    if details is not None:\n",
+                    "        message += \": \" + details\n",
+                    "    assert a < b, message\n",
+                    "\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 11,
+                    "end": 18
+                },
+                "child_version_range": {
+                    "start": 12,
+                    "end": 12
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "assert_lower",
+                        "signature": "def assert_lower(a, b, details=None):",
+                        "at_line": 11
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: sklearn/manifold/tests/test_locally_linear.py\nCode:\n 8  9    eigen_solvers = ['dense', 'arpack']\n 9 10    \n10 11    \n11     - def assert_lower(a, b, details=None):\n12     -     message = \"%r is not lower than %r\" % (a, b)\n13     -     if details is not None:\n14     -         message += \": \" + details\n15     -     assert a < b, message\n16     - \n17     - \n18 12    #----------------------------------------------------------------------\n19 13    # Test utility routines\n20 14    def test_barycenter_kneighbors_graph():\n       ...\n",
+                "file_path": "sklearn/manifold/tests/test_locally_linear.py",
+                "identifiers_before": [
+                    "a",
+                    "assert_lower",
+                    "b",
+                    "details",
+                    "message"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "eigen_solvers = ['dense', 'arpack']\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "#----------------------------------------------------------------------\n",
+                    "# Test utility routines\n",
+                    "def test_barycenter_kneighbors_graph():\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "#----------------------------------------------------------------------\n",
+                "# Test utility routines\n",
+                "def test_barycenter_kneighbors_graph():\n",
+                "    X = np.array([[0, 1], [1.01, 1.], [2, 0]])\n",
+                "\n",
+                "    A = barycenter_kneighbors_graph(X, 1)\n",
+                "    assert_array_almost_equal(\n",
+                "        A.todense(),\n",
+                "        [[0.,  1.,  0.],\n",
+                "         [1.,  0.,  0.],\n",
+                "         [0.,  1.,  0.]])\n",
+                "\n",
+                "    A = barycenter_kneighbors_graph(X, 2)\n",
+                "    # check that columns sum to one\n",
+                "    assert_array_almost_equal(np.sum(A.todense(), 1), np.ones((3, 1)))\n",
+                "    pred = np.dot(A.todense(), X)\n",
+                "    assert_true(np.linalg.norm(pred - X) / X.shape[0] < 1)\n",
+                "\n",
+                "\n",
+                "#----------------------------------------------------------------------\n",
+                "# Test LLE by computing the reconstruction error on some manifolds.\n",
+                "\n",
+                "def test_lle_simple_grid():\n",
+                "    rng = np.random.RandomState(0)\n",
+                "    # grid of equidistant points in 2D, out_dim = n_dim\n",
+                "    X = np.array(list(product(range(5), repeat=2)))\n",
+                "    X = X + 1e-10 * np.random.uniform(size=X.shape)\n",
+                "    out_dim = 2\n",
+                "    clf = manifold.LocallyLinearEmbedding(n_neighbors=5, out_dim=out_dim)\n",
+                "    tol = .1\n",
+                "\n",
+                "    N = barycenter_kneighbors_graph(X, clf.n_neighbors).todense()\n",
+                "    reconstruction_error = np.linalg.norm(np.dot(N, X) - X, 'fro')\n",
+                "    assert_lower(reconstruction_error, tol)\n",
+                "\n",
+                "    for solver in eigen_solvers:\n",
+                "        clf.set_params(eigen_solver=solver)\n",
+                "        clf.fit(X)\n",
+                "        assert_true(clf.embedding_.shape[1] == out_dim)\n",
+                "        reconstruction_error = np.linalg.norm(\n",
+                "            np.dot(N, clf.embedding_) - clf.embedding_, 'fro') ** 2\n",
+                "        # FIXME: ARPACK fails this test ...\n",
+                "        if solver != 'arpack':\n",
+                "            assert_lower(reconstruction_error, tol)\n",
+                "            assert_almost_equal(clf.reconstruction_error_,\n",
+                "                                reconstruction_error, decimal=4)\n",
+                "\n",
+                "    # re-embed a noisy version of X using the transform method\n",
+                "    noise = rng.randn(*X.shape) / 100\n",
+                "    X_reembedded = clf.transform(X + noise)\n",
+                "    assert_lower(np.linalg.norm(X_reembedded - clf.embedding_), tol)\n",
+                "\n",
+                "\n",
+                "def test_lle_manifold():\n",
+                "    # similar test on a slightly more complex manifold\n",
+                "    X = np.array(list(product(range(20), repeat=2)))\n",
+                "    X = np.c_[X, X[:, 0] ** 2 / 20]\n",
+                "    X = X + 1e-10 * np.random.uniform(size=X.shape)\n",
+                "    out_dim = 2\n",
+                "    clf = manifold.LocallyLinearEmbedding(n_neighbors=5, out_dim=out_dim,\n",
+                "                                          random_state=0)\n",
+                "    tol = 1.5\n",
+                "\n",
+                "    N = barycenter_kneighbors_graph(X, clf.n_neighbors).toarray()\n",
+                "    reconstruction_error = np.linalg.norm(np.dot(N, X) - X)\n",
+                "    assert_lower(reconstruction_error, tol)\n",
+                "\n",
+                "    for solver in eigen_solvers:\n",
+                "        clf.set_params(eigen_solver=solver)\n",
+                "        clf.fit(X)\n",
+                "        assert_true(clf.embedding_.shape[1] == out_dim)\n",
+                "        reconstruction_error = np.linalg.norm(\n",
+                "            np.dot(N, clf.embedding_) - clf.embedding_, 'fro') ** 2\n",
+                "        details = \"solver: \" + solver\n",
+                "        assert_lower(reconstruction_error, tol, details=details)\n",
+                "        assert_lower(np.abs(clf.reconstruction_error_ - reconstruction_error),\n",
+                "                     tol * reconstruction_error, details=details)\n",
+                "\n",
+                "\n",
+                "def test_pipeline():\n",
+                "    # check that LocallyLinearEmbedding works fine as a Pipeline\n",
+                "    # only checks that no error is raised.\n",
+                "    # TODO check that it actually does something useful\n",
+                "    from sklearn import pipeline, datasets\n",
+                "    X, y = datasets.make_blobs(random_state=0)\n",
+                "    clf = pipeline.Pipeline(\n",
+                "        [('filter', manifold.LocallyLinearEmbedding()),\n",
+                "         ('clf', neighbors.KNeighborsClassifier())])\n",
+                "    clf.fit(X, y)\n",
+                "    assert_lower(.9, clf.score(X, y))\n",
+                "\n",
+                "\n",
+                "# Test the error raised when the weight matrix is singular\n",
+                "def test_singular_matrix():\n",
+                "    import warnings\n",
+                "    from nose.tools import assert_raises\n",
+                "    M = np.ones((10, 3))\n",
+                "    with warnings.catch_warnings(record=True):\n",
+                "        assert_raises(ValueError, manifold.locally_linear_embedding,\n",
+                "                      M, 2, 1, method='standard', eigen_solver='arpack')\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    import nose\n",
+                "    nose.runmodule()"
+            ]
+        ],
+        "sklearn/utils/testing.py": [
+            [
+                "\"\"\"Testing utilities.\"\"\"\n",
+                "\n",
+                "# Copyright (c) 2011 Pietro Berkes\n",
+                "# License: Simplified BSD\n",
+                "\n",
+                "from .fixes import savemat\n",
+                "import urllib2\n",
+                "from StringIO import StringIO\n",
+                "import scipy as sp\n",
+                "\n",
+                "\n",
+                "try:\n",
+                "    from nose.tools import assert_in, assert_not_in\n",
+                "except ImportError:\n",
+                "    # Nose < 1.0.0\n",
+                "    from nose.tools import assert_true, assert_false\n",
+                "\n",
+                "    def assert_in(x, container):\n",
+                "        assert_true(x in container, msg=\"%r in %r\" % (x, container))\n",
+                "\n",
+                "    def assert_not_in(x, container):\n",
+                "        assert_false(x in container, msg=\"%r in %r\" % (x, container))\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def assert_lower(a, b):\n"
+                ],
+                "after": [
+                    "def assert_lower(a, b, details=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 24,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 24,
+                    "end": 25
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "assert_lower",
+                        "signature": "def assert_lower(a, b):",
+                        "at_line": 24
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: sklearn/utils/testing.py\nCode:\n21 21            assert_false(x in container, msg=\"%r in %r\" % (x, container))\n22 22    \n23 23    \n24     - def assert_lower(a, b):\n   24  + def assert_lower(a, b, details=None):\n25 25        message = \"%r is not lower than %r\" % (a, b)\n       ...\n",
+                "file_path": "sklearn/utils/testing.py",
+                "identifiers_before": [
+                    "a",
+                    "assert_lower",
+                    "b"
+                ],
+                "identifiers_after": [
+                    "a",
+                    "assert_lower",
+                    "b",
+                    "details"
+                ],
+                "prefix": [
+                    "        assert_false(x in container, msg=\"%r in %r\" % (x, container))\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    message = \"%r is not lower than %r\" % (a, b)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "assert_lower",
+                            "position": {
+                                "start": {
+                                    "line": 24,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 24,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "assert_lower",
+                            "position": {
+                                "start": {
+                                    "line": 24,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 24,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "details",
+                            "position": {
+                                "start": {
+                                    "line": 24,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 24,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "details",
+                            "position": {
+                                "start": {
+                                    "line": 24,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 24,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    message = \"%r is not lower than %r\" % (a, b)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if details is not None:\n",
+                    "        message += \": \" + details\n"
+                ],
+                "parent_version_range": {
+                    "start": 26,
+                    "end": 26
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 28
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "assert_lower",
+                        "signature": "def assert_lower(a, b):",
+                        "at_line": 24
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: sklearn/utils/testing.py\nCode:\n         def assert_lower(a, b):\n             ...\n25 25        message = \"%r is not lower than %r\" % (a, b)\n   26  +     if details is not None:\n   27  +         message += \": \" + details\n26 28        assert a < b, message\n27 29    \n28 30    \n       ...\n",
+                "file_path": "sklearn/utils/testing.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "details",
+                    "message"
+                ],
+                "prefix": [
+                    "    message = \"%r is not lower than %r\" % (a, b)\n"
+                ],
+                "suffix": [
+                    "    assert a < b, message\n",
+                    "\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "details",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "details",
+                            "position": {
+                                "start": {
+                                    "line": 27,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 27,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/utils/testing.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    assert a < b, message\n",
+                "\n",
+                "\n",
+                "def fake_mldata_cache(columns_dict, dataname, matfile, ordering=None):\n",
+                "    \"\"\"Create a fake mldata data set in the cache_path.\n",
+                "\n",
+                "    Parameters\n",
+                "    ----------\n",
+                "    columns_dict: contains data as\n",
+                "                  columns_dict[column_name] = array of data\n",
+                "    dataname: name of data set\n",
+                "    matfile: file-like object or file name\n",
+                "    ordering: list of column_names, determines the ordering in the data set\n",
+                "\n",
+                "    Note: this function transposes all arrays, while fetch_mldata only\n",
+                "    transposes 'data', keep that into account in the tests.\n",
+                "    \"\"\"\n",
+                "    datasets = dict(columns_dict)\n",
+                "\n",
+                "    # transpose all variables\n",
+                "    for name in datasets:\n",
+                "        datasets[name] = datasets[name].T\n",
+                "\n",
+                "    if ordering is None:\n",
+                "        ordering = sorted(list(datasets.keys()))\n",
+                "    # NOTE: setting up this array is tricky, because of the way Matlab\n",
+                "    # re-packages 1D arrays\n",
+                "    datasets['mldata_descr_ordering'] = sp.empty((1, len(ordering)),\n",
+                "                                                 dtype='object')\n",
+                "    for i, name in enumerate(ordering):\n",
+                "        datasets['mldata_descr_ordering'][0, i] = name\n",
+                "\n",
+                "    savemat(matfile, datasets, oned_as='column')\n",
+                "\n",
+                "\n",
+                "class mock_urllib2(object):\n",
+                "\n",
+                "    def __init__(self, mock_datasets):\n",
+                "        \"\"\"Object that mocks the urllib2 module to fake requests to mldata.\n",
+                "\n",
+                "        `mock_datasets` is a dictionary of {dataset_name: data_dict}, or\n",
+                "        {dataset_name: (data_dict, ordering).\n",
+                "        `data_dict` itself is a dictionary of {column_name: data_array},\n",
+                "        and `ordering` is a list of column_names to determine the ordering\n",
+                "        in the data set (see `fake_mldata_cache` for details).\n",
+                "\n",
+                "        When requesting a dataset with a name that is in mock_datasets,\n",
+                "        this object creates a fake dataset in a StringIO object and\n",
+                "        returns it. Otherwise, it raises an URLError.\n",
+                "        \"\"\"\n",
+                "        self.mock_datasets = mock_datasets\n",
+                "\n",
+                "    class HTTPError(urllib2.URLError):\n",
+                "        code = 404\n",
+                "\n",
+                "    def urlopen(self, urlname):\n",
+                "        dataset_name = urlname.split('/')[-1]\n",
+                "        if dataset_name in self.mock_datasets:\n",
+                "            resource_name = '_' + dataset_name\n",
+                "            matfile = StringIO()\n",
+                "\n",
+                "            dataset = self.mock_datasets[dataset_name]\n",
+                "            ordering = None\n",
+                "            if isinstance(dataset, tuple):\n",
+                "                dataset, ordering = dataset\n",
+                "            fake_mldata_cache(dataset, resource_name, matfile, ordering)\n",
+                "\n",
+                "            matfile.seek(0)\n",
+                "            return matfile\n",
+                "        else:\n",
+                "            raise mock_urllib2.HTTPError('%s not found.' % urlname)\n",
+                "\n",
+                "    def quote(self, string, safe='/'):\n",
+                "        return urllib2.quote(string, safe)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "refactor"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import def"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "refactor"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import def"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def use"
+        }
+    ]
+}

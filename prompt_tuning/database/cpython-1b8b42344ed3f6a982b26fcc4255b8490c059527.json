@@ -1,0 +1,2016 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/python/cpython/commit/1b8b42344ed3f6a982b26fcc4255b8490c059527",
+    "commit_message": "regrtest: display test result (passed, failed, ...)\n\n* in multiprocessing mode: always display the result\n* sequential mode: only display the result if the test did not pass",
+    "commit_snapshots": {
+        "Lib/test/libregrtest/main.py": [
+            [
+                "import datetime\n",
+                "import faulthandler\n",
+                "import math\n",
+                "import os\n",
+                "import platform\n",
+                "import random\n",
+                "import re\n",
+                "import sys\n",
+                "import sysconfig\n",
+                "import tempfile\n",
+                "import textwrap\n",
+                "import time\n",
+                "from test.libregrtest.cmdline import _parse_args\n",
+                "from test.libregrtest.runtest import (\n",
+                "    findtests, runtest,\n",
+                "    STDTESTS, NOTTESTS, PASSED, FAILED, ENV_CHANGED, SKIPPED, RESOURCE_DENIED,\n",
+                "    INTERRUPTED, CHILD_ERROR,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    PROGRESS_MIN_TIME)\n"
+                ],
+                "after": [
+                    "    PROGRESS_MIN_TIME, format_test_result)\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: Lib/test/libregrtest/main.py\nCode:\n  ...\n14 14        findtests, runtest,\n15 15        STDTESTS, NOTTESTS, PASSED, FAILED, ENV_CHANGED, SKIPPED, RESOURCE_DENIED,\n16 16        INTERRUPTED, CHILD_ERROR,\n17     -     PROGRESS_MIN_TIME)\n   17  +     PROGRESS_MIN_TIME, format_test_result)\n18 18    from test.libregrtest.setup import setup_tests\n19 19    from test import support\n20 20    try:\n       ...\n",
+                "file_path": "Lib/test/libregrtest/main.py",
+                "identifiers_before": [
+                    "PROGRESS_MIN_TIME"
+                ],
+                "identifiers_after": [
+                    "PROGRESS_MIN_TIME",
+                    "format_test_result"
+                ],
+                "prefix": [
+                    "    findtests, runtest,\n",
+                    "    STDTESTS, NOTTESTS, PASSED, FAILED, ENV_CHANGED, SKIPPED, RESOURCE_DENIED,\n",
+                    "    INTERRUPTED, CHILD_ERROR,\n"
+                ],
+                "suffix": [
+                    "from test.libregrtest.setup import setup_tests\n",
+                    "from test import support\n",
+                    "try:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/main.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/main.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    7
+                ]
+            },
+            [
+                "from test.libregrtest.setup import setup_tests\n",
+                "from test import support\n",
+                "try:\n",
+                "    import gc\n",
+                "except ImportError:\n",
+                "    gc = None\n",
+                "\n",
+                "\n",
+                "# When tests are run from the Python build directory, it is best practice\n",
+                "# to keep the test files in a subfolder.  This eases the cleanup of leftover\n",
+                "# files using the \"make distclean\" command.\n",
+                "if sysconfig.is_python_build():\n",
+                "    TEMPDIR = os.path.join(sysconfig.get_config_var('srcdir'), 'build')\n",
+                "else:\n",
+                "    TEMPDIR = tempfile.gettempdir()\n",
+                "TEMPDIR = os.path.abspath(TEMPDIR)\n",
+                "\n",
+                "\n",
+                "class Regrtest:\n",
+                "    \"\"\"Execute a test suite.\n",
+                "\n",
+                "    This also parses command-line options and modifies its behavior\n",
+                "    accordingly.\n",
+                "\n",
+                "    tests -- a list of strings containing test names (optional)\n",
+                "    testdir -- the directory in which to look for tests (optional)\n",
+                "\n",
+                "    Users other than the Python test suite will certainly want to\n",
+                "    specify testdir; if it's omitted, the directory containing the\n",
+                "    Python test suite is searched for.\n",
+                "\n",
+                "    If the tests argument is omitted, the tests listed on the\n",
+                "    command-line will be used.  If that's empty, too, then all *.py\n",
+                "    files beginning with test_ will be used.\n",
+                "\n",
+                "    The other default arguments (verbose, quiet, exclude,\n",
+                "    single, randomize, findleaks, use_resources, trace, coverdir,\n",
+                "    print_slow, and random_seed) allow programmers calling main()\n",
+                "    directly to set the values that would normally be set by flags\n",
+                "    on the command line.\n",
+                "    \"\"\"\n",
+                "    def __init__(self):\n",
+                "        # Namespace of command line options\n",
+                "        self.ns = None\n",
+                "\n",
+                "        # tests\n",
+                "        self.tests = []\n",
+                "        self.selected = []\n",
+                "\n",
+                "        # test results\n",
+                "        self.good = []\n",
+                "        self.bad = []\n",
+                "        self.skipped = []\n",
+                "        self.resource_denieds = []\n",
+                "        self.environment_changed = []\n",
+                "        self.interrupted = False\n",
+                "\n",
+                "        # used by --slow\n",
+                "        self.test_times = []\n",
+                "\n",
+                "        # used by --coverage, trace.Trace instance\n",
+                "        self.tracer = None\n",
+                "\n",
+                "        # used by --findleaks, store for gc.garbage\n",
+                "        self.found_garbage = []\n",
+                "\n",
+                "        # used to display the progress bar \"[ 3/100]\"\n",
+                "        self.start_time = time.monotonic()\n",
+                "        self.test_count = ''\n",
+                "        self.test_count_width = 1\n",
+                "\n",
+                "        # used by --single\n",
+                "        self.next_single_test = None\n",
+                "        self.next_single_filename = None\n",
+                "\n",
+                "    def accumulate_result(self, test, result):\n",
+                "        ok, test_time = result\n",
+                "        if ok not in (CHILD_ERROR, INTERRUPTED):\n",
+                "            self.test_times.append((test_time, test))\n",
+                "        if ok == PASSED:\n",
+                "            self.good.append(test)\n",
+                "        elif ok == FAILED:\n",
+                "            self.bad.append(test)\n",
+                "        elif ok == ENV_CHANGED:\n",
+                "            self.environment_changed.append(test)\n",
+                "        elif ok == SKIPPED:\n",
+                "            self.skipped.append(test)\n",
+                "        elif ok == RESOURCE_DENIED:\n",
+                "            self.skipped.append(test)\n",
+                "            self.resource_denieds.append(test)\n",
+                "\n",
+                "    def time_delta(self, ceil=False):\n",
+                "        seconds = time.monotonic() - self.start_time\n",
+                "        if ceil:\n",
+                "            seconds = math.ceil(seconds)\n",
+                "        else:\n",
+                "            seconds = int(seconds)\n",
+                "        return datetime.timedelta(seconds=seconds)\n",
+                "\n",
+                "    def display_progress(self, test_index, test):\n",
+                "        if self.ns.quiet:\n",
+                "            return\n",
+                "        if self.bad and not self.ns.pgo:\n",
+                "            fmt = \"{time} [{test_index:{count_width}}{test_count}/{nbad}] {test_name}\"\n",
+                "        else:\n",
+                "            fmt = \"{time} [{test_index:{count_width}}{test_count}] {test_name}\"\n",
+                "        line = fmt.format(count_width=self.test_count_width,\n",
+                "                          test_index=test_index,\n",
+                "                          test_count=self.test_count,\n",
+                "                          nbad=len(self.bad),\n",
+                "                          test_name=test,\n",
+                "                          time=self.time_delta())\n",
+                "        print(line, flush=True)\n",
+                "\n",
+                "    def parse_args(self, kwargs):\n",
+                "        ns = _parse_args(sys.argv[1:], **kwargs)\n",
+                "\n",
+                "        if ns.timeout and not hasattr(faulthandler, 'dump_traceback_later'):\n",
+                "            print(\"Warning: The timeout option requires \"\n",
+                "                  \"faulthandler.dump_traceback_later\", file=sys.stderr)\n",
+                "            ns.timeout = None\n",
+                "\n",
+                "        if ns.threshold is not None and gc is None:\n",
+                "            print('No GC available, ignore --threshold.', file=sys.stderr)\n",
+                "            ns.threshold = None\n",
+                "\n",
+                "        if ns.findleaks:\n",
+                "            if gc is not None:\n",
+                "                # Uncomment the line below to report garbage that is not\n",
+                "                # freeable by reference counting alone.  By default only\n",
+                "                # garbage that is not collectable by the GC is reported.\n",
+                "                pass\n",
+                "                #gc.set_debug(gc.DEBUG_SAVEALL)\n",
+                "            else:\n",
+                "                print('No GC available, disabling --findleaks',\n",
+                "                      file=sys.stderr)\n",
+                "                ns.findleaks = False\n",
+                "\n",
+                "        # Strip .py extensions.\n",
+                "        removepy(ns.args)\n",
+                "\n",
+                "        return ns\n",
+                "\n",
+                "    def find_tests(self, tests):\n",
+                "        self.tests = tests\n",
+                "\n",
+                "        if self.ns.single:\n",
+                "            self.next_single_filename = os.path.join(TEMPDIR, 'pynexttest')\n",
+                "            try:\n",
+                "                with open(self.next_single_filename, 'r') as fp:\n",
+                "                    next_test = fp.read().strip()\n",
+                "                    self.tests = [next_test]\n",
+                "            except OSError:\n",
+                "                pass\n",
+                "\n",
+                "        if self.ns.fromfile:\n",
+                "            self.tests = []\n",
+                "            # regex to match 'test_builtin' in line:\n",
+                "            # '0:00:00 [  4/400] test_builtin -- test_dict took 1 sec'\n",
+                "            regex = (r'^(?:[0-9]+:[0-9]+:[0-9]+ *)?'\n",
+                "                     r'(?:\\[[0-9/ ]+\\] *)?'\n",
+                "                     r'(test_[a-zA-Z0-9_]+)')\n",
+                "            regex = re.compile(regex)\n",
+                "            with open(os.path.join(support.SAVEDCWD, self.ns.fromfile)) as fp:\n",
+                "                for line in fp:\n",
+                "                    line = line.strip()\n",
+                "                    if line.startswith('#'):\n",
+                "                        continue\n",
+                "                    match = regex.match(line)\n",
+                "                    if match is None:\n",
+                "                        continue\n",
+                "                    self.tests.append(match.group(1))\n",
+                "\n",
+                "        removepy(self.tests)\n",
+                "\n",
+                "        stdtests = STDTESTS[:]\n",
+                "        nottests = NOTTESTS.copy()\n",
+                "        if self.ns.exclude:\n",
+                "            for arg in self.ns.args:\n",
+                "                if arg in stdtests:\n",
+                "                    stdtests.remove(arg)\n",
+                "                nottests.add(arg)\n",
+                "            self.ns.args = []\n",
+                "\n",
+                "        # if testdir is set, then we are not running the python tests suite, so\n",
+                "        # don't add default tests to be executed or skipped (pass empty values)\n",
+                "        if self.ns.testdir:\n",
+                "            alltests = findtests(self.ns.testdir, list(), set())\n",
+                "        else:\n",
+                "            alltests = findtests(self.ns.testdir, stdtests, nottests)\n",
+                "\n",
+                "        if not self.ns.fromfile:\n",
+                "            self.selected = self.tests or self.ns.args or alltests\n",
+                "        else:\n",
+                "            self.selected = self.tests\n",
+                "        if self.ns.single:\n",
+                "            self.selected = self.selected[:1]\n",
+                "            try:\n",
+                "                pos = alltests.index(self.selected[0])\n",
+                "                self.next_single_test = alltests[pos + 1]\n",
+                "            except IndexError:\n",
+                "                pass\n",
+                "\n",
+                "        # Remove all the selected tests that precede start if it's set.\n",
+                "        if self.ns.start:\n",
+                "            try:\n",
+                "                del self.selected[:self.selected.index(self.ns.start)]\n",
+                "            except ValueError:\n",
+                "                print(\"Couldn't find starting test (%s), using all tests\"\n",
+                "                      % self.ns.start, file=sys.stderr)\n",
+                "\n",
+                "        if self.ns.randomize:\n",
+                "            if self.ns.random_seed is None:\n",
+                "                self.ns.random_seed = random.randrange(10000000)\n",
+                "            random.seed(self.ns.random_seed)\n",
+                "            random.shuffle(self.selected)\n",
+                "\n",
+                "    def list_tests(self):\n",
+                "        for name in self.selected:\n",
+                "            print(name)\n",
+                "\n",
+                "    def rerun_failed_tests(self):\n",
+                "        self.ns.verbose = True\n",
+                "        self.ns.failfast = False\n",
+                "        self.ns.verbose3 = False\n",
+                "        self.ns.match_tests = None\n",
+                "\n",
+                "        print(\"Re-running failed tests in verbose mode\")\n",
+                "        for test in self.bad[:]:\n",
+                "            print(\"Re-running test %r in verbose mode\" % test, flush=True)\n",
+                "            try:\n",
+                "                self.ns.verbose = True\n",
+                "                ok = runtest(self.ns, test)\n",
+                "            except KeyboardInterrupt:\n",
+                "                # print a newline separate from the ^C\n",
+                "                print()\n",
+                "                break\n",
+                "            else:\n",
+                "                if ok[0] in {PASSED, ENV_CHANGED, SKIPPED, RESOURCE_DENIED}:\n",
+                "                    self.bad.remove(test)\n",
+                "        else:\n",
+                "            if self.bad:\n",
+                "                print(count(len(self.bad), 'test'), \"failed again:\")\n",
+                "                printlist(self.bad)\n",
+                "\n",
+                "    def display_result(self):\n",
+                "        if self.interrupted:\n",
+                "            # print a newline after ^C\n",
+                "            print()\n",
+                "            print(\"Test suite interrupted by signal SIGINT.\")\n",
+                "            executed = set(self.good) | set(self.bad) | set(self.skipped)\n",
+                "            omitted = set(self.selected) - executed\n",
+                "            print(count(len(omitted), \"test\"), \"omitted:\")\n",
+                "            printlist(omitted)\n",
+                "\n",
+                "        # If running the test suite for PGO then no one cares about\n",
+                "        # results.\n",
+                "        if self.ns.pgo:\n",
+                "            return\n",
+                "\n",
+                "        if self.good and not self.ns.quiet:\n",
+                "            if (not self.bad\n",
+                "                and not self.skipped\n",
+                "                and not self.interrupted\n",
+                "                and len(self.good) > 1):\n",
+                "                print(\"All\", end=' ')\n",
+                "            print(count(len(self.good), \"test\"), \"OK.\")\n",
+                "\n",
+                "        if self.ns.print_slow:\n",
+                "            self.test_times.sort(reverse=True)\n",
+                "            print(\"10 slowest tests:\")\n",
+                "            for time, test in self.test_times[:10]:\n",
+                "                print(\"%s: %.1fs\" % (test, time))\n",
+                "\n",
+                "        if self.bad:\n",
+                "            print(count(len(self.bad), \"test\"), \"failed:\")\n",
+                "            printlist(self.bad)\n",
+                "\n",
+                "        if self.environment_changed:\n",
+                "            print(\"{} altered the execution environment:\".format(\n",
+                "                     count(len(self.environment_changed), \"test\")))\n",
+                "            printlist(self.environment_changed)\n",
+                "\n",
+                "        if self.skipped and not self.ns.quiet:\n",
+                "            print(count(len(self.skipped), \"test\"), \"skipped:\")\n",
+                "            printlist(self.skipped)\n",
+                "\n",
+                "    def run_tests_sequential(self):\n",
+                "        if self.ns.trace:\n",
+                "            import trace\n",
+                "            self.tracer = trace.Trace(trace=False, count=True)\n",
+                "\n",
+                "        save_modules = sys.modules.keys()\n",
+                "\n",
+                "        print(\"Run tests sequentially\")\n",
+                "\n",
+                "        previous_test = None\n",
+                "        for test_index, test in enumerate(self.tests, 1):\n",
+                "            start_time = time.monotonic()\n",
+                "\n",
+                "            text = test\n",
+                "            if previous_test:\n",
+                "                text = '%s -- %s' % (text, previous_test)\n",
+                "            self.display_progress(test_index, text)\n",
+                "\n",
+                "            if self.tracer:\n",
+                "                # If we're tracing code coverage, then we don't exit with status\n",
+                "                # if on a false return value from main.\n",
+                "                cmd = ('result = runtest(self.ns, test); '\n",
+                "                       'self.accumulate_result(test, result)')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                self.tracer.runctx(cmd, globals=globals(), locals=vars())\n"
+                ],
+                "after": [
+                    "                ns = dict(locals())\n",
+                    "                self.tracer.runctx(cmd, globals=globals(), locals=ns)\n",
+                    "                result = ns['result']\n"
+                ],
+                "parent_version_range": {
+                    "start": 328,
+                    "end": 329
+                },
+                "child_version_range": {
+                    "start": 328,
+                    "end": 331
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for test_index, test in enumerate(self.tests, 1):",
+                        "start_line": 315,
+                        "end_line": 358
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.tracer:",
+                        "start_line": 323,
+                        "end_line": 337
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Regrtest",
+                        "signature": "class Regrtest:",
+                        "at_line": 36
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_tests_sequential",
+                        "signature": "def run_tests_sequential(self):",
+                        "at_line": 305
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.tracer.runctx",
+                        "signature": "self.tracer.runctx(cmd, globals=globals(), locals=vars())",
+                        "at_line": 328,
+                        "argument": "cmd"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: Lib/test/libregrtest/main.py\nCode:\n           class Regrtest:\n               ...\n               def run_tests_sequential(self):\n                   ...\n325 325                    # if on a false return value from main.\n326 326                    cmd = ('result = runtest(self.ns, test); '\n327 327                           'self.accumulate_result(test, result)')\n328      -                 self.tracer.runctx(cmd, globals=globals(), locals=vars())\n    328  +                 ns = dict(locals())\n    329  +                 self.tracer.runctx(cmd, globals=globals(), locals=ns)\n    330  +                 result = ns['result']\n329 331                else:\n330 332                    try:\n331 333                        result = runtest(self.ns, test)\n         ...\n",
+                "file_path": "Lib/test/libregrtest/main.py",
+                "identifiers_before": [
+                    "cmd",
+                    "globals",
+                    "locals",
+                    "runctx",
+                    "self",
+                    "tracer",
+                    "vars"
+                ],
+                "identifiers_after": [
+                    "cmd",
+                    "dict",
+                    "globals",
+                    "locals",
+                    "ns",
+                    "result",
+                    "runctx",
+                    "self",
+                    "tracer"
+                ],
+                "prefix": [
+                    "                # if on a false return value from main.\n",
+                    "                cmd = ('result = runtest(self.ns, test); '\n",
+                    "                       'self.accumulate_result(test, result)')\n"
+                ],
+                "suffix": [
+                    "            else:\n",
+                    "                try:\n",
+                    "                    result = runtest(self.ns, test)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            else:\n",
+                "                try:\n",
+                "                    result = runtest(self.ns, test)\n",
+                "                except KeyboardInterrupt:\n",
+                "                    self.accumulate_result(test, (INTERRUPTED, None))\n",
+                "                    self.interrupted = True\n",
+                "                    break\n",
+                "                else:\n",
+                "                    self.accumulate_result(test, result)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            previous_test = format_test_result(test, result[0])\n"
+                ],
+                "parent_version_range": {
+                    "start": 339,
+                    "end": 339
+                },
+                "child_version_range": {
+                    "start": 341,
+                    "end": 342
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for test_index, test in enumerate(self.tests, 1):",
+                        "start_line": 315,
+                        "end_line": 358
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Regrtest",
+                        "signature": "class Regrtest:",
+                        "at_line": 36
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_tests_sequential",
+                        "signature": "def run_tests_sequential(self):",
+                        "at_line": 305
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: Lib/test/libregrtest/main.py\nCode:\n           class Regrtest:\n               ...\n               def run_tests_sequential(self):\n                   ...\n336 338                    else:\n337 339                        self.accumulate_result(test, result)\n338 340    \n    341  +             previous_test = format_test_result(test, result[0])\n339 342                test_time = time.monotonic() - start_time\n340 343                if test_time >= PROGRESS_MIN_TIME:\n         ...\n",
+                "file_path": "Lib/test/libregrtest/main.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "format_test_result",
+                    "previous_test",
+                    "result",
+                    "test"
+                ],
+                "prefix": [
+                    "                else:\n",
+                    "                    self.accumulate_result(test, result)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "            test_time = time.monotonic() - start_time\n",
+                    "            if test_time >= PROGRESS_MIN_TIME:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 341,
+                                    "column": 28
+                                },
+                                "end": {
+                                    "line": 341,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/main.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 341,
+                                    "column": 28
+                                },
+                                "end": {
+                                    "line": 341,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/main.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            test_time = time.monotonic() - start_time\n",
+                "            if test_time >= PROGRESS_MIN_TIME:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                previous_test = '%s took %.0f sec' % (test, test_time)\n",
+                    "            else:\n"
+                ],
+                "after": [
+                    "                previous_test = \"%s in %.0f sec\" % (previous_test, test_time)\n",
+                    "            elif result[0] == PASSED:\n",
+                    "                # be quiet: say nothing if the test passed shortly\n"
+                ],
+                "parent_version_range": {
+                    "start": 341,
+                    "end": 343
+                },
+                "child_version_range": {
+                    "start": 344,
+                    "end": 347
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for test_index, test in enumerate(self.tests, 1):",
+                        "start_line": 315,
+                        "end_line": 358
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if test_time >= PROGRESS_MIN_TIME:",
+                        "start_line": 340,
+                        "end_line": 343
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Regrtest",
+                        "signature": "class Regrtest:",
+                        "at_line": 36
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_tests_sequential",
+                        "signature": "def run_tests_sequential(self):",
+                        "at_line": 305
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: Lib/test/libregrtest/main.py\nCode:\n           class Regrtest:\n               ...\n               def run_tests_sequential(self):\n                   ...\n339 342                test_time = time.monotonic() - start_time\n340 343                if test_time >= PROGRESS_MIN_TIME:\n341      -                 previous_test = '%s took %.0f sec' % (test, test_time)\n342      -             else:\n    344  +                 previous_test = \"%s in %.0f sec\" % (previous_test, test_time)\n    345  +             elif result[0] == PASSED:\n    346  +                 # be quiet: say nothing if the test passed shortly\n343 347                    previous_test = None\n344 348    \n345 349                if self.ns.findleaks:\n         ...\n",
+                "file_path": "Lib/test/libregrtest/main.py",
+                "identifiers_before": [
+                    "else",
+                    "previous_test",
+                    "test",
+                    "test_time"
+                ],
+                "identifiers_after": [
+                    "PASSED",
+                    "elif",
+                    "previous_test",
+                    "result",
+                    "test_time"
+                ],
+                "prefix": [
+                    "            test_time = time.monotonic() - start_time\n",
+                    "            if test_time >= PROGRESS_MIN_TIME:\n"
+                ],
+                "suffix": [
+                    "                previous_test = None\n",
+                    "\n",
+                    "            if self.ns.findleaks:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                previous_test = None\n",
+                "\n",
+                "            if self.ns.findleaks:\n",
+                "                gc.collect()\n",
+                "                if gc.garbage:\n",
+                "                    print(\"Warning: test created\", len(gc.garbage), end=' ')\n",
+                "                    print(\"uncollectable object(s).\")\n",
+                "                    # move the uncollectable objects somewhere so we don't see\n",
+                "                    # them again\n",
+                "                    self.found_garbage.extend(gc.garbage)\n",
+                "                    del gc.garbage[:]\n",
+                "\n",
+                "            # Unload the newly imported modules (best effort finalization)\n",
+                "            for module in sys.modules.keys():\n",
+                "                if module not in save_modules and module.startswith(\"test.\"):\n",
+                "                    support.unload(module)\n",
+                "\n",
+                "        if previous_test:\n",
+                "            print(previous_test)\n",
+                "\n",
+                "    def _test_forever(self, tests):\n",
+                "        while True:\n",
+                "            for test in tests:\n",
+                "                yield test\n",
+                "                if self.bad:\n",
+                "                    return\n",
+                "\n",
+                "    def run_tests(self):\n",
+                "        # For a partial run, we do not need to clutter the output.\n",
+                "        if (self.ns.verbose\n",
+                "            or self.ns.header\n",
+                "            or not (self.ns.pgo or self.ns.quiet or self.ns.single\n",
+                "                    or self.tests or self.ns.args)):\n",
+                "            # Print basic platform information\n",
+                "            print(\"==\", platform.python_implementation(), *sys.version.split())\n",
+                "            print(\"==  \", platform.platform(aliased=True),\n",
+                "                          \"%s-endian\" % sys.byteorder)\n",
+                "            print(\"==  \", \"hash algorithm:\", sys.hash_info.algorithm,\n",
+                "                  \"64bit\" if sys.maxsize > 2**32 else \"32bit\")\n",
+                "            print(\"==  \", os.getcwd())\n",
+                "            print(\"Testing with flags:\", sys.flags)\n",
+                "\n",
+                "        if self.ns.randomize:\n",
+                "            print(\"Using random seed\", self.ns.random_seed)\n",
+                "\n",
+                "        if self.ns.forever:\n",
+                "            self.tests = self._test_forever(list(self.selected))\n",
+                "            self.test_count = ''\n",
+                "            self.test_count_width = 3\n",
+                "        else:\n",
+                "            self.tests = iter(self.selected)\n",
+                "            self.test_count = '/{}'.format(len(self.selected))\n",
+                "            self.test_count_width = len(self.test_count) - 1\n",
+                "\n",
+                "        if self.ns.use_mp:\n",
+                "            from test.libregrtest.runtest_mp import run_tests_multiprocess\n",
+                "            run_tests_multiprocess(self)\n",
+                "        else:\n",
+                "            self.run_tests_sequential()\n",
+                "\n",
+                "    def finalize(self):\n",
+                "        if self.next_single_filename:\n",
+                "            if self.next_single_test:\n",
+                "                with open(self.next_single_filename, 'w') as fp:\n",
+                "                    fp.write(self.next_single_test + '\\n')\n",
+                "            else:\n",
+                "                os.unlink(self.next_single_filename)\n",
+                "\n",
+                "        if self.tracer:\n",
+                "            r = self.tracer.results()\n",
+                "            r.write_results(show_missing=True, summary=True,\n",
+                "                            coverdir=self.ns.coverdir)\n",
+                "\n",
+                "        print(\"Total duration: %s\" % self.time_delta(ceil=True))\n",
+                "\n",
+                "        if self.ns.runleaks:\n",
+                "            os.system(\"leaks %d\" % os.getpid())\n",
+                "\n",
+                "    def main(self, tests=None, **kwargs):\n",
+                "        global TEMPDIR\n",
+                "\n",
+                "        if sysconfig.is_python_build():\n",
+                "            try:\n",
+                "                os.mkdir(TEMPDIR)\n",
+                "            except FileExistsError:\n",
+                "                pass\n",
+                "\n",
+                "        # Define a writable temp dir that will be used as cwd while running\n",
+                "        # the tests. The name of the dir includes the pid to allow parallel\n",
+                "        # testing (see the -j option).\n",
+                "        test_cwd = 'test_python_{}'.format(os.getpid())\n",
+                "        test_cwd = os.path.join(TEMPDIR, test_cwd)\n",
+                "\n",
+                "        # Run the tests in a context manager that temporarily changes the CWD to a\n",
+                "        # temporary and writable directory.  If it's not possible to create or\n",
+                "        # change the CWD, the original CWD will be used.  The original CWD is\n",
+                "        # available from support.SAVEDCWD.\n",
+                "        with support.temp_cwd(test_cwd, quiet=True):\n",
+                "            self._main(tests, kwargs)\n",
+                "\n",
+                "    def _main(self, tests, kwargs):\n",
+                "        self.ns = self.parse_args(kwargs)\n",
+                "\n",
+                "        if self.ns.slaveargs is not None:\n",
+                "            from test.libregrtest.runtest_mp import run_tests_slave\n",
+                "            run_tests_slave(self.ns.slaveargs)\n",
+                "\n",
+                "        if self.ns.wait:\n",
+                "            input(\"Press any key to continue...\")\n",
+                "\n",
+                "        setup_tests(self.ns)\n",
+                "\n",
+                "        self.find_tests(tests)\n",
+                "\n",
+                "        if self.ns.list_tests:\n",
+                "            self.list_tests()\n",
+                "            sys.exit(0)\n",
+                "\n",
+                "        self.run_tests()\n",
+                "        self.display_result()\n",
+                "\n",
+                "        if self.ns.verbose2 and self.bad:\n",
+                "            self.rerun_failed_tests()\n",
+                "\n",
+                "        self.finalize()\n",
+                "        sys.exit(len(self.bad) > 0 or self.interrupted)\n",
+                "\n",
+                "\n",
+                "def removepy(names):\n",
+                "    if not names:\n",
+                "        return\n",
+                "    for idx, name in enumerate(names):\n",
+                "        basename, ext = os.path.splitext(name)\n",
+                "        if ext == '.py':\n",
+                "            names[idx] = basename\n",
+                "\n",
+                "\n",
+                "def count(n, word):\n",
+                "    if n == 1:\n",
+                "        return \"%d %s\" % (n, word)\n",
+                "    else:\n",
+                "        return \"%d %ss\" % (n, word)\n",
+                "\n",
+                "\n",
+                "def printlist(x, width=70, indent=4):\n",
+                "    \"\"\"Print the elements of iterable x to stdout.\n",
+                "\n",
+                "    Optional arg width (default 70) is the maximum line length.\n",
+                "    Optional arg indent (default 4) is the number of blanks with which to\n",
+                "    begin each line.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    blanks = ' ' * indent\n",
+                "    # Print the sorted list: 'x' may be a '--random' list or a set()\n",
+                "    print(textwrap.fill(' '.join(str(elt) for elt in sorted(x)), width,\n",
+                "                        initial_indent=blanks, subsequent_indent=blanks))\n",
+                "\n",
+                "\n",
+                "def main(tests=None, **kwargs):\n",
+                "    \"\"\"Run the Python suite.\"\"\"\n",
+                "    Regrtest().main(tests=tests, **kwargs)"
+            ]
+        ],
+        "Lib/test/libregrtest/runtest.py": [
+            [
+                "import faulthandler\n",
+                "import importlib\n",
+                "import io\n",
+                "import os\n",
+                "import sys\n",
+                "import time\n",
+                "import traceback\n",
+                "import unittest\n",
+                "from test import support\n",
+                "from test.libregrtest.refleak import dash_R\n",
+                "from test.libregrtest.save_env import saved_test_environment\n",
+                "\n",
+                "\n",
+                "# Test result constants.\n",
+                "PASSED = 1\n",
+                "FAILED = 0\n",
+                "ENV_CHANGED = -1\n",
+                "SKIPPED = -2\n",
+                "RESOURCE_DENIED = -3\n",
+                "INTERRUPTED = -4\n",
+                "CHILD_ERROR = -5   # error in a child process\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "_FORMAT_TEST_RESULT = {\n",
+                    "    PASSED: '%s passed',\n",
+                    "    FAILED: '%s failed',\n",
+                    "    ENV_CHANGED: '%s failed (env changed)',\n",
+                    "    SKIPPED: '%s skipped',\n",
+                    "    RESOURCE_DENIED: '%s skipped (resource denied)',\n",
+                    "    INTERRUPTED: '%s interrupted',\n",
+                    "    CHILD_ERROR: '%s crashed',\n",
+                    "}\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 22,
+                    "end": 22
+                },
+                "child_version_range": {
+                    "start": 22,
+                    "end": 32
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest.py\nCode:\n  ...\n19 19    INTERRUPTED = -4\n20 20    CHILD_ERROR = -5   # error in a child process\n21 21    \n   22  + _FORMAT_TEST_RESULT = {\n   23  +     PASSED: '%s passed',\n   24  +     FAILED: '%s failed',\n   25  +     ENV_CHANGED: '%s failed (env changed)',\n   26  +     SKIPPED: '%s skipped',\n   27  +     RESOURCE_DENIED: '%s skipped (resource denied)',\n   28  +     INTERRUPTED: '%s interrupted',\n   29  +     CHILD_ERROR: '%s crashed',\n   30  + }\n   31  + \n22 32    # Minimum duration of a test to display its duration or to mention that\n23 33    # the test is running in background\n24 34    PROGRESS_MIN_TIME = 30.0   # seconds\n       ...\n",
+                "file_path": "Lib/test/libregrtest/runtest.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "CHILD_ERROR",
+                    "ENV_CHANGED",
+                    "FAILED",
+                    "INTERRUPTED",
+                    "PASSED",
+                    "RESOURCE_DENIED",
+                    "SKIPPED",
+                    "_FORMAT_TEST_RESULT"
+                ],
+                "prefix": [
+                    "INTERRUPTED = -4\n",
+                    "CHILD_ERROR = -5   # error in a child process\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "# Minimum duration of a test to display its duration or to mention that\n",
+                    "# the test is running in background\n",
+                    "PROGRESS_MIN_TIME = 30.0   # seconds\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "_FORMAT_TEST_RESULT",
+                            "position": {
+                                "start": {
+                                    "line": 22,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 22,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "# Minimum duration of a test to display its duration or to mention that\n",
+                "# the test is running in background\n",
+                "PROGRESS_MIN_TIME = 30.0   # seconds\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 26,
+                    "end": 28
+                },
+                "child_version_range": {
+                    "start": 36,
+                    "end": 36
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest.py\nCode:\n  ...\n23 33    # the test is running in background\n24 34    PROGRESS_MIN_TIME = 30.0   # seconds\n25 35    \n26     - \n27     - \n28 36    # small set of tests to determine if we have a basically functioning interpreter\n29 37    # (i.e. if any of these fail, then anything else is likely to follow)\n30 38    STDTESTS = [\n       ...\n",
+                "file_path": "Lib/test/libregrtest/runtest.py",
+                "identifiers_before": [],
+                "identifiers_after": [],
+                "prefix": [
+                    "# the test is running in background\n",
+                    "PROGRESS_MIN_TIME = 30.0   # seconds\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "# small set of tests to determine if we have a basically functioning interpreter\n",
+                    "# (i.e. if any of these fail, then anything else is likely to follow)\n",
+                    "STDTESTS = [\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "# small set of tests to determine if we have a basically functioning interpreter\n",
+                "# (i.e. if any of these fail, then anything else is likely to follow)\n",
+                "STDTESTS = [\n",
+                "    'test_grammar',\n",
+                "    'test_opcodes',\n",
+                "    'test_dict',\n",
+                "    'test_builtin',\n",
+                "    'test_exceptions',\n",
+                "    'test_types',\n",
+                "    'test_unittest',\n",
+                "    'test_doctest',\n",
+                "    'test_doctest2',\n",
+                "    'test_support'\n",
+                "]\n",
+                "\n",
+                "# set of tests that we don't want to be executed when using regrtest\n",
+                "NOTTESTS = set()\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "def format_test_result(test_name, result):\n",
+                    "    fmt = _FORMAT_TEST_RESULT.get(result, \"%s\")\n",
+                    "    return fmt % test_name\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 47,
+                    "end": 47
+                },
+                "child_version_range": {
+                    "start": 55,
+                    "end": 60
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest.py\nCode:\n  ...\n44 52    NOTTESTS = set()\n45 53    \n46 54    \n   55  + def format_test_result(test_name, result):\n   56  +     fmt = _FORMAT_TEST_RESULT.get(result, \"%s\")\n   57  +     return fmt % test_name\n   58  + \n   59  + \n47 60    def findtests(testdir=None, stdtests=STDTESTS, nottests=NOTTESTS):\n48 61        \"\"\"Return a list of all applicable test modules.\"\"\"\n49 62        testdir = findtestdir(testdir)\n       ...\n",
+                "file_path": "Lib/test/libregrtest/runtest.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_FORMAT_TEST_RESULT",
+                    "fmt",
+                    "format_test_result",
+                    "get",
+                    "result",
+                    "test_name"
+                ],
+                "prefix": [
+                    "NOTTESTS = set()\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def findtests(testdir=None, stdtests=STDTESTS, nottests=NOTTESTS):\n",
+                    "    \"\"\"Return a list of all applicable test modules.\"\"\"\n",
+                    "    testdir = findtestdir(testdir)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "_FORMAT_TEST_RESULT",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "def findtests(testdir=None, stdtests=STDTESTS, nottests=NOTTESTS):\n",
+                "    \"\"\"Return a list of all applicable test modules.\"\"\"\n",
+                "    testdir = findtestdir(testdir)\n",
+                "    names = os.listdir(testdir)\n",
+                "    tests = []\n",
+                "    others = set(stdtests) | nottests\n",
+                "    for name in names:\n",
+                "        mod, ext = os.path.splitext(name)\n",
+                "        if mod[:5] == \"test_\" and ext in (\".py\", \"\") and mod not in others:\n",
+                "            tests.append(mod)\n",
+                "    return stdtests + sorted(tests)\n",
+                "\n",
+                "\n",
+                "def runtest(ns, test):\n",
+                "    \"\"\"Run a single test.\n",
+                "\n",
+                "    test -- the name of the test\n",
+                "    verbose -- if true, print more messages\n",
+                "    quiet -- if true, don't print 'skipped' messages (probably redundant)\n",
+                "    huntrleaks -- run multiple times to test for leaks; requires a debug\n",
+                "                  build; a triple corresponding to -R's three arguments\n",
+                "    output_on_failure -- if true, display test output on failure\n",
+                "    timeout -- dump the traceback and exit if a test takes more than\n",
+                "               timeout seconds\n",
+                "    failfast, match_tests -- See regrtest command-line flags for these.\n",
+                "    pgo -- if true, suppress any info irrelevant to a generating a PGO build\n",
+                "\n",
+                "    Returns the tuple result, test_time, where result is one of the constants:\n",
+                "        INTERRUPTED      KeyboardInterrupt when run under -j\n",
+                "        RESOURCE_DENIED  test skipped because resource denied\n",
+                "        SKIPPED          test skipped for some other reason\n",
+                "        ENV_CHANGED      test failed because it changed the execution environment\n",
+                "        FAILED           test failed\n",
+                "        PASSED           test passed\n",
+                "    \"\"\"\n",
+                "\n",
+                "    verbose = ns.verbose\n",
+                "    quiet = ns.quiet\n",
+                "    huntrleaks = ns.huntrleaks\n",
+                "    output_on_failure = ns.verbose3\n",
+                "    failfast = ns.failfast\n",
+                "    match_tests = ns.match_tests\n",
+                "    timeout = ns.timeout\n",
+                "    pgo = ns.pgo\n",
+                "\n",
+                "    use_timeout = (timeout is not None)\n",
+                "    if use_timeout:\n",
+                "        faulthandler.dump_traceback_later(timeout, exit=True)\n",
+                "    try:\n",
+                "        support.match_tests = match_tests\n",
+                "        if failfast:\n",
+                "            support.failfast = True\n",
+                "        if output_on_failure:\n",
+                "            support.verbose = True\n",
+                "\n",
+                "            # Reuse the same instance to all calls to runtest(). Some\n",
+                "            # tests keep a reference to sys.stdout or sys.stderr\n",
+                "            # (eg. test_argparse).\n",
+                "            if runtest.stringio is None:\n",
+                "                stream = io.StringIO()\n",
+                "                runtest.stringio = stream\n",
+                "            else:\n",
+                "                stream = runtest.stringio\n",
+                "                stream.seek(0)\n",
+                "                stream.truncate()\n",
+                "\n",
+                "            orig_stdout = sys.stdout\n",
+                "            orig_stderr = sys.stderr\n",
+                "            try:\n",
+                "                sys.stdout = stream\n",
+                "                sys.stderr = stream\n",
+                "                result = runtest_inner(ns, test, verbose, quiet, huntrleaks,\n",
+                "                                       display_failure=False, pgo=pgo)\n",
+                "                if result[0] == FAILED:\n",
+                "                    output = stream.getvalue()\n",
+                "                    orig_stderr.write(output)\n",
+                "                    orig_stderr.flush()\n",
+                "            finally:\n",
+                "                sys.stdout = orig_stdout\n",
+                "                sys.stderr = orig_stderr\n",
+                "        else:\n",
+                "            support.verbose = verbose  # Tell tests to be moderately quiet\n",
+                "            result = runtest_inner(ns, test, verbose, quiet, huntrleaks,\n",
+                "                                   display_failure=not verbose, pgo=pgo)\n",
+                "        return result\n",
+                "    finally:\n",
+                "        if use_timeout:\n",
+                "            faulthandler.cancel_dump_traceback_later()\n",
+                "        cleanup_test_droppings(test, verbose)\n",
+                "runtest.stringio = None\n",
+                "\n",
+                "\n",
+                "def runtest_inner(ns, test, verbose, quiet,\n",
+                "                  huntrleaks=False, display_failure=True, *, pgo=False):\n",
+                "    support.unload(test)\n",
+                "\n",
+                "    test_time = 0.0\n",
+                "    refleak = False  # True if the test leaked references.\n",
+                "    try:\n",
+                "        if test.startswith('test.') or ns.testdir:\n",
+                "            abstest = test\n",
+                "        else:\n",
+                "            # Always import it from the test package\n",
+                "            abstest = 'test.' + test\n",
+                "        with saved_test_environment(test, verbose, quiet, pgo=pgo) as environment:\n",
+                "            start_time = time.time()\n",
+                "            the_module = importlib.import_module(abstest)\n",
+                "            # If the test has a test_main, that will run the appropriate\n",
+                "            # tests.  If not, use normal unittest test loading.\n",
+                "            test_runner = getattr(the_module, \"test_main\", None)\n",
+                "            if test_runner is None:\n",
+                "                def test_runner():\n",
+                "                    loader = unittest.TestLoader()\n",
+                "                    tests = loader.loadTestsFromModule(the_module)\n",
+                "                    for error in loader.errors:\n",
+                "                        print(error, file=sys.stderr)\n",
+                "                    if loader.errors:\n",
+                "                        raise Exception(\"errors while loading tests\")\n",
+                "                    support.run_unittest(tests)\n",
+                "            test_runner()\n",
+                "            if huntrleaks:\n",
+                "                refleak = dash_R(the_module, test, test_runner, huntrleaks)\n",
+                "            test_time = time.time() - start_time\n",
+                "    except support.ResourceDenied as msg:\n",
+                "        if not quiet and not pgo:\n",
+                "            print(test, \"skipped --\", msg, flush=True)\n",
+                "        return RESOURCE_DENIED, test_time\n",
+                "    except unittest.SkipTest as msg:\n",
+                "        if not quiet and not pgo:\n",
+                "            print(test, \"skipped --\", msg, flush=True)\n",
+                "        return SKIPPED, test_time\n",
+                "    except KeyboardInterrupt:\n",
+                "        raise\n",
+                "    except support.TestFailed as msg:\n",
+                "        if not pgo:\n",
+                "            if display_failure:\n",
+                "                print(\"test\", test, \"failed --\", msg, file=sys.stderr,\n",
+                "                      flush=True)\n",
+                "            else:\n",
+                "                print(\"test\", test, \"failed\", file=sys.stderr, flush=True)\n",
+                "        return FAILED, test_time\n",
+                "    except:\n",
+                "        msg = traceback.format_exc()\n",
+                "        if not pgo:\n",
+                "            print(\"test\", test, \"crashed --\", msg, file=sys.stderr,\n",
+                "                  flush=True)\n",
+                "        return FAILED, test_time\n",
+                "    else:\n",
+                "        if refleak:\n",
+                "            return FAILED, test_time\n",
+                "        if environment.changed:\n",
+                "            return ENV_CHANGED, test_time\n",
+                "        return PASSED, test_time\n",
+                "\n",
+                "\n",
+                "def cleanup_test_droppings(testname, verbose):\n",
+                "    import shutil\n",
+                "    import stat\n",
+                "    import gc\n",
+                "\n",
+                "    # First kill any dangling references to open files etc.\n",
+                "    # This can also issue some ResourceWarnings which would otherwise get\n",
+                "    # triggered during the following test run, and possibly produce failures.\n",
+                "    gc.collect()\n",
+                "\n",
+                "    # Try to clean up junk commonly left behind.  While tests shouldn't leave\n",
+                "    # any files or directories behind, when a test fails that can be tedious\n",
+                "    # for it to arrange.  The consequences can be especially nasty on Windows,\n",
+                "    # since if a test leaves a file open, it cannot be deleted by name (while\n",
+                "    # there's nothing we can do about that here either, we can display the\n",
+                "    # name of the offending test, which is a real help).\n",
+                "    for name in (support.TESTFN,\n",
+                "                 \"db_home\",\n",
+                "                ):\n",
+                "        if not os.path.exists(name):\n",
+                "            continue\n",
+                "\n",
+                "        if os.path.isdir(name):\n",
+                "            kind, nuker = \"directory\", shutil.rmtree\n",
+                "        elif os.path.isfile(name):\n",
+                "            kind, nuker = \"file\", os.unlink\n",
+                "        else:\n",
+                "            raise SystemError(\"os.path says %r exists but is neither \"\n",
+                "                              \"directory nor file\" % name)\n",
+                "\n",
+                "        if verbose:\n",
+                "            print(\"%r left behind %s %r\" % (testname, kind, name))\n",
+                "        try:\n",
+                "            # if we have chmod, fix possible permissions problems\n",
+                "            # that might prevent cleanup\n",
+                "            if (hasattr(os, 'chmod')):\n",
+                "                os.chmod(name, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)\n",
+                "            nuker(name)\n",
+                "        except Exception as msg:\n",
+                "            print((\"%r left behind %s %r and it couldn't be \"\n",
+                "                \"removed: %s\" % (testname, kind, name, msg)), file=sys.stderr)\n",
+                "\n",
+                "\n",
+                "def findtestdir(path=None):\n",
+                "    return path or os.path.dirname(os.path.dirname(__file__)) or os.curdir"
+            ]
+        ],
+        "Lib/test/libregrtest/runtest_mp.py": [
+            [
+                "import faulthandler\n",
+                "import json\n",
+                "import os\n",
+                "import queue\n",
+                "import sys\n",
+                "import time\n",
+                "import traceback\n",
+                "import types\n",
+                "from test import support\n",
+                "try:\n",
+                "    import threading\n",
+                "except ImportError:\n",
+                "    print(\"Multiprocess option requires thread support\")\n",
+                "    sys.exit(2)\n",
+                "\n",
+                "from test.libregrtest.runtest import (\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    runtest, INTERRUPTED, CHILD_ERROR, PROGRESS_MIN_TIME)\n"
+                ],
+                "after": [
+                    "    runtest, INTERRUPTED, CHILD_ERROR, PROGRESS_MIN_TIME,\n",
+                    "    format_test_result)\n"
+                ],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 16,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 7,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest_mp.py\nCode:\n  ...\n13 13        sys.exit(2)\n14 14    \n15 15    from test.libregrtest.runtest import (\n16     -     runtest, INTERRUPTED, CHILD_ERROR, PROGRESS_MIN_TIME)\n   16  +     runtest, INTERRUPTED, CHILD_ERROR, PROGRESS_MIN_TIME,\n   17  +     format_test_result)\n17 18    from test.libregrtest.setup import setup_tests\n18 19    \n19 20    \n       ...\n",
+                "file_path": "Lib/test/libregrtest/runtest_mp.py",
+                "identifiers_before": [
+                    "CHILD_ERROR",
+                    "INTERRUPTED",
+                    "PROGRESS_MIN_TIME",
+                    "runtest"
+                ],
+                "identifiers_after": [
+                    "CHILD_ERROR",
+                    "INTERRUPTED",
+                    "PROGRESS_MIN_TIME",
+                    "format_test_result",
+                    "runtest"
+                ],
+                "prefix": [
+                    "    sys.exit(2)\n",
+                    "\n",
+                    "from test.libregrtest.runtest import (\n"
+                ],
+                "suffix": [
+                    "from test.libregrtest.setup import setup_tests\n",
+                    "\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest_mp.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest_mp.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from test.libregrtest.setup import setup_tests\n",
+                "\n",
+                "\n",
+                "# Display the running tests if nothing happened last N seconds\n",
+                "PROGRESS_UPDATE = 30.0   # seconds\n",
+                "\n",
+                "# If interrupted, display the wait progress every N seconds\n",
+                "WAIT_PROGRESS = 2.0   # seconds\n",
+                "\n",
+                "\n",
+                "def run_test_in_subprocess(testname, ns):\n",
+                "    \"\"\"Run the given test in a subprocess with --slaveargs.\n",
+                "\n",
+                "    ns is the option Namespace parsed from command-line arguments. regrtest\n",
+                "    is invoked in a subprocess with the --slaveargs argument; when the\n",
+                "    subprocess exits, its return code, stdout and stderr are returned as a\n",
+                "    3-tuple.\n",
+                "    \"\"\"\n",
+                "    from subprocess import Popen, PIPE\n",
+                "\n",
+                "    ns_dict = vars(ns)\n",
+                "    slaveargs = (ns_dict, testname)\n",
+                "    slaveargs = json.dumps(slaveargs)\n",
+                "\n",
+                "    cmd = [sys.executable, *support.args_from_interpreter_flags(),\n",
+                "           '-X', 'faulthandler',\n",
+                "           '-m', 'test.regrtest',\n",
+                "           '--slaveargs', slaveargs]\n",
+                "    if ns.pgo:\n",
+                "        cmd += ['--pgo']\n",
+                "\n",
+                "    # Running the child from the same working directory as regrtest's original\n",
+                "    # invocation ensures that TEMPDIR for the child is the same when\n",
+                "    # sysconfig.is_python_build() is true. See issue 15300.\n",
+                "    popen = Popen(cmd,\n",
+                "                  stdout=PIPE, stderr=PIPE,\n",
+                "                  universal_newlines=True,\n",
+                "                  close_fds=(os.name != 'nt'),\n",
+                "                  cwd=support.SAVEDCWD)\n",
+                "    with popen:\n",
+                "        stdout, stderr = popen.communicate()\n",
+                "        retcode = popen.wait()\n",
+                "    return retcode, stdout, stderr\n",
+                "\n",
+                "\n",
+                "def run_tests_slave(slaveargs):\n",
+                "    ns_dict, testname = json.loads(slaveargs)\n",
+                "    ns = types.SimpleNamespace(**ns_dict)\n",
+                "\n",
+                "    setup_tests(ns)\n",
+                "\n",
+                "    try:\n",
+                "        result = runtest(ns, testname)\n",
+                "    except KeyboardInterrupt:\n",
+                "        result = INTERRUPTED, ''\n",
+                "    except BaseException as e:\n",
+                "        traceback.print_exc()\n",
+                "        result = CHILD_ERROR, str(e)\n",
+                "\n",
+                "    print()   # Force a newline (just in case)\n",
+                "    print(json.dumps(result), flush=True)\n",
+                "    sys.exit(0)\n",
+                "\n",
+                "\n",
+                "# We do not use a generator so multiple threads can call next().\n",
+                "class MultiprocessIterator:\n",
+                "\n",
+                "    \"\"\"A thread-safe iterator over tests for multiprocess mode.\"\"\"\n",
+                "\n",
+                "    def __init__(self, tests):\n",
+                "        self.interrupted = False\n",
+                "        self.lock = threading.Lock()\n",
+                "        self.tests = tests\n",
+                "\n",
+                "    def __iter__(self):\n",
+                "        return self\n",
+                "\n",
+                "    def __next__(self):\n",
+                "        with self.lock:\n",
+                "            if self.interrupted:\n",
+                "                raise StopIteration('tests interrupted')\n",
+                "            return next(self.tests)\n",
+                "\n",
+                "\n",
+                "class MultiprocessThread(threading.Thread):\n",
+                "    def __init__(self, pending, output, ns):\n",
+                "        super().__init__()\n",
+                "        self.pending = pending\n",
+                "        self.output = output\n",
+                "        self.ns = ns\n",
+                "        self.current_test = None\n",
+                "        self.start_time = None\n",
+                "\n",
+                "    def _runtest(self):\n",
+                "        try:\n",
+                "            test = next(self.pending)\n",
+                "        except StopIteration:\n",
+                "            self.output.put((None, None, None, None))\n",
+                "            return True\n",
+                "\n",
+                "        try:\n",
+                "            self.start_time = time.monotonic()\n",
+                "            self.current_test = test\n",
+                "\n",
+                "            retcode, stdout, stderr = run_test_in_subprocess(test, self.ns)\n",
+                "        finally:\n",
+                "            self.current_test = None\n",
+                "\n",
+                "        stdout, _, result = stdout.strip().rpartition(\"\\n\")\n",
+                "        if retcode != 0:\n",
+                "            result = (CHILD_ERROR, \"Exit code %s\" % retcode)\n",
+                "            self.output.put((test, stdout.rstrip(), stderr.rstrip(),\n",
+                "                             result))\n",
+                "            return True\n",
+                "\n",
+                "        if not result:\n",
+                "            self.output.put((None, None, None, None))\n",
+                "            return True\n",
+                "\n",
+                "        result = json.loads(result)\n",
+                "        self.output.put((test, stdout.rstrip(), stderr.rstrip(),\n",
+                "                         result))\n",
+                "        return False\n",
+                "\n",
+                "    def run(self):\n",
+                "        try:\n",
+                "            stop = False\n",
+                "            while not stop:\n",
+                "                stop = self._runtest()\n",
+                "        except BaseException:\n",
+                "            self.output.put((None, None, None, None))\n",
+                "            raise\n",
+                "\n",
+                "\n",
+                "def run_tests_multiprocess(regrtest):\n",
+                "    output = queue.Queue()\n",
+                "    pending = MultiprocessIterator(regrtest.tests)\n",
+                "    test_timeout = regrtest.ns.timeout\n",
+                "    use_timeout = (test_timeout is not None)\n",
+                "\n",
+                "    workers = [MultiprocessThread(pending, output, regrtest.ns)\n",
+                "               for i in range(regrtest.ns.use_mp)]\n",
+                "    print(\"Run tests in parallel using %s child processes\"\n",
+                "          % len(workers))\n",
+                "    for worker in workers:\n",
+                "        worker.start()\n",
+                "\n",
+                "    def get_running(workers):\n",
+                "        running = []\n",
+                "        for worker in workers:\n",
+                "            current_test = worker.current_test\n",
+                "            if not current_test:\n",
+                "                continue\n",
+                "            dt = time.monotonic() - worker.start_time\n",
+                "            if dt >= PROGRESS_MIN_TIME:\n",
+                "                running.append('%s (%.0f sec)' % (current_test, dt))\n",
+                "        return running\n",
+                "\n",
+                "    finished = 0\n",
+                "    test_index = 1\n",
+                "    get_timeout = max(PROGRESS_UPDATE, PROGRESS_MIN_TIME)\n",
+                "    try:\n",
+                "        while finished < regrtest.ns.use_mp:\n",
+                "            if use_timeout:\n",
+                "                faulthandler.dump_traceback_later(test_timeout, exit=True)\n",
+                "\n",
+                "            try:\n",
+                "                item = output.get(timeout=get_timeout)\n",
+                "            except queue.Empty:\n",
+                "                running = get_running(workers)\n",
+                "                if running and not regrtest.ns.pgo:\n",
+                "                    print('running: %s' % ', '.join(running))\n",
+                "                continue\n",
+                "\n",
+                "            test, stdout, stderr, result = item\n",
+                "            if test is None:\n",
+                "                finished += 1\n",
+                "                continue\n",
+                "            regrtest.accumulate_result(test, result)\n",
+                "\n",
+                "            # Display progress\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "            text = test\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 198,
+                    "end": 199
+                },
+                "child_version_range": {
+                    "start": 199,
+                    "end": 199
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 178,
+                        "end_line": 227
+                    },
+                    {
+                        "type": "while_statement",
+                        "statement": "while finished < regrtest.ns.use_mp:",
+                        "start_line": 179,
+                        "end_line": 220
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "run_tests_multiprocess",
+                        "signature": "def run_tests_multiprocess(regrtest):",
+                        "at_line": 151
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest_mp.py\nCode:\n           def run_tests_multiprocess(regrtest):\n               ...\n195 196                regrtest.accumulate_result(test, result)\n196 197    \n197 198                # Display progress\n198      -             text = test\n199 199                ok, test_time = result\n         ...\n",
+                "file_path": "Lib/test/libregrtest/runtest_mp.py",
+                "identifiers_before": [
+                    "test",
+                    "text"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "            regrtest.accumulate_result(test, result)\n",
+                    "\n",
+                    "            # Display progress\n"
+                ],
+                "suffix": [
+                    "            ok, test_time = result\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            ok, test_time = result\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            text = format_test_result(test, ok)\n"
+                ],
+                "parent_version_range": {
+                    "start": 200,
+                    "end": 200
+                },
+                "child_version_range": {
+                    "start": 200,
+                    "end": 201
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 178,
+                        "end_line": 227
+                    },
+                    {
+                        "type": "while_statement",
+                        "statement": "while finished < regrtest.ns.use_mp:",
+                        "start_line": 179,
+                        "end_line": 220
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "run_tests_multiprocess",
+                        "signature": "def run_tests_multiprocess(regrtest):",
+                        "at_line": 151
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: Lib/test/libregrtest/runtest_mp.py\nCode:\n           def run_tests_multiprocess(regrtest):\n               ...\n199 199                ok, test_time = result\n    200  +             text = format_test_result(test, ok)\n200 201                if (ok not in (CHILD_ERROR, INTERRUPTED)\n201 202                    and test_time >= PROGRESS_MIN_TIME\n202 203                    and not regrtest.ns.pgo):\n         ...\n",
+                "file_path": "Lib/test/libregrtest/runtest_mp.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "format_test_result",
+                    "ok",
+                    "test",
+                    "text"
+                ],
+                "prefix": [
+                    "            ok, test_time = result\n"
+                ],
+                "suffix": [
+                    "            if (ok not in (CHILD_ERROR, INTERRUPTED)\n",
+                    "                and test_time >= PROGRESS_MIN_TIME\n",
+                    "                and not regrtest.ns.pgo):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 200,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 200,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest_mp.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "format_test_result",
+                            "position": {
+                                "start": {
+                                    "line": 200,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 200,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/cpython/Lib/test/libregrtest/runtest_mp.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            if (ok not in (CHILD_ERROR, INTERRUPTED)\n",
+                "                and test_time >= PROGRESS_MIN_TIME\n",
+                "                and not regrtest.ns.pgo):\n",
+                "                text += ' (%.0f sec)' % test_time\n",
+                "            running = get_running(workers)\n",
+                "            if running and not regrtest.ns.pgo:\n",
+                "                text += ' -- running: %s' % ', '.join(running)\n",
+                "            regrtest.display_progress(test_index, text)\n",
+                "\n",
+                "            # Copy stdout and stderr from the child process\n",
+                "            if stdout:\n",
+                "                print(stdout, flush=True)\n",
+                "            if stderr and not regrtest.ns.pgo:\n",
+                "                print(stderr, file=sys.stderr, flush=True)\n",
+                "\n",
+                "            if result[0] == INTERRUPTED:\n",
+                "                raise KeyboardInterrupt\n",
+                "            if result[0] == CHILD_ERROR:\n",
+                "                msg = \"Child error on {}: {}\".format(test, result[1])\n",
+                "                raise Exception(msg)\n",
+                "            test_index += 1\n",
+                "    except KeyboardInterrupt:\n",
+                "        regrtest.interrupted = True\n",
+                "        pending.interrupted = True\n",
+                "        print()\n",
+                "    finally:\n",
+                "        if use_timeout:\n",
+                "            faulthandler.cancel_dump_traceback_later()\n",
+                "\n",
+                "    # If tests are interrupted, wait until tests complete\n",
+                "    wait_start = time.monotonic()\n",
+                "    while True:\n",
+                "        running = [worker.current_test for worker in workers]\n",
+                "        running = list(filter(bool, running))\n",
+                "        if not running:\n",
+                "            break\n",
+                "\n",
+                "        dt = time.monotonic() - wait_start\n",
+                "        line = \"Waiting for %s (%s tests)\" % (', '.join(running), len(running))\n",
+                "        if dt >= WAIT_PROGRESS:\n",
+                "            line = \"%s since %.0f sec\" % (line, dt)\n",
+                "        print(line)\n",
+                "        for worker in workers:\n",
+                "            worker.join(WAIT_PROGRESS)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "no relation",
+            "reason": "use and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "move code, but less obvious"
+        }
+    ]
+}

@@ -1,0 +1,1606 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/keras-team/keras/commit/222174fbb11c10aaf41b1dc8243346d5f16bd4a5",
+    "commit_message": "Add back `weights` constructor arg in Embeddding layer.",
+    "commit_snapshots": {
+        "keras/layers/core/embedding.py": [
+            [
+                "import warnings\n",
+                "\n",
+                "from keras import backend\n",
+                "from keras import constraints\n",
+                "from keras import dtype_policies\n",
+                "from keras import initializers\n",
+                "from keras import ops\n",
+                "from keras import quantizers\n",
+                "from keras import regularizers\n",
+                "from keras.api_export import keras_export\n",
+                "from keras.layers.layer import Layer\n",
+                "\n",
+                "\n",
+                "@keras_export(\"keras.layers.Embedding\")\n",
+                "class Embedding(Layer):\n",
+                "    \"\"\"Turns positive integers (indexes) into dense vectors of fixed size.\n",
+                "\n",
+                "    e.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n",
+                "\n",
+                "    This layer can only be used on positive integer inputs of a fixed range.\n",
+                "\n",
+                "    Example:\n",
+                "\n",
+                "    >>> model = keras.Sequential()\n",
+                "    >>> model.add(keras.layers.Embedding(1000, 64))\n",
+                "    >>> # The model will take as input an integer matrix of size (batch,\n",
+                "    >>> # input_length), and the largest integer (i.e. word index) in the input\n",
+                "    >>> # should be no larger than 999 (vocabulary size).\n",
+                "    >>> # Now model.output_shape is (None, 10, 64), where `None` is the batch\n",
+                "    >>> # dimension.\n",
+                "    >>> input_array = np.random.randint(1000, size=(32, 10))\n",
+                "    >>> model.compile('rmsprop', 'mse')\n",
+                "    >>> output_array = model.predict(input_array)\n",
+                "    >>> print(output_array.shape)\n",
+                "    (32, 10, 64)\n",
+                "\n",
+                "    Args:\n",
+                "        input_dim: Integer. Size of the vocabulary,\n",
+                "            i.e. maximum integer index + 1.\n",
+                "        output_dim: Integer. Dimension of the dense embedding.\n",
+                "        embeddings_initializer: Initializer for the `embeddings`\n",
+                "            matrix (see `keras.initializers`).\n",
+                "        embeddings_regularizer: Regularizer function applied to\n",
+                "            the `embeddings` matrix (see `keras.regularizers`).\n",
+                "        embeddings_constraint: Constraint function applied to\n",
+                "            the `embeddings` matrix (see `keras.constraints`).\n",
+                "        mask_zero: Boolean, whether or not the input value 0 is a special\n",
+                "            \"padding\" value that should be masked out.\n",
+                "            This is useful when using recurrent layers which\n",
+                "            may take variable length input. If this is `True`,\n",
+                "            then all subsequent layers in the model need\n",
+                "            to support masking or an exception will be raised.\n",
+                "            If `mask_zero` is set to `True`, as a consequence,\n",
+                "            index 0 cannot be used in the vocabulary (`input_dim` should\n",
+                "            equal size of vocabulary + 1).\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        weights: Optional floating-point matrix of size\n",
+                    "            `(input_dim, output_dim)`. The initial embeddings values\n",
+                    "            to use.\n"
+                ],
+                "parent_version_range": {
+                    "start": 55,
+                    "end": 55
+                },
+                "child_version_range": {
+                    "start": 55,
+                    "end": 58
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Embedding",
+                        "signature": "class Embedding(Layer):",
+                        "at_line": 14
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: keras/layers/core/embedding.py\nCode:\n         class Embedding(Layer):\n             ...\n52 52                If `mask_zero` is set to `True`, as a consequence,\n53 53                index 0 cannot be used in the vocabulary (`input_dim` should\n54 54                equal size of vocabulary + 1).\n   55  +         weights: Optional floating-point matrix of size\n   56  +             `(input_dim, output_dim)`. The initial embeddings values\n   57  +             to use.\n55 58            lora_rank: Optional integer. If set, the layer's forward pass\n56 59                will implement LoRA (Low-Rank Adaptation)\n57 60                with the provided rank. LoRA sets the layer's embeddings\n       ...\n",
+                "file_path": "keras/layers/core/embedding.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Optional",
+                    "The",
+                    "embeddings",
+                    "floating",
+                    "initial",
+                    "matrix",
+                    "of",
+                    "point",
+                    "size",
+                    "to",
+                    "use",
+                    "values",
+                    "weights"
+                ],
+                "prefix": [
+                    "            If `mask_zero` is set to `True`, as a consequence,\n",
+                    "            index 0 cannot be used in the vocabulary (`input_dim` should\n",
+                    "            equal size of vocabulary + 1).\n"
+                ],
+                "suffix": [
+                    "        lora_rank: Optional integer. If set, the layer's forward pass\n",
+                    "            will implement LoRA (Low-Rank Adaptation)\n",
+                    "            with the provided rank. LoRA sets the layer's embeddings\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        lora_rank: Optional integer. If set, the layer's forward pass\n",
+                "            will implement LoRA (Low-Rank Adaptation)\n",
+                "            with the provided rank. LoRA sets the layer's embeddings\n",
+                "            matrix to non-trainable and replaces it with a delta over the\n",
+                "            original matrix, obtained via multiplying two lower-rank\n",
+                "            trainable matrices. This can be useful to reduce the\n",
+                "            computation cost of fine-tuning large embedding layers.\n",
+                "            You can also enable LoRA on an existing\n",
+                "            `Embedding` layer by calling `layer.enable_lora(rank)`.\n",
+                "\n",
+                "    Input shape:\n",
+                "        2D tensor with shape: `(batch_size, input_length)`.\n",
+                "\n",
+                "    Output shape:\n",
+                "        3D tensor with shape: `(batch_size, input_length, output_dim)`.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        input_dim,\n",
+                "        output_dim,\n",
+                "        embeddings_initializer=\"uniform\",\n",
+                "        embeddings_regularizer=None,\n",
+                "        embeddings_constraint=None,\n",
+                "        mask_zero=False,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        weights=None,\n"
+                ],
+                "parent_version_range": {
+                    "start": 80,
+                    "end": 80
+                },
+                "child_version_range": {
+                    "start": 83,
+                    "end": 84
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Embedding",
+                        "signature": "class Embedding(Layer):",
+                        "at_line": 14
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        input_dim,\n        output_dim,\n        embeddings_initializer=\"uniform\",\n        embeddings_regularizer=None,\n        embeddings_constraint=None,\n        mask_zero=False,\n        lora_rank=None,\n        **kwargs,\n    ):",
+                        "at_line": 72
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: keras/layers/core/embedding.py\nCode:\n         class Embedding(Layer):\n             ...\n             def __init__(\n        self,\n        input_dim,\n        output_dim,\n        embeddings_initializer=\"uniform\",\n        embeddings_regularizer=None,\n        embeddings_constraint=None,\n        mask_zero=False,\n        lora_rank=None,\n        **kwargs,\n    ):\n                 ...\n77 80            embeddings_regularizer=None,\n78 81            embeddings_constraint=None,\n79 82            mask_zero=False,\n   83  +         weights=None,\n80 84            lora_rank=None,\n81 85            **kwargs,\n82 86        ):\n       ...\n",
+                "file_path": "keras/layers/core/embedding.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "weights"
+                ],
+                "prefix": [
+                    "        embeddings_regularizer=None,\n",
+                    "        embeddings_constraint=None,\n",
+                    "        mask_zero=False,\n"
+                ],
+                "suffix": [
+                    "        lora_rank=None,\n",
+                    "        **kwargs,\n",
+                    "    ):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 83,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 83,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        lora_rank=None,\n",
+                "        **kwargs,\n",
+                "    ):\n",
+                "        input_length = kwargs.pop(\"input_length\", None)\n",
+                "        if input_length is not None:\n",
+                "            warnings.warn(\n",
+                "                \"Argument `input_length` is deprecated. Just remove it.\"\n",
+                "            )\n",
+                "        super().__init__(**kwargs)\n",
+                "        self.input_dim = input_dim\n",
+                "        self.output_dim = output_dim\n",
+                "        self.embeddings_initializer = initializers.get(embeddings_initializer)\n",
+                "        self.embeddings_regularizer = regularizers.get(embeddings_regularizer)\n",
+                "        self.embeddings_constraint = constraints.get(embeddings_constraint)\n",
+                "        self.mask_zero = mask_zero\n",
+                "        self.supports_masking = mask_zero\n",
+                "        self.autocast = False\n",
+                "        self.lora_rank = lora_rank\n",
+                "        self.lora_enabled = False\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.build()\n",
+                    "        if weights is not None:\n",
+                    "            if not (isinstance(weights, list) and len(weights) == 1):\n",
+                    "                weights = [weights]\n",
+                    "            self.set_weights(weights)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 100,
+                    "end": 100
+                },
+                "child_version_range": {
+                    "start": 104,
+                    "end": 110
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Embedding",
+                        "signature": "class Embedding(Layer):",
+                        "at_line": 14
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: keras/layers/core/embedding.py\nCode:\n           class Embedding(Layer):\n               ...\n 97 101            self.lora_rank = lora_rank\n 98 102            self.lora_enabled = False\n 99 103    \n    104  +         self.build()\n    105  +         if weights is not None:\n    106  +             if not (isinstance(weights, list) and len(weights) == 1):\n    107  +                 weights = [weights]\n    108  +             self.set_weights(weights)\n    109  + \n100 110        def build(self, input_shape=None):\n         ...\n",
+                "file_path": "keras/layers/core/embedding.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "build",
+                    "isinstance",
+                    "len",
+                    "list",
+                    "self",
+                    "set_weights",
+                    "weights"
+                ],
+                "prefix": [
+                    "        self.lora_rank = lora_rank\n",
+                    "        self.lora_enabled = False\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def build(self, input_shape=None):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 105,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 105,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 107,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 107,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 107,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 107,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 108,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 108,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def build(self, input_shape=None):\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if self.built:\n",
+                    "            return\n"
+                ],
+                "parent_version_range": {
+                    "start": 101,
+                    "end": 101
+                },
+                "child_version_range": {
+                    "start": 111,
+                    "end": 113
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Embedding",
+                        "signature": "class Embedding(Layer):",
+                        "at_line": 14
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(self, input_shape=None):",
+                        "at_line": 100
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: keras/layers/core/embedding.py\nCode:\n           class Embedding(Layer):\n               ...\n100 110        def build(self, input_shape=None):\n    111  +         if self.built:\n    112  +             return\n101 113            if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n102 114                self.quantized_build(\n103 115                    input_shape, mode=self.dtype_policy.quantization_mode\n         ...\n",
+                "file_path": "keras/layers/core/embedding.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "built",
+                    "self"
+                ],
+                "prefix": [
+                    "    def build(self, input_shape=None):\n"
+                ],
+                "suffix": [
+                    "        if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n",
+                    "            self.quantized_build(\n",
+                    "                input_shape, mode=self.dtype_policy.quantization_mode\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n",
+                "            self.quantized_build(\n",
+                "                input_shape, mode=self.dtype_policy.quantization_mode\n",
+                "            )\n",
+                "        else:\n",
+                "            self._embeddings = self.add_weight(\n",
+                "                shape=(self.input_dim, self.output_dim),\n",
+                "                initializer=self.embeddings_initializer,\n",
+                "                name=\"embeddings\",\n",
+                "                regularizer=self.embeddings_regularizer,\n",
+                "                constraint=self.embeddings_constraint,\n",
+                "                trainable=True,\n",
+                "            )\n",
+                "        self.built = True\n",
+                "        if self.lora_rank:\n",
+                "            self.enable_lora(self.lora_rank)\n",
+                "\n",
+                "    @property\n",
+                "    def embeddings(self):\n",
+                "        if self.lora_enabled:\n",
+                "            return self._embeddings + ops.matmul(\n",
+                "                self.lora_embeddings_a, self.lora_embeddings_b\n",
+                "            )\n",
+                "        return self._embeddings\n",
+                "\n",
+                "    def call(self, inputs):\n",
+                "        if inputs.dtype != \"int32\" and inputs.dtype != \"int64\":\n",
+                "            inputs = ops.cast(inputs, \"int32\")\n",
+                "        outputs = ops.take(self.embeddings, inputs, axis=0)\n",
+                "        return ops.cast(outputs, dtype=self.compute_dtype)\n",
+                "\n",
+                "    def compute_mask(self, inputs, mask=None):\n",
+                "        if not self.mask_zero:\n",
+                "            return None\n",
+                "        return ops.not_equal(inputs, 0)\n",
+                "\n",
+                "    def compute_output_shape(self, input_shape):\n",
+                "        return input_shape + (self.output_dim,)\n",
+                "\n",
+                "    def enable_lora(\n",
+                "        self, rank, a_initializer=\"he_uniform\", b_initializer=\"zeros\"\n",
+                "    ):\n",
+                "        if self.embeddings_constraint:\n",
+                "            raise ValueError(\n",
+                "                \"Lora is incompatible with embedding constraints. \"\n",
+                "                \"In order to enable lora on this layer, remove the \"\n",
+                "                \"`embeddings_constraint` argument.\"\n",
+                "            )\n",
+                "        if not self.built:\n",
+                "            raise ValueError(\n",
+                "                \"Cannot enable lora on a layer that isn't yet built.\"\n",
+                "            )\n",
+                "        if self.lora_enabled:\n",
+                "            raise ValueError(\n",
+                "                \"lora is already enabled. \"\n",
+                "                \"This can only be done once per layer.\"\n",
+                "            )\n",
+                "        self._tracker.unlock()\n",
+                "        self.lora_embeddings_a = self.add_weight(\n",
+                "            name=\"lora_embeddings_a\",\n",
+                "            shape=(self.embeddings.shape[0], rank),\n",
+                "            initializer=initializers.get(a_initializer),\n",
+                "            regularizer=self.embeddings_regularizer,\n",
+                "        )\n",
+                "        self.lora_embeddings_b = self.add_weight(\n",
+                "            name=\"lora_embeddings_b\",\n",
+                "            shape=(rank, self.embeddings.shape[1]),\n",
+                "            initializer=initializers.get(b_initializer),\n",
+                "            regularizer=self.embeddings_regularizer,\n",
+                "        )\n",
+                "        self.embeddings.trainable = False\n",
+                "        self._tracker.lock()\n",
+                "        self.lora_enabled = True\n",
+                "        self.lora_rank = rank\n",
+                "\n",
+                "    def save_own_variables(self, store):\n",
+                "        # Do nothing if the layer isn't yet built\n",
+                "        if not self.built:\n",
+                "            return\n",
+                "        # The keys of the `store` will be saved as determined because the\n",
+                "        # default ordering will change after quantization\n",
+                "        embeddings_value, embeddings_scale = (\n",
+                "            self._get_embeddings_with_merged_lora()\n",
+                "        )\n",
+                "        store[\"0\"] = embeddings_value\n",
+                "        if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n",
+                "            store[\"1\"] = embeddings_scale\n",
+                "\n",
+                "    def load_own_variables(self, store):\n",
+                "        if not self.lora_enabled:\n",
+                "            self._check_load_own_variables(store)\n",
+                "        # Do nothing if the layer isn't yet built\n",
+                "        if not self.built:\n",
+                "            return\n",
+                "        # The keys of the `store` will be saved as determined because the\n",
+                "        # default ordering will change after quantization\n",
+                "        self._embeddings.assign(store[\"0\"])\n",
+                "        if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n",
+                "            self.embeddings_scale.assign(store[\"1\"])\n",
+                "        if self.lora_enabled:\n",
+                "            self.lora_embeddings_a.assign(\n",
+                "                ops.zeros(self.lora_embeddings_a.shape)\n",
+                "            )\n",
+                "            self.lora_embeddings_b.assign(\n",
+                "                ops.zeros(self.lora_embeddings_b.shape)\n",
+                "            )\n",
+                "\n",
+                "    def get_config(self):\n",
+                "        base_config = super().get_config()\n",
+                "        config = {\n",
+                "            \"input_dim\": self.input_dim,\n",
+                "            \"output_dim\": self.output_dim,\n",
+                "            \"embeddings_initializer\": initializers.serialize(\n",
+                "                self.embeddings_initializer\n",
+                "            ),\n",
+                "            \"embeddings_regularizer\": regularizers.serialize(\n",
+                "                self.embeddings_regularizer\n",
+                "            ),\n",
+                "            \"activity_regularizer\": regularizers.serialize(\n",
+                "                self.activity_regularizer\n",
+                "            ),\n",
+                "            \"embeddings_constraint\": constraints.serialize(\n",
+                "                self.embeddings_constraint\n",
+                "            ),\n",
+                "            \"mask_zero\": self.mask_zero,\n",
+                "        }\n",
+                "        if self.lora_rank:\n",
+                "            config[\"lora_rank\"] = self.lora_rank\n",
+                "        return {**base_config, **config}\n",
+                "\n",
+                "    def _check_load_own_variables(self, store):\n",
+                "        all_vars = self._trainable_variables + self._non_trainable_variables\n",
+                "        if len(store.keys()) != len(all_vars):\n",
+                "            if len(all_vars) == 0 and not self.built:\n",
+                "                raise ValueError(\n",
+                "                    f\"Layer '{self.name}' was never built \"\n",
+                "                    \"and thus it doesn't have any variables. \"\n",
+                "                    f\"However the weights file lists {len(store.keys())} \"\n",
+                "                    \"variables for this layer.\\n\"\n",
+                "                    \"In most cases, this error indicates that either:\\n\\n\"\n",
+                "                    \"1. The layer is owned by a parent layer that \"\n",
+                "                    \"implements a `build()` method, but calling the \"\n",
+                "                    \"parent's `build()` method did NOT create the state of \"\n",
+                "                    f\"the child layer '{self.name}'. A `build()` method \"\n",
+                "                    \"must create ALL state for the layer, including \"\n",
+                "                    \"the state of any children layers.\\n\\n\"\n",
+                "                    \"2. You need to implement \"\n",
+                "                    \"the `def build_from_config(self, config)` method \"\n",
+                "                    f\"on layer '{self.name}', to specify how to rebuild \"\n",
+                "                    \"it during loading. \"\n",
+                "                    \"In this case, you might also want to implement the \"\n",
+                "                    \"method that generates the build config at saving time, \"\n",
+                "                    \"`def get_build_config(self)`. \"\n",
+                "                    \"The method `build_from_config()` is meant \"\n",
+                "                    \"to create the state \"\n",
+                "                    \"of the layer (i.e. its variables) upon deserialization.\",\n",
+                "                )\n",
+                "            raise ValueError(\n",
+                "                f\"Layer '{self.name}' expected {len(all_vars)} variables, \"\n",
+                "                \"but received \"\n",
+                "                f\"{len(store.keys())} variables during loading. \"\n",
+                "                f\"Expected: {[v.name for v in all_vars]}\"\n",
+                "            )\n",
+                "\n",
+                "    \"\"\"Quantization-related methods\"\"\"\n",
+                "\n",
+                "    def quantized_build(self, input_shape, mode):\n",
+                "        if mode == \"int8\":\n",
+                "            self.inputs_quantizer = quantizers.AbsMaxQuantizer(axis=-1)\n",
+                "            self._embeddings = self.add_weight(\n",
+                "                name=\"embeddings\",\n",
+                "                shape=(self.input_dim, self.output_dim),\n",
+                "                initializer=\"zeros\",\n",
+                "                dtype=\"int8\",\n",
+                "                trainable=False,\n",
+                "            )\n",
+                "            self.embeddings_scale = self.add_weight(\n",
+                "                name=\"embeddings_scale\",\n",
+                "                shape=(self.output_dim,),\n",
+                "                initializer=\"ones\",\n",
+                "                trainable=False,\n",
+                "            )\n",
+                "\n",
+                "    def quantized_call(self, inputs):\n",
+                "        # We cannot update quantized self._embeddings, so the custom gradient is\n",
+                "        # not needed\n",
+                "        if backend.standardize_dtype(inputs.dtype) not in (\"int32\", \"int64\"):\n",
+                "            inputs = ops.cast(inputs, \"int32\")\n",
+                "        outputs = ops.take(self._embeddings, inputs, axis=0)\n",
+                "        # De-scale outputs\n",
+                "        outputs = ops.cast(outputs, self.compute_dtype)\n",
+                "        outputs = ops.divide(\n",
+                "            outputs, ops.expand_dims(self.embeddings_scale, axis=0)\n",
+                "        )\n",
+                "        if self.lora_enabled:\n",
+                "            lora_outputs = ops.take(self.lora_embeddings_a, inputs, axis=0)\n",
+                "            lora_outputs = ops.matmul(lora_outputs, self.lora_embeddings_b)\n",
+                "            outputs = ops.add(outputs, lora_outputs)\n",
+                "        return outputs\n",
+                "\n",
+                "    def quantize(self, mode):\n",
+                "        import gc\n",
+                "\n",
+                "        # Prevent quantization of the subclasses\n",
+                "        if type(self) is not Embedding:\n",
+                "            raise NotImplementedError(\n",
+                "                f\"Layer {self.__class__.__name__} does not have a `quantize()` \"\n",
+                "                \"method implemented.\"\n",
+                "            )\n",
+                "        self._check_quantize_args(mode, self.compute_dtype)\n",
+                "        if mode == \"int8\":\n",
+                "            if backend.standardize_dtype(self._embeddings.dtype) == \"int8\":\n",
+                "                raise ValueError(\"`quantize` can only be done once per layer.\")\n",
+                "            # Configure `self.inputs_quantizer`\n",
+                "            self.inputs_quantizer = quantizers.AbsMaxQuantizer(axis=-1)\n",
+                "            # Quantize `self._embeddings` to int8 and compute corresponding\n",
+                "            # scale\n",
+                "            embeddings_value, embeddings_scale = quantizers.abs_max_quantize(\n",
+                "                self._embeddings, axis=0\n",
+                "            )\n",
+                "            embeddings_scale = ops.squeeze(embeddings_scale, axis=0)\n",
+                "            self._tracker.unlock()\n",
+                "            self._untrack_variable(self._embeddings)\n",
+                "            del self._embeddings\n",
+                "            self._embeddings = self.add_weight(\n",
+                "                name=\"embeddings\",\n",
+                "                shape=(self.input_dim, self.output_dim),\n",
+                "                # Prevent adding a large constant to the computation graph\n",
+                "                initializer=lambda shape, dtype: embeddings_value,\n",
+                "                dtype=\"int8\",\n",
+                "                trainable=False,\n",
+                "            )\n",
+                "            self.embeddings_scale = self.add_weight(\n",
+                "                name=\"embeddings_scale\",\n",
+                "                shape=(self.output_dim,),\n",
+                "                # Prevent adding a large constant to the computation graph\n",
+                "                initializer=lambda shape, dtype: embeddings_scale,\n",
+                "                trainable=False,\n",
+                "            )\n",
+                "            self._tracker.lock()\n",
+                "        else:\n",
+                "            NotImplementedError(\n",
+                "                \"Invalid quantization mode. Expected 'int8'. \"\n",
+                "                f\"Received: mode={mode}\"\n",
+                "            )\n",
+                "\n",
+                "        # Set new dtype policy\n",
+                "        if not isinstance(\n",
+                "            self.dtype_policy, dtype_policies.QuantizedDTypePolicy\n",
+                "        ):\n",
+                "            quantized_dtype = f\"{mode}_from_{self.dtype_policy.name}\"\n",
+                "            self.dtype_policy = dtype_policies.get(quantized_dtype)\n",
+                "\n",
+                "        # Release memory manually because sometimes the backend doesn't\n",
+                "        gc.collect()\n",
+                "\n",
+                "    def _get_embeddings_with_merged_lora(self):\n",
+                "        if isinstance(self.dtype_policy, dtype_policies.QuantizedDTypePolicy):\n",
+                "            embeddings_value = self._embeddings\n",
+                "            embeddings_scale = self.embeddings_scale\n",
+                "            if self.lora_enabled:\n",
+                "                # Dequantize & quantize to merge lora weights into embeddings\n",
+                "                # Note that this is a lossy compression\n",
+                "                embeddings_value = ops.divide(\n",
+                "                    embeddings_value, embeddings_scale\n",
+                "                )\n",
+                "                embeddings_value = ops.add(\n",
+                "                    embeddings_value,\n",
+                "                    ops.matmul(self.lora_embeddings_a, self.lora_embeddings_b),\n",
+                "                )\n",
+                "                embeddings_value, embeddings_scale = (\n",
+                "                    quantizers.abs_max_quantize(embeddings_value, axis=0)\n",
+                "                )\n",
+                "                embeddings_scale = ops.squeeze(embeddings_scale, axis=0)\n",
+                "            return embeddings_value, embeddings_scale\n",
+                "        return self.embeddings, None"
+            ]
+        ],
+        "keras/layers/core/embedding_test.py": [
+            [
+                "import os\n",
+                "\n",
+                "import numpy as np\n",
+                "import pytest\n",
+                "\n",
+                "from keras import backend\n",
+                "from keras import constraints\n",
+                "from keras import layers\n",
+                "from keras import models\n",
+                "from keras import ops\n",
+                "from keras import saving\n",
+                "from keras.export import export_lib\n",
+                "from keras.testing import test_case\n",
+                "\n",
+                "\n",
+                "class EmbeddingTest(test_case.TestCase):\n",
+                "    @pytest.mark.requires_trainable_backend\n",
+                "    def test_embedding_basics(self):\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            {\"input_dim\": 4, \"output_dim\": 3},\n",
+                "            input_shape=(2,),\n",
+                "            input_dtype=\"int32\",\n",
+                "            expected_output_shape=(2, 3),\n",
+                "            expected_num_trainable_weights=1,\n",
+                "            expected_num_non_trainable_weights=0,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=False,\n",
+                "        )\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            {\"input_dim\": 5, \"output_dim\": 4, \"mask_zero\": True},\n",
+                "            input_shape=(2, 3),\n",
+                "            input_dtype=\"int64\",\n",
+                "            expected_output_shape=(2, 3, 4),\n",
+                "            expected_num_trainable_weights=1,\n",
+                "            expected_num_non_trainable_weights=0,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=True,\n",
+                "        )\n",
+                "\n",
+                "    @pytest.mark.skipif(\n",
+                "        not backend.SUPPORTS_SPARSE_TENSORS,\n",
+                "        reason=\"Backend does not support sparse tensors.\",\n",
+                "    )\n",
+                "    def test_sparse(self):\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            {\"input_dim\": 5, \"output_dim\": 4},\n",
+                "            input_shape=(2, 3),\n",
+                "            input_dtype=\"int32\",\n",
+                "            input_sparse=True,\n",
+                "            expected_output_shape=(2, 3, 4),\n",
+                "            expected_num_trainable_weights=1,\n",
+                "            expected_num_non_trainable_weights=0,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=False,\n",
+                "        )\n",
+                "\n",
+                "    def test_correctness(self):\n",
+                "        layer = layers.Embedding(input_dim=3, output_dim=2)\n",
+                "        layer.build()\n",
+                "        layer.embeddings.assign(np.array([[0.0, 0.0], [2.0, 2.0], [3.0, 3.0]]))\n",
+                "        out = layer(np.array([2, 1, 0]))\n",
+                "        self.assertAllClose(out, np.array([[3.0, 3.0], [2.0, 2.0], [0.0, 0.0]]))\n",
+                "\n",
+                "    @pytest.mark.skipif(\n",
+                "        not backend.SUPPORTS_SPARSE_TENSORS,\n",
+                "        reason=\"Backend does not support sparse tensors.\",\n",
+                "    )\n",
+                "    def test_correctness_sparse(self):\n",
+                "        layer = layers.Embedding(input_dim=3, output_dim=2)\n",
+                "        layer.build()\n",
+                "        layer.embeddings.assign(np.array([[0.0, 0.0], [2.0, 2.0], [3.0, 3.0]]))\n",
+                "\n",
+                "        if backend.backend() == \"tensorflow\":\n",
+                "            import tensorflow as tf\n",
+                "\n",
+                "            x = tf.SparseTensor([[0, 0], [1, 2]], [2, 1], (2, 3))\n",
+                "        elif backend.backend() == \"jax\":\n",
+                "            import jax.experimental.sparse as jax_sparse\n",
+                "\n",
+                "            x = jax_sparse.BCOO(([2, 1], [[0, 0], [1, 2]]), shape=(2, 3))\n",
+                "        else:\n",
+                "            self.fail(f\"Sparse is unsupported with backend {backend.backend()}\")\n",
+                "\n",
+                "        self.assertAllClose(\n",
+                "            layer(x),\n",
+                "            np.array(\n",
+                "                [\n",
+                "                    [[3.0, 3.0], [0.0, 0.0], [0.0, 0.0]],\n",
+                "                    [[0.0, 0.0], [0.0, 0.0], [2.0, 2.0]],\n",
+                "                ]\n",
+                "            ),\n",
+                "        )\n",
+                "\n",
+                "    def test_masking(self):\n",
+                "        layer = layers.Embedding(input_dim=3, output_dim=2, mask_zero=True)\n",
+                "        layer.build()\n",
+                "        out = layer.compute_mask(np.array(([2, 1, 0])))\n",
+                "        self.assertAllClose(out, np.array([True, True, False]))\n",
+                "\n",
+                "    def test_compute_mask_no_masking(self):\n",
+                "        layer = layers.Embedding(input_dim=3, output_dim=2, mask_zero=False)\n",
+                "        input_data = np.array([2, 1, 0])\n",
+                "        mask = layer.compute_mask(input_data)\n",
+                "        self.assertIsNone(mask)\n",
+                "\n",
+                "    def test_embedding_constraints(self):\n",
+                "        layer = layers.Embedding(3, 2, embeddings_constraint=\"non_neg\")\n",
+                "        layer.build((None, 2))\n",
+                "        self.assertIsInstance(layer.embeddings.constraint, constraints.NonNeg)\n",
+                "\n",
+                "    @pytest.mark.requires_trainable_backend\n",
+                "    def test_enable_lora(self):\n",
+                "        layer = layers.Embedding(10, 16)\n",
+                "        layer.build()\n",
+                "        layer.enable_lora(4)\n",
+                "        self.assertLen(layer.trainable_weights, 2)\n",
+                "        self.assertLen(layer.non_trainable_weights, 1)\n",
+                "        # Try eager call\n",
+                "        x = np.random.randint(0, 9, size=(64, 3))\n",
+                "        y = np.random.random((64, 3, 16))\n",
+                "        _ = layer(x[:2])\n",
+                "\n",
+                "        init_lora_a_embeddings_value = layer.lora_embeddings_a.numpy()\n",
+                "        init_lora_b_embeddings_value = layer.lora_embeddings_b.numpy()\n",
+                "\n",
+                "        # Try calling fit()\n",
+                "        model = models.Sequential(\n",
+                "            [\n",
+                "                layer,\n",
+                "            ]\n",
+                "        )\n",
+                "        model.compile(optimizer=\"sgd\", loss=\"mse\")\n",
+                "        model.fit(x, y)\n",
+                "\n",
+                "        final_lora_a_embeddings_value = layer.lora_embeddings_a.numpy()\n",
+                "        final_lora_b_embeddings_value = layer.lora_embeddings_b.numpy()\n",
+                "        diff_a = np.max(\n",
+                "            np.abs(init_lora_a_embeddings_value - final_lora_a_embeddings_value)\n",
+                "        )\n",
+                "        diff_b = np.max(\n",
+                "            np.abs(init_lora_b_embeddings_value - final_lora_b_embeddings_value)\n",
+                "        )\n",
+                "        self.assertGreater(diff_a, 0.0)\n",
+                "        self.assertGreater(diff_b, 0.0)\n",
+                "\n",
+                "        # Try saving and reloading the model\n",
+                "        temp_filepath = os.path.join(self.get_temp_dir(), \"lora_model.keras\")\n",
+                "        model.save(temp_filepath)\n",
+                "\n",
+                "        new_model = saving.load_model(temp_filepath)\n",
+                "        self.assertTrue(new_model.layers[0].lora_enabled)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x))\n",
+                "\n",
+                "        # Try saving and reloading the model's weights only\n",
+                "        temp_filepath = os.path.join(\n",
+                "            self.get_temp_dir(), \"lora_model.weights.h5\"\n",
+                "        )\n",
+                "        model.save_weights(temp_filepath)\n",
+                "\n",
+                "        # Load the file into a fresh, non-lora model\n",
+                "        new_model = models.Sequential(\n",
+                "            [\n",
+                "                layers.Input((3,), dtype=\"int32\"),\n",
+                "                layers.Embedding(10, 16),\n",
+                "            ]\n",
+                "        )\n",
+                "        new_model.load_weights(temp_filepath)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x))\n",
+                "\n",
+                "        # Try loading a normal checkpoint into a lora model\n",
+                "        new_model.save_weights(temp_filepath)\n",
+                "        model.load_weights(temp_filepath)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x))\n",
+                "\n",
+                "    @pytest.mark.requires_trainable_backend\n",
+                "    def test_lora_rank_argument(self):\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            init_kwargs={\"input_dim\": 5, \"output_dim\": 4, \"lora_rank\": 2},\n",
+                "            input_shape=(2, 3),\n",
+                "            input_dtype=\"int32\",\n",
+                "            expected_output_shape=(2, 3, 4),\n",
+                "            expected_num_trainable_weights=2,\n",
+                "            expected_num_non_trainable_weights=1,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=False,\n",
+                "        )\n",
+                "\n",
+                "    def test_enable_lora_with_embeddings_constraint(self):\n",
+                "        layer = layers.Embedding(\n",
+                "            input_dim=10, output_dim=16, embeddings_constraint=\"max_norm\"\n",
+                "        )\n",
+                "        with self.assertRaisesRegex(\n",
+                "            ValueError, \"incompatible with embedding constraints\"\n",
+                "        ):\n",
+                "            layer.enable_lora(rank=2)\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    def test_enable_lora_on_unbuilt_layer(self):\n",
+                    "        layer = layers.Embedding(input_dim=10, output_dim=16)\n",
+                    "        with self.assertRaisesRegex(\n",
+                    "            ValueError, \"Cannot enable lora on a layer that isn't yet built\"\n",
+                    "        ):\n",
+                    "            layer.enable_lora(rank=2)\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 204,
+                    "end": 211
+                },
+                "child_version_range": {
+                    "start": 204,
+                    "end": 204
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "EmbeddingTest",
+                        "signature": "class EmbeddingTest(test_case.TestCase):",
+                        "at_line": 15
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_enable_lora_on_unbuilt_layer",
+                        "signature": "def test_enable_lora_on_unbuilt_layer(self):",
+                        "at_line": 204
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: keras/layers/core/embedding_test.py\nCode:\n           class EmbeddingTest(test_case.TestCase):\n               ...\n201 201            ):\n202 202                layer.enable_lora(rank=2)\n203 203    \n204      -     def test_enable_lora_on_unbuilt_layer(self):\n205      -         layer = layers.Embedding(input_dim=10, output_dim=16)\n206      -         with self.assertRaisesRegex(\n207      -             ValueError, \"Cannot enable lora on a layer that isn't yet built\"\n208      -         ):\n209      -             layer.enable_lora(rank=2)\n210      - \n211 204        def test_enable_lora_when_already_enabled(self):\n212 205            layer = layers.Embedding(input_dim=10, output_dim=16)\n213 206            layer.build()\n         ...\n",
+                "file_path": "keras/layers/core/embedding_test.py",
+                "identifiers_before": [
+                    "Embedding",
+                    "ValueError",
+                    "assertRaisesRegex",
+                    "enable_lora",
+                    "input_dim",
+                    "layer",
+                    "layers",
+                    "output_dim",
+                    "rank",
+                    "self",
+                    "test_enable_lora_on_unbuilt_layer"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        ):\n",
+                    "            layer.enable_lora(rank=2)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def test_enable_lora_when_already_enabled(self):\n",
+                    "        layer = layers.Embedding(input_dim=10, output_dim=16)\n",
+                    "        layer.build()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def test_enable_lora_when_already_enabled(self):\n",
+                "        layer = layers.Embedding(input_dim=10, output_dim=16)\n",
+                "        layer.build()\n",
+                "        layer.enable_lora(rank=2)\n",
+                "        with self.assertRaisesRegex(ValueError, \"lora is already enabled\"):\n",
+                "            layer.enable_lora(rank=2)\n",
+                "\n",
+                "    def test_quantize_int8(self):\n",
+                "        layer = layers.Embedding(10, 16)\n",
+                "        layer.build()\n",
+                "        x = np.random.randint(0, 9, size=(64, 3))\n",
+                "        y_float = layer(x)\n",
+                "        layer.quantize(\"int8\")\n",
+                "\n",
+                "        # Verify weights dtype\n",
+                "        self.assertEqual(\n",
+                "            backend.standardize_dtype(layer._embeddings.dtype), \"int8\"\n",
+                "        )\n",
+                "        self.assertEqual(\n",
+                "            backend.standardize_dtype(layer.embeddings_scale.dtype),\n",
+                "            layer.variable_dtype,\n",
+                "        )\n",
+                "\n",
+                "        # Try eager call and verify output correctness\n",
+                "        y_quantized = layer(x)\n",
+                "        mse = ops.mean(ops.square(y_float - y_quantized))\n",
+                "        self.assertLess(mse, 1e-3)  # A weak correctness test\n",
+                "\n",
+                "        # Try saving and reloading the model\n",
+                "        model = models.Sequential([layer])\n",
+                "        temp_filepath = os.path.join(\n",
+                "            self.get_temp_dir(), \"quantized_model.keras\"\n",
+                "        )\n",
+                "        model.save(temp_filepath)\n",
+                "        new_model = saving.load_model(temp_filepath)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x))\n",
+                "\n",
+                "        # Try saving and reloading the model's weights only\n",
+                "        temp_filepath = os.path.join(\n",
+                "            self.get_temp_dir(), \"quantized_model.weights.h5\"\n",
+                "        )\n",
+                "        model.save_weights(temp_filepath)\n",
+                "\n",
+                "        # Try lora\n",
+                "        layer = layers.Embedding(10, 16)\n",
+                "        layer.build()\n",
+                "        layer.enable_lora(4)\n",
+                "        layer.quantize(\"int8\")\n",
+                "        _ = layer(x)\n",
+                "\n",
+                "        # Try building with quantized dtype policy\n",
+                "        layer = layers.Embedding(10, 16, dtype=\"int8_from_mixed_bfloat16\")\n",
+                "        layer.build()\n",
+                "        self.assertEqual(\n",
+                "            backend.standardize_dtype(layer._embeddings.dtype), \"int8\"\n",
+                "        )\n",
+                "        self.assertEqual(\n",
+                "            backend.standardize_dtype(layer.embeddings_scale.dtype), \"float32\"\n",
+                "        )\n",
+                "\n",
+                "    @pytest.mark.requires_trainable_backend\n",
+                "    def test_quantize_dtype_argument(self):\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            {\n",
+                "                \"input_dim\": 4,\n",
+                "                \"output_dim\": 3,\n",
+                "                \"dtype\": \"int8_from_mixed_bfloat16\",\n",
+                "            },\n",
+                "            input_shape=(2,),\n",
+                "            input_dtype=\"int32\",\n",
+                "            expected_output_shape=(2, 3),\n",
+                "            expected_num_trainable_weights=0,\n",
+                "            expected_num_non_trainable_weights=2,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=False,\n",
+                "        )\n",
+                "        self.run_layer_test(\n",
+                "            layers.Embedding,\n",
+                "            {\n",
+                "                \"input_dim\": 5,\n",
+                "                \"output_dim\": 4,\n",
+                "                \"mask_zero\": True,\n",
+                "                \"dtype\": \"int8_from_float32\",\n",
+                "            },\n",
+                "            input_shape=(2, 3),\n",
+                "            input_dtype=\"int64\",\n",
+                "            expected_output_shape=(2, 3, 4),\n",
+                "            expected_num_trainable_weights=0,\n",
+                "            expected_num_non_trainable_weights=2,\n",
+                "            expected_num_seed_generators=0,\n",
+                "            expected_num_losses=0,\n",
+                "            supports_masking=True,\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    def test_quantize_on_unbuilt_layer(self):\n",
+                    "        layer = layers.Embedding(10, 16)\n",
+                    "        with self.assertRaisesRegex(\n",
+                    "            ValueError, \"Cannot quantize a layer that isn't yet built.\"\n",
+                    "        ):\n",
+                    "            layer.quantize(\"int8\")\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 307,
+                    "end": 314
+                },
+                "child_version_range": {
+                    "start": 300,
+                    "end": 300
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "EmbeddingTest",
+                        "signature": "class EmbeddingTest(test_case.TestCase):",
+                        "at_line": 15
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_quantize_on_unbuilt_layer",
+                        "signature": "def test_quantize_on_unbuilt_layer(self):",
+                        "at_line": 307
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: keras/layers/core/embedding_test.py\nCode:\n           class EmbeddingTest(test_case.TestCase):\n               ...\n304 297                supports_masking=True,\n305 298            )\n306 299    \n307      -     def test_quantize_on_unbuilt_layer(self):\n308      -         layer = layers.Embedding(10, 16)\n309      -         with self.assertRaisesRegex(\n310      -             ValueError, \"Cannot quantize a layer that isn't yet built.\"\n311      -         ):\n312      -             layer.quantize(\"int8\")\n313      - \n314 300        def test_quantize_on_subclass(self):\n315 301            class MyEmbedding(layers.Embedding):\n316 302                pass\n         ...\n",
+                "file_path": "keras/layers/core/embedding_test.py",
+                "identifiers_before": [
+                    "Embedding",
+                    "ValueError",
+                    "assertRaisesRegex",
+                    "layer",
+                    "layers",
+                    "quantize",
+                    "self",
+                    "test_quantize_on_unbuilt_layer"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "            supports_masking=True,\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def test_quantize_on_subclass(self):\n",
+                    "        class MyEmbedding(layers.Embedding):\n",
+                    "            pass\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def test_quantize_on_subclass(self):\n",
+                "        class MyEmbedding(layers.Embedding):\n",
+                "            pass\n",
+                "\n",
+                "        layer = MyEmbedding(10, 16)\n",
+                "        with self.assertRaises(NotImplementedError):\n",
+                "            layer.quantize(\"int8\")\n",
+                "\n",
+                "    def test_quantize_when_already_quantized(self):\n",
+                "        layer = layers.Embedding(10, 16)\n",
+                "        layer.build()\n",
+                "        layer.quantize(\"int8\")\n",
+                "        with self.assertRaisesRegex(\n",
+                "            ValueError, \"`quantize` can only be done once per layer.\"\n",
+                "        ):\n",
+                "            layer.quantize(\"int8\")\n",
+                "\n",
+                "    @pytest.mark.requires_trainable_backend\n",
+                "    def test_quantize_when_lora_enabled(self):\n",
+                "        layer = layers.Embedding(10, 16)\n",
+                "        layer.build()\n",
+                "        layer.enable_lora(4)\n",
+                "        layer.quantize(\"int8\")\n",
+                "        self.assertLen(layer.trainable_weights, 2)\n",
+                "        self.assertLen(layer.non_trainable_weights, 2)\n",
+                "\n",
+                "        # Try calling fit()\n",
+                "        init_lora_a_embeddings_value = layer.lora_embeddings_a.numpy()\n",
+                "        init_lora_b_embeddings_value = layer.lora_embeddings_b.numpy()\n",
+                "        x = np.random.randint(0, 9, size=(64, 3))\n",
+                "        y = np.random.random((64, 3, 16))\n",
+                "        model = models.Sequential([layer])\n",
+                "        model.compile(optimizer=\"sgd\", loss=\"mse\")\n",
+                "        model.fit(x, y)\n",
+                "\n",
+                "        final_lora_a_embeddings_value = layer.lora_embeddings_a.numpy()\n",
+                "        final_lora_b_embeddings_value = layer.lora_embeddings_b.numpy()\n",
+                "        diff_a = np.max(\n",
+                "            np.abs(init_lora_a_embeddings_value - final_lora_a_embeddings_value)\n",
+                "        )\n",
+                "        diff_b = np.max(\n",
+                "            np.abs(init_lora_b_embeddings_value - final_lora_b_embeddings_value)\n",
+                "        )\n",
+                "        self.assertGreater(diff_a, 0.0)\n",
+                "        self.assertGreater(diff_b, 0.0)\n",
+                "\n",
+                "        # Try saving and reloading the model\n",
+                "        temp_filepath = os.path.join(\n",
+                "            self.get_temp_dir(), \"quantized_lora_model.keras\"\n",
+                "        )\n",
+                "        model.save(temp_filepath)\n",
+                "        new_model = saving.load_model(temp_filepath)\n",
+                "        self.assertTrue(new_model.layers[0].lora_enabled)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x), atol=0.5)\n",
+                "\n",
+                "        # Try saving and reloading the model's weights only\n",
+                "        temp_filepath = os.path.join(\n",
+                "            self.get_temp_dir(), \"quantized_lora_model.weights.h5\"\n",
+                "        )\n",
+                "        model.save_weights(temp_filepath)\n",
+                "        new_model = models.Sequential(\n",
+                "            [layers.Input((3,), dtype=\"int32\"), layers.Embedding(10, 16)]\n",
+                "        )\n",
+                "        new_model.quantize(\"int8\")\n",
+                "        new_model.load_weights(temp_filepath)\n",
+                "        self.assertFalse(new_model.layers[0].lora_enabled)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x), atol=0.5)\n",
+                "\n",
+                "        # Try loading a normal checkpoint into a lora model\n",
+                "        new_model.save_weights(temp_filepath)\n",
+                "        model.load_weights(temp_filepath)\n",
+                "        self.assertAllClose(model.predict(x), new_model.predict(x), atol=0.5)\n",
+                "\n",
+                "        # Test export and TFSMLayer reloading when using tensorflow backend\n",
+                "        if backend.backend() == \"tensorflow\":\n",
+                "            import tensorflow as tf\n",
+                "\n",
+                "            temp_filepath = os.path.join(self.get_temp_dir(), \"exported_model\")\n",
+                "            ref_input = tf.random.normal((32, 3))\n",
+                "            ref_output = model(ref_input)\n",
+                "            export_lib.export_model(model, temp_filepath)\n",
+                "            reloaded_layer = export_lib.TFSMLayer(temp_filepath)\n",
+                "            self.assertAllClose(\n",
+                "                reloaded_layer(ref_input), ref_output, atol=1e-7\n",
+                "            )\n",
+                "            self.assertLen(reloaded_layer.weights, len(model.weights))\n",
+                "            self.assertLen(\n",
+                "                reloaded_layer.trainable_weights, len(model.trainable_weights)\n",
+                "            )\n",
+                "            self.assertLen(\n",
+                "                reloaded_layer.non_trainable_weights,\n",
+                "                len(model.non_trainable_weights),\n",
+                "            )\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "    def test_weights_constructor_arg(self):\n",
+                    "        layer = layers.Embedding(3, 4, weights=np.ones((3, 4)))\n",
+                    "        self.assertAllClose(layer.embeddings.numpy(), np.ones((3, 4)))\n",
+                    "        layer = layers.Embedding(3, 4, weights=[np.ones((3, 4))])\n",
+                    "        self.assertAllClose(layer.embeddings.numpy(), np.ones((3, 4)))"
+                ],
+                "parent_version_range": {
+                    "start": 407,
+                    "end": 407
+                },
+                "child_version_range": {
+                    "start": 393,
+                    "end": 399
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if backend.backend() == \"tensorflow\":",
+                        "start_line": 388,
+                        "end_line": 406
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "EmbeddingTest",
+                        "signature": "class EmbeddingTest(test_case.TestCase):",
+                        "at_line": 15
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_quantize_when_lora_enabled",
+                        "signature": "def test_quantize_when_lora_enabled(self):",
+                        "at_line": 332
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.assertLen",
+                        "signature": "self.assertLen(\n                reloaded_layer.non_trainable_weights,\n                len(model.non_trainable_weights),\n            )",
+                        "at_line": 403
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: keras/layers/core/embedding_test.py\nCode:\n           class EmbeddingTest(test_case.TestCase):\n               ...\n               def test_quantize_when_lora_enabled(self):\n                   ...\n                   self.assertLen(\n                reloaded_layer.non_trainable_weights,\n                len(model.non_trainable_weights),\n            )\n                       ...\n404 390                    reloaded_layer.non_trainable_weights,\n405 391                    len(model.non_trainable_weights),\n406 392                )\n    393  + \n    394  +     def test_weights_constructor_arg(self):\n    395  +         layer = layers.Embedding(3, 4, weights=np.ones((3, 4)))\n    396  +         self.assertAllClose(layer.embeddings.numpy(), np.ones((3, 4)))\n    397  +         layer = layers.Embedding(3, 4, weights=[np.ones((3, 4))])\n    398  +         self.assertAllClose(layer.embeddings.numpy(), np.ones((3, 4)))\n         ...\n",
+                "file_path": "keras/layers/core/embedding_test.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Embedding",
+                    "assertAllClose",
+                    "embeddings",
+                    "layer",
+                    "layers",
+                    "np",
+                    "numpy",
+                    "ones",
+                    "self",
+                    "test_weights_constructor_arg",
+                    "weights"
+                ],
+                "prefix": [
+                    "                reloaded_layer.non_trainable_weights,\n",
+                    "                len(model.non_trainable_weights),\n",
+                    "            )\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 395,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 395,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding_test.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "weights",
+                            "position": {
+                                "start": {
+                                    "line": 397,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 397,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/keras/keras/layers/core/embedding_test.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            }
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and doc sync"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and doc sync"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and test"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

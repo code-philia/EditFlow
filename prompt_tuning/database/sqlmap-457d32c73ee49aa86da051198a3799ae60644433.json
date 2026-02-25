@@ -1,0 +1,1263 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/sqlmapproject/sqlmap/commit/457d32c73ee49aa86da051198a3799ae60644433",
+    "commit_message": "Proper displaying of debug messages (-v >= 2)",
+    "commit_snapshots": {
+        "lib/request/inject.py": [
+            [
+                "#!/usr/bin/env python\n",
+                "\n",
+                "\"\"\"\n",
+                "$Id$\n",
+                "\n",
+                "This file is part of the sqlmap project, http://sqlmap.sourceforge.net.\n",
+                "\n",
+                "Copyright (c) 2007-2010 Bernardo Damele A. G. <bernardo.damele@gmail.com>\n",
+                "Copyright (c) 2006 Daniele Bellucci <daniele.bellucci@gmail.com>\n",
+                "\n",
+                "sqlmap is free software; you can redistribute it and/or modify it under\n",
+                "the terms of the GNU General Public License as published by the Free\n",
+                "Software Foundation version 2 of the License.\n",
+                "\n",
+                "sqlmap is distributed in the hope that it will be useful, but WITHOUT ANY\n",
+                "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\n",
+                "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more\n",
+                "details.\n",
+                "\n",
+                "You should have received a copy of the GNU General Public License along\n",
+                "with sqlmap; if not, write to the Free Software Foundation, Inc., 51\n",
+                "Franklin St, Fifth Floor, Boston, MA  02110-1301  USA\n",
+                "\"\"\"\n",
+                "\n",
+                "import re\n",
+                "import time\n",
+                "\n",
+                "from lib.core.agent import agent\n",
+                "from lib.core.common import cleanQuery\n",
+                "from lib.core.common import dataToSessionFile\n",
+                "from lib.core.common import expandAsteriskForColumns\n",
+                "from lib.core.common import parseUnionPage\n",
+                "from lib.core.common import readInput\n",
+                "from lib.core.data import conf\n",
+                "from lib.core.data import kb\n",
+                "from lib.core.data import logger\n",
+                "from lib.core.data import queries\n",
+                "from lib.core.data import temp\n",
+                "from lib.request.connect import Connect as Request\n",
+                "from lib.request.direct import direct\n",
+                "from lib.techniques.inband.union.use import unionUse\n",
+                "from lib.techniques.blind.inference import bisection\n",
+                "from lib.utils.resume import queryOutputLength\n",
+                "from lib.utils.resume import resume\n",
+                "\n",
+                "def __goInference(payload, expression, charsetType=None, firstChar=None, lastChar=None):\n",
+                "    start = time.time()\n",
+                "\n",
+                "    if ( conf.eta or conf.threads > 1 ) and kb.dbms:\n",
+                "        _, length, _ = queryOutputLength(expression, payload)\n",
+                "    else:\n",
+                "        length = None\n",
+                "\n",
+                "    dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], expression))\n",
+                "\n",
+                "    count, value = bisection(payload, expression, length, charsetType, firstChar, lastChar)\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    duration = int(time.time() - start)\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 56,
+                    "end": 57
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 56
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "__goInference",
+                        "signature": "def __goInference(payload, expression, charsetType=None, firstChar=None, lastChar=None):",
+                        "at_line": 45
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: lib/request/inject.py\nCode:\n         def __goInference(payload, expression, charsetType=None, firstChar=None, lastChar=None):\n             ...\n53 53        dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], expression))\n54 54    \n55 55        count, value = bisection(payload, expression, length, charsetType, firstChar, lastChar)\n56     -     duration = int(time.time() - start)\n57 56    \n58 57        if conf.eta and length:\n59 58            infoMsg = \"retrieved: %s\" % value\n       ...\n",
+                "file_path": "lib/request/inject.py",
+                "identifiers_before": [
+                    "duration",
+                    "int",
+                    "start",
+                    "time"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], expression))\n",
+                    "\n",
+                    "    count, value = bisection(payload, expression, length, charsetType, firstChar, lastChar)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    if conf.eta and length:\n",
+                    "        infoMsg = \"retrieved: %s\" % value\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "duration",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/request/inject.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    if conf.eta and length:\n",
+                "        infoMsg = \"retrieved: %s\" % value\n",
+                "        logger.info(infoMsg)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    debugMsg = \"performed %d queries in %d seconds\" % (count, duration)\n"
+                ],
+                "after": [
+                    "    debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n"
+                ],
+                "parent_version_range": {
+                    "start": 62,
+                    "end": 63
+                },
+                "child_version_range": {
+                    "start": 61,
+                    "end": 62
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "__goInference",
+                        "signature": "def __goInference(payload, expression, charsetType=None, firstChar=None, lastChar=None):",
+                        "at_line": 45
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: lib/request/inject.py\nCode:\n         def __goInference(payload, expression, charsetType=None, firstChar=None, lastChar=None):\n             ...\n59 58            infoMsg = \"retrieved: %s\" % value\n60 59            logger.info(infoMsg)\n61 60    \n62     -     debugMsg = \"performed %d queries in %d seconds\" % (count, duration)\n   61  +     debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n63 62        logger.debug(debugMsg)\n64 63    \n65 64        return value\n       ...\n",
+                "file_path": "lib/request/inject.py",
+                "identifiers_before": [
+                    "count",
+                    "debugMsg",
+                    "duration"
+                ],
+                "identifiers_after": [
+                    "count",
+                    "debugMsg",
+                    "int",
+                    "start",
+                    "time"
+                ],
+                "prefix": [
+                    "        infoMsg = \"retrieved: %s\" % value\n",
+                    "        logger.info(infoMsg)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    logger.debug(debugMsg)\n",
+                    "\n",
+                    "    return value\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "duration",
+                            "position": {
+                                "start": {
+                                    "line": 62,
+                                    "column": 62
+                                },
+                                "end": {
+                                    "line": 62,
+                                    "column": 70
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/request/inject.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    logger.debug(debugMsg)\n",
+                "\n",
+                "    return value\n",
+                "\n",
+                "def __goInferenceFields(expression, expressionFields, expressionFieldsList, payload, expected=None, num=None, resumeValue=True, charsetType=None, firstChar=None, lastChar=None):\n",
+                "    outputs     = []\n",
+                "    origExpr    = None\n",
+                "\n",
+                "    for field in expressionFieldsList:\n",
+                "        output = None\n",
+                "\n",
+                "        if field.startswith(\"ROWNUM \"):\n",
+                "            continue\n",
+                "\n",
+                "        if isinstance(num, int):\n",
+                "            origExpr   = expression\n",
+                "            expression = agent.limitQuery(num, expression, field)\n",
+                "\n",
+                "        if \"ROWNUM\" in expressionFieldsList:\n",
+                "            expressionReplaced = expression\n",
+                "        else:\n",
+                "            expressionReplaced = expression.replace(expressionFields, field, 1)\n",
+                "\n",
+                "        if resumeValue:\n",
+                "            output = resume(expressionReplaced, payload)\n",
+                "\n",
+                "        if not output or ( expected == \"int\" and not output.isdigit() ):\n",
+                "            if output:\n",
+                "                warnMsg  = \"expected value type %s, resumed '%s', \" % (expected, output)\n",
+                "                warnMsg += \"sqlmap is going to retrieve the value again\"\n",
+                "                logger.warn(warnMsg)\n",
+                "\n",
+                "            output = __goInference(payload, expressionReplaced, charsetType, firstChar, lastChar)\n",
+                "\n",
+                "        if isinstance(num, int):\n",
+                "            expression = origExpr\n",
+                "\n",
+                "        outputs.append(output)\n",
+                "\n",
+                "    return outputs\n",
+                "\n",
+                "def __goInferenceProxy(expression, fromUser=False, expected=None, batch=False, resumeValue=True, unpack=True, charsetType=None, firstChar=None, lastChar=None):\n",
+                "    \"\"\"\n",
+                "    Retrieve the output of a SQL query characted by character taking\n",
+                "    advantage of an blind SQL injection vulnerability on the affected\n",
+                "    parameter through a bisection algorithm.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    query          = agent.prefixQuery(\" %s\" % temp.inference)\n",
+                "    query          = agent.postfixQuery(query)\n",
+                "    payload        = agent.payload(newValue=query)\n",
+                "    count          = None\n",
+                "    startLimit     = 0\n",
+                "    stopLimit      = None\n",
+                "    outputs        = []\n",
+                "    test           = None\n",
+                "    untilLimitChar = None\n",
+                "    untilOrderChar = None\n",
+                "\n",
+                "    if resumeValue:\n",
+                "        output = resume(expression, payload)\n",
+                "    else:\n",
+                "        output = None\n",
+                "\n",
+                "    if output and ( expected is None or ( expected == \"int\" and output.isdigit() ) ):\n",
+                "        return output\n",
+                "\n",
+                "    if not unpack:\n",
+                "        return __goInference(payload, expression, charsetType, firstChar, lastChar)\n",
+                "\n",
+                "    if kb.dbmsDetected:\n",
+                "        _, _, _, _, _, expressionFieldsList, expressionFields = agent.getFields(expression)\n",
+                "\n",
+                "        rdbRegExp = re.search(\"RDB\\$GET_CONTEXT\\([^)]+\\)\", expression, re.I)\n",
+                "        if rdbRegExp and kb.dbms == \"Firebird\":\n",
+                "            expressionFieldsList = [expressionFields]\n",
+                "        \n",
+                "        if len(expressionFieldsList) > 1:\n",
+                "            infoMsg  = \"the SQL query provided has more than a field. \"\n",
+                "            infoMsg += \"sqlmap will now unpack it into distinct queries \"\n",
+                "            infoMsg += \"to be able to retrieve the output even if we \"\n",
+                "            infoMsg += \"are going blind\"\n",
+                "            logger.info(infoMsg)\n",
+                "\n",
+                "        # If we have been here from SQL query/shell we have to check if\n",
+                "        # the SQL query might return multiple entries and in such case\n",
+                "        # forge the SQL limiting the query output one entry per time\n",
+                "        # NOTE: I assume that only queries that get data from a table\n",
+                "        # can return multiple entries\n",
+                "        if fromUser and \" FROM \" in expression:\n",
+                "            limitRegExp = re.search(queries[kb.dbms].limitregexp, expression, re.I)\n",
+                "            topLimit    = re.search(\"TOP\\s+([\\d]+)\\s+\", expression, re.I)\n",
+                "\n",
+                "            if limitRegExp or ( kb.dbms == \"Microsoft SQL Server\" and topLimit ):\n",
+                "                if kb.dbms in ( \"MySQL\", \"PostgreSQL\" ):\n",
+                "                    limitGroupStart = queries[kb.dbms].limitgroupstart\n",
+                "                    limitGroupStop  = queries[kb.dbms].limitgroupstop\n",
+                "\n",
+                "                    if limitGroupStart.isdigit():\n",
+                "                        startLimit = int(limitRegExp.group(int(limitGroupStart)))\n",
+                "\n",
+                "                    stopLimit = limitRegExp.group(int(limitGroupStop))\n",
+                "                    limitCond = int(stopLimit) > 1\n",
+                "\n",
+                "                elif kb.dbms == \"Microsoft SQL Server\":\n",
+                "                    if limitRegExp:\n",
+                "                        limitGroupStart = queries[kb.dbms].limitgroupstart\n",
+                "                        limitGroupStop  = queries[kb.dbms].limitgroupstop\n",
+                "\n",
+                "                        if limitGroupStart.isdigit():\n",
+                "                            startLimit = int(limitRegExp.group(int(limitGroupStart)))\n",
+                "\n",
+                "                        stopLimit = limitRegExp.group(int(limitGroupStop))\n",
+                "                        limitCond = int(stopLimit) > 1\n",
+                "                    elif topLimit:\n",
+                "                        startLimit = 0\n",
+                "                        stopLimit  = int(topLimit.group(1))\n",
+                "                        limitCond  = int(stopLimit) > 1\n",
+                "\n",
+                "                elif kb.dbms == \"Oracle\":\n",
+                "                    limitCond = False\n",
+                "            else:\n",
+                "                limitCond = True\n",
+                "\n",
+                "            # I assume that only queries NOT containing a \"LIMIT #, 1\"\n",
+                "            # (or similar depending on the back-end DBMS) can return\n",
+                "            # multiple entries\n",
+                "            if limitCond:\n",
+                "                if limitRegExp:\n",
+                "                    stopLimit = int(stopLimit)\n",
+                "\n",
+                "                    # From now on we need only the expression until the \" LIMIT \"\n",
+                "                    # (or similar, depending on the back-end DBMS) word\n",
+                "                    if kb.dbms in ( \"MySQL\", \"PostgreSQL\" ):\n",
+                "                        stopLimit += startLimit\n",
+                "                        untilLimitChar = expression.index(queries[kb.dbms].limitstring)\n",
+                "                        expression = expression[:untilLimitChar]\n",
+                "\n",
+                "                    elif kb.dbms == \"Microsoft SQL Server\":\n",
+                "                        stopLimit += startLimit\n",
+                "\n",
+                "                if not stopLimit or stopLimit <= 1:\n",
+                "                    if kb.dbms == \"Oracle\" and expression.endswith(\"FROM DUAL\"):\n",
+                "                        test = \"n\"\n",
+                "                    elif batch:\n",
+                "                        test = \"y\"\n",
+                "                    else:\n",
+                "                        message  = \"can the SQL query provided return \"\n",
+                "                        message += \"multiple entries? [Y/n] \"\n",
+                "                        test = readInput(message, default=\"Y\")\n",
+                "\n",
+                "                if not test or test[0] in (\"y\", \"Y\"):\n",
+                "                    # Count the number of SQL query entries output\n",
+                "                    countFirstField   = queries[kb.dbms].count % expressionFieldsList[0]\n",
+                "                    countedExpression = expression.replace(expressionFields, countFirstField, 1)\n",
+                "\n",
+                "                    if re.search(\" ORDER BY \", expression, re.I):\n",
+                "                        untilOrderChar = countedExpression.index(\" ORDER BY \")\n",
+                "                        countedExpression = countedExpression[:untilOrderChar]\n",
+                "\n",
+                "                    if resumeValue:\n",
+                "                        count = resume(countedExpression, payload)\n",
+                "\n",
+                "                    if not stopLimit:\n",
+                "                        if not count or not count.isdigit():\n",
+                "                            count = __goInference(payload, countedExpression, charsetType, firstChar, lastChar)\n",
+                "\n",
+                "                        if count and count.isdigit() and int(count) > 0:\n",
+                "                            count = int(count)\n",
+                "\n",
+                "                            if batch:\n",
+                "                                stopLimit = count\n",
+                "                            else:\n",
+                "                                message  = \"the SQL query provided can return \"\n",
+                "                                message += \"up to %d entries. How many \" % count\n",
+                "                                message += \"entries do you want to retrieve?\\n\"\n",
+                "                                message += \"[a] All (default)\\n[#] Specific number\\n\"\n",
+                "                                message += \"[q] Quit\"\n",
+                "                                test = readInput(message, default=\"a\")\n",
+                "\n",
+                "                                if not test or test[0] in (\"a\", \"A\"):\n",
+                "                                    stopLimit = count\n",
+                "\n",
+                "                                elif test[0] in (\"q\", \"Q\"):\n",
+                "                                    return \"Quit\"\n",
+                "\n",
+                "                                elif test.isdigit() and int(test) > 0 and int(test) <= count:\n",
+                "                                    stopLimit = int(test)\n",
+                "\n",
+                "                                    infoMsg  = \"sqlmap is now going to retrieve the \"\n",
+                "                                    infoMsg += \"first %d query output entries\" % stopLimit\n",
+                "                                    logger.info(infoMsg)\n",
+                "\n",
+                "                                elif test[0] in (\"#\", \"s\", \"S\"):\n",
+                "                                    message = \"How many? \"\n",
+                "                                    stopLimit = readInput(message, default=\"10\")\n",
+                "\n",
+                "                                    if not stopLimit.isdigit():\n",
+                "                                        errMsg = \"Invalid choice\"\n",
+                "                                        logger.error(errMsg)\n",
+                "\n",
+                "                                        return None\n",
+                "\n",
+                "                                    else:\n",
+                "                                        stopLimit = int(stopLimit)\n",
+                "\n",
+                "                                else:\n",
+                "                                    errMsg = \"Invalid choice\"\n",
+                "                                    logger.error(errMsg)\n",
+                "\n",
+                "                                    return None\n",
+                "\n",
+                "                        elif count and not count.isdigit():\n",
+                "                            warnMsg  = \"it was not possible to count the number \"\n",
+                "                            warnMsg += \"of entries for the SQL query provided. \"\n",
+                "                            warnMsg += \"sqlmap will assume that it returns only \"\n",
+                "                            warnMsg += \"one entry\"\n",
+                "                            logger.warn(warnMsg)\n",
+                "\n",
+                "                            stopLimit = 1\n",
+                "\n",
+                "                        elif ( not count or int(count) == 0 ):\n",
+                "                            warnMsg  = \"the SQL query provided does not \"\n",
+                "                            warnMsg += \"return any output\"\n",
+                "                            logger.warn(warnMsg)\n",
+                "\n",
+                "                            return None\n",
+                "\n",
+                "                    elif ( not count or int(count) == 0 ) and ( not stopLimit or stopLimit == 0 ):\n",
+                "                        warnMsg  = \"the SQL query provided does not \"\n",
+                "                        warnMsg += \"return any output\"\n",
+                "                        logger.warn(warnMsg)\n",
+                "\n",
+                "                        return None\n",
+                "\n",
+                "                    for num in xrange(startLimit, stopLimit):\n",
+                "                        output = __goInferenceFields(expression, expressionFields, expressionFieldsList, payload, expected, num, resumeValue=resumeValue, charsetType=charsetType, firstChar=firstChar, lastChar=lastChar)\n",
+                "                        outputs.append(output)\n",
+                "\n",
+                "                    return outputs\n",
+                "\n",
+                "        elif kb.dbms == \"Oracle\" and expression.startswith(\"SELECT \") and \" FROM \" not in expression:\n",
+                "            expression = \"%s FROM DUAL\" % expression\n",
+                "\n",
+                "        outputs = __goInferenceFields(expression, expressionFields, expressionFieldsList, payload, expected, resumeValue=resumeValue, charsetType=charsetType, firstChar=firstChar, lastChar=lastChar)\n",
+                "\n",
+                "        returnValue = \", \".join([output for output in outputs])\n",
+                "\n",
+                "    else:\n",
+                "        returnValue = __goInference(payload, expression, charsetType, firstChar, lastChar)\n",
+                "\n",
+                "    return returnValue\n",
+                "\n",
+                "def __goInband(expression, expected=None, sort=True, resumeValue=True, unpack=True, dump=False):\n",
+                "    \"\"\"\n",
+                "    Retrieve the output of a SQL query taking advantage of an inband SQL\n",
+                "    injection vulnerability on the affected parameter.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    output  = None\n",
+                "    partial = False\n",
+                "    data    = []\n",
+                "\n",
+                "    condition = (\n",
+                "                  kb.resumedQueries and conf.url in kb.resumedQueries.keys()\n",
+                "                  and expression in kb.resumedQueries[conf.url].keys()\n",
+                "                )\n",
+                "\n",
+                "    if condition and resumeValue:\n",
+                "        output = resume(expression, None)\n",
+                "\n",
+                "        if not output or ( expected == \"int\" and not output.isdigit() ):\n",
+                "            partial = True\n",
+                "\n",
+                "    if not output:\n",
+                "        output = unionUse(expression, resetCounter=True, unpack=unpack, dump=dump)\n",
+                "\n",
+                "    if output:\n",
+                "        data = parseUnionPage(output, expression, partial, condition, sort)\n",
+                "\n",
+                "    return data\n",
+                "\n",
+                "def getValue(expression, blind=True, inband=True, fromUser=False, expected=None, batch=False, unpack=True, sort=True, resumeValue=True, charsetType=None, firstChar=None, lastChar=None, dump=False):\n",
+                "    \"\"\"\n",
+                "    Called each time sqlmap inject a SQL query on the SQL injection\n",
+                "    affected parameter. It can call a function to retrieve the output\n",
+                "    through inband SQL injection (if selected) and/or blind SQL injection\n",
+                "    (if selected).\n",
+                "    \"\"\"\n",
+                "\n",
+                "    if conf.direct:\n",
+                "        return direct(expression)\n",
+                "\n",
+                "    expression = cleanQuery(expression)\n",
+                "    expression = expandAsteriskForColumns(expression)\n",
+                "    value      = None\n",
+                "\n",
+                "    expression = expression.replace(\"DISTINCT \", \"\")\n",
+                "\n",
+                "    if inband and kb.unionPosition:\n",
+                "        value = __goInband(expression, expected, sort, resumeValue, unpack, dump)\n",
+                "\n",
+                "        if not value:\n",
+                "            warnMsg  = \"for some reasons it was not possible to retrieve \"\n",
+                "            warnMsg += \"the query output through inband SQL injection \"\n",
+                "            warnMsg += \"technique, sqlmap is going blind\"\n",
+                "            logger.warn(warnMsg)\n",
+                "\n",
+                "    oldParamFalseCond   = kb.unionFalseCond\n",
+                "    oldParamNegative    = kb.unionNegative\n",
+                "    kb.unionFalseCond   = False\n",
+                "    kb.unionNegative    = False\n",
+                "\n",
+                "    if blind and not value:\n",
+                "        value = __goInferenceProxy(expression, fromUser, expected, batch, resumeValue, unpack, charsetType, firstChar, lastChar)\n",
+                "\n",
+                "    kb.unionFalseCond = oldParamFalseCond\n",
+                "    kb.unionNegative  = oldParamNegative\n",
+                "\n",
+                "    if value and isinstance(value, str):\n",
+                "        value = value.strip()\n",
+                "\n",
+                "    return value\n",
+                "\n",
+                "def goStacked(expression, silent=False):\n",
+                "    expression = cleanQuery(expression)\n",
+                "\n",
+                "    if conf.direct:\n",
+                "        return direct(expression), None\n",
+                "\n",
+                "    debugMsg = \"query: %s\" % expression\n",
+                "    logger.debug(debugMsg)\n",
+                "\n",
+                "    comment = queries[kb.dbms].comment\n",
+                "    query   = agent.prefixQuery(\"; %s\" % expression)\n",
+                "    query   = agent.postfixQuery(\"%s;%s\" % (query, comment))\n",
+                "    payload = agent.payload(newValue=query)\n",
+                "    page, _ = Request.queryPage(payload, content=True, silent=silent)\n",
+                "\n",
+                "    return payload, page"
+            ]
+        ],
+        "lib/utils/resume.py": [
+            [
+                "#!/usr/bin/env python\n",
+                "\n",
+                "\"\"\"\n",
+                "$Id$\n",
+                "\n",
+                "This file is part of the sqlmap project, http://sqlmap.sourceforge.net.\n",
+                "\n",
+                "Copyright (c) 2007-2010 Bernardo Damele A. G. <bernardo.damele@gmail.com>\n",
+                "Copyright (c) 2006 Daniele Bellucci <daniele.bellucci@gmail.com>\n",
+                "\n",
+                "sqlmap is free software; you can redistribute it and/or modify it under\n",
+                "the terms of the GNU General Public License as published by the Free\n",
+                "Software Foundation version 2 of the License.\n",
+                "\n",
+                "sqlmap is distributed in the hope that it will be useful, but WITHOUT ANY\n",
+                "WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS\n",
+                "FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more\n",
+                "details.\n",
+                "\n",
+                "You should have received a copy of the GNU General Public License along\n",
+                "with sqlmap; if not, write to the Free Software Foundation, Inc., 51\n",
+                "Franklin St, Fifth Floor, Boston, MA  02110-1301  USA\n",
+                "\"\"\"\n",
+                "\n",
+                "import re\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import time\n"
+                ],
+                "parent_version_range": {
+                    "start": 25,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 25,
+                    "end": 26
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: lib/utils/resume.py\nCode:\n  ...\n22 22    \"\"\"\n23 23    \n24 24    import re\n   25  + import time\n25 26    \n26 27    from lib.core.common import dataToSessionFile\n27 28    from lib.core.common import safeStringFormat\n       ...\n",
+                "file_path": "lib/utils/resume.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "time"
+                ],
+                "prefix": [
+                    "\"\"\"\n",
+                    "\n",
+                    "import re\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from lib.core.common import dataToSessionFile\n",
+                    "from lib.core.common import safeStringFormat\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "from lib.core.common import dataToSessionFile\n",
+                "from lib.core.common import safeStringFormat\n",
+                "from lib.core.common import randomStr\n",
+                "from lib.core.common import replaceNewlineTabs\n",
+                "from lib.core.data import conf\n",
+                "from lib.core.data import kb\n",
+                "from lib.core.data import logger\n",
+                "from lib.core.data import queries\n",
+                "from lib.core.unescaper import unescaper\n",
+                "from lib.techniques.blind.inference import bisection\n",
+                "\n",
+                "def queryOutputLength(expression, payload):\n",
+                "    \"\"\"\n",
+                "    Returns the query output length.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    lengthQuery         = queries[kb.dbms].length\n",
+                "\n",
+                "    select              = re.search(\"\\ASELECT\\s+\", expression, re.I)\n",
+                "    selectTopExpr       = re.search(\"\\ASELECT\\s+TOP\\s+[\\d]+\\s+(.+?)\\s+FROM\", expression, re.I)\n",
+                "    selectDistinctExpr  = re.search(\"\\ASELECT\\s+DISTINCT\\((.+?)\\)\\s+FROM\", expression, re.I)\n",
+                "    selectFromExpr      = re.search(\"\\ASELECT\\s+(.+?)\\s+FROM\", expression, re.I)\n",
+                "    selectExpr          = re.search(\"\\ASELECT\\s+(.+)$\", expression, re.I)\n",
+                "    miscExpr            = re.search(\"\\A(.+)\", expression, re.I)\n",
+                "\n",
+                "    if selectTopExpr or selectDistinctExpr or selectFromExpr or selectExpr:\n",
+                "        if selectTopExpr:\n",
+                "            regExpr = selectTopExpr.groups()[0]\n",
+                "        elif selectDistinctExpr:\n",
+                "            regExpr = selectDistinctExpr.groups()[0]\n",
+                "        elif selectFromExpr:\n",
+                "            regExpr = selectFromExpr.groups()[0]\n",
+                "        elif selectExpr:\n",
+                "            regExpr = selectExpr.groups()[0]\n",
+                "    elif miscExpr:\n",
+                "        regExpr = miscExpr.groups()[0]\n",
+                "\n",
+                "    if ( select and re.search(\"\\A(COUNT|LTRIM)\\(\", regExpr, re.I) ) or len(regExpr) <= 1:\n",
+                "        return None, None, None\n",
+                "\n",
+                "    if selectDistinctExpr:\n",
+                "        lengthExpr = \"SELECT %s FROM (%s)\" % (lengthQuery % regExpr, expression)\n",
+                "\n",
+                "        if kb.dbms in ( \"MySQL\", \"PostgreSQL\" ):\n",
+                "            lengthExpr += \" AS %s\" % randomStr(lowercase=True)\n",
+                "    elif select:\n",
+                "        lengthExpr = expression.replace(regExpr, lengthQuery % regExpr, 1)\n",
+                "    else:\n",
+                "        lengthExpr = lengthQuery % expression\n",
+                "\n",
+                "    infoMsg = \"retrieving the length of query output\"\n",
+                "    logger.info(infoMsg)\n",
+                "\n",
+                "    output = resume(lengthExpr, payload)\n",
+                "\n",
+                "    if output:\n",
+                "        return 0, output, regExpr\n",
+                "\n",
+                "    dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], lengthExpr))\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    start = time.time()\n"
+                ],
+                "parent_version_range": {
+                    "start": 86,
+                    "end": 86
+                },
+                "child_version_range": {
+                    "start": 87,
+                    "end": 88
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "queryOutputLength",
+                        "signature": "def queryOutputLength(expression, payload):",
+                        "at_line": 37
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: lib/utils/resume.py\nCode:\n         def queryOutputLength(expression, payload):\n             ...\n83 84    \n84 85        dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], lengthExpr))\n85 86    \n   87  +     start = time.time()\n86 88        lengthExprUnescaped = unescaper.unescape(lengthExpr)\n       ...\n",
+                "file_path": "lib/utils/resume.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "start",
+                    "time"
+                ],
+                "prefix": [
+                    "\n",
+                    "    dataToSessionFile(\"[%s][%s][%s][%s][\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], lengthExpr))\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    lengthExprUnescaped = unescaper.unescape(lengthExpr)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 87,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 87,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "start",
+                            "position": {
+                                "start": {
+                                    "line": 87,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 87,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    lengthExprUnescaped = unescaper.unescape(lengthExpr)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    count, length       = bisection(payload, lengthExprUnescaped, charsetType=2)\n"
+                ],
+                "after": [
+                    "    count, length = bisection(payload, lengthExprUnescaped, charsetType=2)\n",
+                    "\n",
+                    "    debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n",
+                    "    logger.debug(debugMsg)\n"
+                ],
+                "parent_version_range": {
+                    "start": 87,
+                    "end": 88
+                },
+                "child_version_range": {
+                    "start": 89,
+                    "end": 93
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "queryOutputLength",
+                        "signature": "def queryOutputLength(expression, payload):",
+                        "at_line": 37
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: lib/utils/resume.py\nCode:\n         def queryOutputLength(expression, payload):\n             ...\n86 88        lengthExprUnescaped = unescaper.unescape(lengthExpr)\n87     -     count, length       = bisection(payload, lengthExprUnescaped, charsetType=2)\n   89  +     count, length = bisection(payload, lengthExprUnescaped, charsetType=2)\n   90  + \n   91  +     debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n   92  +     logger.debug(debugMsg)\n88 93    \n89 94        if length == \" \":\n90 95            length = 0\n       ...\n",
+                "file_path": "lib/utils/resume.py",
+                "identifiers_before": [
+                    "bisection",
+                    "charsetType",
+                    "count",
+                    "length",
+                    "lengthExprUnescaped",
+                    "payload"
+                ],
+                "identifiers_after": [
+                    "bisection",
+                    "charsetType",
+                    "count",
+                    "debug",
+                    "debugMsg",
+                    "int",
+                    "length",
+                    "lengthExprUnescaped",
+                    "logger",
+                    "payload",
+                    "start",
+                    "time"
+                ],
+                "prefix": [
+                    "    lengthExprUnescaped = unescaper.unescape(lengthExpr)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    if length == \" \":\n",
+                    "        length = 0\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 66
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 70
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "start",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 80
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 85
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    if length == \" \":\n",
+                "        length = 0\n",
+                "    \n",
+                "    return count, length, regExpr\n",
+                "\n",
+                "def resume(expression, payload):\n",
+                "    \"\"\"\n",
+                "    This function can be called to resume part or entire output of a\n",
+                "    SQL injection query output.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    if \"sqlmapfile\" in expression or \"sqlmapoutput\" in expression:\n",
+                "        return None\n",
+                "\n",
+                "    condition = (\n",
+                "                  kb.resumedQueries and conf.url in kb.resumedQueries.keys()\n",
+                "                  and expression in kb.resumedQueries[conf.url].keys()\n",
+                "                )\n",
+                "\n",
+                "    if not condition:\n",
+                "        return None\n",
+                "\n",
+                "    resumedValue = kb.resumedQueries[conf.url][expression]\n",
+                "\n",
+                "    if not resumedValue:\n",
+                "        return None\n",
+                "\n",
+                "    resumedValue = resumedValue.replace(\"__NEWLINE__\", \"\\n\").replace(\"__TAB__\", \"\\t\")\n",
+                "\n",
+                "    if resumedValue[-1] == \"]\":\n",
+                "        resumedValue = resumedValue[:-1]\n",
+                "\n",
+                "        infoMsg  = \"read from file '%s': \" % conf.sessionFile\n",
+                "        logValue = re.findall(\"__START__(.*?)__STOP__\", resumedValue, re.S)\n",
+                "\n",
+                "        if logValue:\n",
+                "            logValue = \", \".join([value.replace(\"__DEL__\", \", \") for value in logValue])\n",
+                "        else:\n",
+                "            logValue = resumedValue\n",
+                "\n",
+                "        if \"\\n\" in logValue:\n",
+                "            infoMsg += \"%s...\" % logValue.split(\"\\n\")[0]\n",
+                "        else:\n",
+                "            infoMsg += logValue\n",
+                "\n",
+                "        logger.info(infoMsg)\n",
+                "\n",
+                "        return resumedValue\n",
+                "\n",
+                "    # If we called this function without providing a payload it means that\n",
+                "    # we have called it from lib/request/inject __goInband() function\n",
+                "    # in UNION query (inband) SQL injection so we return to the calling\n",
+                "    # function so that the query output will be retrieved taking advantage\n",
+                "    # of the inband SQL injection vulnerability.\n",
+                "    if not payload:\n",
+                "        return None\n",
+                "\n",
+                "    substringQuery = queries[kb.dbms].substring\n",
+                "    select = re.search(\"\\ASELECT \", expression, re.I)\n",
+                "\n",
+                "    _, length, regExpr = queryOutputLength(expression, payload)\n",
+                "\n",
+                "    if not length:\n",
+                "        return None\n",
+                "\n",
+                "    if len(resumedValue) == int(length):\n",
+                "        infoMsg  = \"read from file '%s': \" % conf.sessionFile\n",
+                "        infoMsg += \"%s\" % resumedValue.split(\"\\n\")[0]\n",
+                "        logger.info(infoMsg)\n",
+                "\n",
+                "        dataToSessionFile(\"[%s][%s][%s][%s][%s]\\n\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], expression, replaceNewlineTabs(resumedValue)))\n",
+                "\n",
+                "        return resumedValue\n",
+                "    elif len(resumedValue) < int(length):\n",
+                "        infoMsg  = \"resumed from file '%s': \" % conf.sessionFile\n",
+                "        infoMsg += \"%s...\" % resumedValue.split(\"\\n\")[0]\n",
+                "        logger.info(infoMsg)\n",
+                "\n",
+                "        dataToSessionFile(\"[%s][%s][%s][%s][%s\" % (conf.url, kb.injPlace, conf.parameters[kb.injPlace], expression, replaceNewlineTabs(resumedValue)))\n",
+                "\n",
+                "        if select:\n",
+                "            newExpr = expression.replace(regExpr, safeStringFormat(substringQuery, (regExpr, len(resumedValue) + 1, int(length))), 1)\n",
+                "        else:\n",
+                "            newExpr = safeStringFormat(substringQuery, (expression, len(resumedValue) + 1, int(length)))\n",
+                "\n",
+                "        missingCharsLength = int(length) - len(resumedValue)\n",
+                "\n",
+                "        infoMsg  = \"retrieving pending %d query \" % missingCharsLength\n",
+                "        infoMsg += \"output characters\"\n",
+                "        logger.info(infoMsg)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        _, finalValue = bisection(payload, newExpr, length=missingCharsLength)\n"
+                ],
+                "after": [
+                    "        start = time.time()\n",
+                    "        count, finalValue = bisection(payload, newExpr, length=missingCharsLength)\n",
+                    "\n",
+                    "        debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n",
+                    "        logger.debug(debugMsg)\n"
+                ],
+                "parent_version_range": {
+                    "start": 180,
+                    "end": 181
+                },
+                "child_version_range": {
+                    "start": 185,
+                    "end": 190
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if len(resumedValue) == int(length):",
+                        "start_line": 154,
+                        "end_line": 190
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "resume",
+                        "signature": "def resume(expression, payload):",
+                        "at_line": 94
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: lib/utils/resume.py\nCode:\n           def resume(expression, payload):\n               ...\n177 182            infoMsg += \"output characters\"\n178 183            logger.info(infoMsg)\n179 184    \n180      -         _, finalValue = bisection(payload, newExpr, length=missingCharsLength)\n    185  +         start = time.time()\n    186  +         count, finalValue = bisection(payload, newExpr, length=missingCharsLength)\n    187  + \n    188  +         debugMsg = \"performed %d queries in %d seconds\" % (count, int(time.time() - start))\n    189  +         logger.debug(debugMsg)\n181 190    \n182 191            if len(finalValue) != ( int(length) - len(resumedValue) ):\n183 192                warnMsg  = \"the total length of the query is not \"\n         ...\n",
+                "file_path": "lib/utils/resume.py",
+                "identifiers_before": [
+                    "_",
+                    "bisection",
+                    "finalValue",
+                    "length",
+                    "missingCharsLength",
+                    "newExpr",
+                    "payload"
+                ],
+                "identifiers_after": [
+                    "bisection",
+                    "count",
+                    "debug",
+                    "debugMsg",
+                    "finalValue",
+                    "int",
+                    "length",
+                    "logger",
+                    "missingCharsLength",
+                    "newExpr",
+                    "payload",
+                    "start",
+                    "time"
+                ],
+                "prefix": [
+                    "        infoMsg += \"output characters\"\n",
+                    "        logger.info(infoMsg)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if len(finalValue) != ( int(length) - len(resumedValue) ):\n",
+                    "            warnMsg  = \"the total length of the query is not \"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 185,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 185,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "time",
+                            "position": {
+                                "start": {
+                                    "line": 188,
+                                    "column": 70
+                                },
+                                "end": {
+                                    "line": 188,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sqlmap/lib/utils/resume.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if len(finalValue) != ( int(length) - len(resumedValue) ):\n",
+                "            warnMsg  = \"the total length of the query is not \"\n",
+                "            warnMsg += \"right, sqlmap is going to retrieve the \"\n",
+                "            warnMsg += \"query value from the beginning now\"\n",
+                "            logger.warn(warnMsg)\n",
+                "\n",
+                "            return None\n",
+                "\n",
+                "        return \"%s%s\" % (resumedValue, finalValue)\n",
+                "\n",
+                "    return None"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "maybe a move, but just for safety, set to bi-directional"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

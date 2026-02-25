@@ -1,0 +1,2141 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/3b1b/manim/commit/b25f022859e54de027839b511d2242bb3aa6cf8e",
+    "commit_message": "Make it an option (default to false) to prerun a scene to calculate its number of frames",
+    "commit_snapshots": {
+        "manimlib/config.py": [
+            [
+                "from __future__ import annotations\n",
+                "\n",
+                "import argparse\n",
+                "from argparse import Namespace\n",
+                "import colour\n",
+                "import importlib\n",
+                "import inspect\n",
+                "import os\n",
+                "from screeninfo import get_monitors\n",
+                "import sys\n",
+                "import yaml\n",
+                "\n",
+                "from manimlib.logger import log\n",
+                "from manimlib.utils.dict_ops import merge_dicts_recursively\n",
+                "from manimlib.utils.init_config import init_customization\n",
+                "from manimlib.constants import FRAME_HEIGHT\n",
+                "\n",
+                "from typing import TYPE_CHECKING\n",
+                "if TYPE_CHECKING:\n",
+                "    Module = importlib.util.types.ModuleType\n",
+                "\n",
+                "\n",
+                "__config_file__ = \"custom_config.yml\"\n",
+                "\n",
+                "\n",
+                "def parse_cli():\n",
+                "    try:\n",
+                "        parser = argparse.ArgumentParser()\n",
+                "        module_location = parser.add_mutually_exclusive_group()\n",
+                "        module_location.add_argument(\n",
+                "            \"file\",\n",
+                "            nargs=\"?\",\n",
+                "            help=\"Path to file holding the python code for the scene\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"scene_names\",\n",
+                "            nargs=\"*\",\n",
+                "            help=\"Name of the Scene class you want to see\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-w\", \"--write_file\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render the scene as a movie file\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-s\", \"--skip_animations\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Save the last frame\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-l\", \"--low_quality\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render at a low quality (for faster rendering)\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-m\", \"--medium_quality\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render at a medium quality\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--hd\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render at a 1080p\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--uhd\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render at a 4k\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-f\", \"--full_screen\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Show window in full screen\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-p\", \"--presenter_mode\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Scene will stay paused during wait calls until \" + \\\n",
+                "                 \"space bar or right arrow is hit, like a slide show\"\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-g\", \"--save_pngs\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Save each frame as a png\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-i\", \"--gif\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Save the video as gif\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-t\", \"--transparent\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Render to a movie file with an alpha channel\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-q\", \"--quiet\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-a\", \"--write_all\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Write all the scenes from a file\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-o\", \"--open\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Automatically open the saved file once its done\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--finder\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Show the output file in finder\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--config\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Guide for automatic configuration\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--file_name\",\n",
+                "            help=\"Name for the movie or image file\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-n\", \"--start_at_animation_number\",\n",
+                "            help=\"Start rendering not from the first animation, but \" + \\\n",
+                "                 \"from another, specified by its index.  If you pass \" + \\\n",
+                "                 \"in two comma separated values, e.g. \\\"3,6\\\", it will end \" + \\\n",
+                "                 \"the rendering at the second value\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-e\", \"--embed\",\n",
+                "            nargs=\"?\",\n",
+                "            const=\"\",\n",
+                "            help=\"Creates a new file where the line `self.embed` is inserted \" + \\\n",
+                "                 \"into the Scenes construct method. \" + \\\n",
+                "                 \"If a string is passed in, the line will be inserted below the \" + \\\n",
+                "                 \"last line of code including that string.\"\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-r\", \"--resolution\",\n",
+                "            help=\"Resolution, passed as \\\"WxH\\\", e.g. \\\"1920x1080\\\"\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--fps\",\n",
+                "            help=\"Frame rate, as an integer\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-c\", \"--color\",\n",
+                "            help=\"Background color\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--leave_progress_bars\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Leave progress bars displayed in terminal\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--show_animation_progress\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Show progress bar for each animation\",\n",
+                "        )\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        parser.add_argument(\n",
+                    "            \"--prerun\",\n",
+                    "            action=\"store_true\",\n",
+                    "            help=\"Calculate total framecount, to display in a progress bar, by doing \" + \\\n",
+                    "                 \"an initial run of the scene which skips animations.\"\n",
+                    "        )\n"
+                ],
+                "parent_version_range": {
+                    "start": 162,
+                    "end": 162
+                },
+                "child_version_range": {
+                    "start": 162,
+                    "end": 168
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 26,
+                        "end_line": 184
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "parse_cli",
+                        "signature": "def parse_cli():",
+                        "at_line": 25
+                    },
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument(\n            \"--show_animation_progress\",\n            action=\"store_true\",\n            help=\"Show progress bar for each animation\",\n        )",
+                        "at_line": 157
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: manimlib/config.py\nCode:\n           def parse_cli():\n               ...\n               parser.add_argument(\n            \"--show_animation_progress\",\n            action=\"store_true\",\n            help=\"Show progress bar for each animation\",\n        )\n                   ...\n159 159                action=\"store_true\",\n160 160                help=\"Show progress bar for each animation\",\n161 161            )\n    162  +         parser.add_argument(\n    163  +             \"--prerun\",\n    164  +             action=\"store_true\",\n    165  +             help=\"Calculate total framecount, to display in a progress bar, by doing \" + \\\n    166  +                  \"an initial run of the scene which skips animations.\"\n    167  +         )\n162 168            parser.add_argument(\n163 169                \"--video_dir\",\n164 170                help=\"Directory to write video\",\n         ...\n",
+                "file_path": "manimlib/config.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "action",
+                    "add_argument",
+                    "help",
+                    "parser"
+                ],
+                "prefix": [
+                    "            action=\"store_true\",\n",
+                    "            help=\"Show progress bar for each animation\",\n",
+                    "        )\n"
+                ],
+                "suffix": [
+                    "        parser.add_argument(\n",
+                    "            \"--video_dir\",\n",
+                    "            help=\"Directory to write video\",\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        parser.add_argument(\n",
+                "            \"--video_dir\",\n",
+                "            help=\"Directory to write video\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--config_file\",\n",
+                "            help=\"Path to the custom configuration file\",\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"-v\", \"--version\",\n",
+                "            action=\"store_true\",\n",
+                "            help=\"Display the version of manimgl\"\n",
+                "        )\n",
+                "        parser.add_argument(\n",
+                "            \"--log-level\",\n",
+                "            help=\"Level of messages to Display, can be DEBUG / INFO / WARNING / ERROR / CRITICAL\"\n",
+                "        )\n",
+                "        args = parser.parse_args()\n",
+                "        args.write_file = any([args.write_file, args.open, args.finder])\n",
+                "        return args\n",
+                "    except argparse.ArgumentError as err:\n",
+                "        log.error(str(err))\n",
+                "        sys.exit(2)\n",
+                "\n",
+                "\n",
+                "def get_manim_dir():\n",
+                "    manimlib_module = importlib.import_module(\"manimlib\")\n",
+                "    manimlib_dir = os.path.dirname(inspect.getabsfile(manimlib_module))\n",
+                "    return os.path.abspath(os.path.join(manimlib_dir, \"..\"))\n",
+                "\n",
+                "\n",
+                "def get_module(file_name: str | None) -> Module:\n",
+                "    if file_name is None:\n",
+                "        return None\n",
+                "    module_name = file_name.replace(os.sep, \".\").replace(\".py\", \"\")\n",
+                "    spec = importlib.util.spec_from_file_location(module_name, file_name)\n",
+                "    module = importlib.util.module_from_spec(spec)\n",
+                "    spec.loader.exec_module(module)\n",
+                "    return module\n",
+                "\n",
+                "\n",
+                "def get_indent(line: str):\n",
+                "    return len(line) - len(line.lstrip())\n",
+                "\n",
+                "\n",
+                "def get_module_with_inserted_embed_line(\n",
+                "    file_name: str, scene_name: str, line_marker: str\n",
+                "):\n",
+                "    \"\"\"\n",
+                "    This is hacky, but convenient. When user includes the argument \"-e\", it will try\n",
+                "    to recreate a file that inserts the line `self.embed()` into the end of the scene's\n",
+                "    construct method. If there is an argument passed in, it will insert the line after\n",
+                "    the last line in the sourcefile which includes that string.\n",
+                "    \"\"\"\n",
+                "    with open(file_name, 'r') as fp:\n",
+                "        lines = fp.readlines()\n",
+                "\n",
+                "    try:\n",
+                "        scene_line_number = next(\n",
+                "            i for i, line in enumerate(lines)\n",
+                "            if line.startswith(f\"class {scene_name}\")\n",
+                "        )\n",
+                "    except StopIteration:\n",
+                "        log.error(f\"No scene {scene_name}\")\n",
+                "        return\n",
+                "\n",
+                "    prev_line_num = -1\n",
+                "    n_spaces = None\n",
+                "    if len(line_marker) == 0:\n",
+                "        # Find the end of the construct method\n",
+                "        in_construct = False\n",
+                "        for index in range(scene_line_number, len(lines) - 1):\n",
+                "            line = lines[index]\n",
+                "            if line.lstrip().startswith(\"def construct\"):\n",
+                "                in_construct = True\n",
+                "                n_spaces = get_indent(line) + 4\n",
+                "            elif in_construct:\n",
+                "                if len(line.strip()) > 0 and get_indent(line) < (n_spaces or 0):\n",
+                "                    prev_line_num = index - 1\n",
+                "                    break\n",
+                "        if prev_line_num < 0:\n",
+                "            prev_line_num = len(lines) - 1\n",
+                "    elif line_marker.isdigit():\n",
+                "        # Treat the argument as a line number\n",
+                "        prev_line_num = int(line_marker) - 1\n",
+                "    elif len(line_marker) > 0:\n",
+                "        # Treat the argument as a string\n",
+                "        try:\n",
+                "            prev_line_num = next(\n",
+                "                i\n",
+                "                for i in range(scene_line_number, len(lines) - 1)\n",
+                "                if line_marker in lines[i]\n",
+                "            )\n",
+                "        except StopIteration:\n",
+                "            log.error(f\"No lines matching {line_marker}\")\n",
+                "            sys.exit(2)\n",
+                "\n",
+                "    # Insert the embed line, rewrite file, then write it back when done\n",
+                "    if n_spaces is None:\n",
+                "        n_spaces = get_indent(lines[prev_line_num])\n",
+                "    inserted_line = \" \" * n_spaces + \"self.embed()\\n\"\n",
+                "    new_lines = list(lines)\n",
+                "    new_lines.insert(prev_line_num + 1, inserted_line)\n",
+                "    new_file = file_name.replace(\".py\", \"_insert_embed.py\")\n",
+                "\n",
+                "    with open(new_file, 'w') as fp:\n",
+                "        fp.writelines(new_lines)\n",
+                "\n",
+                "    module = get_module(new_file)\n",
+                "    # This is to pretend the module imported from the edited lines\n",
+                "    # of code actually comes from the original file.\n",
+                "    module.__file__ = file_name\n",
+                "\n",
+                "    os.remove(new_file)\n",
+                "\n",
+                "    return module\n",
+                "\n",
+                "\n",
+                "def get_scene_module(args: Namespace) -> Module:\n",
+                "    if args.embed is None:\n",
+                "        return get_module(args.file)\n",
+                "    else:\n",
+                "        return get_module_with_inserted_embed_line(\n",
+                "            args.file, args.scene_names[0], args.embed\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "def get_custom_config():\n",
+                "    global __config_file__\n",
+                "\n",
+                "    global_defaults_file = os.path.join(get_manim_dir(), \"manimlib\", \"default_config.yml\")\n",
+                "\n",
+                "    if os.path.exists(global_defaults_file):\n",
+                "        with open(global_defaults_file, \"r\") as file:\n",
+                "            custom_config = yaml.safe_load(file)\n",
+                "\n",
+                "        if os.path.exists(__config_file__):\n",
+                "            with open(__config_file__, \"r\") as file:\n",
+                "                local_defaults = yaml.safe_load(file)\n",
+                "            if local_defaults:\n",
+                "                custom_config = merge_dicts_recursively(\n",
+                "                    custom_config,\n",
+                "                    local_defaults,\n",
+                "                )\n",
+                "    else:\n",
+                "        with open(__config_file__, \"r\") as file:\n",
+                "            custom_config = yaml.safe_load(file)\n",
+                "\n",
+                "    # Check temporary storage(custom_config)\n",
+                "    if custom_config[\"directories\"][\"temporary_storage\"] == \"\" and sys.platform == \"win32\":\n",
+                "        log.warning(\n",
+                "            \"You may be using Windows platform and have not specified the path of\" + \\\n",
+                "            \" `temporary_storage`, which may cause OSError. So it is recommended\" + \\\n",
+                "            \" to specify the `temporary_storage` in the config file (.yml)\"\n",
+                "        )\n",
+                "\n",
+                "    return custom_config\n",
+                "\n",
+                "\n",
+                "def init_global_config(config_file):\n",
+                "    global __config_file__\n",
+                "\n",
+                "    # ensure __config_file__ always exists\n",
+                "    if config_file is not None:\n",
+                "        if not os.path.exists(config_file):\n",
+                "            log.error(f\"Can't find {config_file}.\")\n",
+                "            if sys.platform == 'win32':\n",
+                "                log.info(f\"Copying default configuration file to {config_file}...\")\n",
+                "                os.system(f\"copy default_config.yml {config_file}\")\n",
+                "            elif sys.platform in [\"linux2\", \"darwin\"]:\n",
+                "                log.info(f\"Copying default configuration file to {config_file}...\")\n",
+                "                os.system(f\"cp default_config.yml {config_file}\")\n",
+                "            else:\n",
+                "                log.info(\"Please create the configuration file manually.\")\n",
+                "            log.info(\"Read configuration from default_config.yml.\")\n",
+                "        else:\n",
+                "            __config_file__ = config_file\n",
+                "\n",
+                "    global_defaults_file = os.path.join(get_manim_dir(), \"manimlib\", \"default_config.yml\")\n",
+                "\n",
+                "    if not (os.path.exists(global_defaults_file) or os.path.exists(__config_file__)):\n",
+                "        log.info(\"There is no configuration file detected. Switch to the config file initializer:\")\n",
+                "        init_customization()\n",
+                "\n",
+                "    elif not os.path.exists(__config_file__):\n",
+                "        log.info(f\"Using the default configuration file, which you can modify in `{global_defaults_file}`\")\n",
+                "        log.info(\n",
+                "            \"If you want to create a local configuration file, you can create a file named\" + \\\n",
+                "            f\" `{__config_file__}`, or run `manimgl --config`\"\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "def get_file_ext(args: Namespace) -> str:\n",
+                "    if args.transparent:\n",
+                "        file_ext = \".mov\"\n",
+                "    elif args.gif:\n",
+                "        file_ext = \".gif\"\n",
+                "    else:\n",
+                "        file_ext = \".mp4\"\n",
+                "    return file_ext\n",
+                "\n",
+                "\n",
+                "def get_animations_numbers(args: Namespace) -> tuple[int | None, int | None]:\n",
+                "    stan = args.start_at_animation_number\n",
+                "    if stan is None:\n",
+                "        return (None, None)\n",
+                "    elif \",\" in stan:\n",
+                "        return tuple(map(int, stan.split(\",\")))\n",
+                "    else:\n",
+                "        return int(stan), None\n",
+                "\n",
+                "\n",
+                "def get_output_directory(args: Namespace, custom_config: dict) -> str:\n",
+                "    dir_config = custom_config[\"directories\"]\n",
+                "    output_directory = args.video_dir or dir_config[\"output\"]\n",
+                "    if dir_config[\"mirror_module_path\"] and args.file:\n",
+                "        to_cut = dir_config[\"removed_mirror_prefix\"]\n",
+                "        ext = os.path.abspath(args.file)\n",
+                "        ext = ext.replace(to_cut, \"\").replace(\".py\", \"\")\n",
+                "        if ext.startswith(\"_\"):\n",
+                "            ext = ext[1:]\n",
+                "        output_directory = os.path.join(output_directory, ext)\n",
+                "    return output_directory\n",
+                "\n",
+                "\n",
+                "def get_file_writer_config(args: Namespace, custom_config: dict) -> dict:\n",
+                "    return {\n",
+                "        \"write_to_movie\": not args.skip_animations and args.write_file,\n",
+                "        \"break_into_partial_movies\": custom_config[\"break_into_partial_movies\"],\n",
+                "        \"save_last_frame\": args.skip_animations and args.write_file,\n",
+                "        \"save_pngs\": args.save_pngs,\n",
+                "        # If -t is passed in (for transparent), this will be RGBA\n",
+                "        \"png_mode\": \"RGBA\" if args.transparent else \"RGB\",\n",
+                "        \"movie_file_extension\": get_file_ext(args),\n",
+                "        \"output_directory\": get_output_directory(args, custom_config),\n",
+                "        \"file_name\": args.file_name,\n",
+                "        \"input_file_path\": args.file or \"\",\n",
+                "        \"open_file_upon_completion\": args.open,\n",
+                "        \"show_file_location_upon_completion\": args.finder,\n",
+                "        \"quiet\": args.quiet,\n",
+                "    }\n",
+                "\n",
+                "\n",
+                "def get_window_config(args: Namespace, custom_config: dict, camera_config: dict) -> dict:\n",
+                "    # Default to making window half the screen size\n",
+                "    # but make it full screen if -f is passed in\n",
+                "    monitors = get_monitors()\n",
+                "    mon_index = custom_config[\"window_monitor\"]\n",
+                "    monitor = monitors[min(mon_index, len(monitors) - 1)]\n",
+                "    aspect_ratio = camera_config[\"pixel_width\"] / camera_config[\"pixel_height\"]\n",
+                "    window_width = monitor.width\n",
+                "    if not (args.full_screen or custom_config[\"full_screen\"]):\n",
+                "        window_width //= 2\n",
+                "    window_height = int(window_width / aspect_ratio)\n",
+                "    return dict(size=(window_width, window_height))\n",
+                "\n",
+                "\n",
+                "def get_camera_config(args: Namespace, custom_config: dict) -> dict:\n",
+                "    camera_config = {}\n",
+                "    camera_resolutions = custom_config[\"camera_resolutions\"]\n",
+                "    if args.resolution:\n",
+                "        resolution = args.resolution\n",
+                "    elif args.low_quality:\n",
+                "        resolution = camera_resolutions[\"low\"]\n",
+                "    elif args.medium_quality:\n",
+                "        resolution = camera_resolutions[\"med\"]\n",
+                "    elif args.hd:\n",
+                "        resolution = camera_resolutions[\"high\"]\n",
+                "    elif args.uhd:\n",
+                "        resolution = camera_resolutions[\"4k\"]\n",
+                "    else:\n",
+                "        resolution = camera_resolutions[camera_resolutions[\"default_resolution\"]]\n",
+                "\n",
+                "    if args.fps:\n",
+                "        fps = int(args.fps)\n",
+                "    else:\n",
+                "        fps = custom_config[\"fps\"]\n",
+                "\n",
+                "    width_str, height_str = resolution.split(\"x\")\n",
+                "    width = int(width_str)\n",
+                "    height = int(height_str)\n",
+                "\n",
+                "    camera_config.update({\n",
+                "        \"pixel_width\": width,\n",
+                "        \"pixel_height\": height,\n",
+                "        \"frame_config\": {\n",
+                "            \"frame_shape\": ((width / height) * FRAME_HEIGHT, FRAME_HEIGHT),\n",
+                "        },\n",
+                "        \"fps\": fps,\n",
+                "    })\n",
+                "\n",
+                "    try:\n",
+                "        bg_color = args.color or custom_config[\"style\"][\"background_color\"]\n",
+                "        camera_config[\"background_color\"] = colour.Color(bg_color)\n",
+                "    except ValueError as err:\n",
+                "        log.error(\"Please use a valid color\")\n",
+                "        log.error(err)\n",
+                "        sys.exit(2)\n",
+                "\n",
+                "    # If rendering a transparent image/move, make sure the\n",
+                "    # scene has a background opacity of 0\n",
+                "    if args.transparent:\n",
+                "        camera_config[\"background_opacity\"] = 0\n",
+                "\n",
+                "    return camera_config\n",
+                "\n",
+                "\n",
+                "def get_configuration(args: Namespace) -> dict:\n",
+                "    init_global_config(args.config_file)\n",
+                "    custom_config = get_custom_config()\n",
+                "    camera_config = get_camera_config(args, custom_config)\n",
+                "    window_config = get_window_config(args, custom_config, camera_config)\n",
+                "    start, end = get_animations_numbers(args)\n",
+                "\n",
+                "    return {\n",
+                "        \"module\": get_scene_module(args),\n",
+                "        \"scene_names\": args.scene_names,\n",
+                "        \"file_writer_config\": get_file_writer_config(args, custom_config),\n",
+                "        \"camera_config\": camera_config,\n",
+                "        \"window_config\": window_config,\n",
+                "        \"quiet\": args.quiet or args.write_all,\n",
+                "        \"write_all\": args.write_all,\n",
+                "        \"skip_animations\": args.skip_animations,\n",
+                "        \"start_at_animation_number\": start,\n",
+                "        \"end_at_animation_number\": end,\n",
+                "        \"preview\": not args.write_file,\n",
+                "        \"presenter_mode\": args.presenter_mode,\n",
+                "        \"leave_progress_bars\": args.leave_progress_bars,\n",
+                "        \"show_animation_progress\": args.show_animation_progress,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        \"prerun\": args.prerun,\n"
+                ],
+                "parent_version_range": {
+                    "start": 491,
+                    "end": 491
+                },
+                "child_version_range": {
+                    "start": 497,
+                    "end": 498
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_configuration",
+                        "signature": "def get_configuration(args: Namespace)->dict:",
+                        "at_line": 469
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: manimlib/config.py\nCode:\n           def get_configuration(args: Namespace)->dict:\n               ...\n488 494            \"presenter_mode\": args.presenter_mode,\n489 495            \"leave_progress_bars\": args.leave_progress_bars,\n490 496            \"show_animation_progress\": args.show_animation_progress,\n    497  +         \"prerun\": args.prerun,\n491 498            \"embed_exception_mode\": custom_config[\"embed_exception_mode\"],\n492 499            \"embed_error_sound\": custom_config[\"embed_error_sound\"],\n493 500        }\n         ...\n",
+                "file_path": "manimlib/config.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "args",
+                    "prerun"
+                ],
+                "prefix": [
+                    "        \"presenter_mode\": args.presenter_mode,\n",
+                    "        \"leave_progress_bars\": args.leave_progress_bars,\n",
+                    "        \"show_animation_progress\": args.show_animation_progress,\n"
+                ],
+                "suffix": [
+                    "        \"embed_exception_mode\": custom_config[\"embed_exception_mode\"],\n",
+                    "        \"embed_error_sound\": custom_config[\"embed_error_sound\"],\n",
+                    "    }"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        \"embed_exception_mode\": custom_config[\"embed_exception_mode\"],\n",
+                "        \"embed_error_sound\": custom_config[\"embed_error_sound\"],\n",
+                "    }"
+            ]
+        ],
+        "manimlib/extract_scene.py": [
+            [
+                "import copy\n",
+                "import inspect\n",
+                "import sys\n",
+                "\n",
+                "from manimlib.config import get_custom_config\n",
+                "from manimlib.logger import log\n",
+                "from manimlib.scene.interactive_scene import InteractiveScene\n",
+                "from manimlib.scene.scene import Scene\n",
+                "\n",
+                "\n",
+                "class BlankScene(InteractiveScene):\n",
+                "    def construct(self):\n",
+                "        exec(get_custom_config()[\"universal_import_line\"])\n",
+                "        self.embed()\n",
+                "\n",
+                "\n",
+                "def is_child_scene(obj, module):\n",
+                "    if not inspect.isclass(obj):\n",
+                "        return False\n",
+                "    if not issubclass(obj, Scene):\n",
+                "        return False\n",
+                "    if obj == Scene:\n",
+                "        return False\n",
+                "    if not obj.__module__.startswith(module.__name__):\n",
+                "        return False\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "def prompt_user_for_choice(scene_classes):\n",
+                "    name_to_class = {}\n",
+                "    max_digits = len(str(len(scene_classes)))\n",
+                "    for idx, scene_class in enumerate(scene_classes, start=1):\n",
+                "        name = scene_class.__name__\n",
+                "        print(f\"{str(idx).zfill(max_digits)}: {name}\")\n",
+                "        name_to_class[name] = scene_class\n",
+                "    try:\n",
+                "        user_input = input(\n",
+                "            \"\\nThat module has multiple scenes, \" + \\\n",
+                "            \"which ones would you like to render?\" + \\\n",
+                "            \"\\nScene Name or Number: \"\n",
+                "        )\n",
+                "        return [\n",
+                "            name_to_class[split_str] if not split_str.isnumeric() else scene_classes[int(split_str) - 1]\n",
+                "            for split_str in user_input.replace(\" \", \"\").split(\",\")\n",
+                "        ]\n",
+                "    except IndexError:\n",
+                "        log.error(\"Invalid scene number\")\n",
+                "        sys.exit(2)\n",
+                "    except KeyError:\n",
+                "        log.error(\"Invalid scene name\")\n",
+                "        sys.exit(2)\n",
+                "    except EOFError:\n",
+                "        sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def get_scene_config(config):\n",
+                "    scene_parameters = inspect.signature(Scene).parameters.keys()\n",
+                "    return {\n",
+                "        key: config[key]\n",
+                "        for key in set(scene_parameters).intersection(config.keys())\n",
+                "    }\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def compute_total_frames(scene_class, scene_config):\n"
+                ],
+                "after": [
+                    "def compute_total_frames(scene_class, scene_config, config):\n"
+                ],
+                "parent_version_range": {
+                    "start": 63,
+                    "end": 64
+                },
+                "child_version_range": {
+                    "start": 63,
+                    "end": 64
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "compute_total_frames",
+                        "signature": "def compute_total_frames(scene_class, scene_config):",
+                        "at_line": 63
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: manimlib/extract_scene.py\nCode:\n60 60        }\n61 61    \n62 62    \n63     - def compute_total_frames(scene_class, scene_config):\n   63  + def compute_total_frames(scene_class, scene_config, config):\n64 64        \"\"\"\n65 65        When a scene is being written to file, a copy of the scene is run with\n66 66        skip_animations set to true so as to count how many frames it will require.\n       ...\n",
+                "file_path": "manimlib/extract_scene.py",
+                "identifiers_before": [
+                    "compute_total_frames",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "identifiers_after": [
+                    "compute_total_frames",
+                    "config",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "prefix": [
+                    "    }\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    When a scene is being written to file, a copy of the scene is run with\n",
+                    "    skip_animations set to true so as to count how many frames it will require.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "config",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 52
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 58
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4,
+                    5
+                ]
+            },
+            [
+                "    \"\"\"\n",
+                "    When a scene is being written to file, a copy of the scene is run with\n",
+                "    skip_animations set to true so as to count how many frames it will require.\n",
+                "    This allows for a total progress bar on rendering, and also allows runtime\n",
+                "    errors to be exposed preemptively for long running scenes.\n",
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if not config[\"prerun\"]:\n",
+                    "        return -1\n"
+                ],
+                "parent_version_range": {
+                    "start": 70,
+                    "end": 70
+                },
+                "child_version_range": {
+                    "start": 70,
+                    "end": 72
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "compute_total_frames",
+                        "signature": "def compute_total_frames(scene_class, scene_config):",
+                        "at_line": 63
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: manimlib/extract_scene.py\nCode:\n         def compute_total_frames(scene_class, scene_config):\n             ...\n67 67        This allows for a total progress bar on rendering, and also allows runtime\n68 68        errors to be exposed preemptively for long running scenes.\n69 69        \"\"\"\n   70  +     if not config[\"prerun\"]:\n   71  +         return -1\n70 72        pre_config = copy.deepcopy(scene_config)\n71 73        pre_config[\"file_writer_config\"][\"write_to_movie\"] = False\n72 74        pre_config[\"file_writer_config\"][\"save_last_frame\"] = False\n       ...\n",
+                "file_path": "manimlib/extract_scene.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "config"
+                ],
+                "prefix": [
+                    "    This allows for a total progress bar on rendering, and also allows runtime\n",
+                    "    errors to be exposed preemptively for long running scenes.\n",
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "    pre_config = copy.deepcopy(scene_config)\n",
+                    "    pre_config[\"file_writer_config\"][\"write_to_movie\"] = False\n",
+                    "    pre_config[\"file_writer_config\"][\"save_last_frame\"] = False\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "config",
+                            "position": {
+                                "start": {
+                                    "line": 70,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 70,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    pre_config = copy.deepcopy(scene_config)\n",
+                "    pre_config[\"file_writer_config\"][\"write_to_movie\"] = False\n",
+                "    pre_config[\"file_writer_config\"][\"save_last_frame\"] = False\n",
+                "    pre_config[\"file_writer_config\"][\"quiet\"] = True\n",
+                "    pre_config[\"skip_animations\"] = True\n",
+                "    pre_scene = scene_class(**pre_config)\n",
+                "    pre_scene.run()\n",
+                "    total_time = pre_scene.time - pre_scene.skip_time\n",
+                "    return int(total_time * scene_config[\"camera_config\"][\"fps\"])\n",
+                "\n",
+                "\n",
+                "def get_scenes_to_render(scene_classes, scene_config, config):\n",
+                "    if config[\"write_all\"]:\n",
+                "        return [sc(**scene_config) for sc in scene_classes]\n",
+                "\n",
+                "    result = []\n",
+                "    for scene_name in config[\"scene_names\"]:\n",
+                "        found = False\n",
+                "        for scene_class in scene_classes:\n",
+                "            if scene_class.__name__ == scene_name:\n",
+                "                fw_config = scene_config[\"file_writer_config\"]\n",
+                "                if fw_config[\"write_to_movie\"]:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                    fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config)\n"
+                ],
+                "after": [
+                    "                    fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config, config)\n"
+                ],
+                "parent_version_range": {
+                    "start": 92,
+                    "end": 93
+                },
+                "child_version_range": {
+                    "start": 94,
+                    "end": 95
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for scene_name in config[\"scene_names\"]:",
+                        "start_line": 86,
+                        "end_line": 98
+                    },
+                    {
+                        "type": "for_statement",
+                        "statement": "for scene_class in scene_classes:",
+                        "start_line": 88,
+                        "end_line": 96
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if scene_class.__name__ == scene_name:",
+                        "start_line": 89,
+                        "end_line": 96
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if fw_config[\"write_to_movie\"]:",
+                        "start_line": 91,
+                        "end_line": 92
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_scenes_to_render",
+                        "signature": "def get_scenes_to_render(scene_classes, scene_config, config):",
+                        "at_line": 81
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: manimlib/extract_scene.py\nCode:\n         def get_scenes_to_render(scene_classes, scene_config, config):\n             ...\n89 91                if scene_class.__name__ == scene_name:\n90 92                    fw_config = scene_config[\"file_writer_config\"]\n91 93                    if fw_config[\"write_to_movie\"]:\n92     -                     fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config)\n   94  +                     fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config, config)\n93 95                    scene = scene_class(**scene_config)\n94 96                    result.append(scene)\n95 97                    found = True\n       ...\n",
+                "file_path": "manimlib/extract_scene.py",
+                "identifiers_before": [
+                    "compute_total_frames",
+                    "fw_config",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "identifiers_after": [
+                    "compute_total_frames",
+                    "config",
+                    "fw_config",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "prefix": [
+                    "            if scene_class.__name__ == scene_name:\n",
+                    "                fw_config = scene_config[\"file_writer_config\"]\n",
+                    "                if fw_config[\"write_to_movie\"]:\n"
+                ],
+                "suffix": [
+                    "                scene = scene_class(**scene_config)\n",
+                    "                result.append(scene)\n",
+                    "                found = True\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 92,
+                                    "column": 48
+                                },
+                                "end": {
+                                    "line": 92,
+                                    "column": 68
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 94,
+                                    "column": 48
+                                },
+                                "end": {
+                                    "line": 94,
+                                    "column": 68
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    5
+                ]
+            },
+            [
+                "                scene = scene_class(**scene_config)\n",
+                "                result.append(scene)\n",
+                "                found = True\n",
+                "                break\n",
+                "        if not found and (scene_name != \"\"):\n",
+                "            log.error(f\"No scene named {scene_name} found\")\n",
+                "    if result:\n",
+                "        return result\n",
+                "    \n",
+                "    # another case\n",
+                "    result=[]\n",
+                "    if len(scene_classes) == 1:\n",
+                "        scene_classes = [scene_classes[0]]\n",
+                "    else:\n",
+                "        scene_classes = prompt_user_for_choice(scene_classes)\n",
+                "    for scene_class in scene_classes:\n",
+                "        fw_config = scene_config[\"file_writer_config\"]\n",
+                "        if fw_config[\"write_to_movie\"]:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config)\n"
+                ],
+                "after": [
+                    "            fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config, config)\n"
+                ],
+                "parent_version_range": {
+                    "start": 111,
+                    "end": 112
+                },
+                "child_version_range": {
+                    "start": 113,
+                    "end": 114
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for scene_class in scene_classes:",
+                        "start_line": 108,
+                        "end_line": 113
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if fw_config[\"write_to_movie\"]:",
+                        "start_line": 110,
+                        "end_line": 111
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_scenes_to_render",
+                        "signature": "def get_scenes_to_render(scene_classes, scene_config, config):",
+                        "at_line": 81
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: manimlib/extract_scene.py\nCode:\n           def get_scenes_to_render(scene_classes, scene_config, config):\n               ...\n108 110        for scene_class in scene_classes:\n109 111            fw_config = scene_config[\"file_writer_config\"]\n110 112            if fw_config[\"write_to_movie\"]:\n111      -             fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config)\n    113  +             fw_config[\"total_frames\"] = compute_total_frames(scene_class, scene_config, config)\n112 114            scene = scene_class(**scene_config)\n113 115            result.append(scene)\n114 116        return result\n         ...\n",
+                "file_path": "manimlib/extract_scene.py",
+                "identifiers_before": [
+                    "compute_total_frames",
+                    "fw_config",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "identifiers_after": [
+                    "compute_total_frames",
+                    "config",
+                    "fw_config",
+                    "scene_class",
+                    "scene_config"
+                ],
+                "prefix": [
+                    "    for scene_class in scene_classes:\n",
+                    "        fw_config = scene_config[\"file_writer_config\"]\n",
+                    "        if fw_config[\"write_to_movie\"]:\n"
+                ],
+                "suffix": [
+                    "        scene = scene_class(**scene_config)\n",
+                    "        result.append(scene)\n",
+                    "    return result\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 111,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 111,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "compute_total_frames",
+                            "position": {
+                                "start": {
+                                    "line": 113,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 113,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/extract_scene.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    4
+                ]
+            },
+            [
+                "        scene = scene_class(**scene_config)\n",
+                "        result.append(scene)\n",
+                "    return result\n",
+                "\n",
+                "\n",
+                "def get_scene_classes_from_module(module):\n",
+                "    if hasattr(module, \"SCENES_IN_ORDER\"):\n",
+                "        return module.SCENES_IN_ORDER\n",
+                "    else:\n",
+                "        return [\n",
+                "            member[1]\n",
+                "            for member in inspect.getmembers(\n",
+                "                module,\n",
+                "                lambda x: is_child_scene(x, module)\n",
+                "            )\n",
+                "        ]\n",
+                "\n",
+                "\n",
+                "def main(config):\n",
+                "    module = config[\"module\"]\n",
+                "    scene_config = get_scene_config(config)\n",
+                "    if module is None:\n",
+                "        # If no module was passed in, just play the blank scene\n",
+                "        return [BlankScene(**scene_config)]\n",
+                "\n",
+                "    all_scene_classes = get_scene_classes_from_module(module)\n",
+                "    scenes = get_scenes_to_render(all_scene_classes, scene_config, config)\n",
+                "    return scenes"
+            ]
+        ],
+        "manimlib/scene/scene_file_writer.py": [
+            [
+                "from __future__ import annotations\n",
+                "\n",
+                "import os\n",
+                "import platform\n",
+                "import shutil\n",
+                "import subprocess as sp\n",
+                "import sys\n",
+                "\n",
+                "import numpy as np\n",
+                "from pydub import AudioSegment\n",
+                "from tqdm.auto import tqdm as ProgressDisplay\n",
+                "\n",
+                "from manimlib.constants import FFMPEG_BIN\n",
+                "from manimlib.logger import log\n",
+                "from manimlib.mobject.mobject import Mobject\n",
+                "from manimlib.utils.file_ops import add_extension_if_not_present\n",
+                "from manimlib.utils.file_ops import get_sorted_integer_files\n",
+                "from manimlib.utils.file_ops import guarantee_existence\n",
+                "from manimlib.utils.sounds import get_full_sound_file_path\n",
+                "\n",
+                "from typing import TYPE_CHECKING\n",
+                "\n",
+                "if TYPE_CHECKING:\n",
+                "    from PIL.Image import Image\n",
+                "\n",
+                "    from manimlib.camera.camera import Camera\n",
+                "    from manimlib.scene.scene import Scene\n",
+                "\n",
+                "\n",
+                "class SceneFileWriter(object):\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        scene: Scene,\n",
+                "        write_to_movie: bool = False,\n",
+                "        break_into_partial_movies: bool = False,\n",
+                "        save_pngs: bool = False,  # TODO, this currently does nothing\n",
+                "        png_mode: str = \"RGBA\",\n",
+                "        save_last_frame: bool = False,\n",
+                "        movie_file_extension: str = \".mp4\",\n",
+                "        # What python file is generating this scene\n",
+                "        input_file_path: str = \"\",\n",
+                "        # Where should this be written\n",
+                "        output_directory: str | None = None,\n",
+                "        file_name: str | None = None,\n",
+                "        open_file_upon_completion: bool = False,\n",
+                "        show_file_location_upon_completion: bool = False,\n",
+                "        quiet: bool = False,\n",
+                "        total_frames: int = 0,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        progress_description_len: int = 40,\n"
+                ],
+                "after": [
+                    "        progress_description_len: int | None = None,\n"
+                ],
+                "parent_version_range": {
+                    "start": 48,
+                    "end": 49
+                },
+                "child_version_range": {
+                    "start": 48,
+                    "end": 49
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SceneFileWriter",
+                        "signature": "class SceneFileWriter(object):",
+                        "at_line": 29
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        scene: Scene,\n        write_to_movie: bool = False,\n        break_into_partial_movies: bool = False,\n        save_pngs: bool = False,  # TODO, this currently does nothing\n        png_mode: str = \"RGBA\",\n        save_last_frame: bool = False,\n        movie_file_extension: str = \".mp4\",\n        # What python file is generating this scene\n        input_file_path: str = \"\",\n        # Where should this be written\n        output_directory: str | None = None,\n        file_name: str | None = None,\n        open_file_upon_completion: bool = False,\n        show_file_location_upon_completion: bool = False,\n        quiet: bool = False,\n        total_frames: int = 0,\n        progress_description_len: int = 40,\n    ):",
+                        "at_line": 30
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: manimlib/scene/scene_file_writer.py\nCode:\n         class SceneFileWriter(object):\n             ...\n             def __init__(\n        self,\n        scene: Scene,\n        write_to_movie: bool = False,\n        break_into_partial_movies: bool = False,\n        save_pngs: bool = False,  # TODO, this currently does nothing\n        png_mode: str = \"RGBA\",\n        save_last_frame: bool = False,\n        movie_file_extension: str = \".mp4\",\n        # What python file is generating this scene\n        input_file_path: str = \"\",\n        # Where should this be written\n        output_directory: str | None = None,\n        file_name: str | None = None,\n        open_file_upon_completion: bool = False,\n        show_file_location_upon_completion: bool = False,\n        quiet: bool = False,\n        total_frames: int = 0,\n        progress_description_len: int = 40,\n    ):\n                 ...\n45 45            show_file_location_upon_completion: bool = False,\n46 46            quiet: bool = False,\n47 47            total_frames: int = 0,\n48     -         progress_description_len: int = 40,\n   48  +         progress_description_len: int | None = None,\n49 49        ):\n50 50            self.scene: Scene = scene\n51 51            self.write_to_movie = write_to_movie\n       ...\n",
+                "file_path": "manimlib/scene/scene_file_writer.py",
+                "identifiers_before": [
+                    "int",
+                    "progress_description_len"
+                ],
+                "identifiers_after": [
+                    "int",
+                    "progress_description_len"
+                ],
+                "prefix": [
+                    "        show_file_location_upon_completion: bool = False,\n",
+                    "        quiet: bool = False,\n",
+                    "        total_frames: int = 0,\n"
+                ],
+                "suffix": [
+                    "    ):\n",
+                    "        self.scene: Scene = scene\n",
+                    "        self.write_to_movie = write_to_movie\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "progress_description_len",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/scene/scene_file_writer.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "progress_description_len",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/scene/scene_file_writer.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    ):\n",
+                "        self.scene: Scene = scene\n",
+                "        self.write_to_movie = write_to_movie\n",
+                "        self.break_into_partial_movies = break_into_partial_movies\n",
+                "        self.save_pngs = save_pngs\n",
+                "        self.png_mode = png_mode\n",
+                "        self.save_last_frame = save_last_frame\n",
+                "        self.movie_file_extension = movie_file_extension\n",
+                "        self.input_file_path = input_file_path\n",
+                "        self.output_directory = output_directory\n",
+                "        self.file_name = file_name\n",
+                "        self.open_file_upon_completion = open_file_upon_completion\n",
+                "        self.show_file_location_upon_completion = show_file_location_upon_completion\n",
+                "        self.quiet = quiet\n",
+                "        self.total_frames = total_frames\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self.progress_description_len = progress_description_len\n"
+                ],
+                "after": [
+                    "        self.progress_description_len = progress_description_len or \\\n",
+                    "            40 if total_frames > 0 else 80\n"
+                ],
+                "parent_version_range": {
+                    "start": 64,
+                    "end": 65
+                },
+                "child_version_range": {
+                    "start": 64,
+                    "end": 66
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SceneFileWriter",
+                        "signature": "class SceneFileWriter(object):",
+                        "at_line": 29
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        scene: Scene,\n        write_to_movie: bool = False,\n        break_into_partial_movies: bool = False,\n        save_pngs: bool = False,  # TODO, this currently does nothing\n        png_mode: str = \"RGBA\",\n        save_last_frame: bool = False,\n        movie_file_extension: str = \".mp4\",\n        # What python file is generating this scene\n        input_file_path: str = \"\",\n        # Where should this be written\n        output_directory: str | None = None,\n        file_name: str | None = None,\n        open_file_upon_completion: bool = False,\n        show_file_location_upon_completion: bool = False,\n        quiet: bool = False,\n        total_frames: int = 0,\n        progress_description_len: int = 40,\n    ):",
+                        "at_line": 30
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: manimlib/scene/scene_file_writer.py\nCode:\n         class SceneFileWriter(object):\n             ...\n             def __init__(\n        self,\n        scene: Scene,\n        write_to_movie: bool = False,\n        break_into_partial_movies: bool = False,\n        save_pngs: bool = False,  # TODO, this currently does nothing\n        png_mode: str = \"RGBA\",\n        save_last_frame: bool = False,\n        movie_file_extension: str = \".mp4\",\n        # What python file is generating this scene\n        input_file_path: str = \"\",\n        # Where should this be written\n        output_directory: str | None = None,\n        file_name: str | None = None,\n        open_file_upon_completion: bool = False,\n        show_file_location_upon_completion: bool = False,\n        quiet: bool = False,\n        total_frames: int = 0,\n        progress_description_len: int = 40,\n    ):\n                 ...\n61 61            self.show_file_location_upon_completion = show_file_location_upon_completion\n62 62            self.quiet = quiet\n63 63            self.total_frames = total_frames\n64     -         self.progress_description_len = progress_description_len\n   64  +         self.progress_description_len = progress_description_len or \\\n   65  +             40 if total_frames > 0 else 80\n65 66    \n66 67            # State during file writing\n67 68            self.writing_process: sp.Popen | None = None\n       ...\n",
+                "file_path": "manimlib/scene/scene_file_writer.py",
+                "identifiers_before": [
+                    "progress_description_len",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "progress_description_len",
+                    "self",
+                    "total_frames"
+                ],
+                "prefix": [
+                    "        self.show_file_location_upon_completion = show_file_location_upon_completion\n",
+                    "        self.quiet = quiet\n",
+                    "        self.total_frames = total_frames\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        # State during file writing\n",
+                    "        self.writing_process: sp.Popen | None = None\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "progress_description_len",
+                            "position": {
+                                "start": {
+                                    "line": 64,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 64,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/scene/scene_file_writer.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "progress_description_len",
+                            "position": {
+                                "start": {
+                                    "line": 64,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 64,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/manim/manimlib/scene/scene_file_writer.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        # State during file writing\n",
+                "        self.writing_process: sp.Popen | None = None\n",
+                "        self.progress_display: ProgressDisplay | None = None\n",
+                "        self.ended_with_interrupt: bool = False\n",
+                "        self.init_output_directories()\n",
+                "        self.init_audio()\n",
+                "\n",
+                "    # Output directories and files\n",
+                "    def init_output_directories(self) -> None:\n",
+                "        out_dir = self.output_directory or \"\"\n",
+                "        scene_name = self.file_name or self.get_default_scene_name()\n",
+                "        if self.save_last_frame:\n",
+                "            image_dir = guarantee_existence(os.path.join(out_dir, \"images\"))\n",
+                "            image_file = add_extension_if_not_present(scene_name, \".png\")\n",
+                "            self.image_file_path = os.path.join(image_dir, image_file)\n",
+                "        if self.write_to_movie:\n",
+                "            movie_dir = guarantee_existence(os.path.join(out_dir, \"videos\"))\n",
+                "            movie_file = add_extension_if_not_present(scene_name, self.movie_file_extension)\n",
+                "            self.movie_file_path = os.path.join(movie_dir, movie_file)\n",
+                "            if self.break_into_partial_movies:\n",
+                "                self.partial_movie_directory = guarantee_existence(os.path.join(\n",
+                "                    movie_dir, \"partial_movie_files\", scene_name,\n",
+                "                ))\n",
+                "        # A place to save mobjects\n",
+                "        self.saved_mobject_directory = os.path.join(\n",
+                "            out_dir, \"mobjects\", str(self.scene)\n",
+                "        )\n",
+                "\n",
+                "    def get_default_module_directory(self) -> str:\n",
+                "        path, _ = os.path.splitext(self.input_file_path)\n",
+                "        if path.startswith(\"_\"):\n",
+                "            path = path[1:]\n",
+                "        return path\n",
+                "\n",
+                "    def get_default_scene_name(self) -> str:\n",
+                "        name = str(self.scene)\n",
+                "        saan = self.scene.start_at_animation_number\n",
+                "        eaan = self.scene.end_at_animation_number\n",
+                "        if saan is not None:\n",
+                "            name += f\"_{saan}\"\n",
+                "        if eaan is not None:\n",
+                "            name += f\"_{eaan}\"\n",
+                "        return name\n",
+                "\n",
+                "    def get_resolution_directory(self) -> str:\n",
+                "        pixel_height = self.scene.camera.pixel_height\n",
+                "        fps = self.scene.camera.fps\n",
+                "        return \"{}p{}\".format(\n",
+                "            pixel_height, fps\n",
+                "        )\n",
+                "\n",
+                "    # Directory getters\n",
+                "    def get_image_file_path(self) -> str:\n",
+                "        return self.image_file_path\n",
+                "\n",
+                "    def get_next_partial_movie_path(self) -> str:\n",
+                "        result = os.path.join(\n",
+                "            self.partial_movie_directory,\n",
+                "            \"{:05}{}\".format(\n",
+                "                self.scene.num_plays,\n",
+                "                self.movie_file_extension,\n",
+                "            )\n",
+                "        )\n",
+                "        return result\n",
+                "\n",
+                "    def get_movie_file_path(self) -> str:\n",
+                "        return self.movie_file_path\n",
+                "\n",
+                "    def get_saved_mobject_directory(self) -> str:\n",
+                "        return guarantee_existence(self.saved_mobject_directory)\n",
+                "\n",
+                "    def get_saved_mobject_path(self, mobject: Mobject) -> str | None:\n",
+                "        directory = self.get_saved_mobject_directory()\n",
+                "        files = os.listdir(directory)\n",
+                "        default_name = str(mobject) + \"_0.mob\"\n",
+                "        index = 0\n",
+                "        while default_name in files:\n",
+                "            default_name = default_name.replace(str(index), str(index + 1))\n",
+                "            index += 1\n",
+                "        if platform.system() == 'Darwin':\n",
+                "            cmds = [\n",
+                "                \"osascript\", \"-e\",\n",
+                "                f\"\"\"\n",
+                "                set chosenfile to (choose file name default name \"{default_name}\" default location \"{directory}\")\n",
+                "                POSIX path of chosenfile\n",
+                "                \"\"\",\n",
+                "            ]\n",
+                "            process = sp.Popen(cmds, stdout=sp.PIPE)\n",
+                "            file_path = process.stdout.read().decode(\"utf-8\").split(\"\\n\")[0]\n",
+                "            if not file_path:\n",
+                "                return\n",
+                "        else:\n",
+                "            user_name = input(f\"Enter mobject file name (default is {default_name}): \")\n",
+                "            file_path = os.path.join(directory, user_name or default_name)\n",
+                "            if os.path.exists(file_path) or os.path.exists(file_path + \".mob\"):\n",
+                "                if input(f\"{file_path} already exists. Overwrite (y/n)? \") != \"y\":\n",
+                "                    return\n",
+                "        if not file_path.endswith(\".mob\"):\n",
+                "            file_path = file_path + \".mob\"\n",
+                "        return file_path\n",
+                "\n",
+                "    # Sound\n",
+                "    def init_audio(self) -> None:\n",
+                "        self.includes_sound: bool = False\n",
+                "\n",
+                "    def create_audio_segment(self) -> None:\n",
+                "        self.audio_segment = AudioSegment.silent()\n",
+                "\n",
+                "    def add_audio_segment(\n",
+                "        self,\n",
+                "        new_segment: AudioSegment,\n",
+                "        time: float | None = None,\n",
+                "        gain_to_background: float | None = None\n",
+                "    ) -> None:\n",
+                "        if not self.includes_sound:\n",
+                "            self.includes_sound = True\n",
+                "            self.create_audio_segment()\n",
+                "        segment = self.audio_segment\n",
+                "        curr_end = segment.duration_seconds\n",
+                "        if time is None:\n",
+                "            time = curr_end\n",
+                "        if time < 0:\n",
+                "            raise Exception(\"Adding sound at timestamp < 0\")\n",
+                "\n",
+                "        new_end = time + new_segment.duration_seconds\n",
+                "        diff = new_end - curr_end\n",
+                "        if diff > 0:\n",
+                "            segment = segment.append(\n",
+                "                AudioSegment.silent(int(np.ceil(diff * 1000))),\n",
+                "                crossfade=0,\n",
+                "            )\n",
+                "        self.audio_segment = segment.overlay(\n",
+                "            new_segment,\n",
+                "            position=int(1000 * time),\n",
+                "            gain_during_overlay=gain_to_background,\n",
+                "        )\n",
+                "\n",
+                "    def add_sound(\n",
+                "        self,\n",
+                "        sound_file: str,\n",
+                "        time: float | None = None,\n",
+                "        gain: float | None = None,\n",
+                "        gain_to_background: float | None = None\n",
+                "    ) -> None:\n",
+                "        file_path = get_full_sound_file_path(sound_file)\n",
+                "        new_segment = AudioSegment.from_file(file_path)\n",
+                "        if gain:\n",
+                "            new_segment = new_segment.apply_gain(gain)\n",
+                "        self.add_audio_segment(new_segment, time, gain_to_background)\n",
+                "\n",
+                "    # Writers\n",
+                "    def begin(self) -> None:\n",
+                "        if not self.break_into_partial_movies and self.write_to_movie:\n",
+                "            self.open_movie_pipe(self.get_movie_file_path())\n",
+                "\n",
+                "    def begin_animation(self) -> None:\n",
+                "        if self.break_into_partial_movies and self.write_to_movie:\n",
+                "            self.open_movie_pipe(self.get_next_partial_movie_path())\n",
+                "\n",
+                "    def end_animation(self) -> None:\n",
+                "        if self.break_into_partial_movies and self.write_to_movie:\n",
+                "            self.close_movie_pipe()\n",
+                "\n",
+                "    def finish(self) -> None:\n",
+                "        if self.write_to_movie:\n",
+                "            if self.break_into_partial_movies:\n",
+                "                self.combine_movie_files()\n",
+                "            else:\n",
+                "                self.close_movie_pipe()\n",
+                "            if self.includes_sound:\n",
+                "                self.add_sound_to_video()\n",
+                "            self.print_file_ready_message(self.get_movie_file_path())\n",
+                "        if self.save_last_frame:\n",
+                "            self.scene.update_frame(ignore_skipping=True)\n",
+                "            self.save_final_image(self.scene.get_image())\n",
+                "        if self.should_open_file():\n",
+                "            self.open_file()\n",
+                "\n",
+                "    def open_movie_pipe(self, file_path: str) -> None:\n",
+                "        stem, ext = os.path.splitext(file_path)\n",
+                "        self.final_file_path = file_path\n",
+                "        self.temp_file_path = stem + \"_temp\" + ext\n",
+                "\n",
+                "        fps = self.scene.camera.fps\n",
+                "        width, height = self.scene.camera.get_pixel_shape()\n",
+                "\n",
+                "        command = [\n",
+                "            FFMPEG_BIN,\n",
+                "            '-y',  # overwrite output file if it exists\n",
+                "            '-f', 'rawvideo',\n",
+                "            '-s', f'{width}x{height}',  # size of one frame\n",
+                "            '-pix_fmt', 'rgba',\n",
+                "            '-r', str(fps),  # frames per second\n",
+                "            '-i', '-',  # The input comes from a pipe\n",
+                "            '-vf', 'vflip',\n",
+                "            '-an',  # Tells FFMPEG not to expect any audio\n",
+                "            '-loglevel', 'error',\n",
+                "        ]\n",
+                "        if self.movie_file_extension == \".mov\":\n",
+                "            # This is if the background of the exported\n",
+                "            # video should be transparent.\n",
+                "            command += [\n",
+                "                '-vcodec', 'prores_ks',\n",
+                "            ]\n",
+                "        elif self.movie_file_extension == \".gif\":\n",
+                "            command += []\n",
+                "        else:\n",
+                "            command += [\n",
+                "                '-vcodec', 'libx264',\n",
+                "                '-pix_fmt', 'yuv420p',\n",
+                "            ]\n",
+                "        command += [self.temp_file_path]\n",
+                "        self.writing_process = sp.Popen(command, stdin=sp.PIPE)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        if self.total_frames > 0 and not self.quiet:\n"
+                ],
+                "after": [
+                    "        if not self.quiet:\n"
+                ],
+                "parent_version_range": {
+                    "start": 280,
+                    "end": 281
+                },
+                "child_version_range": {
+                    "start": 281,
+                    "end": 282
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.total_frames > 0 and not self.quiet:",
+                        "start_line": 280,
+                        "end_line": 288
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SceneFileWriter",
+                        "signature": "class SceneFileWriter(object):",
+                        "at_line": 29
+                    },
+                    {
+                        "type": "function",
+                        "name": "open_movie_pipe",
+                        "signature": "def open_movie_pipe(self, file_path: str)->None:",
+                        "at_line": 244
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: manimlib/scene/scene_file_writer.py\nCode:\n           class SceneFileWriter(object):\n               ...\n               def open_movie_pipe(self, file_path: str)->None:\n                   ...\n277 278            command += [self.temp_file_path]\n278 279            self.writing_process = sp.Popen(command, stdin=sp.PIPE)\n279 280    \n280      -         if self.total_frames > 0 and not self.quiet:\n    281  +         if not self.quiet:\n281 282                self.progress_display = ProgressDisplay(\n282 283                    range(self.total_frames),\n         ...\n",
+                "file_path": "manimlib/scene/scene_file_writer.py",
+                "identifiers_before": [
+                    "quiet",
+                    "self",
+                    "total_frames"
+                ],
+                "identifiers_after": [
+                    "quiet",
+                    "self"
+                ],
+                "prefix": [
+                    "        command += [self.temp_file_path]\n",
+                    "        self.writing_process = sp.Popen(command, stdin=sp.PIPE)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "            self.progress_display = ProgressDisplay(\n",
+                    "                range(self.total_frames),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            self.progress_display = ProgressDisplay(\n",
+                "                range(self.total_frames),\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "                # bar_format=\"{l_bar}{bar}|{n_fmt}/{total_fmt}\",\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 283,
+                    "end": 284
+                },
+                "child_version_range": {
+                    "start": 284,
+                    "end": 284
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.total_frames > 0 and not self.quiet:",
+                        "start_line": 280,
+                        "end_line": 288
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SceneFileWriter",
+                        "signature": "class SceneFileWriter(object):",
+                        "at_line": 29
+                    },
+                    {
+                        "type": "function",
+                        "name": "open_movie_pipe",
+                        "signature": "def open_movie_pipe(self, file_path: str)->None:",
+                        "at_line": 244
+                    },
+                    {
+                        "type": "call",
+                        "name": "ProgressDisplay",
+                        "signature": "ProgressDisplay(\n                range(self.total_frames),\n                # bar_format=\"{l_bar}{bar}|{n_fmt}/{total_fmt}\",\n                leave=False,\n                ascii=True if platform.system() == 'Windows' else None,\n                dynamic_ncols=True,\n            )",
+                        "at_line": 281,
+                        "argument": "# bar_format=\"{l_bar}{bar}|{n_..."
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: manimlib/scene/scene_file_writer.py\nCode:\n           class SceneFileWriter(object):\n               ...\n               def open_movie_pipe(self, file_path: str)->None:\n                   ...\n281 282                self.progress_display = ProgressDisplay(\n282 283                    range(self.total_frames),\n283      -                 # bar_format=\"{l_bar}{bar}|{n_fmt}/{total_fmt}\",\n284 284                    leave=False,\n285 285                    ascii=True if platform.system() == 'Windows' else None,\n286 286                    dynamic_ncols=True,\n         ...\n",
+                "file_path": "manimlib/scene/scene_file_writer.py",
+                "identifiers_before": [],
+                "identifiers_after": [],
+                "prefix": [
+                    "            self.progress_display = ProgressDisplay(\n",
+                    "                range(self.total_frames),\n"
+                ],
+                "suffix": [
+                    "                leave=False,\n",
+                    "                ascii=True if platform.system() == 'Windows' else None,\n",
+                    "                dynamic_ncols=True,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                leave=False,\n",
+                "                ascii=True if platform.system() == 'Windows' else None,\n",
+                "                dynamic_ncols=True,\n",
+                "            )\n",
+                "            self.set_progress_display_description()\n",
+                "\n",
+                "    def begin_insert(self):\n",
+                "        # Begin writing process\n",
+                "        self.write_to_movie = True\n",
+                "        self.init_output_directories()\n",
+                "        movie_path = self.get_movie_file_path()\n",
+                "        count = 0\n",
+                "        while os.path.exists(name := movie_path.replace(\".\", f\"_insert_{count}.\")):\n",
+                "            count += 1\n",
+                "        self.inserted_file_path = name\n",
+                "        self.open_movie_pipe(self.inserted_file_path)\n",
+                "\n",
+                "    def end_insert(self):\n",
+                "        self.close_movie_pipe()\n",
+                "        self.write_to_movie = False\n",
+                "        self.print_file_ready_message(self.inserted_file_path)\n",
+                "\n",
+                "    def has_progress_display(self):\n",
+                "        return self.progress_display is not None\n",
+                "\n",
+                "    def set_progress_display_description(self, file: str = \"\", sub_desc: str = \"\") -> None:\n",
+                "        if self.progress_display is None:\n",
+                "            return\n",
+                "\n",
+                "        desc_len = self.progress_description_len\n",
+                "        if not file:\n",
+                "            file = os.path.split(self.get_movie_file_path())[1]\n",
+                "        full_desc = f\"{file} {sub_desc}\"\n",
+                "        if len(full_desc) > desc_len:\n",
+                "            full_desc = full_desc[:desc_len - 3] + \"...\"\n",
+                "        else:\n",
+                "            full_desc += \" \" * (desc_len - len(full_desc))\n",
+                "        self.progress_display.set_description(full_desc)\n",
+                "\n",
+                "    def write_frame(self, camera: Camera) -> None:\n",
+                "        if self.write_to_movie:\n",
+                "            raw_bytes = camera.get_raw_fbo_data()\n",
+                "            self.writing_process.stdin.write(raw_bytes)\n",
+                "            if self.progress_display is not None:\n",
+                "                self.progress_display.update()\n",
+                "\n",
+                "    def close_movie_pipe(self) -> None:\n",
+                "        self.writing_process.stdin.close()\n",
+                "        self.writing_process.wait()\n",
+                "        self.writing_process.terminate()\n",
+                "        if self.progress_display is not None:\n",
+                "            self.progress_display.close()\n",
+                "\n",
+                "        if not self.ended_with_interrupt:\n",
+                "            shutil.move(self.temp_file_path, self.final_file_path)\n",
+                "        else:\n",
+                "            self.movie_file_path = self.temp_file_path\n",
+                "\n",
+                "    def combine_movie_files(self) -> None:\n",
+                "        kwargs = {\n",
+                "            \"remove_non_integer_files\": True,\n",
+                "            \"extension\": self.movie_file_extension,\n",
+                "        }\n",
+                "        if self.scene.start_at_animation_number is not None:\n",
+                "            kwargs[\"min_index\"] = self.scene.start_at_animation_number\n",
+                "        if self.scene.end_at_animation_number is not None:\n",
+                "            kwargs[\"max_index\"] = self.scene.end_at_animation_number\n",
+                "        else:\n",
+                "            kwargs[\"remove_indices_greater_than\"] = self.scene.num_plays - 1\n",
+                "        partial_movie_files = get_sorted_integer_files(\n",
+                "            self.partial_movie_directory,\n",
+                "            **kwargs\n",
+                "        )\n",
+                "        if len(partial_movie_files) == 0:\n",
+                "            log.warning(\"No animations in this scene\")\n",
+                "            return\n",
+                "\n",
+                "        # Write a file partial_file_list.txt containing all\n",
+                "        # partial movie files\n",
+                "        file_list = os.path.join(\n",
+                "            self.partial_movie_directory,\n",
+                "            \"partial_movie_file_list.txt\"\n",
+                "        )\n",
+                "        with open(file_list, 'w') as fp:\n",
+                "            for pf_path in partial_movie_files:\n",
+                "                if os.name == 'nt':\n",
+                "                    pf_path = pf_path.replace('\\\\', '/')\n",
+                "                fp.write(f\"file \\'{pf_path}\\'\\n\")\n",
+                "\n",
+                "        movie_file_path = self.get_movie_file_path()\n",
+                "        commands = [\n",
+                "            FFMPEG_BIN,\n",
+                "            '-y',  # overwrite output file if it exists\n",
+                "            '-f', 'concat',\n",
+                "            '-safe', '0',\n",
+                "            '-i', file_list,\n",
+                "            '-loglevel', 'error',\n",
+                "            '-c', 'copy',\n",
+                "            movie_file_path\n",
+                "        ]\n",
+                "        if not self.includes_sound:\n",
+                "            commands.insert(-1, '-an')\n",
+                "\n",
+                "        combine_process = sp.Popen(commands)\n",
+                "        combine_process.wait()\n",
+                "\n",
+                "    def add_sound_to_video(self) -> None:\n",
+                "        movie_file_path = self.get_movie_file_path()\n",
+                "        stem, ext = os.path.splitext(movie_file_path)\n",
+                "        sound_file_path = stem + \".wav\"\n",
+                "        # Makes sure sound file length will match video file\n",
+                "        self.add_audio_segment(AudioSegment.silent(0))\n",
+                "        self.audio_segment.export(\n",
+                "            sound_file_path,\n",
+                "            bitrate='312k',\n",
+                "        )\n",
+                "        temp_file_path = stem + \"_temp\" + ext\n",
+                "        commands = [\n",
+                "            FFMPEG_BIN,\n",
+                "            \"-i\", movie_file_path,\n",
+                "            \"-i\", sound_file_path,\n",
+                "            '-y',  # overwrite output file if it exists\n",
+                "            \"-c:v\", \"copy\",\n",
+                "            \"-c:a\", \"aac\",\n",
+                "            \"-b:a\", \"320k\",\n",
+                "            # select video stream from first file\n",
+                "            \"-map\", \"0:v:0\",\n",
+                "            # select audio stream from second file\n",
+                "            \"-map\", \"1:a:0\",\n",
+                "            '-loglevel', 'error',\n",
+                "            # \"-shortest\",\n",
+                "            temp_file_path,\n",
+                "        ]\n",
+                "        sp.call(commands)\n",
+                "        shutil.move(temp_file_path, movie_file_path)\n",
+                "        os.remove(sound_file_path)\n",
+                "\n",
+                "    def save_final_image(self, image: Image) -> None:\n",
+                "        file_path = self.get_image_file_path()\n",
+                "        image.save(file_path)\n",
+                "        self.print_file_ready_message(file_path)\n",
+                "\n",
+                "    def print_file_ready_message(self, file_path: str) -> None:\n",
+                "        if not self.quiet:\n",
+                "            log.info(f\"File ready at {file_path}\")\n",
+                "\n",
+                "    def should_open_file(self) -> bool:\n",
+                "        return any([\n",
+                "            self.show_file_location_upon_completion,\n",
+                "            self.open_file_upon_completion,\n",
+                "        ])\n",
+                "\n",
+                "    def open_file(self) -> None:\n",
+                "        if self.quiet:\n",
+                "            curr_stdout = sys.stdout\n",
+                "            sys.stdout = open(os.devnull, \"w\")\n",
+                "\n",
+                "        current_os = platform.system()\n",
+                "        file_paths = []\n",
+                "\n",
+                "        if self.save_last_frame:\n",
+                "            file_paths.append(self.get_image_file_path())\n",
+                "        if self.write_to_movie:\n",
+                "            file_paths.append(self.get_movie_file_path())\n",
+                "\n",
+                "        for file_path in file_paths:\n",
+                "            if current_os == \"Windows\":\n",
+                "                os.startfile(file_path)\n",
+                "            else:\n",
+                "                commands = []\n",
+                "                if current_os == \"Linux\":\n",
+                "                    commands.append(\"xdg-open\")\n",
+                "                elif current_os.startswith(\"CYGWIN\"):\n",
+                "                    commands.append(\"cygstart\")\n",
+                "                else:  # Assume macOS\n",
+                "                    commands.append(\"open\")\n",
+                "\n",
+                "                if self.show_file_location_upon_completion:\n",
+                "                    commands.append(\"-R\")\n",
+                "\n",
+                "                commands.append(file_path)\n",
+                "\n",
+                "                FNULL = open(os.devnull, 'w')\n",
+                "                sp.call(commands, stdout=FNULL, stderr=sp.STDOUT)\n",
+                "                FNULL.close()\n",
+                "\n",
+                "        if self.quiet:\n",
+                "            sys.stdout.close()\n",
+                "            sys.stdout = curr_stdout"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "args def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "bi-directional may encourage logic jump"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "arg type update"
+        }
+    ]
+}

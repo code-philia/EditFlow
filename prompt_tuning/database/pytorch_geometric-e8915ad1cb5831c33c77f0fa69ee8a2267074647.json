@@ -1,0 +1,957 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/pyg-team/pytorch_geometric/commit/e8915ad1cb5831c33c77f0fa69ee8a2267074647",
+    "commit_message": "fix sanity check in case val_dataset is undefined",
+    "commit_snapshots": {
+        "test/data/test_lightning_data_module.py": [
+            [
+                "import sys\n",
+                "import random\n",
+                "import shutil\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "import pytest\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "child_version_range": {
+                    "start": 3,
+                    "end": 3
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: test/data/test_lightning_data_module.py\nCode:\n  ...\n0 0    import sys\n1 1    import random\n2 2    import shutil\n3    - import pytest\n4 3    import os.path as osp\n     ...\n",
+                "file_path": "test/data/test_lightning_data_module.py",
+                "identifiers_before": [
+                    "pytest"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "import sys\n",
+                    "import random\n",
+                    "import shutil\n"
+                ],
+                "suffix": [
+                    "import os.path as osp\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "import os.path as osp\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import pytest\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 5
+                },
+                "child_version_range": {
+                    "start": 4,
+                    "end": 5
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: test/data/test_lightning_data_module.py\nCode:\n  ...\n4 3    import os.path as osp\n  4  + import pytest\n5 5    \n6 6    import torch\n7 7    import torch.nn.functional as F\n     ...\n",
+                "file_path": "test/data/test_lightning_data_module.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "pytest"
+                ],
+                "prefix": [
+                    "import os.path as osp\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "import torch\n",
+                    "import torch.nn.functional as F\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "\n",
+                "from torch_geometric.datasets import TUDataset\n",
+                "from torch_geometric.nn import global_mean_pool\n",
+                "from torch_geometric.data import LightningDataset\n",
+                "\n",
+                "try:\n",
+                "    from pytorch_lightning import LightningModule\n",
+                "    no_pytorch_lightning = False\n",
+                "except (ImportError, ModuleNotFoundError):\n",
+                "    LightningModule = torch.nn.Module\n",
+                "    no_pytorch_lightning = True\n",
+                "\n",
+                "\n",
+                "class LinearModule(LightningModule):\n",
+                "    def __init__(self, in_channels, hidden_channels, out_channels):\n",
+                "        super().__init__()\n",
+                "\n",
+                "        from torchmetrics import Accuracy\n",
+                "\n",
+                "        self.lin1 = torch.nn.Linear(in_channels, hidden_channels)\n",
+                "        self.lin2 = torch.nn.Linear(hidden_channels, out_channels)\n",
+                "\n",
+                "        self.train_acc = Accuracy()\n",
+                "        self.val_acc = Accuracy()\n",
+                "\n",
+                "    def forward(self, x, batch):\n",
+                "        x = self.lin1(x).relu()\n",
+                "        x = global_mean_pool(x, batch)\n",
+                "        x = self.lin2(x)\n",
+                "        return x\n",
+                "\n",
+                "    def training_step(self, data, batch_idx):\n",
+                "        y_hat = self(data.x, data.batch)\n",
+                "        loss = F.cross_entropy(y_hat, data.y)\n",
+                "        self.train_acc(y_hat.softmax(dim=-1), data.y)\n",
+                "        self.log('loss', loss, batch_size=data.num_graphs)\n",
+                "        self.log('train_acc', self.train_acc, batch_size=data.num_graphs)\n",
+                "        return loss\n",
+                "\n",
+                "    def validation_step(self, data, batch_idx):\n",
+                "        y_hat = self(data.x, data.batch)\n",
+                "        self.val_acc(y_hat.softmax(dim=-1), data.y)\n",
+                "        self.log('val_acc', self.val_acc, batch_size=data.num_graphs)\n",
+                "\n",
+                "    def configure_optimizers(self):\n",
+                "        return torch.optim.Adam(self.parameters(), lr=0.01)\n",
+                "\n",
+                "\n",
+                "@pytest.mark.skipif(no_pytorch_lightning, reason='PL not available')\n",
+                "@pytest.mark.skipif(not torch.cuda.is_available(), reason='CUDA not available')\n",
+                "def test_lightning_dataset():\n",
+                "    import pytorch_lightning as pl\n",
+                "\n",
+                "    root = osp.join('/', 'tmp', str(random.randrange(sys.maxsize)))\n",
+                "\n",
+                "    dataset = TUDataset(root, name='MUTAG').shuffle()\n",
+                "    train_dataset = dataset[:50]\n",
+                "    val_dataset = dataset[50:60]\n",
+                "    test_dataset = dataset[60:70]\n",
+                "\n",
+                "    data_module = LightningDataset(train_dataset, val_dataset, test_dataset,\n",
+                "                                   batch_size=5, num_workers=2)\n",
+                "    assert str(data_module) == (\n",
+                "        'LightningDataset(train_dataset=MUTAG(50), val_dataset=MUTAG(10), '\n",
+                "        'test_dataset=MUTAG(10), batch_size=5)')\n",
+                "    model = LinearModule(dataset.num_features, 64, dataset.num_classes)\n",
+                "\n",
+                "    trainer = pl.Trainer(\n",
+                "        gpus=torch.cuda.device_count(),\n",
+                "        max_epochs=1,\n",
+                "        log_every_n_steps=1,\n",
+                "        strategy=pl.plugins.DDPSpawnPlugin(find_unused_parameters=False),\n",
+                "    )\n",
+                "    trainer.fit(model, data_module)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    assert trainer._data_connector._val_dataloader_source.is_defined()\n",
+                    "    assert trainer._data_connector._test_dataloader_source.is_defined()\n",
+                    "\n",
+                    "    data_module = LightningDataset(train_dataset, batch_size=5, num_workers=2)\n",
+                    "    assert str(data_module) == ('LightningDataset(train_dataset=MUTAG(50), '\n",
+                    "                                'batch_size=5)')\n",
+                    "    trainer.fit(model, data_module)\n",
+                    "    assert not trainer._data_connector._val_dataloader_source.is_defined()\n",
+                    "    assert not trainer._data_connector._test_dataloader_source.is_defined()\n"
+                ],
+                "parent_version_range": {
+                    "start": 82,
+                    "end": 82
+                },
+                "child_version_range": {
+                    "start": 82,
+                    "end": 91
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_lightning_dataset",
+                        "signature": "def test_lightning_dataset():",
+                        "at_line": 58
+                    },
+                    {
+                        "type": "call",
+                        "name": "trainer.fit",
+                        "signature": "trainer.fit(model, data_module)",
+                        "at_line": 81,
+                        "argument": "model"
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: test/data/test_lightning_data_module.py\nCode:\n         def test_lightning_dataset():\n             ...\n79 79            strategy=pl.plugins.DDPSpawnPlugin(find_unused_parameters=False),\n80 80        )\n81 81        trainer.fit(model, data_module)\n   82  +     assert trainer._data_connector._val_dataloader_source.is_defined()\n   83  +     assert trainer._data_connector._test_dataloader_source.is_defined()\n   84  + \n   85  +     data_module = LightningDataset(train_dataset, batch_size=5, num_workers=2)\n   86  +     assert str(data_module) == ('LightningDataset(train_dataset=MUTAG(50), '\n   87  +                                 'batch_size=5)')\n   88  +     trainer.fit(model, data_module)\n   89  +     assert not trainer._data_connector._val_dataloader_source.is_defined()\n   90  +     assert not trainer._data_connector._test_dataloader_source.is_defined()\n82 91    \n83 92        shutil.rmtree(root)\n       ...\n",
+                "file_path": "test/data/test_lightning_data_module.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "LightningDataset",
+                    "_data_connector",
+                    "_test_dataloader_source",
+                    "_val_dataloader_source",
+                    "batch_size",
+                    "data_module",
+                    "fit",
+                    "is_defined",
+                    "model",
+                    "num_workers",
+                    "str",
+                    "train_dataset",
+                    "trainer"
+                ],
+                "prefix": [
+                    "        strategy=pl.plugins.DDPSpawnPlugin(find_unused_parameters=False),\n",
+                    "    )\n",
+                    "    trainer.fit(model, data_module)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    shutil.rmtree(root)"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "batch_size",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/test/data/test_lightning_data_module.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "num_workers",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 64
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 75
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/test/data/test_lightning_data_module.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    shutil.rmtree(root)"
+            ]
+        ],
+        "torch_geometric/data/lightning_data_module.py": [
+            [
+                "from typing import Optional\n",
+                "\n",
+                "import warnings\n",
+                "\n",
+                "from torch_geometric.data import Dataset\n",
+                "from torch_geometric.loader import DataLoader\n",
+                "\n",
+                "try:\n",
+                "    from pytorch_lightning import LightningDataModule\n",
+                "    no_pytorch_lightning = False\n",
+                "except (ImportError, ModuleNotFoundError):\n",
+                "    LightningDataModule = object\n",
+                "    no_pytorch_lightning = True\n",
+                "\n",
+                "\n",
+                "class LightningDataset(LightningDataModule):\n",
+                "    r\"\"\"Converts a :class:`torch_geometric.data.Dataset` into a\n",
+                "    :class:`pytorch_lightning.LightningDataModule` variant, which can be\n",
+                "    automatically used as a :obj:`data_module` for multi-GPU training via\n",
+                "    `PyTorch Lightning <https://www.pytorchlightning.ai>`_.\n",
+                "    :class:`LightningDataset` will take care of providing mini-batches via\n",
+                "    :class:`torch_geometric.loader.DataLoader`.\n",
+                "\n",
+                "    .. note::\n",
+                "\n",
+                "        Currently only supports the :obj:`\"ddp_spawn\"` training strategy of\n",
+                "        PyTorch Lightning:\n",
+                "\n",
+                "        .. code-block::\n",
+                "\n",
+                "            import pytorch_lightning as pl\n",
+                "            trainer = pl.Trainer(strategy=\"ddp_spawn')\n",
+                "\n",
+                "    Args:\n",
+                "        train_dataset: (Dataset) The training dataset.\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        val_dataset: (Dataset) The validation dataset.\n"
+                ],
+                "after": [
+                    "        val_dataset: (Dataset, optional) The validation dataset.\n",
+                    "            (default: :obj:`None`)\n"
+                ],
+                "parent_version_range": {
+                    "start": 35,
+                    "end": 36
+                },
+                "child_version_range": {
+                    "start": 35,
+                    "end": 37
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "LightningDataset",
+                        "signature": "class LightningDataset(LightningDataModule):",
+                        "at_line": 15
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: torch_geometric/data/lightning_data_module.py\nCode:\n         class LightningDataset(LightningDataModule):\n             ...\n32 32    \n33 33        Args:\n34 34            train_dataset: (Dataset) The training dataset.\n35     -         val_dataset: (Dataset) The validation dataset.\n   35  +         val_dataset: (Dataset, optional) The validation dataset.\n   36  +             (default: :obj:`None`)\n36 37            test_dataset: (Dataset, optional) The test dataset.\n37 38                (default: :obj:`None`)\n38 39            batch_size (int, optional): How many samples per batch to load.\n       ...\n",
+                "file_path": "torch_geometric/data/lightning_data_module.py",
+                "identifiers_before": [
+                    "Dataset",
+                    "The",
+                    "dataset",
+                    "val_dataset",
+                    "validation"
+                ],
+                "identifiers_after": [
+                    "Dataset",
+                    "The",
+                    "dataset",
+                    "default",
+                    "obj",
+                    "optional",
+                    "val_dataset",
+                    "validation"
+                ],
+                "prefix": [
+                    "\n",
+                    "    Args:\n",
+                    "        train_dataset: (Dataset) The training dataset.\n"
+                ],
+                "suffix": [
+                    "        test_dataset: (Dataset, optional) The test dataset.\n",
+                    "            (default: :obj:`None`)\n",
+                    "        batch_size (int, optional): How many samples per batch to load.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        test_dataset: (Dataset, optional) The test dataset.\n",
+                "            (default: :obj:`None`)\n",
+                "        batch_size (int, optional): How many samples per batch to load.\n",
+                "            (default: :obj:`1`)\n",
+                "        num_workers: How many subprocesses to use for data loading.\n",
+                "            :obj:`0` means that the data will be loaded in the main process.\n",
+                "            (default: :obj:`0`)\n",
+                "        **kwargs (optional): Additional arguments of\n",
+                "            :class:`torch_geometric..loader.DataLoader`.\n",
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def __init__(self, train_dataset: Dataset, val_dataset: Dataset,\n",
+                    "                 test_dataset: Optional[Dataset] = None, batch_size: int = 1,\n",
+                    "                 num_workers: int = 0, **kwargs):\n"
+                ],
+                "after": [
+                    "    def __init__(\n",
+                    "        self,\n",
+                    "        train_dataset: Dataset,\n",
+                    "        val_dataset: Optional[Dataset] = None,\n",
+                    "        test_dataset: Optional[Dataset] = None,\n",
+                    "        batch_size: int = 1,\n",
+                    "        num_workers: int = 0,\n",
+                    "        **kwargs,\n",
+                    "    ):\n"
+                ],
+                "parent_version_range": {
+                    "start": 46,
+                    "end": 49
+                },
+                "child_version_range": {
+                    "start": 47,
+                    "end": 56
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "LightningDataset",
+                        "signature": "class LightningDataset(LightningDataModule):",
+                        "at_line": 15
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, train_dataset: Dataset, val_dataset: Dataset,\n                 test_dataset: Optional[Dataset] = None, batch_size: int = 1,\n                 num_workers: int = 0, **kwargs):",
+                        "at_line": 46
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: torch_geometric/data/lightning_data_module.py\nCode:\n         class LightningDataset(LightningDataModule):\n             ...\n43 44            **kwargs (optional): Additional arguments of\n44 45                :class:`torch_geometric..loader.DataLoader`.\n45 46        \"\"\"\n46     -     def __init__(self, train_dataset: Dataset, val_dataset: Dataset,\n47     -                  test_dataset: Optional[Dataset] = None, batch_size: int = 1,\n48     -                  num_workers: int = 0, **kwargs):\n   47  +     def __init__(\n   48  +         self,\n   49  +         train_dataset: Dataset,\n   50  +         val_dataset: Optional[Dataset] = None,\n   51  +         test_dataset: Optional[Dataset] = None,\n   52  +         batch_size: int = 1,\n   53  +         num_workers: int = 0,\n   54  +         **kwargs,\n   55  +     ):\n49 56            super().__init__()\n50 57    \n51 58            if no_pytorch_lightning:\n       ...\n",
+                "file_path": "torch_geometric/data/lightning_data_module.py",
+                "identifiers_before": [
+                    "Dataset",
+                    "Optional",
+                    "__init__",
+                    "batch_size",
+                    "int",
+                    "kwargs",
+                    "num_workers",
+                    "self",
+                    "test_dataset",
+                    "train_dataset",
+                    "val_dataset"
+                ],
+                "identifiers_after": [
+                    "Dataset",
+                    "Optional",
+                    "__init__",
+                    "batch_size",
+                    "int",
+                    "kwargs",
+                    "num_workers",
+                    "self",
+                    "test_dataset",
+                    "train_dataset",
+                    "val_dataset"
+                ],
+                "prefix": [
+                    "        **kwargs (optional): Additional arguments of\n",
+                    "            :class:`torch_geometric..loader.DataLoader`.\n",
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "        super().__init__()\n",
+                    "\n",
+                    "        if no_pytorch_lightning:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "batch_size",
+                            "position": {
+                                "start": {
+                                    "line": 52,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 52,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "num_workers",
+                            "position": {
+                                "start": {
+                                    "line": 53,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 53,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        super().__init__()\n",
+                "\n",
+                "        if no_pytorch_lightning:\n",
+                "            raise ModuleNotFoundError(\n",
+                "                \"No module named 'pytorch_lightning'. Please install it \"\n",
+                "                \"via 'pip install pytorch_lightning'\")\n",
+                "\n",
+                "        self.train_dataset = train_dataset\n",
+                "        self.val_dataset = val_dataset\n",
+                "        self.test_dataset = test_dataset\n",
+                "        self.batch_size = batch_size\n",
+                "        self.num_workers = num_workers\n",
+                "        self.kwargs = kwargs\n",
+                "\n",
+                "        if 'shuffle' in kwargs:\n",
+                "            shuffle = kwargs['shuffle']\n",
+                "            warnings.warn(f\"The 'shuffle={shuffle}' option is ignored in \"\n",
+                "                          f\"'{self.__class__.__name__}'. Remove it from the \"\n",
+                "                          f\"argument list to disable this warning\")\n",
+                "            del kwargs['shuffle']\n",
+                "\n",
+                "        if 'pin_memory' in kwargs:\n",
+                "            self.pin_memory = kwargs['pin_memory']\n",
+                "            del kwargs['pin_memory']\n",
+                "        else:\n",
+                "            self.pin_memory = True\n",
+                "\n",
+                "        if 'persistent_workers' in kwargs:\n",
+                "            self.persistent_workers = kwargs['persistent_workers']\n",
+                "            del kwargs['persistent_workers']\n",
+                "        else:\n",
+                "            self.persistent_workers = num_workers > 0\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if self.val_dataset is None:\n",
+                    "            self.val_dataloader = None\n",
+                    "\n",
+                    "        if self.test_dataset is None:\n",
+                    "            self.test_dataloader = None\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 82,
+                    "end": 82
+                },
+                "child_version_range": {
+                    "start": 89,
+                    "end": 95
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "LightningDataset",
+                        "signature": "class LightningDataset(LightningDataModule):",
+                        "at_line": 15
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: torch_geometric/data/lightning_data_module.py\nCode:\n         class LightningDataset(LightningDataModule):\n             ...\n79 86            else:\n80 87                self.persistent_workers = num_workers > 0\n81 88    \n   89  +         if self.val_dataset is None:\n   90  +             self.val_dataloader = None\n   91  + \n   92  +         if self.test_dataset is None:\n   93  +             self.test_dataloader = None\n   94  + \n82 95        def setup(self, stage: Optional[str] = None):\n83 96            from pytorch_lightning.plugins import DDPSpawnPlugin\n84 97            if not isinstance(self.trainer.training_type_plugin, DDPSpawnPlugin):\n       ...\n",
+                "file_path": "torch_geometric/data/lightning_data_module.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "self",
+                    "test_dataloader",
+                    "test_dataset",
+                    "val_dataloader",
+                    "val_dataset"
+                ],
+                "prefix": [
+                    "        else:\n",
+                    "            self.persistent_workers = num_workers > 0\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def setup(self, stage: Optional[str] = None):\n",
+                    "        from pytorch_lightning.plugins import DDPSpawnPlugin\n",
+                    "        if not isinstance(self.trainer.training_type_plugin, DDPSpawnPlugin):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 89,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 89,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 92,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 92,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 93,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 93,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/lightning_data_module.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def setup(self, stage: Optional[str] = None):\n",
+                "        from pytorch_lightning.plugins import DDPSpawnPlugin\n",
+                "        if not isinstance(self.trainer.training_type_plugin, DDPSpawnPlugin):\n",
+                "            raise NotImplementedError(\n",
+                "                f\"'{self.__class__.__name__}' currently only supports the \"\n",
+                "                f\"'ddp_spawn' training strategy of 'pytorch_lightning'\")\n",
+                "\n",
+                "    def dataloader(self, dataset_name: str, shuffle: bool) -> DataLoader:\n",
+                "        return DataLoader(\n",
+                "            dataset=getattr(self, dataset_name),\n",
+                "            batch_size=self.batch_size,\n",
+                "            shuffle=shuffle,\n",
+                "            pin_memory=self.pin_memory,\n",
+                "            num_workers=self.num_workers,\n",
+                "            persistent_workers=self.persistent_workers,\n",
+                "            **self.kwargs,\n",
+                "        )\n",
+                "\n",
+                "    def train_dataloader(self) -> DataLoader:\n",
+                "        from torch.utils.data import IterableDataset\n",
+                "        shuffle = not isinstance(self.train_dataset, IterableDataset)\n",
+                "        return self.dataloader('train_dataset', shuffle=shuffle)\n",
+                "\n",
+                "    def val_dataloader(self) -> DataLoader:\n",
+                "        return self.dataloader('val_dataset', shuffle=False)\n",
+                "\n",
+                "    def test_dataloader(self) -> DataLoader:\n",
+                "        return self.dataloader('test_dataset', shuffle=False)\n",
+                "\n",
+                "    def __repr__(self) -> str:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return (f'{self.__class__.__name__}('\n",
+                    "                f'train_dataset={self.train_dataset}, '\n",
+                    "                f'val_dataset={self.val_dataset}, '\n",
+                    "                f'test_dataset={self.test_dataset}, '\n",
+                    "                f'batch_size={self.batch_size})')\n"
+                ],
+                "after": [
+                    "        args_repr = [f'train_dataset={self.train_dataset}']\n",
+                    "        if self.val_dataset is not None:\n",
+                    "            args_repr += [f'val_dataset={self.val_dataset}']\n",
+                    "        if self.test_dataset is not None:\n",
+                    "            args_repr += [f'test_dataset={self.test_dataset}']\n",
+                    "        args_repr += [f'batch_size={self.batch_size}']\n",
+                    "        args_repr = ', '.join(args_repr)\n",
+                    "        return f'{self.__class__.__name__}({args_repr})'"
+                ],
+                "parent_version_range": {
+                    "start": 112,
+                    "end": 117
+                },
+                "child_version_range": {
+                    "start": 125,
+                    "end": 133
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "LightningDataset",
+                        "signature": "class LightningDataset(LightningDataModule):",
+                        "at_line": 15
+                    },
+                    {
+                        "type": "function",
+                        "name": "__repr__",
+                        "signature": "def __repr__(self)->str:",
+                        "at_line": 111
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: torch_geometric/data/lightning_data_module.py\nCode:\n           class LightningDataset(LightningDataModule):\n               ...\n109 122            return self.dataloader('test_dataset', shuffle=False)\n110 123    \n111 124        def __repr__(self) -> str:\n112      -         return (f'{self.__class__.__name__}('\n113      -                 f'train_dataset={self.train_dataset}, '\n114      -                 f'val_dataset={self.val_dataset}, '\n115      -                 f'test_dataset={self.test_dataset}, '\n116      -                 f'batch_size={self.batch_size})')\n    125  +         args_repr = [f'train_dataset={self.train_dataset}']\n    126  +         if self.val_dataset is not None:\n    127  +             args_repr += [f'val_dataset={self.val_dataset}']\n    128  +         if self.test_dataset is not None:\n    129  +             args_repr += [f'test_dataset={self.test_dataset}']\n    130  +         args_repr += [f'batch_size={self.batch_size}']\n    131  +         args_repr = ', '.join(args_repr)\n    132  +         return f'{self.__class__.__name__}({args_repr})'\n         ...\n",
+                "file_path": "torch_geometric/data/lightning_data_module.py",
+                "identifiers_before": [
+                    "__class__",
+                    "__name__",
+                    "batch_size",
+                    "self",
+                    "test_dataset",
+                    "train_dataset",
+                    "val_dataset"
+                ],
+                "identifiers_after": [
+                    "__class__",
+                    "__name__",
+                    "args_repr",
+                    "batch_size",
+                    "join",
+                    "self",
+                    "test_dataset",
+                    "train_dataset",
+                    "val_dataset"
+                ],
+                "prefix": [
+                    "        return self.dataloader('test_dataset', shuffle=False)\n",
+                    "\n",
+                    "    def __repr__(self) -> str:\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            }
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and doc sync"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "no relation",
+            "reason": "edit 5 is Defensive Coding, may execute independently, hence not that logically strongly related to edit 4"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "edit 6 is Defensive Coding, may execute independently, hence not that logically strongly related to edit 4"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same defensive coding"
+        }
+    ]
+}

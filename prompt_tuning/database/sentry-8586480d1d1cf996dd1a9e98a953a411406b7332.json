@@ -1,0 +1,1127 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/getsentry/sentry/commit/8586480d1d1cf996dd1a9e98a953a411406b7332",
+    "commit_message": "Make sure we pass along proper cwd to all subprocesses",
+    "commit_snapshots": {
+        "src/sentry/runner/commands/devserver.py": [
+            [
+                "\"\"\"\n",
+                "sentry.runner.commands.devserver\n",
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n",
+                "\n",
+                ":copyright: (c) 2016 by the Sentry Team, see AUTHORS for more details.\n",
+                ":license: BSD, see LICENSE for more details.\n",
+                "\"\"\"\n",
+                "from __future__ import absolute_import, print_function\n",
+                "\n",
+                "import click\n",
+                "from sentry.runner.decorators import configuration\n",
+                "\n",
+                "\n",
+                "@click.command()\n",
+                "@click.option('--reload/--no-reload', default=True, help='Autoreloading of python files.')\n",
+                "@click.option('--watchers/--no-watchers', default=True, help='Watch static files and recompile on changes.')\n",
+                "@click.option('--workers/--no-workers', default=False, help='Run asynchronous workers.')\n",
+                "@click.argument('bind', default='127.0.0.1:8000', metavar='ADDRESS')\n",
+                "@configuration\n",
+                "@click.pass_context\n",
+                "def devserver(ctx, reload, watchers, workers, bind):\n",
+                "    \"Starts a lightweight web server for development.\"\n",
+                "    if ':' in bind:\n",
+                "        host, port = bind.split(':', 1)\n",
+                "        port = int(port)\n",
+                "    else:\n",
+                "        host = bind\n",
+                "        port = None\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    import os\n"
+                ],
+                "parent_version_range": {
+                    "start": 29,
+                    "end": 29
+                },
+                "child_version_range": {
+                    "start": 29,
+                    "end": 30
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "devserver",
+                        "signature": "def devserver(ctx, reload, watchers, workers, bind):",
+                        "at_line": 20
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: src/sentry/runner/commands/devserver.py\nCode:\n         def devserver(ctx, reload, watchers, workers, bind):\n             ...\n26 26            host = bind\n27 27            port = None\n28 28    \n   29  +     import os\n29 30        from django.conf import settings\n30 31        from sentry.services.http import SentryHTTPServer\n31 32    \n       ...\n",
+                "file_path": "src/sentry/runner/commands/devserver.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "os"
+                ],
+                "prefix": [
+                    "        host = bind\n",
+                    "        port = None\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    from django.conf import settings\n",
+                    "    from sentry.services.http import SentryHTTPServer\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 29,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 29,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 29,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 29,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 29,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 29,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 29,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 29,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    from django.conf import settings\n",
+                "    from sentry.services.http import SentryHTTPServer\n",
+                "\n",
+                "    # Make sure we don't try and use uwsgi protocol\n",
+                "    settings.SENTRY_WEB_OPTIONS['protocol'] = 'http'\n",
+                "\n",
+                "    # A better log-format for local dev\n",
+                "    settings.SENTRY_WEB_OPTIONS['log-format'] = '[%(ltime)] \"%(method) %(uri) %(proto)\" %(status) %(size) \"%(referer)\" \"%(uagent)\"'\n",
+                "\n",
+                "    if reload:\n",
+                "        settings.SENTRY_WEB_OPTIONS['py-autoreload'] = 1\n",
+                "\n",
+                "    daemons = []\n",
+                "\n",
+                "    if watchers:\n",
+                "        daemons += settings.SENTRY_WATCHERS\n",
+                "\n",
+                "    if workers:\n",
+                "        if settings.CELERY_ALWAYS_EAGER:\n",
+                "            raise click.ClickException('Disable CELERY_ALWAYS_EAGER in your settings file to spawn workers.')\n",
+                "\n",
+                "        daemons += [\n",
+                "            ['sentry', 'celery', 'worker', '-l', 'INFO'],\n",
+                "            ['sentry', 'celery', 'beat', '-l', 'INFO'],\n",
+                "        ]\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    cwd = os.path.realpath(os.path.join(settings.PROJECT_ROOT, os.pardir, os.pardir))\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 55,
+                    "end": 55
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 58
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "devserver",
+                        "signature": "def devserver(ctx, reload, watchers, workers, bind):",
+                        "at_line": 20
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: src/sentry/runner/commands/devserver.py\nCode:\n         def devserver(ctx, reload, watchers, workers, bind):\n             ...\n52 53                ['sentry', 'celery', 'beat', '-l', 'INFO'],\n53 54            ]\n54 55    \n   56  +     cwd = os.path.realpath(os.path.join(settings.PROJECT_ROOT, os.pardir, os.pardir))\n   57  + \n55 58        daemon_list = []\n56 59        server = None\n57 60        try:\n       ...\n",
+                "file_path": "src/sentry/runner/commands/devserver.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "PROJECT_ROOT",
+                    "cwd",
+                    "join",
+                    "os",
+                    "pardir",
+                    "path",
+                    "realpath",
+                    "settings"
+                ],
+                "prefix": [
+                    "            ['sentry', 'celery', 'beat', '-l', 'INFO'],\n",
+                    "        ]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    daemon_list = []\n",
+                    "    server = None\n",
+                    "    try:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 63
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 74
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 76
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 7
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 7
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    daemon_list = []\n",
+                "    server = None\n",
+                "    try:\n",
+                "        if daemons:\n",
+                "            import os\n",
+                "            from subprocess import Popen\n",
+                "            env = os.environ.copy()\n",
+                "            for daemon in daemons:\n",
+                "                click.secho('*** Running: {0}'.format(' '.join([os.path.basename(daemon[0])] + daemon[1:])), bold=True)\n",
+                "                try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                    daemon_list.append(Popen(daemon, env=env))\n"
+                ],
+                "after": [
+                    "                    daemon_list.append(Popen(daemon, cwd=cwd, env=env))\n"
+                ],
+                "parent_version_range": {
+                    "start": 65,
+                    "end": 66
+                },
+                "child_version_range": {
+                    "start": 68,
+                    "end": 69
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 57,
+                        "end_line": 89
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if daemons:",
+                        "start_line": 58,
+                        "end_line": 67
+                    },
+                    {
+                        "type": "for_statement",
+                        "statement": "for daemon in daemons:",
+                        "start_line": 62,
+                        "end_line": 67
+                    },
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 64,
+                        "end_line": 67
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "devserver",
+                        "signature": "def devserver(ctx, reload, watchers, workers, bind):",
+                        "at_line": 20
+                    },
+                    {
+                        "type": "call",
+                        "name": "daemon_list.append",
+                        "signature": "daemon_list.append(Popen(daemon, env=env))",
+                        "at_line": 65,
+                        "argument": "Popen(daemon, env=env)"
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: src/sentry/runner/commands/devserver.py\nCode:\n         def devserver(ctx, reload, watchers, workers, bind):\n             ...\n62 65                for daemon in daemons:\n63 66                    click.secho('*** Running: {0}'.format(' '.join([os.path.basename(daemon[0])] + daemon[1:])), bold=True)\n64 67                    try:\n65     -                     daemon_list.append(Popen(daemon, env=env))\n   68  +                     daemon_list.append(Popen(daemon, cwd=cwd, env=env))\n66 69                    except OSError:\n67 70                        raise click.ClickException('{0} not found.'.format(daemon[0]))\n68 71    \n       ...\n",
+                "file_path": "src/sentry/runner/commands/devserver.py",
+                "identifiers_before": [
+                    "Popen",
+                    "append",
+                    "daemon",
+                    "daemon_list",
+                    "env"
+                ],
+                "identifiers_after": [
+                    "Popen",
+                    "append",
+                    "cwd",
+                    "daemon",
+                    "daemon_list",
+                    "env"
+                ],
+                "prefix": [
+                    "            for daemon in daemons:\n",
+                    "                click.secho('*** Running: {0}'.format(' '.join([os.path.basename(daemon[0])] + daemon[1:])), bold=True)\n",
+                    "                try:\n"
+                ],
+                "suffix": [
+                    "                except OSError:\n",
+                    "                    raise click.ClickException('{0} not found.'.format(daemon[0]))\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 68,
+                                    "column": 57
+                                },
+                                "end": {
+                                    "line": 68,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                except OSError:\n",
+                "                    raise click.ClickException('{0} not found.'.format(daemon[0]))\n",
+                "\n",
+                "        click.secho('*** Launching webserver..', bold=True)\n",
+                "        server = SentryHTTPServer(\n",
+                "            host=host,\n",
+                "            port=port,\n",
+                "            workers=1,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        ).run_subprocess()\n"
+                ],
+                "after": [
+                    "        ).run_subprocess(cwd=cwd)\n"
+                ],
+                "parent_version_range": {
+                    "start": 74,
+                    "end": 75
+                },
+                "child_version_range": {
+                    "start": 77,
+                    "end": 78
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 57,
+                        "end_line": 89
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "devserver",
+                        "signature": "def devserver(ctx, reload, watchers, workers, bind):",
+                        "at_line": 20
+                    },
+                    {
+                        "type": "call",
+                        "name": "SentryHTTPServer(\n            host=host,\n            port=port,\n            workers=1,\n        ).run_subprocess",
+                        "signature": "SentryHTTPServer(\n            host=host,\n            port=port,\n            workers=1,\n        ).run_subprocess()",
+                        "at_line": 70
+                    },
+                    {
+                        "type": "call",
+                        "name": "SentryHTTPServer",
+                        "signature": "SentryHTTPServer(\n            host=host,\n            port=port,\n            workers=1,\n        )",
+                        "at_line": 70
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: src/sentry/runner/commands/devserver.py\nCode:\n         def devserver(ctx, reload, watchers, workers, bind):\n             ...\n             SentryHTTPServer(\n            host=host,\n            port=port,\n            workers=1,\n        ).run_subprocess()\n                 ...\n                 SentryHTTPServer(\n            host=host,\n            port=port,\n            workers=1,\n        )\n                     ...\n71 74                host=host,\n72 75                port=port,\n73 76                workers=1,\n74     -         ).run_subprocess()\n   77  +         ).run_subprocess(cwd=cwd)\n75 78            server.wait()\n76 79        finally:\n77 80            if server and server.poll() is None:\n       ...\n",
+                "file_path": "src/sentry/runner/commands/devserver.py",
+                "identifiers_before": [
+                    "run_subprocess"
+                ],
+                "identifiers_after": [
+                    "cwd",
+                    "run_subprocess"
+                ],
+                "prefix": [
+                    "            host=host,\n",
+                    "            port=port,\n",
+                    "            workers=1,\n"
+                ],
+                "suffix": [
+                    "        server.wait()\n",
+                    "    finally:\n",
+                    "        if server and server.poll() is None:\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "run_subprocess",
+                            "position": {
+                                "start": {
+                                    "line": 74,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 74,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "run_subprocess",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/runner/commands/devserver.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        server.wait()\n",
+                "    finally:\n",
+                "        if server and server.poll() is None:\n",
+                "            server.terminate()\n",
+                "\n",
+                "            if server.poll() is None:\n",
+                "                server.kill()\n",
+                "\n",
+                "        for daemon in daemon_list:\n",
+                "            if daemon.poll() is None:\n",
+                "                daemon.terminate()\n",
+                "\n",
+                "        for daemon in daemon_list:\n",
+                "            if daemon.poll() is None:\n",
+                "                daemon.wait()"
+            ]
+        ],
+        "src/sentry/services/http.py": [
+            [
+                "\"\"\"\n",
+                "sentry.services.http\n",
+                "~~~~~~~~~~~~~~~~~~~~\n",
+                "\n",
+                ":copyright: (c) 2010-2016 by the Sentry Team, see AUTHORS for more details.\n",
+                ":license: BSD, see LICENSE for more details.\n",
+                "\"\"\"\n",
+                "from __future__ import absolute_import, print_function\n",
+                "\n",
+                "import os\n",
+                "import sys\n",
+                "from sentry.services.base import Service\n",
+                "\n",
+                "\n",
+                "def convert_options_to_env(options):\n",
+                "    for k, v in options.iteritems():\n",
+                "        if v is None:\n",
+                "            continue\n",
+                "        key = 'UWSGI_' + k.upper().replace('-', '_')\n",
+                "        if isinstance(v, basestring):\n",
+                "            value = v\n",
+                "        elif v is True:\n",
+                "            value = 'true'\n",
+                "        elif v is False:\n",
+                "            value = 'false'\n",
+                "        elif isinstance(v, (int, long)):\n",
+                "            value = str(v)\n",
+                "        else:\n",
+                "            raise TypeError('Unknown option type: %r (%s)' % (k, type(v)))\n",
+                "        yield key, value\n",
+                "\n",
+                "\n",
+                "class SentryHTTPServer(Service):\n",
+                "    name = 'http'\n",
+                "\n",
+                "    def __init__(self, host=None, port=None, debug=False, workers=None,\n",
+                "                 validate=True):\n",
+                "        from django.conf import settings\n",
+                "\n",
+                "        if validate:\n",
+                "            self.validate_settings()\n",
+                "\n",
+                "        host = host or settings.SENTRY_WEB_HOST\n",
+                "        port = port or settings.SENTRY_WEB_PORT\n",
+                "\n",
+                "        options = (settings.SENTRY_WEB_OPTIONS or {}).copy()\n",
+                "        options.setdefault('module', 'sentry.wsgi:application')\n",
+                "        options.setdefault('protocol', 'http')\n",
+                "        options.setdefault('auto-procname', True)\n",
+                "        options.setdefault('procname-prefix-spaced', '[Sentry]')\n",
+                "        options.setdefault('workers', 3)\n",
+                "        options.setdefault('threads', 4)\n",
+                "        options.setdefault('http-timeout', 30)\n",
+                "        options.setdefault('vacuum', True)\n",
+                "        options.setdefault('thunder-lock', True)\n",
+                "        options.setdefault('log-x-forwarded-for', False)\n",
+                "        options.setdefault('buffer-size', 32768)\n",
+                "        options.setdefault('post-buffering', 65536)\n",
+                "        options.setdefault('limit-post', 20971520)\n",
+                "        options.setdefault('need-app', True)\n",
+                "        options.setdefault('disable-logging', False)\n",
+                "        options.setdefault('memory-report', True)\n",
+                "        options.setdefault('reload-on-rss', 600)\n",
+                "        options.setdefault('ignore-sigpipe', True)\n",
+                "        options.setdefault('ignore-write-errors', True)\n",
+                "        options.setdefault('disable-write-exception', True)\n",
+                "        options.setdefault('virtualenv', sys.prefix)\n",
+                "        options.setdefault('die-on-term', True)\n",
+                "        options.setdefault('log-format', '%(addr) - %(user) [%(ltime)] \"%(method) %(uri) %(proto)\" %(status) %(size) \"%(referer)\" \"%(uagent)\"')\n",
+                "\n",
+                "        options.setdefault('%s-socket' % options['protocol'], '%s:%s' % (host, port))\n",
+                "\n",
+                "        # We only need to set uid/gid when stepping down from root, but if\n",
+                "        # we are trying to run as root, then ignore it entirely.\n",
+                "        uid = os.getuid()\n",
+                "        if uid > 0:\n",
+                "            options.setdefault('uid', uid)\n",
+                "        gid = os.getgid()\n",
+                "        if gid > 0:\n",
+                "            options.setdefault('gid', gid)\n",
+                "\n",
+                "        # Required arguments that should not be overridden\n",
+                "        options['master'] = True\n",
+                "        options['enable-threads'] = True\n",
+                "        options['lazy-apps'] = True\n",
+                "        options['single-interpreter'] = True\n",
+                "\n",
+                "        if workers:\n",
+                "            options['workers'] = workers\n",
+                "\n",
+                "        # Old options from gunicorn\n",
+                "        if 'bind' in options:\n",
+                "            options['%s-socket' % options['protocol']] = options.pop('bind')\n",
+                "        if 'accesslog' in options:\n",
+                "            if options['accesslog'] != '-':\n",
+                "                options['logto'] = options['accesslog']\n",
+                "            del options['accesslog']\n",
+                "        if 'errorlog' in options:\n",
+                "            if options['errorlog'] != '-':\n",
+                "                options['logto2'] = options['errorlog']\n",
+                "            del options['errorlog']\n",
+                "        if 'timeout' in options:\n",
+                "            options['http-timeout'] = options.pop('timeout')\n",
+                "        if 'proc_name' in options:\n",
+                "            options['procname-prefix-spaced'] = options.pop('proc_name')\n",
+                "        if 'secure_scheme_headers' in options:\n",
+                "            del options['secure_scheme_headers']\n",
+                "        if 'loglevel' in options:\n",
+                "            del options['loglevel']\n",
+                "\n",
+                "        self.options = options\n",
+                "\n",
+                "    def validate_settings(self):\n",
+                "        from django.conf import settings as django_settings\n",
+                "        from sentry.utils.settings import validate_settings\n",
+                "\n",
+                "        validate_settings(django_settings)\n",
+                "\n",
+                "    def prepare_environment(self):\n",
+                "        # Move all of the options into UWSGI_ env vars\n",
+                "        for k, v in convert_options_to_env(self.options):\n",
+                "            os.environ.setdefault(k, v)\n",
+                "\n",
+                "        # This has already been validated inside __init__\n",
+                "        os.environ['SENTRY_SKIP_BACKEND_VALIDATION'] = '1'\n",
+                "\n",
+                "        # Look up the bin directory where `sentry` exists, which should be\n",
+                "        # sys.argv[0], then inject that to the front of our PATH so we can reliably\n",
+                "        # find the `uwsgi` that's installed when inside virtualenv.\n",
+                "        # This is so the virtualenv doesn't need to be sourced in, which effectively\n",
+                "        # does exactly this.\n",
+                "        virtualenv_path = os.path.dirname(os.path.abspath(sys.argv[0]))\n",
+                "        current_path = os.environ.get('PATH', '')\n",
+                "        if virtualenv_path not in current_path:\n",
+                "            os.environ['PATH'] = '%s:%s' % (virtualenv_path, current_path)\n",
+                "\n",
+                "    def run(self):\n",
+                "        self.prepare_environment()\n",
+                "        os.execvp('uwsgi', ('uwsgi',))\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def run_subprocess(self):\n"
+                ],
+                "after": [
+                    "    def run_subprocess(self, cwd=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 140,
+                    "end": 141
+                },
+                "child_version_range": {
+                    "start": 140,
+                    "end": 141
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SentryHTTPServer",
+                        "signature": "class SentryHTTPServer(Service):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_subprocess",
+                        "signature": "def run_subprocess(self):",
+                        "at_line": 140
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: src/sentry/services/http.py\nCode:\n           class SentryHTTPServer(Service):\n               ...\n137 137            self.prepare_environment()\n138 138            os.execvp('uwsgi', ('uwsgi',))\n139 139    \n140      -     def run_subprocess(self):\n    140  +     def run_subprocess(self, cwd=None):\n141 141            from subprocess import Popen\n         ...\n",
+                "file_path": "src/sentry/services/http.py",
+                "identifiers_before": [
+                    "run_subprocess",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "cwd",
+                    "run_subprocess",
+                    "self"
+                ],
+                "prefix": [
+                    "        self.prepare_environment()\n",
+                    "        os.execvp('uwsgi', ('uwsgi',))\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        from subprocess import Popen\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "run_subprocess",
+                            "position": {
+                                "start": {
+                                    "line": 140,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 140,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/services/http.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "run_subprocess",
+                            "position": {
+                                "start": {
+                                    "line": 140,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 140,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/services/http.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "cwd",
+                            "position": {
+                                "start": {
+                                    "line": 140,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 140,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/services/http.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        from subprocess import Popen\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        from django.conf import settings\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 142,
+                    "end": 143
+                },
+                "child_version_range": {
+                    "start": 142,
+                    "end": 142
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SentryHTTPServer",
+                        "signature": "class SentryHTTPServer(Service):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_subprocess",
+                        "signature": "def run_subprocess(self):",
+                        "at_line": 140
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: src/sentry/services/http.py\nCode:\n           class SentryHTTPServer(Service):\n               ...\n               def run_subprocess(self):\n                   ...\n141 141            from subprocess import Popen\n142      -         from django.conf import settings\n143 142            self.prepare_environment()\n         ...\n",
+                "file_path": "src/sentry/services/http.py",
+                "identifiers_before": [
+                    "conf",
+                    "django",
+                    "settings"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        from subprocess import Popen\n"
+                ],
+                "suffix": [
+                    "        self.prepare_environment()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        self.prepare_environment()\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        cwd = os.path.realpath(os.path.join(settings.PROJECT_ROOT, os.pardir, os.pardir))\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 144,
+                    "end": 145
+                },
+                "child_version_range": {
+                    "start": 143,
+                    "end": 143
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SentryHTTPServer",
+                        "signature": "class SentryHTTPServer(Service):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "run_subprocess",
+                        "signature": "def run_subprocess(self):",
+                        "at_line": 140
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: src/sentry/services/http.py\nCode:\n           class SentryHTTPServer(Service):\n               ...\n               def run_subprocess(self):\n                   ...\n143 142            self.prepare_environment()\n144      -         cwd = os.path.realpath(os.path.join(settings.PROJECT_ROOT, os.pardir, os.pardir))\n145 143            return Popen(['uwsgi'], cwd=cwd, env=os.environ.copy())\n         ...\n",
+                "file_path": "src/sentry/services/http.py",
+                "identifiers_before": [
+                    "PROJECT_ROOT",
+                    "cwd",
+                    "join",
+                    "os",
+                    "pardir",
+                    "path",
+                    "realpath",
+                    "settings"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        self.prepare_environment()\n"
+                ],
+                "suffix": [
+                    "        return Popen(['uwsgi'], cwd=cwd, env=os.environ.copy())"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        return Popen(['uwsgi'], cwd=cwd, env=os.environ.copy())"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "1 before 0",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "deprecate arg def use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "deprecate import use"
+        }
+    ]
+}

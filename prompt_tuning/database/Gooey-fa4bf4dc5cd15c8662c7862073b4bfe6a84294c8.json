@@ -1,0 +1,1071 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/chriskiehl/Gooey/commit/fa4bf4dc5cd15c8662c7862073b4bfe6a84294c8",
+    "commit_message": "Discovered atexit module. registered cleanup function to remove generated files",
+    "commit_snapshots": {
+        "gooey/python_bindings/gooey_decorator.py": [
+            [
+                "'''\n",
+                "Created on Jan 24, 2014\n",
+                "\n",
+                "@author: Chris\n",
+                "\n",
+                "Hey, whaduya know. This is out of date again. TODO: update giant doctring.\n",
+                "\n",
+                "\n",
+                "##How things work these days (though, likely to change)\n",
+                "\n",
+                "The decorator is used solely as a nice way to get the location\n",
+                "of the executing script. It no longer returns a decorated version\n",
+                "of the client code, but in fact completely hijacks the execution.\n",
+                "So, rather than returning a reference to the client's main, it now\n",
+                "returns itself, thus short-circuiting the execution of the client\n",
+                "program.\n",
+                "\n",
+                "What it DOES do now is grab where the client module is stored and\n",
+                "read it in as a file so that it can hack away at it.\n",
+                "\n",
+                "The first step, as before, is getting the ArgumentParser reference\n",
+                "so that the needed values can be extracted. This is done by reading\n",
+                "the source file up to the point where the `parse_args()` method is\n",
+                "called. This puts us smack in the middle of the client's `main` method.\n",
+                "\n",
+                "This first half guarantees that all imports, modules, variable assignments,\n",
+                "etc.. are caught (unlike before).\n",
+                "\n",
+                "Next step: getting the rest of the source code that's relevant\n",
+                "\n",
+                "The file is again read up to the `parse_args` call, but this time everything\n",
+                "leading up to that point is dropped and we keep only the remainder of the file.\n",
+                "So, now the top and the bottom is located, but the bottom needs to be trimmed a\n",
+                "little more -- we want to drop everything remaining in the main method.\n",
+                "\n",
+                "So, we `dropwhile` lines are currently indented (and thus still part of the `main`\n",
+                "method)\n",
+                "\n",
+                "Finally, we arrive at the end, which gives us an exact copy of the original source\n",
+                "file, minus all of it's main logic. The two pieces are then sandwiched together,\n",
+                "saved to a file, and imported as a new module. Now all that has to be done is call\n",
+                "it (moddified) main function, and bam! It returns to fully populated parser object\n",
+                "to us. No more complicated ast stuff. Just a little bit of string parsing and we're\n",
+                "done.\n",
+                "\n",
+                "'''\n",
+                "\n",
+                "import os\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import tempfile\n"
+                ],
+                "parent_version_range": {
+                    "start": 48,
+                    "end": 48
+                },
+                "child_version_range": {
+                    "start": 48,
+                    "end": 49
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n  ...\n45 45    '''\n46 46    \n47 47    import os\n   48  + import tempfile\n48 49    import wx\n49 50    import source_parser\n       ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "tempfile"
+                ],
+                "prefix": [
+                    "'''\n",
+                    "\n",
+                    "import os\n"
+                ],
+                "suffix": [
+                    "import wx\n",
+                    "import source_parser\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "tempfile",
+                            "position": {
+                                "start": {
+                                    "line": 48,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 48,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import wx\n",
+                "import source_parser\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import atexit\n"
+                ],
+                "parent_version_range": {
+                    "start": 50,
+                    "end": 50
+                },
+                "child_version_range": {
+                    "start": 51,
+                    "end": 52
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n  ...\n48 49    import wx\n49 50    import source_parser\n   51  + import atexit\n50 52    from functools import partial\n51 53    from gooey.gui.lang import i18n\n52 54    from gooey.gui.windows import layouts\n       ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "atexit"
+                ],
+                "prefix": [
+                    "import wx\n",
+                    "import source_parser\n"
+                ],
+                "suffix": [
+                    "from functools import partial\n",
+                    "from gooey.gui.lang import i18n\n",
+                    "from gooey.gui.windows import layouts\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "atexit",
+                            "position": {
+                                "start": {
+                                    "line": 51,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 51,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from functools import partial\n",
+                "from gooey.gui.lang import i18n\n",
+                "from gooey.gui.windows import layouts\n",
+                "from gooey.python_bindings import argparse_to_json\n",
+                "\n",
+                "\n",
+                "\n",
+                "def Gooey(f=None, advanced=True,\n",
+                "          language='english', show_config=True,\n",
+                "          program_name=None, program_description=None):\n",
+                "  '''\n",
+                "  Decorator for client code's main function.\n",
+                "  Entry point for the GUI generator.\n",
+                "\n",
+                "  Scans the client code for argparse data.\n",
+                "  If found, extracts it and build the proper\n",
+                "  configuration gui windows (basic or advanced).\n",
+                "  '''\n",
+                "\n",
+                "  params = locals()\n",
+                "\n",
+                "  def build(payload):\n",
+                "    def inner():\n",
+                "      show_config = params['show_config'] #because nonlocal keyword doesn't exist yet :(\n",
+                "\n",
+                "      main_module_path = get_caller_path()\n",
+                "      _, filename = os.path.split(main_module_path)\n",
+                "      cleaned_source = clean_source(main_module_path)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      filepath = os.path.join(create_local_storage(), 'gooey_' + filename)\n"
+                ],
+                "after": [
+                    "      descriptor, tmp_filepath = tempfile.mkstemp(suffix='.py')\n",
+                    "      atexit.register(cleanup, descriptor, tmp_filepath)\n"
+                ],
+                "parent_version_range": {
+                    "start": 79,
+                    "end": 80
+                },
+                "child_version_range": {
+                    "start": 81,
+                    "end": 83
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "Gooey",
+                        "signature": "def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):",
+                        "at_line": 57
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(payload):",
+                        "at_line": 71
+                    },
+                    {
+                        "type": "function",
+                        "name": "inner",
+                        "signature": "def inner():",
+                        "at_line": 72
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n         def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):\n             ...\n             def build(payload):\n                 ...\n                 def inner():\n                     ...\n76 78          _, filename = os.path.split(main_module_path)\n77 79          cleaned_source = clean_source(main_module_path)\n78 80    \n79     -       filepath = os.path.join(create_local_storage(), 'gooey_' + filename)\n   81  +       descriptor, tmp_filepath = tempfile.mkstemp(suffix='.py')\n   82  +       atexit.register(cleanup, descriptor, tmp_filepath)\n80 83    \n       ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [
+                    "create_local_storage",
+                    "filename",
+                    "filepath",
+                    "join",
+                    "os",
+                    "path"
+                ],
+                "identifiers_after": [
+                    "atexit",
+                    "cleanup",
+                    "descriptor",
+                    "mkstemp",
+                    "register",
+                    "suffix",
+                    "tempfile",
+                    "tmp_filepath"
+                ],
+                "prefix": [
+                    "      _, filename = os.path.split(main_module_path)\n",
+                    "      cleaned_source = clean_source(main_module_path)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "create_local_storage",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "filepath",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "filepath",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "tempfile",
+                            "position": {
+                                "start": {
+                                    "line": 81,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 81,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "atexit",
+                            "position": {
+                                "start": {
+                                    "line": 82,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 82,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "cleanup",
+                            "position": {
+                                "start": {
+                                    "line": 82,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 82,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "tmp_filepath",
+                            "position": {
+                                "start": {
+                                    "line": 81,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 81,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "tmp_filepath",
+                            "position": {
+                                "start": {
+                                    "line": 81,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 81,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      with open(filepath, 'w') as f:\n"
+                ],
+                "after": [
+                    "      with open(tmp_filepath, 'w') as f:\n"
+                ],
+                "parent_version_range": {
+                    "start": 81,
+                    "end": 82
+                },
+                "child_version_range": {
+                    "start": 84,
+                    "end": 85
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with open(filepath, 'w') as f:",
+                        "start_line": 81,
+                        "end_line": 82
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "Gooey",
+                        "signature": "def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):",
+                        "at_line": 57
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(payload):",
+                        "at_line": 71
+                    },
+                    {
+                        "type": "function",
+                        "name": "inner",
+                        "signature": "def inner():",
+                        "at_line": 72
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n         def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):\n             ...\n             def build(payload):\n                 ...\n                 def inner():\n                     ...\n80 83    \n81     -       with open(filepath, 'w') as f:\n   84  +       with open(tmp_filepath, 'w') as f:\n82 85            f.write(cleaned_source)\n83 86    \n84 87          if not has_argparse(cleaned_source):\n       ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [
+                    "f",
+                    "filepath",
+                    "open"
+                ],
+                "identifiers_after": [
+                    "f",
+                    "open",
+                    "tmp_filepath"
+                ],
+                "prefix": [
+                    "\n"
+                ],
+                "suffix": [
+                    "        f.write(cleaned_source)\n",
+                    "\n",
+                    "      if not has_argparse(cleaned_source):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "filepath",
+                            "position": {
+                                "start": {
+                                    "line": 81,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 81,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "tmp_filepath",
+                            "position": {
+                                "start": {
+                                    "line": 84,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 84,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "        f.write(cleaned_source)\n",
+                "\n",
+                "      if not has_argparse(cleaned_source):\n",
+                "        show_config = False\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      run_cmd = 'python {}'.format(filepath)\n"
+                ],
+                "after": [
+                    "      run_cmd = 'python {}'.format(tmp_filepath)\n"
+                ],
+                "parent_version_range": {
+                    "start": 87,
+                    "end": 88
+                },
+                "child_version_range": {
+                    "start": 90,
+                    "end": 91
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "Gooey",
+                        "signature": "def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):",
+                        "at_line": 57
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(payload):",
+                        "at_line": 71
+                    },
+                    {
+                        "type": "function",
+                        "name": "inner",
+                        "signature": "def inner():",
+                        "at_line": 72
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n         def Gooey(f=None, advanced=True,\n          language='english', show_config=True,\n          program_name=None, program_description=None):\n             ...\n             def build(payload):\n                 ...\n                 def inner():\n                     ...\n84 87          if not has_argparse(cleaned_source):\n85 88            show_config = False\n86 89    \n87     -       run_cmd = 'python {}'.format(filepath)\n   90  +       run_cmd = 'python {}'.format(tmp_filepath)\n88 91    \n89 92          # Must be called before anything else\n90 93          app = wx.App(False)\n       ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [
+                    "filepath",
+                    "format",
+                    "run_cmd"
+                ],
+                "identifiers_after": [
+                    "format",
+                    "run_cmd",
+                    "tmp_filepath"
+                ],
+                "prefix": [
+                    "      if not has_argparse(cleaned_source):\n",
+                    "        show_config = False\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "      # Must be called before anything else\n",
+                    "      app = wx.App(False)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "filepath",
+                            "position": {
+                                "start": {
+                                    "line": 87,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 87,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "tmp_filepath",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "\n",
+                "      # Must be called before anything else\n",
+                "      app = wx.App(False)\n",
+                "\n",
+                "      i18n.load(language)\n",
+                "\n",
+                "      # load gui components after loading the language pack\n",
+                "      from gooey.gui.client_app import ClientApp\n",
+                "      from gooey.gui.client_app import EmptyClientApp\n",
+                "      from gooey.gui.windows.base_window import BaseWindow\n",
+                "      from gooey.gui.windows.advanced_config import AdvancedConfigPanel\n",
+                "      from gooey.gui.windows.basic_config_panel import BasicConfigPanel\n",
+                "\n",
+                "      meta = {\n",
+                "        'target': run_cmd,\n",
+                "        'program_name': program_name,\n",
+                "        'program_description': program_description or '',\n",
+                "        'show_config': show_config,\n",
+                "        'show_advanced': advanced,\n",
+                "        'default_size': (610, 530),\n",
+                "        'requireds_cols': 1,\n",
+                "        'optionals_cols': 2,\n",
+                "        'manual_start': False\n",
+                "      }\n",
+                "\n",
+                "      if show_config:\n",
+                "        parser = get_parser(main_module_path)\n",
+                "        meta['program_description'] = parser.description or program_description\n",
+                "\n",
+                "        client_app = ClientApp(parser, payload)\n",
+                "\n",
+                "        if advanced:\n",
+                "          build_spec = dict(meta.items() + argparse_to_json.convert(parser).items())\n",
+                "          BodyPanel = partial(AdvancedConfigPanel, build_spec=build_spec)\n",
+                "        else:\n",
+                "          build_spec = dict(meta.items() + layouts.basic_config.items())\n",
+                "          BodyPanel = partial(AdvancedConfigPanel, build_spec=build_spec)\n",
+                "      # User doesn't want to display configuration screen\n",
+                "      # Just jump straight to the run panel\n",
+                "      else:\n",
+                "        build_spec = dict(meta.items() + layouts.basic_config.items())\n",
+                "        build_spec['manual_start'] = True\n",
+                "        BodyPanel = partial(AdvancedConfigPanel, build_spec=build_spec)\n",
+                "        client_app = EmptyClientApp(payload)\n",
+                "\n",
+                "\n",
+                "      frame = BaseWindow(BodyPanel, build_spec, params)\n",
+                "\n",
+                "      if not show_config:\n",
+                "        frame.ManualStart()\n",
+                "      frame.Show(True)\n",
+                "      app.MainLoop()\n",
+                "\n",
+                "    inner.__name__ = payload.__name__\n",
+                "    return inner\n",
+                "\n",
+                "  if callable(f):\n",
+                "    return build(f)\n",
+                "  return build\n",
+                "\n",
+                "\n",
+                "def clean_source(module_path):\n",
+                "  with open(module_path, 'r') as f:\n",
+                "    return ''.join(\n",
+                "      line for line in f.readlines()\n",
+                "      if '@gooey' not in line.lower())\n",
+                "\n",
+                "\n",
+                "def get_parser(module_path):\n",
+                "  return source_parser.extract_parser(module_path)\n",
+                "\n",
+                "def get_caller_path():\n",
+                "  tmp_sys = __import__('sys')\n",
+                "  return tmp_sys.argv[0]\n",
+                "\n",
+                "def has_argparse(source):\n",
+                "  bla = ['.parse_args()' in line.lower() for line in source.split('\\n')]\n",
+                "  return any(bla)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "\n",
+                    "def create_local_storage():\n",
+                    "  path = os.path.join(os.getcwd(), '_gooey_generated_files_')\n",
+                    "  try:\n",
+                    "    os.mkdir(path)\n",
+                    "  except OSError:\n",
+                    "    pass # already exists\n",
+                    "  return path\n"
+                ],
+                "after": [
+                    "def cleanup(descriptor, filepath):\n",
+                    "  os.close(descriptor)\n",
+                    "  os.remove(filepath)\n"
+                ],
+                "parent_version_range": {
+                    "start": 167,
+                    "end": 175
+                },
+                "child_version_range": {
+                    "start": 170,
+                    "end": 173
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: gooey/python_bindings/gooey_decorator.py\nCode:\n  ...\n164 167      bla = ['.parse_args()' in line.lower() for line in source.split('\\n')]\n165 168      return any(bla)\n166 169    \n167      - \n168      - def create_local_storage():\n169      -   path = os.path.join(os.getcwd(), '_gooey_generated_files_')\n170      -   try:\n171      -     os.mkdir(path)\n172      -   except OSError:\n173      -     pass # already exists\n174      -   return path\n    170  + def cleanup(descriptor, filepath):\n    171  +   os.close(descriptor)\n    172  +   os.remove(filepath)\n175 173    \n176 174    \n177 175    if __name__ == '__main__':\n         ...\n",
+                "file_path": "gooey/python_bindings/gooey_decorator.py",
+                "identifiers_before": [
+                    "OSError",
+                    "create_local_storage",
+                    "getcwd",
+                    "join",
+                    "mkdir",
+                    "os",
+                    "path"
+                ],
+                "identifiers_after": [
+                    "cleanup",
+                    "close",
+                    "descriptor",
+                    "filepath",
+                    "os",
+                    "remove"
+                ],
+                "prefix": [
+                    "  bla = ['.parse_args()' in line.lower() for line in source.split('\\n')]\n",
+                    "  return any(bla)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "if __name__ == '__main__':\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "create_local_storage",
+                            "position": {
+                                "start": {
+                                    "line": 168,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 168,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "cleanup",
+                            "position": {
+                                "start": {
+                                    "line": 170,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 170,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/Gooey/gooey/python_bindings/gooey_decorator.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "  pass"
+            ]
+        ],
+        "gooey/python_bindings/modules.py": [
+            [
+                "\n",
+                "import os\n",
+                "import time\n",
+                "import hashlib\n",
+                "from itertools import dropwhile\n",
+                "import sys\n",
+                "import tempfile\n",
+                "\n",
+                "sys.path.append(os.path.dirname(__file__))\n",
+                "\n",
+                "def load(module_source):\n",
+                "  descriptor, tmpfilepath = tempfile.mkstemp(suffix='.py')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "  print descriptor, tmpfilepath\n"
+                ],
+                "after": [
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 12,
+                    "end": 13
+                },
+                "child_version_range": {
+                    "start": 12,
+                    "end": 13
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "load",
+                        "signature": "def load(module_source):",
+                        "at_line": 10
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: gooey/python_bindings/modules.py\nCode:\n 9  9    \n10 10    def load(module_source):\n11 11      descriptor, tmpfilepath = tempfile.mkstemp(suffix='.py')\n12     -   print descriptor, tmpfilepath\n   12  + \n13 13      tmpfiledir = os.path.dirname(tmpfilepath)\n14 14      tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]\n       ...\n",
+                "file_path": "gooey/python_bindings/modules.py",
+                "identifiers_before": [
+                    "descriptor",
+                    "tmpfilepath"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "def load(module_source):\n",
+                    "  descriptor, tmpfilepath = tempfile.mkstemp(suffix='.py')\n"
+                ],
+                "suffix": [
+                    "  tmpfiledir = os.path.dirname(tmpfilepath)\n",
+                    "  tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "  tmpfiledir = os.path.dirname(tmpfilepath)\n",
+                "  tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "  print tmpfilename\n"
+                ],
+                "after": [
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 15,
+                    "end": 16
+                },
+                "child_version_range": {
+                    "start": 15,
+                    "end": 16
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "load",
+                        "signature": "def load(module_source):",
+                        "at_line": 10
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: gooey/python_bindings/modules.py\nCode:\n         def load(module_source):\n             ...\n13 13      tmpfiledir = os.path.dirname(tmpfilepath)\n14 14      tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]\n15     -   print tmpfilename\n   15  + \n16 16      sys.path.append(tmpfiledir)\n17 17      try:\n18 18        with open(tmpfilepath, 'w') as f:\n       ...\n",
+                "file_path": "gooey/python_bindings/modules.py",
+                "identifiers_before": [
+                    "tmpfilename"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "  tmpfiledir = os.path.dirname(tmpfilepath)\n",
+                    "  tmpfilename = os.path.splitext(os.path.split(tmpfilepath)[-1])[0]\n"
+                ],
+                "suffix": [
+                    "  sys.path.append(tmpfiledir)\n",
+                    "  try:\n",
+                    "    with open(tmpfilepath, 'w') as f:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "  sys.path.append(tmpfiledir)\n",
+                "  try:\n",
+                "    with open(tmpfilepath, 'w') as f:\n",
+                "      f.write(module_source)\n",
+                "    return __import__(tmpfilename)\n",
+                "  finally:\n",
+                "    os.close(descriptor)\n",
+                "    os.remove(tmpfilepath)\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "  pass\n",
+                ""
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "rename"
+        }
+    ]
+}

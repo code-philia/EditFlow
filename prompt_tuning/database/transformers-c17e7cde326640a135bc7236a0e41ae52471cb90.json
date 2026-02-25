@@ -1,0 +1,2041 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/huggingface/transformers/commit/c17e7cde326640a135bc7236a0e41ae52471cb90",
+    "commit_message": "Add ability to get a list of supported pipeline tasks (#14732)",
+    "commit_snapshots": {
+        "src/transformers/commands/run.py": [
+            [
+                "# Copyright 2020 The HuggingFace Team. All rights reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "from argparse import ArgumentParser\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from ..pipelines import SUPPORTED_TASKS, TASK_ALIASES, Pipeline, PipelineDataFormat, pipeline\n"
+                ],
+                "after": [
+                    "from ..pipelines import Pipeline, PipelineDataFormat, get_supported_tasks, pipeline\n"
+                ],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 16,
+                    "end": 17
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: src/transformers/commands/run.py\nCode:\n  ...\n13 13    \n14 14    from argparse import ArgumentParser\n15 15    \n16     - from ..pipelines import SUPPORTED_TASKS, TASK_ALIASES, Pipeline, PipelineDataFormat, pipeline\n   16  + from ..pipelines import Pipeline, PipelineDataFormat, get_supported_tasks, pipeline\n17 17    from ..utils import logging\n18 18    from . import BaseTransformersCLICommand\n19 19    \n       ...\n",
+                "file_path": "src/transformers/commands/run.py",
+                "identifiers_before": [
+                    "Pipeline",
+                    "PipelineDataFormat",
+                    "SUPPORTED_TASKS",
+                    "TASK_ALIASES",
+                    "pipeline",
+                    "pipelines"
+                ],
+                "identifiers_after": [
+                    "Pipeline",
+                    "PipelineDataFormat",
+                    "get_supported_tasks",
+                    "pipeline",
+                    "pipelines"
+                ],
+                "prefix": [
+                    "\n",
+                    "from argparse import ArgumentParser\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from ..utils import logging\n",
+                    "from . import BaseTransformersCLICommand\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "SUPPORTED_TASKS",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "TASK_ALIASES",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 73
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 73
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "from ..utils import logging\n",
+                "from . import BaseTransformersCLICommand\n",
+                "\n",
+                "\n",
+                "logger = logging.get_logger(__name__)  # pylint: disable=invalid-name\n",
+                "\n",
+                "\n",
+                "def try_infer_format_from_ext(path: str):\n",
+                "    if not path:\n",
+                "        return \"pipe\"\n",
+                "\n",
+                "    for ext in PipelineDataFormat.SUPPORTED_FORMATS:\n",
+                "        if path.endswith(ext):\n",
+                "            return ext\n",
+                "\n",
+                "    raise Exception(\n",
+                "        f\"Unable to determine file format from file extension {path}. \"\n",
+                "        f\"Please provide the format through --format {PipelineDataFormat.SUPPORTED_FORMATS}\"\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def run_command_factory(args):\n",
+                "    nlp = pipeline(\n",
+                "        task=args.task,\n",
+                "        model=args.model if args.model else None,\n",
+                "        config=args.config,\n",
+                "        tokenizer=args.tokenizer,\n",
+                "        device=args.device,\n",
+                "    )\n",
+                "    format = try_infer_format_from_ext(args.input) if args.format == \"infer\" else args.format\n",
+                "    reader = PipelineDataFormat.from_str(\n",
+                "        format=format,\n",
+                "        output_path=args.output,\n",
+                "        input_path=args.input,\n",
+                "        column=args.column if args.column else nlp.default_input_names,\n",
+                "        overwrite=args.overwrite,\n",
+                "    )\n",
+                "    return RunCommand(nlp, reader)\n",
+                "\n",
+                "\n",
+                "class RunCommand(BaseTransformersCLICommand):\n",
+                "    def __init__(self, nlp: Pipeline, reader: PipelineDataFormat):\n",
+                "        self._nlp = nlp\n",
+                "        self._reader = reader\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def register_subcommand(parser: ArgumentParser):\n",
+                "        run_parser = parser.add_parser(\"run\", help=\"Run a pipeline through the CLI\")\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        run_parser.add_argument(\n",
+                    "            \"--task\", choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()), help=\"Task to run\"\n",
+                    "        )\n"
+                ],
+                "after": [
+                    "        run_parser.add_argument(\"--task\", choices=get_supported_tasks(), help=\"Task to run\")\n"
+                ],
+                "parent_version_range": {
+                    "start": 65,
+                    "end": 68
+                },
+                "child_version_range": {
+                    "start": 65,
+                    "end": 66
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RunCommand",
+                        "signature": "class RunCommand(BaseTransformersCLICommand):",
+                        "at_line": 57
+                    },
+                    {
+                        "type": "function",
+                        "name": "register_subcommand",
+                        "signature": "def register_subcommand(parser: ArgumentParser):",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "call",
+                        "name": "run_parser.add_argument",
+                        "signature": "run_parser.add_argument(\n            \"--task\", choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()), help=\"Task to run\"\n        )",
+                        "at_line": 65
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: src/transformers/commands/run.py\nCode:\n         class RunCommand(BaseTransformersCLICommand):\n             ...\n62 62        @staticmethod\n63 63        def register_subcommand(parser: ArgumentParser):\n64 64            run_parser = parser.add_parser(\"run\", help=\"Run a pipeline through the CLI\")\n65     -         run_parser.add_argument(\n66     -             \"--task\", choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()), help=\"Task to run\"\n67     -         )\n   65  +         run_parser.add_argument(\"--task\", choices=get_supported_tasks(), help=\"Task to run\")\n68 66            run_parser.add_argument(\"--input\", type=str, help=\"Path to the file to use for inference\")\n69 67            run_parser.add_argument(\"--output\", type=str, help=\"Path to the file that will be used post to write results.\")\n70 68            run_parser.add_argument(\"--model\", type=str, help=\"Name or path to the model to instantiate.\")\n       ...\n",
+                "file_path": "src/transformers/commands/run.py",
+                "identifiers_before": [
+                    "SUPPORTED_TASKS",
+                    "TASK_ALIASES",
+                    "add_argument",
+                    "choices",
+                    "help",
+                    "keys",
+                    "list",
+                    "run_parser"
+                ],
+                "identifiers_after": [
+                    "add_argument",
+                    "choices",
+                    "get_supported_tasks",
+                    "help",
+                    "run_parser"
+                ],
+                "prefix": [
+                    "    @staticmethod\n",
+                    "    def register_subcommand(parser: ArgumentParser):\n",
+                    "        run_parser = parser.add_parser(\"run\", help=\"Run a pipeline through the CLI\")\n"
+                ],
+                "suffix": [
+                    "        run_parser.add_argument(\"--input\", type=str, help=\"Path to the file to use for inference\")\n",
+                    "        run_parser.add_argument(\"--output\", type=str, help=\"Path to the file that will be used post to write results.\")\n",
+                    "        run_parser.add_argument(\"--model\", type=str, help=\"Name or path to the model to instantiate.\")\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SUPPORTED_TASKS",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "TASK_ALIASES",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 66
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 78
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 65,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 65,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 65,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 65,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/run.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        run_parser.add_argument(\"--input\", type=str, help=\"Path to the file to use for inference\")\n",
+                "        run_parser.add_argument(\"--output\", type=str, help=\"Path to the file that will be used post to write results.\")\n",
+                "        run_parser.add_argument(\"--model\", type=str, help=\"Name or path to the model to instantiate.\")\n",
+                "        run_parser.add_argument(\"--config\", type=str, help=\"Name or path to the model's config to instantiate.\")\n",
+                "        run_parser.add_argument(\n",
+                "            \"--tokenizer\", type=str, help=\"Name of the tokenizer to use. (default: same as the model name)\"\n",
+                "        )\n",
+                "        run_parser.add_argument(\n",
+                "            \"--column\",\n",
+                "            type=str,\n",
+                "            help=\"Name of the column to use as input. (For multi columns input as QA use column1,columns2)\",\n",
+                "        )\n",
+                "        run_parser.add_argument(\n",
+                "            \"--format\",\n",
+                "            type=str,\n",
+                "            default=\"infer\",\n",
+                "            choices=PipelineDataFormat.SUPPORTED_FORMATS,\n",
+                "            help=\"Input format to read from\",\n",
+                "        )\n",
+                "        run_parser.add_argument(\n",
+                "            \"--device\",\n",
+                "            type=int,\n",
+                "            default=-1,\n",
+                "            help=\"Indicate the device to run onto, -1 indicates CPU, >= 0 indicates GPU (default: -1)\",\n",
+                "        )\n",
+                "        run_parser.add_argument(\"--overwrite\", action=\"store_true\", help=\"Allow overwriting the output file.\")\n",
+                "        run_parser.set_defaults(func=run_command_factory)\n",
+                "\n",
+                "    def run(self):\n",
+                "        nlp, outputs = self._nlp, []\n",
+                "\n",
+                "        for entry in self._reader:\n",
+                "            output = nlp(**entry) if self._reader.is_multi_columns else nlp(entry)\n",
+                "            if isinstance(output, dict):\n",
+                "                outputs.append(output)\n",
+                "            else:\n",
+                "                outputs += output\n",
+                "\n",
+                "        # Saving data\n",
+                "        if self._nlp.binary_output:\n",
+                "            binary_path = self._reader.save_binary(outputs)\n",
+                "            logger.warning(f\"Current pipeline requires output to be in binary format, saving at {binary_path}\")\n",
+                "        else:\n",
+                "            self._reader.save(outputs)"
+            ]
+        ],
+        "src/transformers/commands/serving.py": [
+            [
+                "# Copyright 2020 The HuggingFace Team. All rights reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "from argparse import ArgumentParser, Namespace\n",
+                "from typing import Any, List, Optional\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from ..pipelines import SUPPORTED_TASKS, TASK_ALIASES, Pipeline, pipeline\n"
+                ],
+                "after": [
+                    "from ..pipelines import Pipeline, get_supported_tasks, pipeline\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: src/transformers/commands/serving.py\nCode:\n  ...\n14 14    from argparse import ArgumentParser, Namespace\n15 15    from typing import Any, List, Optional\n16 16    \n17     - from ..pipelines import SUPPORTED_TASKS, TASK_ALIASES, Pipeline, pipeline\n   17  + from ..pipelines import Pipeline, get_supported_tasks, pipeline\n18 18    from ..utils import logging\n19 19    from . import BaseTransformersCLICommand\n20 20    \n       ...\n",
+                "file_path": "src/transformers/commands/serving.py",
+                "identifiers_before": [
+                    "Pipeline",
+                    "SUPPORTED_TASKS",
+                    "TASK_ALIASES",
+                    "pipeline",
+                    "pipelines"
+                ],
+                "identifiers_after": [
+                    "Pipeline",
+                    "get_supported_tasks",
+                    "pipeline",
+                    "pipelines"
+                ],
+                "prefix": [
+                    "from argparse import ArgumentParser, Namespace\n",
+                    "from typing import Any, List, Optional\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from ..utils import logging\n",
+                    "from . import BaseTransformersCLICommand\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "SUPPORTED_TASKS",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "TASK_ALIASES",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from ..utils import logging\n",
+                "from . import BaseTransformersCLICommand\n",
+                "\n",
+                "\n",
+                "try:\n",
+                "    from fastapi import Body, FastAPI, HTTPException\n",
+                "    from fastapi.routing import APIRoute\n",
+                "    from pydantic import BaseModel\n",
+                "    from starlette.responses import JSONResponse\n",
+                "    from uvicorn import run\n",
+                "\n",
+                "    _serve_dependencies_installed = True\n",
+                "except (ImportError, AttributeError):\n",
+                "    BaseModel = object\n",
+                "\n",
+                "    def Body(*x, **y):\n",
+                "        pass\n",
+                "\n",
+                "    _serve_dependencies_installed = False\n",
+                "\n",
+                "\n",
+                "logger = logging.get_logger(\"transformers-cli/serving\")\n",
+                "\n",
+                "\n",
+                "def serve_command_factory(args: Namespace):\n",
+                "    \"\"\"\n",
+                "    Factory function used to instantiate serving server from provided command line arguments.\n",
+                "\n",
+                "    Returns: ServeCommand\n",
+                "    \"\"\"\n",
+                "    nlp = pipeline(\n",
+                "        task=args.task,\n",
+                "        model=args.model if args.model else None,\n",
+                "        config=args.config,\n",
+                "        tokenizer=args.tokenizer,\n",
+                "        device=args.device,\n",
+                "    )\n",
+                "    return ServeCommand(nlp, args.host, args.port, args.workers)\n",
+                "\n",
+                "\n",
+                "class ServeModelInfoResult(BaseModel):\n",
+                "    \"\"\"\n",
+                "    Expose model information\n",
+                "    \"\"\"\n",
+                "\n",
+                "    infos: dict\n",
+                "\n",
+                "\n",
+                "class ServeTokenizeResult(BaseModel):\n",
+                "    \"\"\"\n",
+                "    Tokenize result model\n",
+                "    \"\"\"\n",
+                "\n",
+                "    tokens: List[str]\n",
+                "    tokens_ids: Optional[List[int]]\n",
+                "\n",
+                "\n",
+                "class ServeDeTokenizeResult(BaseModel):\n",
+                "    \"\"\"\n",
+                "    DeTokenize result model\n",
+                "    \"\"\"\n",
+                "\n",
+                "    text: str\n",
+                "\n",
+                "\n",
+                "class ServeForwardResult(BaseModel):\n",
+                "    \"\"\"\n",
+                "    Forward result model\n",
+                "    \"\"\"\n",
+                "\n",
+                "    output: Any\n",
+                "\n",
+                "\n",
+                "class ServeCommand(BaseTransformersCLICommand):\n",
+                "    @staticmethod\n",
+                "    def register_subcommand(parser: ArgumentParser):\n",
+                "        \"\"\"\n",
+                "        Register this command to argparse so it's available for the transformer-cli\n",
+                "\n",
+                "        Args:\n",
+                "            parser: Root parser to register command-specific arguments\n",
+                "        \"\"\"\n",
+                "        serve_parser = parser.add_parser(\n",
+                "            \"serve\", help=\"CLI tool to run inference requests through REST and GraphQL endpoints.\"\n",
+                "        )\n",
+                "        serve_parser.add_argument(\n",
+                "            \"--task\",\n",
+                "            type=str,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()),\n"
+                ],
+                "after": [
+                    "            choices=get_supported_tasks(),\n"
+                ],
+                "parent_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "child_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "ServeCommand",
+                        "signature": "class ServeCommand(BaseTransformersCLICommand):",
+                        "at_line": 91
+                    },
+                    {
+                        "type": "function",
+                        "name": "register_subcommand",
+                        "signature": "def register_subcommand(parser: ArgumentParser):",
+                        "at_line": 93
+                    },
+                    {
+                        "type": "call",
+                        "name": "serve_parser.add_argument",
+                        "signature": "serve_parser.add_argument(\n            \"--task\",\n            type=str,\n            choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()),\n            help=\"The task to run the pipeline on\",\n        )",
+                        "at_line": 103,
+                        "argument": "choices=..."
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: src/transformers/commands/serving.py\nCode:\n           class ServeCommand(BaseTransformersCLICommand):\n               ...\n               def register_subcommand(parser: ArgumentParser):\n                   ...\n103 103            serve_parser.add_argument(\n104 104                \"--task\",\n105 105                type=str,\n106      -             choices=list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys()),\n    106  +             choices=get_supported_tasks(),\n107 107                help=\"The task to run the pipeline on\",\n108 108            )\n109 109            serve_parser.add_argument(\"--host\", type=str, default=\"localhost\", help=\"Interface the server will listen on.\")\n         ...\n",
+                "file_path": "src/transformers/commands/serving.py",
+                "identifiers_before": [
+                    "SUPPORTED_TASKS",
+                    "TASK_ALIASES",
+                    "choices",
+                    "keys",
+                    "list"
+                ],
+                "identifiers_after": [
+                    "choices",
+                    "get_supported_tasks"
+                ],
+                "prefix": [
+                    "        serve_parser.add_argument(\n",
+                    "            \"--task\",\n",
+                    "            type=str,\n"
+                ],
+                "suffix": [
+                    "            help=\"The task to run the pipeline on\",\n",
+                    "        )\n",
+                    "        serve_parser.add_argument(\"--host\", type=str, default=\"localhost\", help=\"Interface the server will listen on.\")\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "SUPPORTED_TASKS",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "TASK_ALIASES",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 56
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 68
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/commands/serving.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            help=\"The task to run the pipeline on\",\n",
+                "        )\n",
+                "        serve_parser.add_argument(\"--host\", type=str, default=\"localhost\", help=\"Interface the server will listen on.\")\n",
+                "        serve_parser.add_argument(\"--port\", type=int, default=8888, help=\"Port the serving will listen to.\")\n",
+                "        serve_parser.add_argument(\"--workers\", type=int, default=1, help=\"Number of http workers\")\n",
+                "        serve_parser.add_argument(\"--model\", type=str, help=\"Model's name or path to stored model.\")\n",
+                "        serve_parser.add_argument(\"--config\", type=str, help=\"Model's config name or path to stored model.\")\n",
+                "        serve_parser.add_argument(\"--tokenizer\", type=str, help=\"Tokenizer name to use.\")\n",
+                "        serve_parser.add_argument(\n",
+                "            \"--device\",\n",
+                "            type=int,\n",
+                "            default=-1,\n",
+                "            help=\"Indicate the device to run onto, -1 indicates CPU, >= 0 indicates GPU (default: -1)\",\n",
+                "        )\n",
+                "        serve_parser.set_defaults(func=serve_command_factory)\n",
+                "\n",
+                "    def __init__(self, pipeline: Pipeline, host: str, port: int, workers: int):\n",
+                "\n",
+                "        self._pipeline = pipeline\n",
+                "\n",
+                "        self.host = host\n",
+                "        self.port = port\n",
+                "        self.workers = workers\n",
+                "\n",
+                "        if not _serve_dependencies_installed:\n",
+                "            raise RuntimeError(\n",
+                "                \"Using serve command requires FastAPI and unicorn. \"\n",
+                "                'Please install transformers with [serving]: pip install \"transformers[serving]\".'\n",
+                "                \"Or install FastAPI and unicorn separately.\"\n",
+                "            )\n",
+                "        else:\n",
+                "            logger.info(f\"Serving model over {host}:{port}\")\n",
+                "            self._app = FastAPI(\n",
+                "                routes=[\n",
+                "                    APIRoute(\n",
+                "                        \"/\",\n",
+                "                        self.model_info,\n",
+                "                        response_model=ServeModelInfoResult,\n",
+                "                        response_class=JSONResponse,\n",
+                "                        methods=[\"GET\"],\n",
+                "                    ),\n",
+                "                    APIRoute(\n",
+                "                        \"/tokenize\",\n",
+                "                        self.tokenize,\n",
+                "                        response_model=ServeTokenizeResult,\n",
+                "                        response_class=JSONResponse,\n",
+                "                        methods=[\"POST\"],\n",
+                "                    ),\n",
+                "                    APIRoute(\n",
+                "                        \"/detokenize\",\n",
+                "                        self.detokenize,\n",
+                "                        response_model=ServeDeTokenizeResult,\n",
+                "                        response_class=JSONResponse,\n",
+                "                        methods=[\"POST\"],\n",
+                "                    ),\n",
+                "                    APIRoute(\n",
+                "                        \"/forward\",\n",
+                "                        self.forward,\n",
+                "                        response_model=ServeForwardResult,\n",
+                "                        response_class=JSONResponse,\n",
+                "                        methods=[\"POST\"],\n",
+                "                    ),\n",
+                "                ],\n",
+                "                timeout=600,\n",
+                "            )\n",
+                "\n",
+                "    def run(self):\n",
+                "        run(self._app, host=self.host, port=self.port, workers=self.workers)\n",
+                "\n",
+                "    def model_info(self):\n",
+                "        return ServeModelInfoResult(infos=vars(self._pipeline.model.config))\n",
+                "\n",
+                "    def tokenize(self, text_input: str = Body(None, embed=True), return_ids: bool = Body(False, embed=True)):\n",
+                "        \"\"\"\n",
+                "        Tokenize the provided input and eventually returns corresponding tokens id: - **text_input**: String to\n",
+                "        tokenize - **return_ids**: Boolean flags indicating if the tokens have to be converted to their integer\n",
+                "        mapping.\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            tokens_txt = self._pipeline.tokenizer.tokenize(text_input)\n",
+                "\n",
+                "            if return_ids:\n",
+                "                tokens_ids = self._pipeline.tokenizer.convert_tokens_to_ids(tokens_txt)\n",
+                "                return ServeTokenizeResult(tokens=tokens_txt, tokens_ids=tokens_ids)\n",
+                "            else:\n",
+                "                return ServeTokenizeResult(tokens=tokens_txt)\n",
+                "\n",
+                "        except Exception as e:\n",
+                "            raise HTTPException(status_code=500, detail={\"model\": \"\", \"error\": str(e)})\n",
+                "\n",
+                "    def detokenize(\n",
+                "        self,\n",
+                "        tokens_ids: List[int] = Body(None, embed=True),\n",
+                "        skip_special_tokens: bool = Body(False, embed=True),\n",
+                "        cleanup_tokenization_spaces: bool = Body(True, embed=True),\n",
+                "    ):\n",
+                "        \"\"\"\n",
+                "        Detokenize the provided tokens ids to readable text: - **tokens_ids**: List of tokens ids -\n",
+                "        **skip_special_tokens**: Flag indicating to not try to decode special tokens - **cleanup_tokenization_spaces**:\n",
+                "        Flag indicating to remove all leading/trailing spaces and intermediate ones.\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            decoded_str = self._pipeline.tokenizer.decode(tokens_ids, skip_special_tokens, cleanup_tokenization_spaces)\n",
+                "            return ServeDeTokenizeResult(model=\"\", text=decoded_str)\n",
+                "        except Exception as e:\n",
+                "            raise HTTPException(status_code=500, detail={\"model\": \"\", \"error\": str(e)})\n",
+                "\n",
+                "    async def forward(self, inputs=Body(None, embed=True)):\n",
+                "        \"\"\"\n",
+                "        **inputs**:\n",
+                "        **attention_mask**:\n",
+                "        **tokens_type_ids**:\n",
+                "        \"\"\"\n",
+                "\n",
+                "        # Check we don't have empty string\n",
+                "        if len(inputs) == 0:\n",
+                "            return ServeForwardResult(output=[], attention=[])\n",
+                "\n",
+                "        try:\n",
+                "            # Forward through the model\n",
+                "            output = self._pipeline(inputs)\n",
+                "            return ServeForwardResult(output=output)\n",
+                "        except Exception as e:\n",
+                "            raise HTTPException(500, {\"error\": str(e)})"
+            ]
+        ],
+        "src/transformers/pipelines/__init__.py": [
+            [
+                "# flake8: noqa\n",
+                "# There's no way to ignore \"F401 '...' imported but unused\" warnings in this\n",
+                "# module, but to preserve other warnings. So, don't check this module at all.\n",
+                "\n",
+                "import io\n",
+                "import json\n",
+                "\n",
+                "# coding=utf-8\n",
+                "# Copyright 2018 The HuggingFace Inc. team.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "import warnings\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Union\n"
+                ],
+                "after": [
+                    "from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union\n"
+                ],
+                "parent_version_range": {
+                    "start": 22,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 22,
+                    "end": 23
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: src/transformers/pipelines/__init__.py\nCode:\n  ...\n19 19    # See the License for the specific language governing permissions and\n20 20    # limitations under the License.\n21 21    import warnings\n22     - from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple, Union\n   22  + from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union\n23 23    \n24 24    from ..configuration_utils import PretrainedConfig\n25 25    from ..feature_extraction_utils import PreTrainedFeatureExtractor\n       ...\n",
+                "file_path": "src/transformers/pipelines/__init__.py",
+                "identifiers_before": [
+                    "Any",
+                    "Dict",
+                    "Optional",
+                    "TYPE_CHECKING",
+                    "Tuple",
+                    "Union",
+                    "typing"
+                ],
+                "identifiers_after": [
+                    "Any",
+                    "Dict",
+                    "List",
+                    "Optional",
+                    "TYPE_CHECKING",
+                    "Tuple",
+                    "Union",
+                    "typing"
+                ],
+                "prefix": [
+                    "# See the License for the specific language governing permissions and\n",
+                    "# limitations under the License.\n",
+                    "import warnings\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from ..configuration_utils import PretrainedConfig\n",
+                    "from ..feature_extraction_utils import PreTrainedFeatureExtractor\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "List",
+                            "position": {
+                                "start": {
+                                    "line": 22,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 22,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "from ..configuration_utils import PretrainedConfig\n",
+                "from ..feature_extraction_utils import PreTrainedFeatureExtractor\n",
+                "from ..file_utils import http_get, is_tf_available, is_torch_available\n",
+                "from ..models.auto.configuration_auto import AutoConfig\n",
+                "from ..models.auto.feature_extraction_auto import FEATURE_EXTRACTOR_MAPPING, AutoFeatureExtractor\n",
+                "from ..models.auto.tokenization_auto import TOKENIZER_MAPPING, AutoTokenizer\n",
+                "from ..tokenization_utils import PreTrainedTokenizer\n",
+                "from ..utils import logging\n",
+                "from .audio_classification import AudioClassificationPipeline\n",
+                "from .automatic_speech_recognition import AutomaticSpeechRecognitionPipeline\n",
+                "from .base import (\n",
+                "    ArgumentHandler,\n",
+                "    CsvPipelineDataFormat,\n",
+                "    JsonPipelineDataFormat,\n",
+                "    PipedPipelineDataFormat,\n",
+                "    Pipeline,\n",
+                "    PipelineDataFormat,\n",
+                "    PipelineException,\n",
+                "    get_default_model,\n",
+                "    infer_framework_load_model,\n",
+                ")\n",
+                "from .conversational import Conversation, ConversationalPipeline\n",
+                "from .feature_extraction import FeatureExtractionPipeline\n",
+                "from .fill_mask import FillMaskPipeline\n",
+                "from .image_classification import ImageClassificationPipeline\n",
+                "from .image_segmentation import ImageSegmentationPipeline\n",
+                "from .object_detection import ObjectDetectionPipeline\n",
+                "from .question_answering import QuestionAnsweringArgumentHandler, QuestionAnsweringPipeline\n",
+                "from .table_question_answering import TableQuestionAnsweringArgumentHandler, TableQuestionAnsweringPipeline\n",
+                "from .text2text_generation import SummarizationPipeline, Text2TextGenerationPipeline, TranslationPipeline\n",
+                "from .text_classification import TextClassificationPipeline\n",
+                "from .text_generation import TextGenerationPipeline\n",
+                "from .token_classification import (\n",
+                "    AggregationStrategy,\n",
+                "    NerPipeline,\n",
+                "    TokenClassificationArgumentHandler,\n",
+                "    TokenClassificationPipeline,\n",
+                ")\n",
+                "from .zero_shot_classification import ZeroShotClassificationArgumentHandler, ZeroShotClassificationPipeline\n",
+                "\n",
+                "\n",
+                "if is_tf_available():\n",
+                "    import tensorflow as tf\n",
+                "\n",
+                "    from ..models.auto.modeling_tf_auto import (\n",
+                "        TF_MODEL_FOR_QUESTION_ANSWERING_MAPPING,\n",
+                "        TF_MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING,\n",
+                "        TF_MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING,\n",
+                "        TF_MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING,\n",
+                "        TF_MODEL_WITH_LM_HEAD_MAPPING,\n",
+                "        TFAutoModel,\n",
+                "        TFAutoModelForCausalLM,\n",
+                "        TFAutoModelForMaskedLM,\n",
+                "        TFAutoModelForQuestionAnswering,\n",
+                "        TFAutoModelForSeq2SeqLM,\n",
+                "        TFAutoModelForSequenceClassification,\n",
+                "        TFAutoModelForTableQuestionAnswering,\n",
+                "        TFAutoModelForTokenClassification,\n",
+                "    )\n",
+                "\n",
+                "if is_torch_available():\n",
+                "    import torch\n",
+                "\n",
+                "    from ..models.auto.modeling_auto import (\n",
+                "        MODEL_FOR_MASKED_LM_MAPPING,\n",
+                "        MODEL_FOR_QUESTION_ANSWERING_MAPPING,\n",
+                "        MODEL_FOR_SEQ_TO_SEQ_CAUSAL_LM_MAPPING,\n",
+                "        MODEL_FOR_SEQUENCE_CLASSIFICATION_MAPPING,\n",
+                "        MODEL_FOR_TABLE_QUESTION_ANSWERING_MAPPING,\n",
+                "        MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING,\n",
+                "        AutoModel,\n",
+                "        AutoModelForAudioClassification,\n",
+                "        AutoModelForCausalLM,\n",
+                "        AutoModelForCTC,\n",
+                "        AutoModelForImageClassification,\n",
+                "        AutoModelForImageSegmentation,\n",
+                "        AutoModelForMaskedLM,\n",
+                "        AutoModelForObjectDetection,\n",
+                "        AutoModelForQuestionAnswering,\n",
+                "        AutoModelForSeq2SeqLM,\n",
+                "        AutoModelForSequenceClassification,\n",
+                "        AutoModelForSpeechSeq2Seq,\n",
+                "        AutoModelForTableQuestionAnswering,\n",
+                "        AutoModelForTokenClassification,\n",
+                "    )\n",
+                "if TYPE_CHECKING:\n",
+                "    from ..modeling_tf_utils import TFPreTrainedModel\n",
+                "    from ..modeling_utils import PreTrainedModel\n",
+                "\n",
+                "logger = logging.get_logger(__name__)\n",
+                "\n",
+                "\n",
+                "# Register all the supported tasks here\n",
+                "TASK_ALIASES = {\n",
+                "    \"sentiment-analysis\": \"text-classification\",\n",
+                "    \"ner\": \"token-classification\",\n",
+                "}\n",
+                "SUPPORTED_TASKS = {\n",
+                "    \"audio-classification\": {\n",
+                "        \"impl\": AudioClassificationPipeline,\n",
+                "        \"tf\": (),\n",
+                "        \"pt\": (AutoModelForAudioClassification,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"superb/wav2vec2-base-superb-ks\"}},\n",
+                "    },\n",
+                "    \"automatic-speech-recognition\": {\n",
+                "        \"impl\": AutomaticSpeechRecognitionPipeline,\n",
+                "        \"tf\": (),\n",
+                "        \"pt\": (AutoModelForCTC, AutoModelForSpeechSeq2Seq) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"facebook/wav2vec2-base-960h\"}},\n",
+                "    },\n",
+                "    \"feature-extraction\": {\n",
+                "        \"impl\": FeatureExtractionPipeline,\n",
+                "        \"tf\": (TFAutoModel,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModel,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"distilbert-base-cased\", \"tf\": \"distilbert-base-cased\"}},\n",
+                "    },\n",
+                "    \"text-classification\": {\n",
+                "        \"impl\": TextClassificationPipeline,\n",
+                "        \"tf\": (TFAutoModelForSequenceClassification,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSequenceClassification,) if is_torch_available() else (),\n",
+                "        \"default\": {\n",
+                "            \"model\": {\n",
+                "                \"pt\": \"distilbert-base-uncased-finetuned-sst-2-english\",\n",
+                "                \"tf\": \"distilbert-base-uncased-finetuned-sst-2-english\",\n",
+                "            },\n",
+                "        },\n",
+                "    },\n",
+                "    \"token-classification\": {\n",
+                "        \"impl\": TokenClassificationPipeline,\n",
+                "        \"tf\": (TFAutoModelForTokenClassification,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForTokenClassification,) if is_torch_available() else (),\n",
+                "        \"default\": {\n",
+                "            \"model\": {\n",
+                "                \"pt\": \"dbmdz/bert-large-cased-finetuned-conll03-english\",\n",
+                "                \"tf\": \"dbmdz/bert-large-cased-finetuned-conll03-english\",\n",
+                "            },\n",
+                "        },\n",
+                "    },\n",
+                "    \"question-answering\": {\n",
+                "        \"impl\": QuestionAnsweringPipeline,\n",
+                "        \"tf\": (TFAutoModelForQuestionAnswering,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForQuestionAnswering,) if is_torch_available() else (),\n",
+                "        \"default\": {\n",
+                "            \"model\": {\"pt\": \"distilbert-base-cased-distilled-squad\", \"tf\": \"distilbert-base-cased-distilled-squad\"},\n",
+                "        },\n",
+                "    },\n",
+                "    \"table-question-answering\": {\n",
+                "        \"impl\": TableQuestionAnsweringPipeline,\n",
+                "        \"pt\": (AutoModelForTableQuestionAnswering,) if is_torch_available() else (),\n",
+                "        \"tf\": (TFAutoModelForTableQuestionAnswering,) if is_tf_available() else (),\n",
+                "        \"default\": {\n",
+                "            \"model\": {\n",
+                "                \"pt\": \"google/tapas-base-finetuned-wtq\",\n",
+                "                \"tokenizer\": \"google/tapas-base-finetuned-wtq\",\n",
+                "                \"tf\": \"google/tapas-base-finetuned-wtq\",\n",
+                "            },\n",
+                "        },\n",
+                "    },\n",
+                "    \"fill-mask\": {\n",
+                "        \"impl\": FillMaskPipeline,\n",
+                "        \"tf\": (TFAutoModelForMaskedLM,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForMaskedLM,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"distilroberta-base\", \"tf\": \"distilroberta-base\"}},\n",
+                "    },\n",
+                "    \"summarization\": {\n",
+                "        \"impl\": SummarizationPipeline,\n",
+                "        \"tf\": (TFAutoModelForSeq2SeqLM,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSeq2SeqLM,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"sshleifer/distilbart-cnn-12-6\", \"tf\": \"t5-small\"}},\n",
+                "    },\n",
+                "    # This task is a special case as it's parametrized by SRC, TGT languages.\n",
+                "    \"translation\": {\n",
+                "        \"impl\": TranslationPipeline,\n",
+                "        \"tf\": (TFAutoModelForSeq2SeqLM,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSeq2SeqLM,) if is_torch_available() else (),\n",
+                "        \"default\": {\n",
+                "            (\"en\", \"fr\"): {\"model\": {\"pt\": \"t5-base\", \"tf\": \"t5-base\"}},\n",
+                "            (\"en\", \"de\"): {\"model\": {\"pt\": \"t5-base\", \"tf\": \"t5-base\"}},\n",
+                "            (\"en\", \"ro\"): {\"model\": {\"pt\": \"t5-base\", \"tf\": \"t5-base\"}},\n",
+                "        },\n",
+                "    },\n",
+                "    \"text2text-generation\": {\n",
+                "        \"impl\": Text2TextGenerationPipeline,\n",
+                "        \"tf\": (TFAutoModelForSeq2SeqLM,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSeq2SeqLM,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"t5-base\", \"tf\": \"t5-base\"}},\n",
+                "    },\n",
+                "    \"text-generation\": {\n",
+                "        \"impl\": TextGenerationPipeline,\n",
+                "        \"tf\": (TFAutoModelForCausalLM,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForCausalLM,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"gpt2\", \"tf\": \"gpt2\"}},\n",
+                "    },\n",
+                "    \"zero-shot-classification\": {\n",
+                "        \"impl\": ZeroShotClassificationPipeline,\n",
+                "        \"tf\": (TFAutoModelForSequenceClassification,) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSequenceClassification,) if is_torch_available() else (),\n",
+                "        \"default\": {\n",
+                "            \"model\": {\"pt\": \"facebook/bart-large-mnli\", \"tf\": \"roberta-large-mnli\"},\n",
+                "            \"config\": {\"pt\": \"facebook/bart-large-mnli\", \"tf\": \"roberta-large-mnli\"},\n",
+                "            \"tokenizer\": {\"pt\": \"facebook/bart-large-mnli\", \"tf\": \"roberta-large-mnli\"},\n",
+                "        },\n",
+                "    },\n",
+                "    \"conversational\": {\n",
+                "        \"impl\": ConversationalPipeline,\n",
+                "        \"tf\": (TFAutoModelForSeq2SeqLM, TFAutoModelForCausalLM) if is_tf_available() else (),\n",
+                "        \"pt\": (AutoModelForSeq2SeqLM, AutoModelForCausalLM) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"microsoft/DialoGPT-medium\", \"tf\": \"microsoft/DialoGPT-medium\"}},\n",
+                "    },\n",
+                "    \"image-classification\": {\n",
+                "        \"impl\": ImageClassificationPipeline,\n",
+                "        \"tf\": (),\n",
+                "        \"pt\": (AutoModelForImageClassification,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"google/vit-base-patch16-224\"}},\n",
+                "    },\n",
+                "    \"image-segmentation\": {\n",
+                "        \"impl\": ImageSegmentationPipeline,\n",
+                "        \"tf\": (),\n",
+                "        \"pt\": (AutoModelForImageSegmentation,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"facebook/detr-resnet-50-panoptic\"}},\n",
+                "    },\n",
+                "    \"object-detection\": {\n",
+                "        \"impl\": ObjectDetectionPipeline,\n",
+                "        \"tf\": (),\n",
+                "        \"pt\": (AutoModelForObjectDetection,) if is_torch_available() else (),\n",
+                "        \"default\": {\"model\": {\"pt\": \"facebook/detr-resnet-50\"}},\n",
+                "    },\n",
+                "}\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "def get_supported_tasks() -> List[str]:\n",
+                    "    \"\"\"\n",
+                    "    Returns a list of supported task strings.\n",
+                    "    \"\"\"\n",
+                    "    supported_tasks = list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys())\n",
+                    "    supported_tasks.sort()\n",
+                    "    return supported_tasks\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 254,
+                    "end": 254
+                },
+                "child_version_range": {
+                    "start": 254,
+                    "end": 263
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: src/transformers/pipelines/__init__.py\nCode:\n  ...\n251 251    }\n252 252    \n253 253    \n    254  + def get_supported_tasks() -> List[str]:\n    255  +     \"\"\"\n    256  +     Returns a list of supported task strings.\n    257  +     \"\"\"\n    258  +     supported_tasks = list(SUPPORTED_TASKS.keys()) + list(TASK_ALIASES.keys())\n    259  +     supported_tasks.sort()\n    260  +     return supported_tasks\n    261  + \n    262  + \n254 263    def get_task(model: str, use_auth_token: Optional[str] = None) -> str:\n255 264        tmp = io.BytesIO()\n256 265        headers = {}\n         ...\n",
+                "file_path": "src/transformers/pipelines/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "List",
+                    "SUPPORTED_TASKS",
+                    "TASK_ALIASES",
+                    "get_supported_tasks",
+                    "keys",
+                    "list",
+                    "sort",
+                    "str",
+                    "supported_tasks"
+                ],
+                "prefix": [
+                    "}\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def get_task(model: str, use_auth_token: Optional[str] = None) -> str:\n",
+                    "    tmp = io.BytesIO()\n",
+                    "    headers = {}\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "List",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 254,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 254,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "def get_task(model: str, use_auth_token: Optional[str] = None) -> str:\n",
+                "    tmp = io.BytesIO()\n",
+                "    headers = {}\n",
+                "    if use_auth_token:\n",
+                "        headers[\"Authorization\"] = f\"Bearer {use_auth_token}\"\n",
+                "\n",
+                "    try:\n",
+                "        http_get(f\"https://huggingface.co/api/models/{model}\", tmp, headers=headers)\n",
+                "        tmp.seek(0)\n",
+                "        body = tmp.read()\n",
+                "        data = json.loads(body)\n",
+                "    except Exception as e:\n",
+                "        raise RuntimeError(f\"Instantiating a pipeline without a task set raised an error: {e}\")\n",
+                "    if \"pipeline_tag\" not in data:\n",
+                "        raise RuntimeError(\n",
+                "            f\"The model {model} does not seem to have a correct `pipeline_tag` set to infer the task automatically\"\n",
+                "        )\n",
+                "    if data.get(\"library_name\", \"transformers\") != \"transformers\":\n",
+                "        raise RuntimeError(f\"This model is meant to be used with {data['library_name']} not with transformers\")\n",
+                "    task = data[\"pipeline_tag\"]\n",
+                "    return task\n",
+                "\n",
+                "\n",
+                "def check_task(task: str) -> Tuple[Dict, Any]:\n",
+                "    \"\"\"\n",
+                "    Checks an incoming task string, to validate it's correct and return the default Pipeline and Model classes, and\n",
+                "    default models if they exist.\n",
+                "\n",
+                "    Args:\n",
+                "        task (:obj:`str`):\n",
+                "            The task defining which pipeline will be returned. Currently accepted tasks are:\n",
+                "\n",
+                "            - :obj:`\"audio-classification\"`\n",
+                "            - :obj:`\"automatic-speech-recognition\"`\n",
+                "            - :obj:`\"conversational\"`\n",
+                "            - :obj:`\"feature-extraction\"`\n",
+                "            - :obj:`\"fill-mask\"`\n",
+                "            - :obj:`\"image-classification\"`\n",
+                "            - :obj:`\"question-answering\"`\n",
+                "            - :obj:`\"table-question-answering\"`\n",
+                "            - :obj:`\"text2text-generation\"`\n",
+                "            - :obj:`\"text-classification\"` (alias :obj:`\"sentiment-analysis\" available)\n",
+                "            - :obj:`\"text-generation\"`\n",
+                "            - :obj:`\"token-classification\"` (alias :obj:`\"ner\"` available)\n",
+                "            - :obj:`\"translation\"`\n",
+                "            - :obj:`\"translation_xx_to_yy\"`\n",
+                "            - :obj:`\"summarization\"`\n",
+                "            - :obj:`\"zero-shot-classification\"`\n",
+                "\n",
+                "    Returns:\n",
+                "        (task_defaults:obj:`dict`, task_options: (:obj:`tuple`, None)) The actual dictionary required to initialize the\n",
+                "        pipeline and some extra task options for parametrized tasks like \"translation_XX_to_YY\"\n",
+                "\n",
+                "\n",
+                "    \"\"\"\n",
+                "    if task in TASK_ALIASES:\n",
+                "        task = TASK_ALIASES[task]\n",
+                "    if task in SUPPORTED_TASKS:\n",
+                "        targeted_task = SUPPORTED_TASKS[task]\n",
+                "        return targeted_task, None\n",
+                "\n",
+                "    if task.startswith(\"translation\"):\n",
+                "        tokens = task.split(\"_\")\n",
+                "        if len(tokens) == 4 and tokens[0] == \"translation\" and tokens[2] == \"to\":\n",
+                "            targeted_task = SUPPORTED_TASKS[\"translation\"]\n",
+                "            return targeted_task, (tokens[1], tokens[3])\n",
+                "        raise KeyError(f\"Invalid translation task {task}, use 'translation_XX_to_YY' format\")\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    raise KeyError(\n",
+                    "        f\"Unknown task {task}, available tasks are {list(SUPPORTED_TASKS.keys()) + ['translation_XX_to_YY']}\"\n",
+                    "    )\n"
+                ],
+                "after": [
+                    "    raise KeyError(f\"Unknown task {task}, available tasks are {get_supported_tasks() + ['translation_XX_to_YY']}\")\n"
+                ],
+                "parent_version_range": {
+                    "start": 322,
+                    "end": 325
+                },
+                "child_version_range": {
+                    "start": 331,
+                    "end": 332
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "check_task",
+                        "signature": "def check_task(task: str)->Tuple[Dict, Any]:",
+                        "at_line": 277
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: src/transformers/pipelines/__init__.py\nCode:\n           def check_task(task: str)->Tuple[Dict, Any]:\n               ...\n319 328                return targeted_task, (tokens[1], tokens[3])\n320 329            raise KeyError(f\"Invalid translation task {task}, use 'translation_XX_to_YY' format\")\n321 330    \n322      -     raise KeyError(\n323      -         f\"Unknown task {task}, available tasks are {list(SUPPORTED_TASKS.keys()) + ['translation_XX_to_YY']}\"\n324      -     )\n    331  +     raise KeyError(f\"Unknown task {task}, available tasks are {get_supported_tasks() + ['translation_XX_to_YY']}\")\n325 332    \n326 333    \n327 334    def pipeline(\n         ...\n",
+                "file_path": "src/transformers/pipelines/__init__.py",
+                "identifiers_before": [
+                    "KeyError",
+                    "SUPPORTED_TASKS",
+                    "keys",
+                    "list",
+                    "task"
+                ],
+                "identifiers_after": [
+                    "KeyError",
+                    "get_supported_tasks",
+                    "task"
+                ],
+                "prefix": [
+                    "            return targeted_task, (tokens[1], tokens[3])\n",
+                    "        raise KeyError(f\"Invalid translation task {task}, use 'translation_XX_to_YY' format\")\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "def pipeline(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "get_supported_tasks",
+                            "position": {
+                                "start": {
+                                    "line": 331,
+                                    "column": 63
+                                },
+                                "end": {
+                                    "line": 331,
+                                    "column": 82
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/transformers/src/transformers/pipelines/__init__.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "def pipeline(\n",
+                "    task: str = None,\n",
+                "    model: Optional = None,\n",
+                "    config: Optional[Union[str, PretrainedConfig]] = None,\n",
+                "    tokenizer: Optional[Union[str, PreTrainedTokenizer]] = None,\n",
+                "    feature_extractor: Optional[Union[str, PreTrainedFeatureExtractor]] = None,\n",
+                "    framework: Optional[str] = None,\n",
+                "    revision: Optional[str] = None,\n",
+                "    use_fast: bool = True,\n",
+                "    use_auth_token: Optional[Union[str, bool]] = None,\n",
+                "    model_kwargs: Dict[str, Any] = None,\n",
+                "    pipeline_class: Optional[Any] = None,\n",
+                "    **kwargs\n",
+                ") -> Pipeline:\n",
+                "    \"\"\"\n",
+                "    Utility factory method to build a :class:`~transformers.Pipeline`.\n",
+                "\n",
+                "    Pipelines are made of:\n",
+                "\n",
+                "        - A :doc:`tokenizer <tokenizer>` in charge of mapping raw textual input to token.\n",
+                "        - A :doc:`model <model>` to make predictions from the inputs.\n",
+                "        - Some (optional) post processing for enhancing model's output.\n",
+                "\n",
+                "    Args:\n",
+                "        task (:obj:`str`):\n",
+                "            The task defining which pipeline will be returned. Currently accepted tasks are:\n",
+                "\n",
+                "            - :obj:`\"audio-classification\"`: will return a :class:`~transformers.AudioClassificationPipeline`:.\n",
+                "            - :obj:`\"automatic-speech-recognition\"`: will return a\n",
+                "              :class:`~transformers.AutomaticSpeechRecognitionPipeline`:.\n",
+                "            - :obj:`\"conversational\"`: will return a :class:`~transformers.ConversationalPipeline`:.\n",
+                "            - :obj:`\"feature-extraction\"`: will return a :class:`~transformers.FeatureExtractionPipeline`:.\n",
+                "            - :obj:`\"fill-mask\"`: will return a :class:`~transformers.FillMaskPipeline`:.\n",
+                "            - :obj:`\"image-classification\"`: will return a :class:`~transformers.ImageClassificationPipeline`:.\n",
+                "            - :obj:`\"question-answering\"`: will return a :class:`~transformers.QuestionAnsweringPipeline`:.\n",
+                "            - :obj:`\"table-question-answering\"`: will return a :class:`~transformers.TableQuestionAnsweringPipeline`:.\n",
+                "            - :obj:`\"text2text-generation\"`: will return a :class:`~transformers.Text2TextGenerationPipeline`:.\n",
+                "            - :obj:`\"text-classification\"` (alias :obj:`\"sentiment-analysis\" available): will return a\n",
+                "              :class:`~transformers.TextClassificationPipeline`:.\n",
+                "            - :obj:`\"text-generation\"`: will return a :class:`~transformers.TextGenerationPipeline`:.\n",
+                "            - :obj:`\"token-classification\"` (alias :obj:`\"ner\"` available): will return a\n",
+                "              :class:`~transformers.TokenClassificationPipeline`:.\n",
+                "            - :obj:`\"translation\"`: will return a :class:`~transformers.TranslationPipeline`:.\n",
+                "            - :obj:`\"translation_xx_to_yy\"`: will return a :class:`~transformers.TranslationPipeline`:.\n",
+                "            - :obj:`\"summarization\"`: will return a :class:`~transformers.SummarizationPipeline`:.\n",
+                "            - :obj:`\"zero-shot-classification\"`: will return a :class:`~transformers.ZeroShotClassificationPipeline`:.\n",
+                "\n",
+                "        model (:obj:`str` or :class:`~transformers.PreTrainedModel` or :class:`~transformers.TFPreTrainedModel`, `optional`):\n",
+                "            The model that will be used by the pipeline to make predictions. This can be a model identifier or an\n",
+                "            actual instance of a pretrained model inheriting from :class:`~transformers.PreTrainedModel` (for PyTorch)\n",
+                "            or :class:`~transformers.TFPreTrainedModel` (for TensorFlow).\n",
+                "\n",
+                "            If not provided, the default for the :obj:`task` will be loaded.\n",
+                "        config (:obj:`str` or :class:`~transformers.PretrainedConfig`, `optional`):\n",
+                "            The configuration that will be used by the pipeline to instantiate the model. This can be a model\n",
+                "            identifier or an actual pretrained model configuration inheriting from\n",
+                "            :class:`~transformers.PretrainedConfig`.\n",
+                "\n",
+                "            If not provided, the default configuration file for the requested model will be used. That means that if\n",
+                "            :obj:`model` is given, its default configuration will be used. However, if :obj:`model` is not supplied,\n",
+                "            this :obj:`task`'s default model's config is used instead.\n",
+                "        tokenizer (:obj:`str` or :class:`~transformers.PreTrainedTokenizer`, `optional`):\n",
+                "            The tokenizer that will be used by the pipeline to encode data for the model. This can be a model\n",
+                "            identifier or an actual pretrained tokenizer inheriting from :class:`~transformers.PreTrainedTokenizer`.\n",
+                "\n",
+                "            If not provided, the default tokenizer for the given :obj:`model` will be loaded (if it is a string). If\n",
+                "            :obj:`model` is not specified or not a string, then the default tokenizer for :obj:`config` is loaded (if\n",
+                "            it is a string). However, if :obj:`config` is also not given or not a string, then the default tokenizer\n",
+                "            for the given :obj:`task` will be loaded.\n",
+                "        feature_extractor (:obj:`str` or :class:`~transformers.PreTrainedFeatureExtractor`, `optional`):\n",
+                "            The feature extractor that will be used by the pipeline to encode data for the model. This can be a model\n",
+                "            identifier or an actual pretrained feature extractor inheriting from\n",
+                "            :class:`~transformers.PreTrainedFeatureExtractor`.\n",
+                "\n",
+                "            Feature extractors are used for non-NLP models, such as Speech or Vision models as well as multi-modal\n",
+                "            models. Multi-modal models will also require a tokenizer to be passed.\n",
+                "\n",
+                "            If not provided, the default feature extractor for the given :obj:`model` will be loaded (if it is a\n",
+                "            string). If :obj:`model` is not specified or not a string, then the default feature extractor for\n",
+                "            :obj:`config` is loaded (if it is a string). However, if :obj:`config` is also not given or not a string,\n",
+                "            then the default feature extractor for the given :obj:`task` will be loaded.\n",
+                "        framework (:obj:`str`, `optional`):\n",
+                "            The framework to use, either :obj:`\"pt\"` for PyTorch or :obj:`\"tf\"` for TensorFlow. The specified framework\n",
+                "            must be installed.\n",
+                "\n",
+                "            If no framework is specified, will default to the one currently installed. If no framework is specified and\n",
+                "            both frameworks are installed, will default to the framework of the :obj:`model`, or to PyTorch if no model\n",
+                "            is provided.\n",
+                "        revision(:obj:`str`, `optional`, defaults to :obj:`\"main\"`):\n",
+                "            When passing a task name or a string model identifier: The specific model version to use. It can be a\n",
+                "            branch name, a tag name, or a commit id, since we use a git-based system for storing models and other\n",
+                "            artifacts on huggingface.co, so ``revision`` can be any identifier allowed by git.\n",
+                "        use_fast (:obj:`bool`, `optional`, defaults to :obj:`True`):\n",
+                "            Whether or not to use a Fast tokenizer if possible (a :class:`~transformers.PreTrainedTokenizerFast`).\n",
+                "        use_auth_token (:obj:`str` or `bool`, `optional`):\n",
+                "            The token to use as HTTP bearer authorization for remote files. If :obj:`True`, will use the token\n",
+                "            generated when running :obj:`transformers-cli login` (stored in :obj:`~/.huggingface`).\n",
+                "            revision(:obj:`str`, `optional`, defaults to :obj:`\"main\"`):\n",
+                "        model_kwargs:\n",
+                "            Additional dictionary of keyword arguments passed along to the model's :obj:`from_pretrained(...,\n",
+                "            **model_kwargs)` function.\n",
+                "        kwargs:\n",
+                "            Additional keyword arguments passed along to the specific pipeline init (see the documentation for the\n",
+                "            corresponding pipeline class for possible values).\n",
+                "\n",
+                "    Returns:\n",
+                "        :class:`~transformers.Pipeline`: A suitable pipeline for the task.\n",
+                "\n",
+                "    Examples::\n",
+                "\n",
+                "        >>> from transformers import pipeline, AutoModelForTokenClassification, AutoTokenizer\n",
+                "\n",
+                "        >>> # Sentiment analysis pipeline\n",
+                "        >>> pipeline('sentiment-analysis')\n",
+                "\n",
+                "        >>> # Question answering pipeline, specifying the checkpoint identifier\n",
+                "        >>> pipeline('question-answering', model='distilbert-base-cased-distilled-squad', tokenizer='bert-base-cased')\n",
+                "\n",
+                "        >>> # Named entity recognition pipeline, passing in a specific model and tokenizer\n",
+                "        >>> model = AutoModelForTokenClassification.from_pretrained(\"dbmdz/bert-large-cased-finetuned-conll03-english\")\n",
+                "        >>> tokenizer = AutoTokenizer.from_pretrained(\"bert-base-cased\")\n",
+                "        >>> pipeline('ner', model=model, tokenizer=tokenizer)\n",
+                "    \"\"\"\n",
+                "    if model_kwargs is None:\n",
+                "        model_kwargs = {}\n",
+                "\n",
+                "    if task is None and model is None:\n",
+                "        raise RuntimeError(\n",
+                "            \"Impossible to instantiate a pipeline without either a task or a model\"\n",
+                "            \"being specified.\"\n",
+                "            \"Please provide a task class or a model\"\n",
+                "        )\n",
+                "\n",
+                "    if model is None and tokenizer is not None:\n",
+                "        raise RuntimeError(\n",
+                "            \"Impossible to instantiate a pipeline with tokenizer specified but not the model \"\n",
+                "            \"as the provided tokenizer may not be compatible with the default model. \"\n",
+                "            \"Please provide a PreTrainedModel class or a path/identifier to a pretrained model when providing tokenizer.\"\n",
+                "        )\n",
+                "    if model is None and feature_extractor is not None:\n",
+                "        raise RuntimeError(\n",
+                "            \"Impossible to instantiate a pipeline with feature_extractor specified but not the model \"\n",
+                "            \"as the provided feature_extractor may not be compatible with the default model. \"\n",
+                "            \"Please provide a PreTrainedModel class or a path/identifier to a pretrained model when providing feature_extractor.\"\n",
+                "        )\n",
+                "\n",
+                "    if task is None and model is not None:\n",
+                "        if not isinstance(model, str):\n",
+                "            raise RuntimeError(\n",
+                "                \"Inferring the task automatically requires to check the hub with a model_id defined as a `str`.\"\n",
+                "                f\"{model} is not a valid model_id.\"\n",
+                "            )\n",
+                "        task = get_task(model, use_auth_token)\n",
+                "\n",
+                "    # Retrieve the task\n",
+                "    targeted_task, task_options = check_task(task)\n",
+                "    if pipeline_class is None:\n",
+                "        pipeline_class = targeted_task[\"impl\"]\n",
+                "\n",
+                "    # Use default model/config/tokenizer for the task if no model is provided\n",
+                "    if model is None:\n",
+                "        # At that point framework might still be undetermined\n",
+                "        model = get_default_model(targeted_task, framework, task_options)\n",
+                "        logger.warning(f\"No model was supplied, defaulted to {model} (https://huggingface.co/{model})\")\n",
+                "\n",
+                "    # Retrieve use_auth_token and add it to model_kwargs to be used in .from_pretrained\n",
+                "    model_kwargs[\"use_auth_token\"] = model_kwargs.get(\"use_auth_token\", use_auth_token)\n",
+                "\n",
+                "    # Config is the primordial information item.\n",
+                "    # Instantiate config if needed\n",
+                "    if isinstance(config, str):\n",
+                "        config = AutoConfig.from_pretrained(config, revision=revision, _from_pipeline=task, **model_kwargs)\n",
+                "    elif config is None and isinstance(model, str):\n",
+                "        config = AutoConfig.from_pretrained(model, revision=revision, _from_pipeline=task, **model_kwargs)\n",
+                "\n",
+                "    model_name = model if isinstance(model, str) else None\n",
+                "\n",
+                "    # Infer the framework from the model\n",
+                "    # Forced if framework already defined, inferred if it's None\n",
+                "    # Will load the correct model if possible\n",
+                "    model_classes = {\"tf\": targeted_task[\"tf\"], \"pt\": targeted_task[\"pt\"]}\n",
+                "    framework, model = infer_framework_load_model(\n",
+                "        model,\n",
+                "        model_classes=model_classes,\n",
+                "        config=config,\n",
+                "        framework=framework,\n",
+                "        revision=revision,\n",
+                "        task=task,\n",
+                "        **model_kwargs,\n",
+                "    )\n",
+                "\n",
+                "    model_config = model.config\n",
+                "\n",
+                "    load_tokenizer = type(model_config) in TOKENIZER_MAPPING or model_config.tokenizer_class is not None\n",
+                "    load_feature_extractor = type(model_config) in FEATURE_EXTRACTOR_MAPPING or feature_extractor is not None\n",
+                "\n",
+                "    if task in {\"audio-classification\"}:\n",
+                "        # Audio classification will never require a tokenizer.\n",
+                "        # the model on the other hand might have a tokenizer, but\n",
+                "        # the files could be missing from the hub, instead of failing\n",
+                "        # on such repos, we just force to not load it.\n",
+                "        load_tokenizer = False\n",
+                "\n",
+                "    if load_tokenizer:\n",
+                "        # Try to infer tokenizer from model or config name (if provided as str)\n",
+                "        if tokenizer is None:\n",
+                "            if isinstance(model_name, str):\n",
+                "                tokenizer = model_name\n",
+                "            elif isinstance(config, str):\n",
+                "                tokenizer = config\n",
+                "            else:\n",
+                "                # Impossible to guess what is the right tokenizer here\n",
+                "                raise Exception(\n",
+                "                    \"Impossible to guess which tokenizer to use. \"\n",
+                "                    \"Please provide a PreTrainedTokenizer class or a path/identifier to a pretrained tokenizer.\"\n",
+                "                )\n",
+                "\n",
+                "        # Instantiate tokenizer if needed\n",
+                "        if isinstance(tokenizer, (str, tuple)):\n",
+                "            if isinstance(tokenizer, tuple):\n",
+                "                # For tuple we have (tokenizer name, {kwargs})\n",
+                "                use_fast = tokenizer[1].pop(\"use_fast\", use_fast)\n",
+                "                tokenizer_identifier = tokenizer[0]\n",
+                "                tokenizer_kwargs = tokenizer[1]\n",
+                "            else:\n",
+                "                tokenizer_identifier = tokenizer\n",
+                "                tokenizer_kwargs = model_kwargs\n",
+                "\n",
+                "            tokenizer = AutoTokenizer.from_pretrained(\n",
+                "                tokenizer_identifier, revision=revision, use_fast=use_fast, _from_pipeline=task, **tokenizer_kwargs\n",
+                "            )\n",
+                "\n",
+                "    if load_feature_extractor:\n",
+                "        # Try to infer feature extractor from model or config name (if provided as str)\n",
+                "        if feature_extractor is None:\n",
+                "            if isinstance(model_name, str):\n",
+                "                feature_extractor = model_name\n",
+                "            elif isinstance(config, str):\n",
+                "                feature_extractor = config\n",
+                "            else:\n",
+                "                # Impossible to guess what is the right feature_extractor here\n",
+                "                raise Exception(\n",
+                "                    \"Impossible to guess which feature extractor to use. \"\n",
+                "                    \"Please provide a PreTrainedFeatureExtractor class or a path/identifier \"\n",
+                "                    \"to a pretrained feature extractor.\"\n",
+                "                )\n",
+                "\n",
+                "        # Instantiate feature_extractor if needed\n",
+                "        if isinstance(feature_extractor, (str, tuple)):\n",
+                "            feature_extractor = AutoFeatureExtractor.from_pretrained(\n",
+                "                feature_extractor, revision=revision, _from_pipeline=task, **model_kwargs\n",
+                "            )\n",
+                "\n",
+                "    if task == \"translation\" and model.config.task_specific_params:\n",
+                "        for key in model.config.task_specific_params:\n",
+                "            if key.startswith(\"translation\"):\n",
+                "                task = key\n",
+                "                warnings.warn(\n",
+                "                    f'\"translation\" task was used, instead of \"translation_XX_to_YY\", defaulting to \"{task}\"',\n",
+                "                    UserWarning,\n",
+                "                )\n",
+                "                break\n",
+                "\n",
+                "    if tokenizer is not None:\n",
+                "        kwargs[\"tokenizer\"] = tokenizer\n",
+                "\n",
+                "    if feature_extractor is not None:\n",
+                "        kwargs[\"feature_extractor\"] = feature_extractor\n",
+                "\n",
+                "    return pipeline_class(model=model, framework=framework, task=task, **kwargs)"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            5,
+            4,
+            6,
+            0,
+            1,
+            2,
+            3
+        ],
+        [
+            5,
+            4,
+            6,
+            2,
+            3,
+            0,
+            1
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                5,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "To implement 0, therefore must import in 1",
+            "scenario of 0 -> 1": "user may first use `List` in edit 0, then driven by error, import it in edit 1",
+            "scenario of 1 -> 0": "user may first import it in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "refactor",
+            "scenario of 0 -> 1": "user may first refactor code as a new method in edit 0, then replace the origianl implementation in edit 1",
+            "scenario of 1 -> 0": "user may first refactor at edit 1, then move code to edit 0 as a new function"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "refactor",
+            "scenario of 0 -> 1": "user may first refactor code as a new method in edit 0, then replace the origianl implementation in edit 1",
+            "scenario of 1 -> 0": "user may first refactor at edit 1, then move code to edit 0 as a new function"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "refactor",
+            "scenario of 0 -> 1": "user may first refactor code as a new method in edit 0, then replace the origianl implementation in edit 1",
+            "scenario of 1 -> 0": "user may first refactor at edit 1, then move code to edit 0 as a new function"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "update import",
+            "scenario of 0 -> 1": "user may import functions first in edit 0, then use them in edit 1",
+            "scenario of 1 -> 0": "user may first use functions in edit 1, then driven by errors, import them in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "update import",
+            "scenario of 0 -> 1": "user may import functions first in edit 0, then use them in edit 1",
+            "scenario of 1 -> 0": "user may first use functions in edit 1, then driven by errors, import them in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same refactor",
+            "scenario of 0 -> 1": "order irrelevant",
+            "scenario of 1 -> 0": "order irrelevant"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "define and import",
+            "scenario of 0 -> 1": "import before define",
+            "scenario of 1 -> 0": "define before import"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "define and import",
+            "scenario of 0 -> 1": "import before define",
+            "scenario of 1 -> 0": "define before import"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same refactor",
+            "scenario of 0 -> 1": "order irrelevant",
+            "scenario of 1 -> 0": "order irrelevant"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same refactor",
+            "scenario of 0 -> 1": "order irrelevant",
+            "scenario of 1 -> 0": "order irrelevant"
+        }
+    ]
+}
