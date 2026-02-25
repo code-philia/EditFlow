@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits add identical validation logic using `tf_utils.can_jit_compile(warn=True)` to check if JIT compilation is available before setting jit_compile values. This represents a synchronized pattern where the same validation check is being added to two different locations that handle jit_compile settings. The edits perform the same structural substitution (adding the same validation pattern) and target the same type of construct (jit_compile value handling). This appears to be part of a single refactoring task to add consistent validation across all jit_compile handling locations."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits add identical validation logic using `tf_utils.can_jit_compile(warn=True)` to check if JIT compilation is available before setting jit_compile values. This represents a synchronized pattern where the same validation check is being added to two different locations that handle jit_compile settings. The edits perform the same structural substitution (adding the same validation pattern) and target the same type of construct (jit_compile value handling). This appears to be part of a single refactoring task to add consistent validation across all jit_compile handling locations."
+        },
+        {
+            "src": 0,
+            "tgt": 8,
+            "reason": "Edit 0 calls tf_utils.can_jit_compile(warn=True) in the training.py file, while Edit 1 adds test cases that call tf_utils.can_jit_compile() in the test file. Both edits reference the exact same function symbol 'tf_utils.can_jit_compile', creating a direct code linkage. The test code is specifically testing the behavior of the function being used in the production code. This represents a test-production code synchronization pattern where one edit uses a function and another edit tests that exact same function. Either edit could be made first - the production code can call the function and the tests can verify its behavior independently, making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 0,
+            "reason": "Edit 0 calls tf_utils.can_jit_compile(warn=True) in the training.py file, while Edit 1 adds test cases that call tf_utils.can_jit_compile() in the test file. Both edits reference the exact same function symbol 'tf_utils.can_jit_compile', creating a direct code linkage. The test code is specifically testing the behavior of the function being used in the production code. This represents a test-production code synchronization pattern where one edit uses a function and another edit tests that exact same function. Either edit could be made first - the production code can call the function and the tests can verify its behavior independently, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 1 defines a new function `can_jit_compile` with parameter `warn`, and Edit 0 calls this exact same function with the same parameter name `tf_utils.can_jit_compile(warn=True)`. The changed lines reference the exact same symbol - the function `can_jit_compile` and its parameter `warn`. After defining the function in Edit 1, Edit 0 becomes the immediate next step to use it, and vice versa - after adding the usage in Edit 0, defining the function in Edit 1 becomes necessary. Both edits can be written and parsed in either order (the usage would just cause a runtime NameError if the function doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 1 defines a new function `can_jit_compile` with parameter `warn`, and Edit 0 calls this exact same function with the same parameter name `tf_utils.can_jit_compile(warn=True)`. The changed lines reference the exact same symbol - the function `can_jit_compile` and its parameter `warn`. After defining the function in Edit 1, Edit 0 becomes the immediate next step to use it, and vice versa - after adding the usage in Edit 0, defining the function in Edit 1 becomes necessary. Both edits can be written and parsed in either order (the usage would just cause a runtime NameError if the function doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 adds a call to `tf_utils.can_jit_compile(warn=True)` in the training.py file, while Edit 1 adds test cases that call `tf_utils.can_jit_compile()` in the test file. Both edits reference the exact same function symbol `tf_utils.can_jit_compile`, creating a direct code dependency. The production code edit introduces usage of this function, and the test edit adds test coverage for the same function. This represents a test-production code synchronization pattern where both edits reference the same symbol and either could naturally prompt the other as the next step in development."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 adds a call to `tf_utils.can_jit_compile(warn=True)` in the training.py file, while Edit 1 adds test cases that call `tf_utils.can_jit_compile()` in the test file. Both edits reference the exact same function symbol `tf_utils.can_jit_compile`, creating a direct code dependency. The production code edit introduces usage of this function, and the test edit adds test coverage for the same function. This represents a test-production code synchronization pattern where both edits reference the same symbol and either could naturally prompt the other as the next step in development."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 1 defines a new function `can_jit_compile` with parameter `warn`, and Edit 0 calls this exact same function with the same parameter name (`tf_utils.can_jit_compile(warn=True)`). The changed lines in Edit 0 explicitly reference the exact same symbol being defined in Edit 1. This creates an immediate, mechanically obvious code dependency where defining the function naturally prompts its usage, and using the function requires its definition. Both edits can be staged in either order in Python (the call would result in a runtime NameError if staged before the definition, but no parse-time syntax error), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new function `can_jit_compile` with parameter `warn`, and Edit 0 calls this exact same function with the same parameter name (`tf_utils.can_jit_compile(warn=True)`). The changed lines in Edit 0 explicitly reference the exact same symbol being defined in Edit 1. This creates an immediate, mechanically obvious code dependency where defining the function naturally prompts its usage, and using the function requires its definition. Both edits can be staged in either order in Python (the call would result in a runtime NameError if staged before the definition, but no parse-time syntax error), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports the 'platform' module, and Edit 1 uses that exact same 'platform' module in the newly added function. The changed lines in Edit 1 explicitly reference the platform module that was imported in Edit 0 (platform.system() and platform.processor()). This creates a direct import-usage relationship where both edits reference the exact same symbol. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports the 'platform' module, and Edit 1 uses that exact same 'platform' module in the newly added function. The changed lines in Edit 1 explicitly reference the platform module that was imported in Edit 0 (platform.system() and platform.processor()). This creates a direct import-usage relationship where both edits reference the exact same symbol. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 1 defines a new function `can_jit_compile` in `keras/utils/tf_utils.py`, and Edit 0 calls this exact same function via `tf_utils.can_jit_compile()` in the changed lines. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written and parsed before the definition exists (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 1 defines a new function `can_jit_compile` in `keras/utils/tf_utils.py`, and Edit 0 calls this exact same function via `tf_utils.can_jit_compile()` in the changed lines. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written and parsed before the definition exists (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import statement 'from absl import logging' at the top of the file, while Edit 1 adds a new function 'can_jit_compile' that uses 'logging.warning()' on line 685. The changed lines reference the exact same symbol 'logging' - Edit 0 imports it and Edit 1 uses it. This creates a direct code dependency where the import in Edit 0 enables the usage in Edit 1. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import statement 'from absl import logging' at the top of the file, while Edit 1 adds a new function 'can_jit_compile' that uses 'logging.warning()' on line 685. The changed lines reference the exact same symbol 'logging' - Edit 0 imports it and Edit 1 uses it. This creates a direct code dependency where the import in Edit 0 enables the usage in Edit 1. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 adds an import of the 'platform' module to keras/utils/tf_utils.py, while Edit 1 adds test code that uses platform.processor() and platform.system() functions. The test code in Edit 1 directly references and uses the platform module that is imported in Edit 0. However, these are in different files - the import is in the main module while the usage is in the test file. The test code patches platform functions, indicating it expects the platform module to be available in the tf_utils module being tested. This creates a cross-file definition-usage relationship where the import in tf_utils.py enables the functionality being tested in tf_utils_test.py. Since both edits reference the exact same 'platform' symbol and the test code depends on the platform module being available in the module under test, this represents a bi-directional relationship where either edit could prompt the other as the next logical step."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import of the 'platform' module to keras/utils/tf_utils.py, while Edit 1 adds test code that uses platform.processor() and platform.system() functions. The test code in Edit 1 directly references and uses the platform module that is imported in Edit 0. However, these are in different files - the import is in the main module while the usage is in the test file. The test code patches platform functions, indicating it expects the platform module to be available in the tf_utils module being tested. This creates a cross-file definition-usage relationship where the import in tf_utils.py enables the functionality being tested in tf_utils_test.py. Since both edits reference the exact same 'platform' symbol and the test code depends on the platform module being available in the module under test, this represents a bi-directional relationship where either edit could prompt the other as the next logical step."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 imports MagicMock and patch from unittest.mock, and Edit 1 uses these exact same imported symbols (MagicMock and patch) in the test methods. The changed lines in Edit 1 directly reference the symbols that were imported in Edit 0. This creates an immediate code dependency where the imports in Edit 0 enable the usage in Edit 1. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime/import time if the imports weren't present), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 imports MagicMock and patch from unittest.mock, and Edit 1 uses these exact same imported symbols (MagicMock and patch) in the test methods. The changed lines in Edit 1 directly reference the symbols that were imported in Edit 0. This creates an immediate code dependency where the imports in Edit 0 enable the usage in Edit 1. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime/import time if the imports weren't present), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new function `can_jit_compile` in the tf_utils module, while Edit 1 creates test cases that call `tf_utils.can_jit_compile()`. The changed lines in Edit 1 explicitly reference the exact same symbol that is being defined in Edit 0. This creates a definition-usage relationship where both edits reference the same fully qualified symbol. In Python, the test code can be written and parsed even if the function doesn't exist yet (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-usage pair."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new function `can_jit_compile` in the tf_utils module, while Edit 1 creates test cases that call `tf_utils.can_jit_compile()`. The changed lines in Edit 1 explicitly reference the exact same symbol that is being defined in Edit 0. This creates a definition-usage relationship where both edits reference the same fully qualified symbol. In Python, the test code can be written and parsed even if the function doesn't exist yet (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-usage pair."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

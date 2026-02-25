@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform an identical structural substitution pattern: removing `list()` wrapper from the return statement of similar shell utility functions. Both changed lines follow the exact same before\u2192after pattern (`return list(_get_shell().get_X())` \u2192 `return _get_shell().get_X()`) and target the same type of syntactic construct (return statements in shell utility functions). This represents a uniform refactoring operation that would naturally be performed as part of a single, contiguous micro-task to standardize the return behavior across these related functions."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern: removing `list()` wrapper from the return statement of similar shell utility functions. Both changed lines follow the exact same before\u2192after pattern (`return list(_get_shell().get_X())` \u2192 `return _get_shell().get_X()`) and target the same type of syntactic construct (return statements in shell utility functions). This represents a uniform refactoring operation that would naturally be performed as part of a single, contiguous micro-task to standardize the return behavior across these related functions."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "These edits are refactoring the same functionality by moving error handling logic from one location to another. Edit 0 removes the try-except block from the put_to_history function in __init__.py, while Edit 1 adds the same try-except logic to the put_to_history method in generic.py and creates a new _put_to_history method. Both edits reference the exact same put_to_history function/method and are part of a single refactoring operation where the error handling is being moved from the caller to the implementation. The changes are mechanically linked - removing the error handling from one location while adding it to another location for the same functionality. Either edit could be made first and would prompt the other as the next logical step to complete the refactoring."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "These edits are refactoring the same functionality by moving error handling logic from one location to another. Edit 0 removes the try-except block from the put_to_history function in __init__.py, while Edit 1 adds the same try-except logic to the put_to_history method in generic.py and creates a new _put_to_history method. Both edits reference the exact same put_to_history function/method and are part of a single refactoring operation where the error handling is being moved from the caller to the implementation. The changes are mechanically linked - removing the error handling from one location while adding it to another location for the same functionality. Either edit could be made first and would prompt the other as the next logical step to complete the refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same function `get_history()` in the same file. Edit 0 removes the `@memoize` decorator from the function definition, while Edit 1 changes the function body from returning `list(_get_shell().get_history())` to returning `_get_shell().get_history()` directly. These edits reference the exact same function symbol and appear to be part of a coordinated refactoring - removing memoization and simplifying the return value. The removal of the decorator and the change in return behavior are mechanically linked as part of the same micro-task of modifying this function's behavior. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `get_history()` in the same file. Edit 0 removes the `@memoize` decorator from the function definition, while Edit 1 changes the function body from returning `list(_get_shell().get_history())` to returning `_get_shell().get_history()` directly. These edits reference the exact same function symbol and appear to be part of a coordinated refactoring - removing memoization and simplifying the return value. The removal of the decorator and the change in return behavior are mechanically linked as part of the same micro-task of modifying this function's behavior. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports the sys module, and Edit 1 uses sys.exc_info() in the changed lines. The changed lines in Edit 1 explicitly reference the exact same symbol (sys) that was imported in Edit 0. This creates a direct import-usage relationship where the import in Edit 0 enables the usage in Edit 1. In Python, using an undefined import would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is syntactically valid even without the import present."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports the sys module, and Edit 1 uses sys.exc_info() in the changed lines. The changed lines in Edit 1 explicitly reference the exact same symbol (sys) that was imported in Edit 0. This creates a direct import-usage relationship where the import in Edit 0 enables the usage in Edit 1. In Python, using an undefined import would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is syntactically valid even without the import present."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 imports the `memoize` decorator from `..utils` and edit 1 uses that exact same `memoize` decorator to decorate the `get_history` method. The changed lines reference the exact same symbol - the `memoize` decorator. After importing `memoize` in edit 0, using it as a decorator in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows using undefined decorators (they would only fail at runtime/import time, not at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 imports the `memoize` decorator from `..utils` and edit 1 uses that exact same `memoize` decorator to decorate the `get_history` method. The changed lines reference the exact same symbol - the `memoize` decorator. After importing `memoize` in edit 0, using it as a decorator in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows using undefined decorators (they would only fail at runtime/import time, not at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import statement 'from .. import logs' at the top of the file. Edit 1 modifies the put_to_history method and includes a usage of 'logs.exception()' on line 45. The changed lines reference the exact same symbol 'logs' - edit 0 imports it and edit 1 uses it. This creates a direct code dependency where the import in edit 0 enables the usage in edit 1. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import statement 'from .. import logs' at the top of the file. Edit 1 modifies the put_to_history method and includes a usage of 'logs.exception()' on line 45. The changed lines reference the exact same symbol 'logs' - edit 0 imports it and edit 1 uses it. This creates a direct code dependency where the import in edit 0 enables the usage in edit 1. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so both edits can be staged in either order, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        8
+    ]
+}

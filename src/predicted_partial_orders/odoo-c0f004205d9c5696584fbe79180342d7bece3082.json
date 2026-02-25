@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the symbol 'root' from odoo.http, and Edit 1 uses that exact same symbol 'root' in the changed line (root.session_store.delete_sessions_for_uids). This creates a direct import-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'root' from odoo.http, and Edit 1 uses that exact same symbol 'root' in the changed line (root.session_store.delete_sessions_for_uids). This creates a direct import-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports 'root' from odoo.http, and Edit 1 uses 'root' in the changed lines (root.session_store.delete_sessions_for_uids). This is a classic import-usage pattern where the imported symbol 'root' is the exact same symbol referenced in both edits. The import creates the symbol availability, and the usage references that exact imported symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'root' from odoo.http, and Edit 1 uses 'root' in the changed lines (root.session_store.delete_sessions_for_uids). This is a classic import-usage pattern where the imported symbol 'root' is the exact same symbol referenced in both edits. The import creates the symbol availability, and the usage references that exact imported symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 1 defines the method `delete_sessions_for_uids` in the `OdooSessionStore` class, while Edit 0 calls this exact same method via `root.session_store.delete_sessions_for_uids(self.ids)`. The changed line in Edit 0 directly references the method being defined in Edit 1. This creates an immediate code dependency where defining the method enables its usage. Since this appears to be part of the same development session where a new method is being introduced and immediately used, and both edits can be parsed independently (the call in Edit 0 would only fail at runtime if the method doesn't exist), this is a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 1 defines the method `delete_sessions_for_uids` in the `OdooSessionStore` class, while Edit 0 calls this exact same method via `root.session_store.delete_sessions_for_uids(self.ids)`. The changed line in Edit 0 directly references the method being defined in Edit 1. This creates an immediate code dependency where defining the method enables its usage. Since this appears to be part of the same development session where a new method is being introduced and immediately used, and both edits can be parsed independently (the call in Edit 0 would only fail at runtime if the method doesn't exist), this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 calls the method `delete_sessions_for_uids` on `root.session_store` in line 393, but Edit 1 defines this exact method in the `OdooSessionStore` class. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. Edit 0 cannot function correctly without the method definition from Edit 1, but both edits can be parsed and staged independently (the call in Edit 0 would only fail at runtime with an AttributeError). Since this is Python and both edits can be written in either order without parser errors, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 calls the method `delete_sessions_for_uids` on `root.session_store` in line 393, but Edit 1 defines this exact method in the `OdooSessionStore` class. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. Edit 0 cannot function correctly without the method definition from Edit 1, but both edits can be parsed and staged independently (the call in Edit 0 would only fail at runtime with an AttributeError). Since this is Python and both edits can be written in either order without parser errors, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits remove references to the exact same attribute 'self.password' from the OpenERPSession class. Edit 0 removes the assignment 'self.password = password' in the authenticate method, while Edit 1 removes the usage 'self.password' in the security.check call within the check_security method. Since Edit 0 removes the definition/assignment of the password attribute and Edit 1 removes its usage, there is a direct code dependency - the usage in Edit 1 would fail with an AttributeError if Edit 0 is applied first (since self.password would no longer be set). However, both edits can be written and parsed independently, and the failure would only occur at runtime when check_security is called. According to the criteria, runtime errors (like AttributeError) make the relationship bi-directional rather than ordered, as both edits reference the exact same symbol 'self.password' and either edit naturally prompts the other as part of removing this attribute from the class."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits remove references to the exact same attribute 'self.password' from the OpenERPSession class. Edit 0 removes the assignment 'self.password = password' in the authenticate method, while Edit 1 removes the usage 'self.password' in the security.check call within the check_security method. Since Edit 0 removes the definition/assignment of the password attribute and Edit 1 removes its usage, there is a direct code dependency - the usage in Edit 1 would fail with an AttributeError if Edit 0 is applied first (since self.password would no longer be set). However, both edits can be written and parsed independently, and the failure would only occur at runtime when check_security is called. According to the criteria, runtime errors (like AttributeError) make the relationship bi-directional rather than ordered, as both edits reference the exact same symbol 'self.password' and either edit naturally prompts the other as part of removing this attribute from the class."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new class 'OdooSessionStore' and edit 1 changes a return statement to use that exact same class. The changed line in edit 1 directly references the class defined in edit 0. This creates an immediate code dependency where defining the class naturally prompts updating the usage, and vice versa - either edit can be made first since Python allows referencing undefined classes at parse time (only failing at runtime)."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new class 'OdooSessionStore' and edit 1 changes a return statement to use that exact same class. The changed line in edit 1 directly references the class defined in edit 0. This creates an immediate code dependency where defining the class naturally prompts updating the usage, and vice versa - either edit can be made first since Python allows referencing undefined classes at parse time (only failing at runtime)."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

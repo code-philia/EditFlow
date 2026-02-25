@@ -1,0 +1,82 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'repeat_same_time' within the same function (__init__). Edit 0 adds the parameter to the function signature, and Edit 1 assigns that parameter to an instance variable. This creates a direct code dependency where the parameter defined in Edit 0 is immediately used in Edit 1. This is a classic parameter definition \u2192 parameter usage pattern within the same function scope, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'repeat_same_time' within the same function (__init__). Edit 0 adds the parameter to the function signature, and Edit 1 assigns that parameter to an instance variable. This creates a direct code dependency where the parameter defined in Edit 0 is immediately used in Edit 1. This is a classic parameter definition \u2192 parameter usage pattern within the same function scope, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time' to related classes in what appears to be a synchronized parameter addition. Edit 0 adds the parameter assignment in LogRender.__init__, while Edit 1 adds the same parameter to the LogRender constructor call within RichHandler.__init__. The changed lines reference the same parameter name and appear to be part of a single refactoring task to thread this parameter through the logging system. This creates a direct structural dependency where both edits are adding the same parameter to maintain API consistency between the caller (RichHandler) and callee (LogRender)."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time' to related classes in what appears to be a synchronized parameter addition. Edit 0 adds the parameter assignment in LogRender.__init__, while Edit 1 adds the same parameter to the LogRender constructor call within RichHandler.__init__. The changed lines reference the same parameter name and appear to be part of a single refactoring task to thread this parameter through the logging system. This creates a direct structural dependency where both edits are adding the same parameter to maintain API consistency between the caller (RichHandler) and callee (LogRender)."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'repeat_same_time: bool = False' to the LogRender constructor, and Edit 1 uses this exact same parameter in a conditional check within the __call__ method. The changed line in Edit 1 explicitly references 'self.repeat_same_time', which is the same symbol being added in Edit 0. This creates a direct code dependency where adding the parameter in the constructor enables its usage in the method. Both edits reference the exact same symbol and either could be staged first without causing parse errors, making this a bi-directional relationship where one edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'repeat_same_time: bool = False' to the LogRender constructor, and Edit 1 uses this exact same parameter in a conditional check within the __call__ method. The changed line in Edit 1 explicitly references 'self.repeat_same_time', which is the same symbol being added in Edit 0. This creates a direct code dependency where adding the parameter in the constructor enables its usage in the method. Both edits reference the exact same symbol and either could be staged first without causing parse errors, making this a bi-directional relationship where one edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'repeat_same_time' parameter to the LogRender.__init__ method signature. Edit 1 passes this same parameter when calling LogRender() in the RichHandler.__init__ method. However, Edit 1 references a variable 'repeat_same_time' that is not defined in the RichHandler.__init__ method signature - this would cause a NameError at runtime. For Edit 1 to work properly, the 'repeat_same_time' parameter would need to be added to RichHandler.__init__ first. Since Edit 1 cannot be executed successfully without Edit 0 being present (the LogRender constructor would reject the unknown parameter), but Edit 0 can exist independently, this is an ordered relationship where Edit 0 must come before Edit 1."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time: bool = False' to constructor signatures in related logging classes. Edit 0 adds it to LogRender.__init__ and Edit 1 adds it to RichHandler.__init__. These appear to be part of a synchronized parameter addition across related classes in the same logging system, where both classes likely work together (RichHandler probably uses LogRender). This represents a mirrored/synchronized addition within the same context - both edits perform an identical structural substitution (adding the same parameter with same type and default value) to constructor signatures of related classes in the same feature area. Either edit could be made first, and after making either one, the other becomes the natural next step to maintain API consistency across the related logging classes."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time: bool = False' to constructor signatures in related logging classes. Edit 0 adds it to LogRender.__init__ and Edit 1 adds it to RichHandler.__init__. These appear to be part of a synchronized parameter addition across related classes in the same logging system, where both classes likely work together (RichHandler probably uses LogRender). This represents a mirrored/synchronized addition within the same context - both edits perform an identical structural substitution (adding the same parameter with same type and default value) to constructor signatures of related classes in the same feature area. Either edit could be made first, and after making either one, the other becomes the natural next step to maintain API consistency across the related logging classes."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new attribute 'repeat_same_time' to the LogRender class constructor, and Edit 1 uses that exact same attribute in a conditional statement. The changed line in Edit 0 assigns 'self.repeat_same_time = repeat_same_time' and the changed line in Edit 1 references 'self.repeat_same_time' in the condition. This creates an immediate code dependency where defining the attribute in the constructor enables its usage in the method. Both edits reference the exact same symbol (self.repeat_same_time) and either edit naturally prompts the other as the next mechanical step in implementing this feature."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new attribute 'repeat_same_time' to the LogRender class constructor, and Edit 1 uses that exact same attribute in a conditional statement. The changed line in Edit 0 assigns 'self.repeat_same_time = repeat_same_time' and the changed line in Edit 1 references 'self.repeat_same_time' in the condition. This creates an immediate code dependency where defining the attribute in the constructor enables its usage in the method. Both edits reference the exact same symbol (self.repeat_same_time) and either edit naturally prompts the other as the next mechanical step in implementing this feature."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time: bool = False' to the same class RichHandler - one edit adds it to the docstring documentation and the other adds it to the constructor signature. These are part of a single micro-task of adding a new parameter to a class, where both the documentation and implementation need to be updated together. The changed lines reference the exact same symbol (the repeat_same_time parameter) and either edit naturally prompts the other as the next mechanical step in the parameter addition process."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits add the exact same parameter 'repeat_same_time: bool = False' to the same class RichHandler - one edit adds it to the docstring documentation and the other adds it to the constructor signature. These are part of a single micro-task of adding a new parameter to a class, where both the documentation and implementation need to be updated together. The changed lines reference the exact same symbol (the repeat_same_time parameter) and either edit naturally prompts the other as the next mechanical step in the parameter addition process."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'repeat_same_time'. Edit 0 adds the parameter to the function signature, and Edit 1 uses that parameter in a function call within the same constructor. This creates a direct code dependency where the parameter defined in Edit 0 is immediately used in Edit 1. Both edits can be staged in either order without causing parse errors (the parameter usage in Edit 1 would only cause a runtime NameError if Edit 0 hasn't been applied, but both are syntactically valid). This represents a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'repeat_same_time'. Edit 0 adds the parameter to the function signature, and Edit 1 uses that parameter in a function call within the same constructor. This creates a direct code dependency where the parameter defined in Edit 0 is immediately used in Edit 1. Both edits can be staged in either order without causing parse errors (the parameter usage in Edit 1 would only cause a runtime NameError if Edit 0 hasn't been applied, but both are syntactically valid). This represents a classic definition-usage pattern within the same function scope."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

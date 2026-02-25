@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 adds 'wsgi' as a parameter to the function signature, and Edit 1 uses that same parameter to assign to self._wsgi. This creates a direct parameter definition-usage relationship where the parameter added in Edit 0 is immediately used in Edit 1. After making either edit, the other becomes the mechanically obvious next step to complete the parameter threading pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 adds 'wsgi' as a parameter to the function signature, and Edit 1 uses that same parameter to assign to self._wsgi. This creates a direct parameter definition-usage relationship where the parameter added in Edit 0 is immediately used in Edit 1. After making either edit, the other becomes the mechanically obvious next step to complete the parameter threading pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 adds 'wsgi' as a parameter to the function signature, and Edit 1 uses that same 'wsgi' parameter in a conditional expression. This creates a direct definition-usage relationship where the parameter defined in Edit 0 is immediately referenced in Edit 1. Since this is Python, both edits can be parsed and staged in either order (using an undefined parameter would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 adds 'wsgi' as a parameter to the function signature, and Edit 1 uses that same 'wsgi' parameter in a conditional expression. This creates a direct definition-usage relationship where the parameter defined in Edit 0 is immediately referenced in Edit 1. Since this is Python, both edits can be parsed and staged in either order (using an undefined parameter would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 assigns the wsgi parameter to self._wsgi, and edit 1 uses the wsgi parameter in a conditional expression. After making edit 0, the wsgi parameter becomes available for use in edit 1, and vice versa - both edits are part of the same parameter introduction and usage pattern within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'wsgi' within the same function (__init__ method of Application class). Edit 0 assigns the wsgi parameter to self._wsgi, and edit 1 uses the wsgi parameter in a conditional expression. After making edit 0, the wsgi parameter becomes available for use in edit 1, and vice versa - both edits are part of the same parameter introduction and usage pattern within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes the condition in web.py to check for 'debug' and 'not wsgi', introducing a dependency on a 'wsgi' parameter. Edit 1 adds 'wsgi=True' to the WSGIApplication constructor call to web.Application.__init__. The changed lines reference the exact same symbol 'wsgi' - edit 0 references it in the conditional check, and edit 1 passes it as a parameter. This creates a direct code dependency where edit 1 provides the wsgi parameter that edit 0 now requires. However, both edits can be parsed and staged independently - edit 0 would just reference an undefined parameter if staged first, causing a runtime error rather than a parse error. Therefore, this is bi-directional as either edit can be made first and naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes the condition in web.py to check for 'debug' and 'not wsgi', introducing a dependency on a 'wsgi' parameter. Edit 1 adds 'wsgi=True' to the WSGIApplication constructor call to web.Application.__init__. The changed lines reference the exact same symbol 'wsgi' - edit 0 references it in the conditional check, and edit 1 passes it as a parameter. This creates a direct code dependency where edit 1 provides the wsgi parameter that edit 0 now requires. However, both edits can be parsed and staged independently - edit 0 would just reference an undefined parameter if staged first, causing a runtime error rather than a parse error. Therefore, this is bi-directional as either edit can be made first and naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'wsgi' parameter with default value False to the Application.__init__ method signature. Edit 1 modifies the WSGIApplication.__init__ method to pass wsgi=True when calling the parent Application.__init__ method, and removes the line 'self._wsgi = True'. Both edits reference the exact same parameter 'wsgi' - one defines it in the parent class signature, the other uses it in the child class constructor call. This creates a direct code dependency where the child class is now using the newly added parameter from the parent class. Either edit could be made first and would create an immediate prompt for the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'wsgi' parameter with default value False to the Application.__init__ method signature. Edit 1 modifies the WSGIApplication.__init__ method to pass wsgi=True when calling the parent Application.__init__ method, and removes the line 'self._wsgi = True'. Both edits reference the exact same parameter 'wsgi' - one defines it in the parent class signature, the other uses it in the child class constructor call. This creates a direct code dependency where the child class is now using the newly added parameter from the parent class. Either edit could be made first and would create an immediate prompt for the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the Application.__init__ method to accept a 'wsgi' parameter and assign it to self._wsgi instead of hardcoding False. Edit 1 modifies WSGIApplication.__init__ to pass wsgi=True when calling the parent Application.__init__ method, and removes the line that was manually setting self._wsgi = True. These edits reference the exact same symbol (the wsgi parameter) and represent a coordinated refactor where the parameter is being threaded from the subclass to the parent class. The changes are mechanically linked - after making either edit, the other becomes the immediate next step to complete the parameter threading pattern. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the Application.__init__ method to accept a 'wsgi' parameter and assign it to self._wsgi instead of hardcoding False. Edit 1 modifies WSGIApplication.__init__ to pass wsgi=True when calling the parent Application.__init__ method, and removes the line that was manually setting self._wsgi = True. These edits reference the exact same symbol (the wsgi parameter) and represent a coordinated refactor where the parameter is being threaded from the subclass to the parent class. The changes are mechanically linked - after making either edit, the other becomes the immediate next step to complete the parameter threading pattern. Both edits can be staged in either order without causing parse errors."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

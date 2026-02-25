@@ -1,0 +1,29 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new function `matchpath` in utils.py, and Edit 0 calls that exact same function via `utils.matchpath()`. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, both edits can be written and parsed in either order (the usage would only fail at runtime/import time if the definition doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new function `matchpath` in utils.py, and Edit 0 calls that exact same function via `utils.matchpath()`. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, both edits can be written and parsed in either order (the usage would only fail at runtime/import time if the definition doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'spec' by adding the line 'spec = urllib.unquote(path)[len(self.server.craftanchor) + 1:]' at line 204. Edit 1 then references this exact same 'spec' variable in its changed lines with 'if key and not spec:' and 'spec = \"ws\"'. The variable 'spec' defined in edit 0 is the exact same symbol being used in edit 1. After making edit 0, the next logical step would be to handle the 'spec' variable appropriately, which is what edit 1 does. However, edit 1 can also be written and parsed without edit 0 being present first (it would just reference an undefined variable, causing a runtime NameError but not a parse error in Python). Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'spec' by adding the line 'spec = urllib.unquote(path)[len(self.server.craftanchor) + 1:]' at line 204. Edit 1 then references this exact same 'spec' variable in its changed lines with 'if key and not spec:' and 'spec = \"ws\"'. The variable 'spec' defined in edit 0 is the exact same symbol being used in edit 1. After making edit 0, the next logical step would be to handle the 'spec' variable appropriately, which is what edit 1 does. However, edit 1 can also be written and parsed without edit 0 being present first (it would just reference an undefined variable, causing a runtime NameError but not a parse error in Python). Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        5
+    ]
+}

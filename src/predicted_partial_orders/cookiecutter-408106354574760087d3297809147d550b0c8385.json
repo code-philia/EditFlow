@@ -1,0 +1,61 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the modules 'json' and 'os', while Edit 1 uses these exact same imported modules ('os.path.join' and 'json.dump') in the function implementation. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where importing the modules naturally prompts their usage, and using the modules requires their import. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (they only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the modules 'json' and 'os', while Edit 1 uses these exact same imported modules ('os.path.join' and 'json.dump') in the function implementation. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where importing the modules naturally prompts their usage, and using the modules requires their import. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (they only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are modifying the same mock object creation within the same test function. Edit 0 changes the variable name from 'spy_ensure' to 'mock_ensure' and changes the mocker method from 'spy' to 'patch'. Edit 1 adds a 'side_effect' parameter to the same mock object creation. These edits reference the exact same mock object being created and are part of a single refactoring operation - converting a spy to a patch with side effects. The changed lines are contiguous and form a single coherent modification to the same statement."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are modifying the same mock object creation within the same test function. Edit 0 changes the variable name from 'spy_ensure' to 'mock_ensure' and changes the mocker method from 'spy' to 'patch'. Edit 1 adds a 'side_effect' parameter to the same mock object creation. These edits reference the exact same mock object being created and are part of a single refactoring operation - converting a spy to a patch with side effects. The changed lines are contiguous and form a single coherent modification to the same statement."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'spy_json_dump' in their changed lines. Edit 0 changes how spy_json_dump is created (from string-based to object-based spying), and Edit 1 changes how spy_json_dump is asserted (from .called == 1 to .call_count == 1). The changed lines in both edits explicitly reference the same variable symbol. After making either edit, the other becomes a natural next step to maintain consistency in the test - if you change how the spy is created, you might also want to update how it's asserted, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'spy_json_dump' in their changed lines. Edit 0 changes how spy_json_dump is created (from string-based to object-based spying), and Edit 1 changes how spy_json_dump is asserted (from .called == 1 to .call_count == 1). The changed lines in both edits explicitly reference the same variable symbol. After making either edit, the other becomes a natural next step to maintain consistency in the test - if you change how the spy is created, you might also want to update how it's asserted, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the mock patch target from 'cookiecutter.config.get_user_config' to 'cookiecutter.replay.get_user_config' and modifies the return value structure. Edit 1 updates test assertions that reference the same mock object (mock_get_user_config) created in Edit 0, changing from .called to .call_count. Both edits reference the exact same mock object symbol (mock_get_user_config) - Edit 0 creates/configures it and Edit 1 uses it in assertions. This creates a direct code dependency where both edits are part of updating the same test method to work with the modified mock configuration."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the mock patch target from 'cookiecutter.config.get_user_config' to 'cookiecutter.replay.get_user_config' and modifies the return value structure. Edit 1 updates test assertions that reference the same mock object (mock_get_user_config) created in Edit 0, changing from .called to .call_count. Both edits reference the exact same mock object symbol (mock_get_user_config) - Edit 0 creates/configures it and Edit 1 uses it in assertions. This creates a direct code dependency where both edits are part of updating the same test method to work with the modified mock configuration."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol within the same test function. Edit 0 changes the variable name from 'spy_ensure' to 'mock_ensure' when creating the mock object, and Edit 1 updates the usage of that same variable from 'spy_ensure' to 'mock_ensure' in the assertion. This is a classic definition-usage relationship where the changed lines reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other to maintain consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol within the same test function. Edit 0 changes the variable name from 'spy_ensure' to 'mock_ensure' when creating the mock object, and Edit 1 updates the usage of that same variable from 'spy_ensure' to 'mock_ensure' in the assertion. This is a classic definition-usage relationship where the changed lines reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other to maintain consistency."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        3,
+        4,
+        5
+    ]
+}

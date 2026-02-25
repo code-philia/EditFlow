@@ -1,0 +1,80 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits remove references to the exact same symbol ATTR_DEHUMIDIFY_SUPPORTED. Edit 0 removes it from an import list, while Edit 1 removes its usage in a data update dictionary. Since both edits reference the same symbol and removing the import makes the usage invalid (NameError at runtime), while removing the usage makes the import unused, either edit naturally prompts the other as the next cleanup step. Both edits can be parsed and staged in either order - the import removal doesn't cause a syntax error, only a runtime NameError when the code executes."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits remove references to the exact same symbol ATTR_DEHUMIDIFY_SUPPORTED. Edit 0 removes it from an import list, while Edit 1 removes its usage in a data update dictionary. Since both edits reference the same symbol and removing the import makes the usage invalid (NameError at runtime), while removing the usage makes the import unused, either edit naturally prompts the other as the next cleanup step. Both edits can be parsed and staged in either order - the import removal doesn't cause a syntax error, only a runtime NameError when the code executes."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes the import of ATTR_DEHUMIDIFY_SUPPORTED from climate.py, while Edit 1 removes the definition of ATTR_DEHUMIDIFY_SUPPORTED from const.py. These edits reference the exact same symbol (ATTR_DEHUMIDIFY_SUPPORTED). Edit 1 must occur before Edit 0 because if we remove the import first (Edit 0), the symbol would still be defined in const.py but unused, whereas if we remove the definition first (Edit 1), the import in Edit 0 would reference an undefined symbol. However, in Python, removing an import of an undefined symbol doesn't cause a parse error - it would only cause a runtime ImportError when the import is executed. Since both edits can be staged and parsed in either order, this is a bi-directional relationship where both edits are part of the same cleanup operation removing an unused constant."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of ATTR_DEHUMIDIFY_SUPPORTED from climate.py, while Edit 1 removes the definition of ATTR_DEHUMIDIFY_SUPPORTED from const.py. These edits reference the exact same symbol (ATTR_DEHUMIDIFY_SUPPORTED). Edit 1 must occur before Edit 0 because if we remove the import first (Edit 0), the symbol would still be defined in const.py but unused, whereas if we remove the definition first (Edit 1), the import in Edit 0 would reference an undefined symbol. However, in Python, removing an import of an undefined symbol doesn't cause a parse error - it would only cause a runtime ImportError when the import is executed. Since both edits can be staged and parsed in either order, this is a bi-directional relationship where both edits are part of the same cleanup operation removing an unused constant."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits involve removing references to the exact same symbol ATTR_HUMIDIFY_SUPPORTED. Edit 0 removes it from an import list at the top of the file, while Edit 1 removes its usage in a data dictionary update. These are different aspects of removing the same symbol - the import and its usage. However, since both edits are removals and Python allows unused imports without parse errors, either edit can be made first. The removal of the import doesn't break the usage (it would just cause a NameError at runtime), and the removal of the usage doesn't break the import (it just becomes unused). Both edits reference the exact same symbol and are part of cleaning up ATTR_HUMIDIFY_SUPPORTED from the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits involve removing references to the exact same symbol ATTR_HUMIDIFY_SUPPORTED. Edit 0 removes it from an import list at the top of the file, while Edit 1 removes its usage in a data dictionary update. These are different aspects of removing the same symbol - the import and its usage. However, since both edits are removals and Python allows unused imports without parse errors, either edit can be made first. The removal of the import doesn't break the usage (it would just cause a NameError at runtime), and the removal of the usage doesn't break the import (it just becomes unused). Both edits reference the exact same symbol and are part of cleaning up ATTR_HUMIDIFY_SUPPORTED from the codebase."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 1 removes the definition of ATTR_HUMIDIFY_SUPPORTED from const.py, while Edit 0 removes the import/usage of ATTR_HUMIDIFY_SUPPORTED from climate.py. Both edits reference the exact same symbol (ATTR_HUMIDIFY_SUPPORTED). This is a definition-usage relationship where both edits are removing references to the same symbol as part of what appears to be a cleanup operation. Since both edits can be staged in either order (removing an import doesn't cause a parse error, and removing a definition doesn't cause a parse error), this is bi-directional. After making either edit, the other becomes the natural next step to complete the removal of this symbol from the codebase."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 1 removes the definition of ATTR_HUMIDIFY_SUPPORTED from const.py, while Edit 0 removes the import/usage of ATTR_HUMIDIFY_SUPPORTED from climate.py. Both edits reference the exact same symbol (ATTR_HUMIDIFY_SUPPORTED). This is a definition-usage relationship where both edits are removing references to the same symbol as part of what appears to be a cleanup operation. Since both edits can be staged in either order (removing an import doesn't cause a parse error, and removing a definition doesn't cause a parse error), this is bi-directional. After making either edit, the other becomes the natural next step to complete the removal of this symbol from the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes a reference to ATTR_HUMIDIFY_SUPPORTED in climate.py, while Edit 1 removes the definition of ATTR_HUMIDIFY_SUPPORTED in const.py. These edits reference the exact same symbol (ATTR_HUMIDIFY_SUPPORTED) and appear to be part of removing this constant and its usage. However, both edits can be staged in either order - removing the usage first would cause a NameError at runtime but not a parse error, and removing the definition first would also cause a NameError when the usage is executed. Since both edits can be written and parsed in either order (Python allows referencing undefined names at parse time), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 removes a reference to ATTR_HUMIDIFY_SUPPORTED in climate.py, while Edit 1 removes the definition of ATTR_HUMIDIFY_SUPPORTED in const.py. These edits reference the exact same symbol (ATTR_HUMIDIFY_SUPPORTED) and appear to be part of removing this constant and its usage. However, both edits can be staged in either order - removing the usage first would cause a NameError at runtime but not a parse error, and removing the definition first would also cause a NameError when the usage is executed. Since both edits can be written and parsed in either order (Python allows referencing undefined names at parse time), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits remove the exact same line 'dehumidify_supported': True, from different test data dictionaries within the same test function. This represents a bulk/pattern synchronization where identical structural changes are being made to the same type of syntactic construct (dictionary entries) as part of a single refactoring operation. The changes are mechanically identical and would naturally be performed together in one contiguous micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits remove the exact same line 'dehumidify_supported': True, from different test data dictionaries within the same test function. This represents a bulk/pattern synchronization where identical structural changes are being made to the same type of syntactic construct (dictionary entries) as part of a single refactoring operation. The changes are mechanically identical and would naturally be performed together in one contiguous micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution - removing the line 'humidify_supported': False, from dictionary structures within the same test function. This is a bulk-edit pattern where the same before\u2192after change (removal of the humidify_supported key-value pair) is applied to the same type of syntactic construct (dictionary literals) in a contiguous refactor. Both edits are part of the same micro-task of cleaning up or refactoring the test data structure, and either edit naturally prompts consideration of the other as part of the same uniform substitution pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution - removing the line 'humidify_supported': False, from dictionary structures within the same test function. This is a bulk-edit pattern where the same before\u2192after change (removal of the humidify_supported key-value pair) is applied to the same type of syntactic construct (dictionary literals) in a contiguous refactor. Both edits are part of the same micro-task of cleaning up or refactoring the test data structure, and either edit naturally prompts consideration of the other as part of the same uniform substitution pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        6,
+        5,
+        7
+    ]
+}

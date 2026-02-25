@@ -1,0 +1,187 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines two new constants ENTITY_DESC_KEY_MEASUREMENT and ENTITY_DESC_KEY_TOTAL_INCREASING in the const.py file. Edit 1 uses these exact same constants in return statements within the resolve_data method. The changed lines in edit 1 directly reference the symbols defined in edit 0's changed lines. This creates an immediate code dependency where defining the constants naturally prompts their usage, and using undefined constants would cause a NameError at runtime. Since Python allows referencing undefined symbols at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines two new constants ENTITY_DESC_KEY_MEASUREMENT and ENTITY_DESC_KEY_TOTAL_INCREASING in the const.py file. Edit 1 uses these exact same constants in return statements within the resolve_data method. The changed lines in edit 1 directly reference the symbols defined in edit 0's changed lines. This creates an immediate code dependency where defining the constants naturally prompts their usage, and using undefined constants would cause a NameError at runtime. Since Python allows referencing undefined symbols at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_MEASUREMENT in const.py, while Edit 1 imports and uses that exact same constant in discovery_data_template.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without causing parse errors (only runtime ImportError), so both edits can be staged in either order."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_MEASUREMENT in const.py, while Edit 1 imports and uses that exact same constant in discovery_data_template.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without causing parse errors (only runtime ImportError), so both edits can be staged in either order."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 defines two new constants ENTITY_DESC_KEY_MEASUREMENT and ENTITY_DESC_KEY_TOTAL_INCREASING in const.py. Edit 1 uses these exact same constants in sensor.py to create dictionary entries. The changed lines in edit 1 directly reference the symbols defined in edit 0. This creates an immediate code dependency where defining the constants naturally prompts their usage, and using them requires their prior definition. Both edits reference the exact same symbols and form a definition-usage pair."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 defines two new constants ENTITY_DESC_KEY_MEASUREMENT and ENTITY_DESC_KEY_TOTAL_INCREASING in const.py. Edit 1 uses these exact same constants in sensor.py to create dictionary entries. The changed lines in edit 1 directly reference the symbols defined in edit 0. This creates an immediate code dependency where defining the constants naturally prompts their usage, and using them requires their prior definition. Both edits reference the exact same symbols and form a definition-usage pair."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_MEASUREMENT in the const.py file, while Edit 1 imports and uses that exact same constant in the sensor.py file. The changed lines reference the exact same symbol - ENTITY_DESC_KEY_MEASUREMENT. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without causing parse errors (only runtime NameError), so both edits can be staged in either order. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_MEASUREMENT in the const.py file, while Edit 1 imports and uses that exact same constant in the sensor.py file. The changed lines reference the exact same symbol - ENTITY_DESC_KEY_MEASUREMENT. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without causing parse errors (only runtime NameError), so both edits can be staged in either order. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import for 'ElectricScale' to the imports section, while Edit 1 uses 'ElectricScale' in the code (ElectricScale.PULSE, ElectricScale.KILOVOLT_AMPERE_HOUR, etc.). This is a classic import-usage relationship where both edits reference the exact same symbol 'ElectricScale'. The import makes the symbol available, and the usage references that imported symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds an import for 'ElectricScale' to the imports section, while Edit 1 uses 'ElectricScale' in the code (ElectricScale.PULSE, ElectricScale.KILOVOLT_AMPERE_HOUR, etc.). This is a classic import-usage relationship where both edits reference the exact same symbol 'ElectricScale'. The import makes the symbol available, and the usage references that imported symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_TOTAL_INCREASING in const.py, and Edit 1 imports/uses that exact same constant in discovery_data_template.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without parser errors (only runtime NameError), so both edits can be staged in either order. This creates a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_TOTAL_INCREASING in const.py, and Edit 1 imports/uses that exact same constant in discovery_data_template.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to import and use it. However, in Python, imports can reference undefined symbols without parser errors (only runtime NameError), so both edits can be staged in either order. This creates a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_TOTAL_INCREASING in const.py, and Edit 1 imports/uses that exact same constant in sensor.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use it. However, in Python, importing an undefined symbol is allowed at parse time and only fails at runtime with a NameError. Both edits can be written and staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ENTITY_DESC_KEY_TOTAL_INCREASING in const.py, and Edit 1 imports/uses that exact same constant in sensor.py. The changed lines reference the exact same symbol. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use it. However, in Python, importing an undefined symbol is allowed at parse time and only fails at runtime with a NameError. Both edits can be written and staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list, and Edit 1 uses that exact same symbol in a return statement. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage would only fail at runtime (NameError) if the import is missing, not at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list, and Edit 1 uses that exact same symbol in a return statement. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage would only fail at runtime (NameError) if the import is missing, not at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses that exact same symbol in a return statement. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage would only fail at runtime/import time (not at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses that exact same symbol in a return statement. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage would only fail at runtime/import time (not at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits add the exact same import line 'ENTITY_DESC_KEY_MEASUREMENT' in the same position within import lists in different files. This represents a bulk/pattern synchronization where both files are being updated with identical structural changes as part of the same refactoring operation. The edits perform identical textual substitution (adding the same import) on the same type of syntactic construct (import lists). Either edit can be made first, and both are part of a single contiguous refactor to add the same symbol to multiple files."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits add the exact same import line 'ENTITY_DESC_KEY_MEASUREMENT' in the same position within import lists in different files. This represents a bulk/pattern synchronization where both files are being updated with identical structural changes as part of the same refactoring operation. The edits perform identical textual substitution (adding the same import) on the same type of syntactic construct (import lists). Either edit can be made first, and both are part of a single contiguous refactor to add the same symbol to multiple files."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list in discovery_data_template.py, while Edit 1 uses ENTITY_DESC_KEY_MEASUREMENT in a dictionary definition in sensor.py. These edits reference the exact same symbol (ENTITY_DESC_KEY_MEASUREMENT), and there is a direct definition-usage relationship where the import makes the symbol available for use in the dictionary. After making either edit, the other becomes the immediate next step to complete the functionality - importing the symbol enables its usage, and using the symbol requires it to be imported. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined symbols at parse time, with errors only occurring at runtime/import time)."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list in discovery_data_template.py, while Edit 1 uses ENTITY_DESC_KEY_MEASUREMENT in a dictionary definition in sensor.py. These edits reference the exact same symbol (ENTITY_DESC_KEY_MEASUREMENT), and there is a direct definition-usage relationship where the import makes the symbol available for use in the dictionary. After making either edit, the other becomes the immediate next step to complete the functionality - importing the symbol enables its usage, and using the symbol requires it to be imported. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined symbols at parse time, with errors only occurring at runtime/import time)."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses ENTITY_DESC_KEY_TOTAL_INCREASING in a ZwaveSensorEntityDescription constructor. The changed lines reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING). After adding the import in Edit 0, using it in Edit 1 becomes the natural next step. However, in Python, using an undefined symbol in a dictionary definition only causes a runtime NameError, not a parse-time syntax error, so both edits can be staged in either order. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses ENTITY_DESC_KEY_TOTAL_INCREASING in a ZwaveSensorEntityDescription constructor. The changed lines reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING). After adding the import in Edit 0, using it in Edit 1 becomes the natural next step. However, in Python, using an undefined symbol in a dictionary definition only causes a runtime NameError, not a parse-time syntax error, so both edits can be staged in either order. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution - adding 'ENTITY_DESC_KEY_TOTAL_INCREASING,' to import lists in the same position (after ENTITY_DESC_KEY_TIMESTAMP and before ENTITY_DESC_KEY_VOLTAGE). This is a uniform multi-file substitution pattern where the same import is being added to multiple files that use the same constants. Both edits target the same type of syntactic construct (import lists) with identical before\u2192after patterns. Either edit can be made first, and after making either, the other becomes a natural next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution - adding 'ENTITY_DESC_KEY_TOTAL_INCREASING,' to import lists in the same position (after ENTITY_DESC_KEY_TIMESTAMP and before ENTITY_DESC_KEY_VOLTAGE). This is a uniform multi-file substitution pattern where the same import is being added to multiple files that use the same constants. Both edits target the same type of syntactic construct (import lists) with identical before\u2192after patterns. Either edit can be made first, and after making either, the other becomes a natural next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new return value 'ENTITY_DESC_KEY_MEASUREMENT' in the resolve_data method, while Edit 1 adds the import of this same constant to the sensor.py file. The changed line in Edit 0 returns ENTITY_DESC_KEY_MEASUREMENT, and the changed line in Edit 1 imports ENTITY_DESC_KEY_MEASUREMENT. Both edits reference the exact same symbol. After making Edit 0, the code would reference an undefined symbol unless Edit 1 is also made to import it. After making Edit 1, the import would be unused unless Edit 0 is also made to use it. This creates an immediate, mechanically obvious code-driven prompt for the companion edit, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new return value 'ENTITY_DESC_KEY_MEASUREMENT' in the resolve_data method, while Edit 1 adds the import of this same constant to the sensor.py file. The changed line in Edit 0 returns ENTITY_DESC_KEY_MEASUREMENT, and the changed line in Edit 1 imports ENTITY_DESC_KEY_MEASUREMENT. Both edits reference the exact same symbol. After making Edit 0, the code would reference an undefined symbol unless Edit 1 is also made to import it. After making Edit 1, the import would be unused unless Edit 0 is also made to use it. This creates an immediate, mechanically obvious code-driven prompt for the companion edit, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new return value 'ENTITY_DESC_KEY_TOTAL_INCREASING' in the resolve_data method, while Edit 1 adds the same constant to an import list in a different file. These edits reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING) where Edit 0 uses/returns it and Edit 1 imports it. This creates a direct code dependency - after adding the usage in Edit 0, the import in Edit 1 becomes the immediate next step to make the code functional, or vice versa. Both edits can be staged in either order (Python allows referencing undefined imports at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new return value 'ENTITY_DESC_KEY_TOTAL_INCREASING' in the resolve_data method, while Edit 1 adds the same constant to an import list in a different file. These edits reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING) where Edit 0 uses/returns it and Edit 1 imports it. This creates a direct code dependency - after adding the usage in Edit 0, the import in Edit 1 becomes the immediate next step to make the code functional, or vice versa. Both edits can be staged in either order (Python allows referencing undefined imports at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list, while Edit 1 uses that same symbol to create a dictionary entry with ZwaveSensorEntityDescription. The changed lines in both edits reference the exact same symbol (ENTITY_DESC_KEY_MEASUREMENT). After adding the import in Edit 0, using it in Edit 1 becomes the immediate next step. However, in Python, the usage in Edit 1 could be written before the import in Edit 0 (it would only fail at runtime with a NameError, not at parse time), so either edit can be staged first. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_MEASUREMENT to an import list, while Edit 1 uses that same symbol to create a dictionary entry with ZwaveSensorEntityDescription. The changed lines in both edits reference the exact same symbol (ENTITY_DESC_KEY_MEASUREMENT). After adding the import in Edit 0, using it in Edit 1 becomes the immediate next step. However, in Python, the usage in Edit 1 could be written before the import in Edit 0 (it would only fail at runtime with a NameError, not at parse time), so either edit can be staged first. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses that exact same symbol to create a ZwaveSensorEntityDescription entry in a dictionary. The changed lines in both edits reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING). After making either edit, the other becomes the immediate next step - if you import the symbol, you naturally want to use it, and if you try to use it, you need to import it first. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the import is missing), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 adds ENTITY_DESC_KEY_TOTAL_INCREASING to an import list, while Edit 1 uses that exact same symbol to create a ZwaveSensorEntityDescription entry in a dictionary. The changed lines in both edits reference the exact same symbol (ENTITY_DESC_KEY_TOTAL_INCREASING). After making either edit, the other becomes the immediate next step - if you import the symbol, you naturally want to use it, and if you try to use it, you need to import it first. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the import is missing), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 introduces new return values ENTITY_DESC_KEY_TOTAL_INCREASING and ENTITY_DESC_KEY_MEASUREMENT in the resolve_data method, while Edit 1 defines the corresponding ZwaveSensorEntityDescription objects for these exact same keys in the ENTITY_DESCRIPTIONS dictionary. The changed lines in Edit 0 return these specific keys, and the changed lines in Edit 1 define what these keys map to. This creates a direct definition-usage relationship where both edits reference the exact same symbols (ENTITY_DESC_KEY_TOTAL_INCREASING and ENTITY_DESC_KEY_MEASUREMENT). Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate code-driven prompt for the other to complete the functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 introduces new return values ENTITY_DESC_KEY_TOTAL_INCREASING and ENTITY_DESC_KEY_MEASUREMENT in the resolve_data method, while Edit 1 defines the corresponding ZwaveSensorEntityDescription objects for these exact same keys in the ENTITY_DESCRIPTIONS dictionary. The changed lines in Edit 0 return these specific keys, and the changed lines in Edit 1 define what these keys map to. This creates a direct definition-usage relationship where both edits reference the exact same symbols (ENTITY_DESC_KEY_TOTAL_INCREASING and ENTITY_DESC_KEY_MEASUREMENT). Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate code-driven prompt for the other to complete the functionality."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

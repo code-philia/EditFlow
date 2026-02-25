@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'LOG_LEVEL' in their changed lines. Edit 0 defines/assigns the LOG_LEVEL variable, while Edit 1 uses that same LOG_LEVEL variable in a conditional expression. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined LOG_LEVEL. After making Edit 1, Edit 0 would be needed to define the referenced LOG_LEVEL. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'LOG_LEVEL' in their changed lines. Edit 0 defines/assigns the LOG_LEVEL variable, while Edit 1 uses that same LOG_LEVEL variable in a conditional expression. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined LOG_LEVEL. After making Edit 1, Edit 0 would be needed to define the referenced LOG_LEVEL. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the same symbol LOG_LEVEL. Edit 0 adds a parameter that uses LOG_LEVEL in a comparison (LOG_LEVEL == logging.DEBUG), and edit 1 changes a line to directly use LOG_LEVEL instead of the previous LOG_LEVELS.get() expression. The changed lines in both edits explicitly reference the exact same symbol LOG_LEVEL, creating a direct code linkage. Either edit could be made first and would naturally prompt consideration of the other as they both involve the same logging level configuration symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the same symbol LOG_LEVEL. Edit 0 adds a parameter that uses LOG_LEVEL in a comparison (LOG_LEVEL == logging.DEBUG), and edit 1 changes a line to directly use LOG_LEVEL instead of the previous LOG_LEVELS.get() expression. The changed lines in both edits explicitly reference the exact same symbol LOG_LEVEL, creating a direct code linkage. Either edit could be made first and would naturally prompt consideration of the other as they both involve the same logging level configuration symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new variable LOG_LEVEL with the value LOG_LEVELS.get(log_settings.log_level.lower(), logging.INFO), and Edit 1 replaces the exact same expression LOG_LEVELS.get(log_settings.log_level.lower(), logging.INFO) with a reference to the newly defined LOG_LEVEL variable. This is a classic extract-variable refactoring where the definition must exist before it can be used. The changed lines reference the exact same symbol (LOG_LEVEL) - one defines it and the other uses it. Since LOG_LEVEL doesn't exist until Edit 0 creates it, Edit 1 would cause a NameError if executed before Edit 0."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 defines a variable 'pad_token' by extracting it from self.tokenizer_cfg, and edit 1 uses that exact same 'pad_token' variable as an argument to self.tokenizer.token_to_id(). Both edits are within the same method (_load) and the changed lines reference the exact same symbol. After making edit 0, the pad_token variable becomes available for use in edit 1. After making edit 1, there's an immediate need for the pad_token variable to be defined in edit 0. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same uninterrupted micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 defines a variable 'pad_token' by extracting it from self.tokenizer_cfg, and edit 1 uses that exact same 'pad_token' variable as an argument to self.tokenizer.token_to_id(). Both edits are within the same method (_load) and the changed lines reference the exact same symbol. After making edit 0, the pad_token variable becomes available for use in edit 1. After making edit 1, there's an immediate need for the pad_token variable to be defined in edit 0. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same uninterrupted micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "These edits are part of a single refactoring operation that adds type annotations to variable declarations in the same function. Edit 0 adds type annotations to `text_cfg`, `context_length`, and `pad_token` variables, while Edit 1 removes the old untyped declarations of `context_length` and `pad_token` (which were added with types in Edit 0) and adds a type annotation to the `size` variable. The edits reference the exact same symbols (`context_length` and `pad_token`) and represent a coordinated refactoring to add type hints throughout the function. This is a clear case of synchronized pattern substitution where both edits are part of the same contiguous micro-task of adding type annotations."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These edits are part of a single refactoring operation that adds type annotations to variable declarations in the same function. Edit 0 adds type annotations to `text_cfg`, `context_length`, and `pad_token` variables, while Edit 1 removes the old untyped declarations of `context_length` and `pad_token` (which were added with types in Edit 0) and adds a type annotation to the `size` variable. The edits reference the exact same symbols (`context_length` and `pad_token`) and represent a coordinated refactoring to add type hints throughout the function. This is a clear case of synchronized pattern substitution where both edits are part of the same contiguous micro-task of adding type annotations."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes the line that defines 'pad_token' variable, while Edit 1 still references 'pad_token' in the changed line. After Edit 0 is applied, the 'pad_token' variable is no longer defined, making Edit 1's reference to 'pad_token' result in a NameError at runtime. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be written and parsed in either order. The relationship is bi-directional because both edits reference the exact same symbol 'pad_token' - one removes its definition and the other uses it, creating an immediate code-driven prompt for the complementary action."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes the line that defines 'pad_token' variable, while Edit 1 still references 'pad_token' in the changed line. After Edit 0 is applied, the 'pad_token' variable is no longer defined, making Edit 1's reference to 'pad_token' result in a NameError at runtime. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be written and parsed in either order. The relationship is bi-directional because both edits reference the exact same symbol 'pad_token' - one removes its definition and the other uses it, creating an immediate code-driven prompt for the complementary action."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "These edits involve the exact same string literals being moved from one set (MULTILINGUAL_MODELS) to another set (SUPPORTED_MODELS) within the same file. Edit 0 adds three specific model names to SUPPORTED_MODELS, while Edit 1 removes those exact same three model names from MULTILINGUAL_MODELS. This is a cut-and-paste move operation where the symbols must be removed from their original location before being added to the new location to avoid duplication. The removal must occur before the addition to maintain data integrity."
+        }
+    ],
+    "allowed_init_edits": [
+        7
+    ]
+}

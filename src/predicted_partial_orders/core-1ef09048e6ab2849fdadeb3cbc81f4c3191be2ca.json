@@ -1,0 +1,152 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits involve the same configuration key CONF_ROUND_DIGITS and are making consistent changes to handle it as optional rather than required. Edit 0 changes the schema definition from vol.Required to vol.Optional, removing the default value. Edit 1 changes the usage from direct access config[CONF_ROUND_DIGITS] to safe access config.get(CONF_ROUND_DIGITS). These changes reference the exact same symbol (CONF_ROUND_DIGITS) and form a coordinated modification where making the config optional in the schema necessitates using safe access in the implementation. Either edit could be made first without causing parse errors, but both are part of the same logical change to make the round_digits parameter optional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits involve the same configuration key CONF_ROUND_DIGITS and are making consistent changes to handle it as optional rather than required. Edit 0 changes the schema definition from vol.Required to vol.Optional, removing the default value. Edit 1 changes the usage from direct access config[CONF_ROUND_DIGITS] to safe access config.get(CONF_ROUND_DIGITS). These changes reference the exact same symbol (CONF_ROUND_DIGITS) and form a coordinated modification where making the config optional in the schema necessitates using safe access in the implementation. Either edit could be made first without causing parse errors, but both are part of the same logical change to make the round_digits parameter optional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'vol.Required(CONF_ROUND_DIGITS, default=2)' to 'vol.Optional(CONF_ROUND_DIGITS)' in vol.Schema definitions within the same file. This is a uniform pattern substitution where the exact same symbol (CONF_ROUND_DIGITS) is being modified in the same way across multiple locations. Both edits are part of a single refactoring operation to make the CONF_ROUND_DIGITS parameter optional instead of required, and either edit can be made first without affecting the ability to make the other."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'vol.Required(CONF_ROUND_DIGITS, default=2)' to 'vol.Optional(CONF_ROUND_DIGITS)' in vol.Schema definitions within the same file. This is a uniform pattern substitution where the exact same symbol (CONF_ROUND_DIGITS) is being modified in the same way across multiple locations. Both edits are part of a single refactoring operation to make the CONF_ROUND_DIGITS parameter optional instead of required, and either edit can be made first without affecting the ability to make the other."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits modify how CONF_ROUND_DIGITS is handled in the same codebase. Edit 0 changes the config schema from vol.Required(CONF_ROUND_DIGITS, default=2) to vol.Optional(CONF_ROUND_DIGITS), making the field optional without a default. Edit 1 changes the sensor setup from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS), which is the appropriate way to access optional config values. These changes are synchronized - making CONF_ROUND_DIGITS optional in the schema requires changing how it's accessed in the code to handle the case where it might not be present. Both edits reference the exact same symbol (CONF_ROUND_DIGITS) and form a coherent refactoring to make this configuration parameter optional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits modify how CONF_ROUND_DIGITS is handled in the same codebase. Edit 0 changes the config schema from vol.Required(CONF_ROUND_DIGITS, default=2) to vol.Optional(CONF_ROUND_DIGITS), making the field optional without a default. Edit 1 changes the sensor setup from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS), which is the appropriate way to access optional config values. These changes are synchronized - making CONF_ROUND_DIGITS optional in the schema requires changing how it's accessed in the code to handle the case where it might not be present. Both edits reference the exact same symbol (CONF_ROUND_DIGITS) and form a coherent refactoring to make this configuration parameter optional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits modify the same parameter 'round_digits' in related components of the integration system. Edit 0 changes the config flow schema to make CONF_ROUND_DIGITS optional (from vol.Required to vol.Optional), while Edit 1 updates the IntegrationSensor constructor to accept round_digits as int | None instead of just int. These changes are synchronized to handle the case where round_digits might not be provided in the configuration. The parameter name and purpose are identical, and both changes support the same functionality - making round_digits optional throughout the system. This represents a coordinated change to the same logical parameter across the configuration and implementation layers."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits modify the same parameter 'round_digits' in related components of the integration system. Edit 0 changes the config flow schema to make CONF_ROUND_DIGITS optional (from vol.Required to vol.Optional), while Edit 1 updates the IntegrationSensor constructor to accept round_digits as int | None instead of just int. These changes are synchronized to handle the case where round_digits might not be provided in the configuration. The parameter name and purpose are identical, and both changes support the same functionality - making round_digits optional throughout the system. This represents a coordinated change to the same logical parameter across the configuration and implementation layers."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the schema validation for CONF_ROUND_DIGITS to accept either None or an integer (vol.Any(None, vol.Coerce(int))), while Edit 1 changes the usage of that configuration value from int(config_entry.options[CONF_ROUND_DIGITS]) to just round_digits. These edits are directly related because they both handle the same configuration parameter (CONF_ROUND_DIGITS) and the schema change in Edit 0 allows None values, which would cause the int() conversion in Edit 1 to fail if applied before the usage is updated. The schema change must come before the usage change to avoid runtime errors when None values are encountered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the schema validation for CONF_ROUND_DIGITS to accept either None or an integer (vol.Any(None, vol.Coerce(int))), while Edit 1 adds code to handle the round_digits configuration value by checking if it exists and converting it to int if present. These edits reference the exact same symbol (CONF_ROUND_DIGITS) and work together to implement a feature where round_digits can be optional/None. The schema change in Edit 0 allows None values to pass validation, and the handling code in Edit 1 processes this new possibility. Either edit could be made first since both are syntactically valid independently, but they form a cohesive implementation of the same feature enhancement."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the schema validation for CONF_ROUND_DIGITS to accept either None or an integer (vol.Any(None, vol.Coerce(int))), while Edit 1 adds code to handle the round_digits configuration value by checking if it exists and converting it to int if present. These edits reference the exact same symbol (CONF_ROUND_DIGITS) and work together to implement a feature where round_digits can be optional/None. The schema change in Edit 0 allows None values to pass validation, and the handling code in Edit 1 processes this new possibility. Either edit could be made first since both are syntactically valid independently, but they form a cohesive implementation of the same feature enhancement."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits modify the same parameter `round_digits` in related contexts - edit 0 changes the schema validation to accept `None` values in addition to integers, while edit 1 updates the constructor parameter type annotation to reflect that `round_digits` can now be `None`. The changed lines reference the exact same symbol (the `round_digits` parameter) and represent a coordinated type system update where the schema change enables the constructor change. Either edit could be made first since both are syntactically valid independently, but they form a natural pair where making one creates an immediate prompt for the other to maintain type consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits modify the same parameter `round_digits` in related contexts - edit 0 changes the schema validation to accept `None` values in addition to integers, while edit 1 updates the constructor parameter type annotation to reflect that `round_digits` can now be `None`. The changed lines reference the exact same symbol (the `round_digits` parameter) and represent a coordinated type system update where the schema change enables the constructor change. Either edit could be made first since both are syntactically valid independently, but they form a natural pair where making one creates an immediate prompt for the other to maintain type consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 changes the schema validation for CONF_ROUND_DIGITS to allow None values (vol.Any(None, vol.Coerce(int))), while Edit 1 changes how CONF_ROUND_DIGITS is accessed from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS). These edits are directly related because they both handle the same configuration parameter CONF_ROUND_DIGITS. The schema change in Edit 0 makes the parameter optional/nullable, which necessitates the safer access pattern in Edit 1 using .get() instead of direct indexing to handle the case where the value might be None or missing. Both edits reference the exact same symbol (CONF_ROUND_DIGITS) and form a cohesive change to handle optional round_digits configuration. Either edit could be made first as both are syntactically valid independently, but together they implement a complete feature change."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 changes the schema validation for CONF_ROUND_DIGITS to allow None values (vol.Any(None, vol.Coerce(int))), while Edit 1 changes how CONF_ROUND_DIGITS is accessed from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS). These edits are directly related because they both handle the same configuration parameter CONF_ROUND_DIGITS. The schema change in Edit 0 makes the parameter optional/nullable, which necessitates the safer access pattern in Edit 1 using .get() instead of direct indexing to handle the case where the value might be None or missing. Both edits reference the exact same symbol (CONF_ROUND_DIGITS) and form a cohesive change to handle optional round_digits configuration. Either edit could be made first as both are syntactically valid independently, but together they implement a complete feature change."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new local variable 'round_digits' by extracting and processing the value from config_entry.options.get(CONF_ROUND_DIGITS). Edit 1 then uses this exact same 'round_digits' variable in the IntegrationSensor constructor call, replacing the direct inline expression. The changed lines reference the exact same symbol - the 'round_digits' variable. Edit 0 defines/assigns the variable, and Edit 1 uses it. This creates an immediate code dependency where after making Edit 0, using the newly created variable in Edit 1 becomes the natural next step in the refactoring. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new local variable 'round_digits' by extracting and processing the value from config_entry.options.get(CONF_ROUND_DIGITS). Edit 1 then uses this exact same 'round_digits' variable in the IntegrationSensor constructor call, replacing the direct inline expression. The changed lines reference the exact same symbol - the 'round_digits' variable. Edit 0 defines/assigns the variable, and Edit 1 uses it. This creates an immediate code dependency where after making Edit 0, using the newly created variable in Edit 1 becomes the natural next step in the refactoring. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 extracts round_digits from config_entry.options and converts it to int if it exists, otherwise it remains None. Edit 1 changes the type annotation of the round_digits parameter in IntegrationSensor.__init__ from 'int' to 'int | None' to accept None values. These edits reference the exact same symbol (round_digits parameter) and are part of a coordinated change to handle optional round_digits values. Edit 0 prepares the value that will be passed to the constructor modified in Edit 1, creating a direct code dependency where both edits work together to support None values for round_digits."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 extracts round_digits from config_entry.options and converts it to int if it exists, otherwise it remains None. Edit 1 changes the type annotation of the round_digits parameter in IntegrationSensor.__init__ from 'int' to 'int | None' to accept None values. These edits reference the exact same symbol (round_digits parameter) and are part of a coordinated change to handle optional round_digits values. Edit 0 prepares the value that will be passed to the constructor modified in Edit 1, creating a direct code dependency where both edits work together to support None values for round_digits."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'round_digits' within the same code flow. Edit 0 changes how round_digits is passed to the IntegrationSensor constructor (from int(config_entry.options[CONF_ROUND_DIGITS]) to just round_digits), while Edit 1 uses that same round_digits parameter within the constructor to set self._attr_suggested_display_precision. The changed lines in both edits explicitly reference the same parameter symbol, creating a direct code dependency where the parameter passed in Edit 0 is immediately used in Edit 1. This represents a single micro-task of modifying how round_digits flows through the constructor."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'round_digits' within the same code flow. Edit 0 changes how round_digits is passed to the IntegrationSensor constructor (from int(config_entry.options[CONF_ROUND_DIGITS]) to just round_digits), while Edit 1 uses that same round_digits parameter within the constructor to set self._attr_suggested_display_precision. The changed lines in both edits explicitly reference the same parameter symbol, creating a direct code dependency where the parameter passed in Edit 0 is immediately used in Edit 1. This represents a single micro-task of modifying how round_digits flows through the constructor."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits modify the handling of the `round_digits` parameter for the exact same symbol. Edit 0 changes the parameter passing from `config[CONF_ROUND_DIGITS]` to `config.get(CONF_ROUND_DIGITS)` (which can return None), while Edit 1 updates the corresponding parameter type annotation from `int` to `int | None` to match this change. These edits reference the same parameter symbol and create a direct code dependency - changing the caller to potentially pass None requires updating the function signature to accept None. Either edit naturally prompts the other as the immediate next step to maintain type consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits modify the handling of the `round_digits` parameter for the exact same symbol. Edit 0 changes the parameter passing from `config[CONF_ROUND_DIGITS]` to `config.get(CONF_ROUND_DIGITS)` (which can return None), while Edit 1 updates the corresponding parameter type annotation from `int` to `int | None` to match this change. These edits reference the same parameter symbol and create a direct code dependency - changing the caller to potentially pass None requires updating the function signature to accept None. Either edit naturally prompts the other as the immediate next step to maintain type consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits involve the exact same symbol 'round_digits' parameter. Edit 0 changes how round_digits is passed to the IntegrationSensor constructor (from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS)), while Edit 1 uses that same round_digits parameter in the constructor to set self._attr_suggested_display_precision. The changed lines reference the same parameter symbol, and making either edit creates an immediate code-driven prompt for the other as part of handling the round_digits parameter consistently. This represents a bi-directional relationship where both edits are part of the same micro-task of properly handling the round_digits parameter."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits involve the exact same symbol 'round_digits' parameter. Edit 0 changes how round_digits is passed to the IntegrationSensor constructor (from config[CONF_ROUND_DIGITS] to config.get(CONF_ROUND_DIGITS)), while Edit 1 uses that same round_digits parameter in the constructor to set self._attr_suggested_display_precision. The changed lines reference the same parameter symbol, and making either edit creates an immediate code-driven prompt for the other as part of handling the round_digits parameter consistently. This represents a bi-directional relationship where both edits are part of the same micro-task of properly handling the round_digits parameter."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 changes the type annotation of the `round_digits` parameter from `int` to `int | None` in the constructor signature. Edit 1 adds a line that uses this exact same `round_digits` parameter with `or 2` fallback logic, which directly depends on the parameter now being nullable. The changed lines reference the exact same symbol (`round_digits` parameter), and making either edit creates an immediate code-driven prompt for the other - changing the type to nullable necessitates handling the None case in usage, and adding the None-handling usage suggests the parameter should be nullable."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 changes the type annotation of the `round_digits` parameter from `int` to `int | None` in the constructor signature. Edit 1 adds a line that uses this exact same `round_digits` parameter with `or 2` fallback logic, which directly depends on the parameter now being nullable. The changed lines reference the exact same symbol (`round_digits` parameter), and making either edit creates an immediate code-driven prompt for the other - changing the type to nullable necessitates handling the None case in usage, and adding the None-handling usage suggests the parameter should be nullable."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 changes the type annotation of the `round_digits` parameter from `int` to `int | None` in the constructor, allowing it to be None. Edit 1 adds a check `and self._round_digits` before using `self._round_digits` in the rounding operation, which handles the case where `_round_digits` could now be None (since None is falsy, this prevents the rounding when round_digits is None). These edits reference the exact same symbol (`round_digits`/`_round_digits`) and form a coherent change where allowing None in the constructor requires defensive coding in the usage site. Either edit could be made first without causing parse errors, but together they form a logical unit where one naturally prompts the other."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 changes the type annotation of the `round_digits` parameter from `int` to `int | None` in the constructor, allowing it to be None. Edit 1 adds a check `and self._round_digits` before using `self._round_digits` in the rounding operation, which handles the case where `_round_digits` could now be None (since None is falsy, this prevents the rounding when round_digits is None). These edits reference the exact same symbol (`round_digits`/`_round_digits`) and form a coherent change where allowing None in the constructor requires defensive coding in the usage site. Either edit could be made first without causing parse errors, but together they form a logical unit where one naturally prompts the other."
+        }
+    ],
+    "allowed_init_edits": [
+        8
+    ]
+}

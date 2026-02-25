@@ -1,0 +1,83 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol `_set_dimensions()` in their changed lines. Edit 0 changes a call from `self.set_dimensions()` to `self._set_dimensions()`, and Edit 1 adds a new method that calls `self._set_dimensions()`. This creates a direct code dependency where both edits involve the same method call. The edits appear to be part of a refactoring where `set_dimensions()` is being renamed to `_set_dimensions()` (making it private) and then used in the new method. Either edit could be made first and would naturally prompt the other as the next step in this refactoring."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol `_set_dimensions()` in their changed lines. Edit 0 changes a call from `self.set_dimensions()` to `self._set_dimensions()`, and Edit 1 adds a new method that calls `self._set_dimensions()`. This creates a direct code dependency where both edits involve the same method call. The edits appear to be part of a refactoring where `set_dimensions()` is being renamed to `_set_dimensions()` (making it private) and then used in the new method. Either edit could be made first and would naturally prompt the other as the next step in this refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 renames the method `set_dimensions` to `_set_dimensions` in the method definition. Edit 1 updates the call to this method from `self.set_dimensions()` to `self._set_dimensions()`. Both edits reference the exact same symbol - the method being renamed. After making edit 0, the call in edit 1 would reference a non-existent method, creating an immediate code-driven prompt to update the call site. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 renames the method `set_dimensions` to `_set_dimensions` in the method definition. Edit 1 updates the call to this method from `self.set_dimensions()` to `self._set_dimensions()`. Both edits reference the exact same symbol - the method being renamed. After making edit 0, the call in edit 1 would reference a non-existent method, creating an immediate code-driven prompt to update the call site. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution: changing 'self.set_dimensions()' to 'self._set_dimensions()' in method call lines. This is a uniform refactoring pattern applied to the same type of syntactic construct (method calls) within the same class. Both edits reference the exact same symbol (the set_dimensions method being renamed to _set_dimensions) and represent a single, contiguous refactoring operation to make the method private. Either edit can be made first, and after making either one, the other becomes an immediate next step to complete the uniform renaming pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution: changing 'self.set_dimensions()' to 'self._set_dimensions()' in method call lines. This is a uniform refactoring pattern applied to the same type of syntactic construct (method calls) within the same class. Both edits reference the exact same symbol (the set_dimensions method being renamed to _set_dimensions) and represent a single, contiguous refactoring operation to make the method private. Either edit can be made first, and after making either one, the other becomes an immediate next step to complete the uniform renaming pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new method `get_minimal_borders` in the Layout class, and Edit 0 changes a method call from `minimal_borders` to `get_minimal_borders` on a `current_layout` object (which is of type LayoutType, presumably a Layout instance). The changed lines reference the exact same symbol - the `get_minimal_borders` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use this new method. Conversely, after changing the call in Edit 0, Edit 1 becomes necessary to provide the implementation. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 1 defines a new method `get_minimal_borders` in the Layout class, and Edit 0 changes a method call from `minimal_borders` to `get_minimal_borders` on a `current_layout` object (which is of type LayoutType, presumably a Layout instance). The changed lines reference the exact same symbol - the `get_minimal_borders` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use this new method. Conversely, after changing the call in Edit 0, Edit 1 becomes necessary to provide the implementation. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol: the method `set_dimensions` being renamed to `_set_dimensions`. Edit 0 changes the method call from `self.set_dimensions()` to `self._set_dimensions()`, while Edit 1 changes the method definition from `def set_dimensions(self)` to `def _set_dimensions(self)`. This is a classic definition-usage relationship where both edits must reference the same symbol for the code to remain functional. After making either edit, the other becomes the immediate next step to maintain code consistency. Since this is Python and both edits can be parsed and staged in either order (the method call will simply reference a non-existent method until both are complete, causing a runtime AttributeError but not a parse error), this is bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol: the method `set_dimensions` being renamed to `_set_dimensions`. Edit 0 changes the method call from `self.set_dimensions()` to `self._set_dimensions()`, while Edit 1 changes the method definition from `def set_dimensions(self)` to `def _set_dimensions(self)`. This is a classic definition-usage relationship where both edits must reference the same symbol for the code to remain functional. After making either edit, the other becomes the immediate next step to maintain code consistency. Since this is Python and both edits can be parsed and staged in either order (the method call will simply reference a non-existent method until both are complete, causing a runtime AttributeError but not a parse error), this is bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 renames the method `set_dimensions` to `_set_dimensions` (making it private). Edit 1 adds a new method `get_minimal_borders` that calls `self._set_dimensions()`. The changed lines reference the exact same symbol - the method that was renamed in edit 0 is being called in edit 1. This creates a direct code dependency where edit 0 must happen first to define the `_set_dimensions` method that edit 1 references. If edit 1 were applied first, it would reference a non-existent method `_set_dimensions`, causing a runtime AttributeError. However, since Python allows referencing undefined methods at parse time (only failing at runtime), and both edits can be written and parsed in either order, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 renames the method `set_dimensions` to `_set_dimensions` (making it private). Edit 1 adds a new method `get_minimal_borders` that calls `self._set_dimensions()`. The changed lines reference the exact same symbol - the method that was renamed in edit 0 is being called in edit 1. This creates a direct code dependency where edit 0 must happen first to define the `_set_dimensions` method that edit 1 references. If edit 1 were applied first, it would reference a non-existent method `_set_dimensions`, causing a runtime AttributeError. However, since Python allows referencing undefined methods at parse time (only failing at runtime), and both edits can be written and parsed in either order, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol `_set_dimensions()` in their changed lines. Edit 0 renames `set_dimensions()` to `_set_dimensions()` in the `__call__` method, and Edit 1 adds a new method `get_minimal_borders` that calls `_set_dimensions()`. After making Edit 0, the symbol `_set_dimensions()` becomes available for use, making Edit 1's usage of this newly renamed method a natural next step. The relationship is bi-directional because both edits can be staged in either order - Edit 1 calling `_set_dimensions()` would work even if the method is still named `set_dimensions()` (it would just be calling the old name), and Edit 0's rename would work even if Edit 1's new method doesn't exist yet."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol `_set_dimensions()` in their changed lines. Edit 0 renames `set_dimensions()` to `_set_dimensions()` in the `__call__` method, and Edit 1 adds a new method `get_minimal_borders` that calls `_set_dimensions()`. After making Edit 0, the symbol `_set_dimensions()` becomes available for use, making Edit 1's usage of this newly renamed method a natural next step. The relationship is bi-directional because both edits can be staged in either order - Edit 1 calling `_set_dimensions()` would work even if the method is still named `set_dimensions()` (it would just be calling the old name), and Edit 0's rename would work even if Edit 1's new method doesn't exist yet."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 renames the method `set_dimensions` to `_set_dimensions` in the Layout class. Edit 1 calls `ly.set_dimensions()` where `ly` is a Layout instance. After edit 0 is applied, the method call in edit 1 would fail because the method no longer exists with that name - it would need to be updated to call `_set_dimensions()` instead. This creates a direct code dependency where edit 0 must be applied before edit 1 can be updated to match the new method name. Both edits reference the exact same symbol (the `set_dimensions` method), and edit 1 cannot function correctly until it's updated to match the rename in edit 0."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        5
+    ]
+}

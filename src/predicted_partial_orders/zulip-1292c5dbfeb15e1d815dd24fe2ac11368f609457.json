@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `compute_jabber_user_fullname` in zerver/lib/actions.py, and Edit 1 imports that exact same function in zerver/views/__init__.py by adding it to the import statement. The changed lines reference the exact same symbol - the function `compute_jabber_user_fullname`. This creates a definition-usage relationship where defining the function and importing it are part of the same development flow. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the function doesn't exist, not at parse time. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `compute_jabber_user_fullname` in zerver/lib/actions.py, and Edit 1 imports that exact same function in zerver/views/__init__.py by adding it to the import statement. The changed lines reference the exact same symbol - the function `compute_jabber_user_fullname`. This creates a definition-usage relationship where defining the function and importing it are part of the same development flow. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the function doesn't exist, not at parse time. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `compute_jabber_user_fullname` in zerver/lib/actions.py, and Edit 1 uses that exact same function by assigning it to `fullname_function` in zerver/views/__init__.py. The changed lines reference the exact same symbol - the function `compute_jabber_user_fullname`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 references the function, Edit 0 becomes necessary to define it. This is a classic definition-usage relationship where both edits can be staged in either order (the usage will cause a runtime NameError but not a parse error in Python), making it bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `compute_jabber_user_fullname` in zerver/lib/actions.py, and Edit 1 uses that exact same function by assigning it to `fullname_function` in zerver/views/__init__.py. The changed lines reference the exact same symbol - the function `compute_jabber_user_fullname`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 references the function, Edit 0 becomes necessary to define it. This is a classic definition-usage relationship where both edits can be staged in either order (the usage will cause a runtime NameError but not a parse error in Python), making it bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. Edit 0 changes a list comparison from `client.name in [\"zephyr_mirror\", \"irc_mirror\"]` to `client.name in [\"zephyr_mirror\", \"irc_mirror\", \"jabber_mirror\"]`, and Edit 1 changes a boolean expression from `client.name == \"zephyr_mirror\" or client.name == \"irc_mirror\"` to `client.name in [\"zephyr_mirror\", \"irc_mirror\", \"jabber_mirror\"]`. Both edits are adding \"jabber_mirror\" to the list of mirror clients being checked, representing a uniform refactoring operation across the codebase to support the new jabber_mirror client type. This is a bulk-edit pattern where both changes are part of the same contiguous refactor to add jabber_mirror support."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. Edit 0 changes a list comparison from `client.name in [\"zephyr_mirror\", \"irc_mirror\"]` to `client.name in [\"zephyr_mirror\", \"irc_mirror\", \"jabber_mirror\"]`, and Edit 1 changes a boolean expression from `client.name == \"zephyr_mirror\" or client.name == \"irc_mirror\"` to `client.name in [\"zephyr_mirror\", \"irc_mirror\", \"jabber_mirror\"]`. Both edits are adding \"jabber_mirror\" to the list of mirror clients being checked, representing a uniform refactoring operation across the codebase to support the new jabber_mirror client type. This is a bulk-edit pattern where both changes are part of the same contiguous refactor to add jabber_mirror support."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'compute_jabber_user_fullname'. Edit 0 imports this function in the import statement, while Edit 1 uses this imported function by assigning it to 'fullname_function'. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage in Edit 1 would only cause a runtime NameError if the import in Edit 0 is missing, but both edits can be parsed and staged independently. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'compute_jabber_user_fullname'. Edit 0 imports this function in the import statement, while Edit 1 uses this imported function by assigning it to 'fullname_function'. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, both edits can be staged in either order since the usage in Edit 1 would only cause a runtime NameError if the import in Edit 0 is missing, but both edits can be parsed and staged independently. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a function `same_realm_user` and Edit 1 uses that exact same function by assigning it to `user_check`. The changed lines reference the exact same symbol - the function `same_realm_user`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a function `same_realm_user` and Edit 1 uses that exact same function by assigning it to `user_check`. The changed lines reference the exact same symbol - the function `same_realm_user`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        7
+    ]
+}

@@ -1,0 +1,112 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'INVALID_PERIOD_ERROR'. Edit 0 removes the definition of this constant, while Edit 1 removes the usage of this constant in a validation check. Since Edit 1 references a symbol that Edit 0 removes, Edit 0 must occur before Edit 1 to avoid a NameError when the code is executed. The removal of the definition creates an immediate code-driven prompt to remove all usages of that symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits modify the exact same function signature and call site for `get_date_range_from_params`. Edit 1 removes the `validate_window` parameter from the function definition, and Edit 0 removes the `validate_window=False` argument from the function call. These edits reference the exact same symbol and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its usage. Both edits can be staged in either order without causing parse errors (Python allows extra keyword arguments at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits modify the exact same function signature and call site for `get_date_range_from_params`. Edit 1 removes the `validate_window` parameter from the function definition, and Edit 0 removes the `validate_window=False` argument from the function call. These edits reference the exact same symbol and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its usage. Both edits can be staged in either order without causing parse errors (Python allows extra keyword arguments at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes the 'validate_window=False' parameter from a call to get_date_range_from_params(), while Edit 1 removes the 'validate_window' parameter from the function signature of get_date_range_from_params(). These edits reference the exact same symbol (the validate_window parameter of the get_date_range_from_params function) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - removing the parameter from the signature makes the caller's use of that parameter invalid, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows extra keyword arguments at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes the 'validate_window=False' parameter from a call to get_date_range_from_params(), while Edit 1 removes the 'validate_window' parameter from the function signature of get_date_range_from_params(). These edits reference the exact same symbol (the validate_window parameter of the get_date_range_from_params function) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - removing the parameter from the signature makes the caller's use of that parameter invalid, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows extra keyword arguments at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 removes the 'validate_window=False' parameter from a call to get_date_range_from_params(), while Edit 1 removes the entire validate_window parameter and its associated validation logic from the get_date_range_from_params() function definition. These edits reference the exact same symbol (the validate_window parameter of get_date_range_from_params) and form a coordinated refactoring where the parameter is being removed from both the function signature and its call site. Either edit can be made first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 removes the 'validate_window=False' parameter from a call to get_date_range_from_params(), while Edit 1 removes the entire validate_window parameter and its associated validation logic from the get_date_range_from_params() function definition. These edits reference the exact same symbol (the validate_window parameter of get_date_range_from_params) and form a coordinated refactoring where the parameter is being removed from both the function signature and its call site. Either edit can be made first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the exact same function `get_date_range_from_params`. Edit 0 removes the `validate_window=True` parameter from the function signature, and Edit 1 removes the corresponding documentation line for that same parameter. These edits reference the exact same symbol (the `validate_window` parameter) and form a synchronized pair - removing a parameter and its documentation. After making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its documentation. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the exact same function `get_date_range_from_params`. Edit 0 removes the `validate_window=True` parameter from the function signature, and Edit 1 removes the corresponding documentation line for that same parameter. These edits reference the exact same symbol (the `validate_window` parameter) and form a synchronized pair - removing a parameter and its documentation. After making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its documentation. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'validate_window' within the same function. Edit 0 removes the 'validate_window' parameter from the function signature, while Edit 1 removes the code block that uses this parameter. These edits are part of a single micro-task to remove the validate_window functionality entirely. After removing the parameter from the signature, the usage of that parameter in the function body becomes undefined and must be removed as the immediate next step. Either edit can be made first since Python allows undefined variables in function bodies at parse time (only failing at runtime), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'validate_window' within the same function. Edit 0 removes the 'validate_window' parameter from the function signature, while Edit 1 removes the code block that uses this parameter. These edits are part of a single micro-task to remove the validate_window functionality entirely. After removing the parameter from the signature, the usage of that parameter in the function body becomes undefined and must be removed as the immediate next step. Either edit can be made first since Python allows undefined variables in function bodies at parse time (only failing at runtime), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 removes the 'validate_window=True' parameter from the get_date_range_from_params function signature. Edit 1 removes a test case that was testing the function's behavior when called with only a 'start' parameter (which would have triggered validation logic). Both edits reference the exact same function symbol 'get_date_range_from_params'. The test removal appears to be directly related to the parameter removal - the test was likely validating the window validation behavior that is being removed. This creates a direct code dependency where both edits are part of the same refactoring to remove validation functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 removes the 'validate_window=True' parameter from the get_date_range_from_params function signature. Edit 1 removes a test case that was testing the function's behavior when called with only a 'start' parameter (which would have triggered validation logic). Both edits reference the exact same function symbol 'get_date_range_from_params'. The test removal appears to be directly related to the parameter removal - the test was likely validating the window validation behavior that is being removed. This creates a direct code dependency where both edits are part of the same refactoring to remove validation functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are removing the validate_window functionality from the same function. Edit 0 removes the parameter documentation for validate_window, while Edit 1 removes the actual implementation code that uses the validate_window parameter. These edits reference the exact same parameter symbol (validate_window) and are part of a single refactoring task to remove this validation feature. The edits can be applied in either order since removing documentation doesn't create parsing issues, and removing the implementation code doesn't break the function signature."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are removing the validate_window functionality from the same function. Edit 0 removes the parameter documentation for validate_window, while Edit 1 removes the actual implementation code that uses the validate_window parameter. These edits reference the exact same parameter symbol (validate_window) and are part of a single refactoring task to remove this validation feature. The edits can be applied in either order since removing documentation doesn't create parsing issues, and removing the implementation code doesn't break the function signature."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes validation logic that raises InvalidParams for periods exceeding MAX_STATS_PERIOD from the get_date_range_from_params function. Edit 1 updates the corresponding test to no longer expect an InvalidParams exception when calling get_date_range_from_params with '91d' parameter, and instead asserts on the returned start/end values. Both edits reference the exact same function (get_date_range_from_params) and the test change directly corresponds to the behavior change in the implementation - removing the exception-raising validation requires updating the test that was specifically testing for that exception. This is a clear case of implementation change synchronized with its corresponding test update."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes validation logic that raises InvalidParams for periods exceeding MAX_STATS_PERIOD from the get_date_range_from_params function. Edit 1 updates the corresponding test to no longer expect an InvalidParams exception when calling get_date_range_from_params with '91d' parameter, and instead asserts on the returned start/end values. Both edits reference the exact same function (get_date_range_from_params) and the test change directly corresponds to the behavior change in the implementation - removing the exception-raising validation requires updating the test that was specifically testing for that exception. This is a clear case of implementation change synchronized with its corresponding test update."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes validation logic that checks if the time window exceeds MAX_STATS_PERIOD and raises InvalidParams. Edit 1 removes a test that expects InvalidParams to be raised when calling get_date_range_from_params. Both edits reference the exact same function (get_date_range_from_params) and the same exception type (InvalidParams). The test removal is directly related to the validation removal - when the validation logic is removed from the implementation, the corresponding test that expects that validation to trigger an exception should also be removed. This creates a direct code dependency where both edits are part of the same micro-task of removing validation behavior and its associated test."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes validation logic that checks if the time window exceeds MAX_STATS_PERIOD and raises InvalidParams. Edit 1 removes a test that expects InvalidParams to be raised when calling get_date_range_from_params. Both edits reference the exact same function (get_date_range_from_params) and the same exception type (InvalidParams). The test removal is directly related to the validation removal - when the validation logic is removed from the implementation, the corresponding test that expects that validation to trigger an exception should also be removed. This creates a direct code dependency where both edits are part of the same micro-task of removing validation behavior and its associated test."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 removes the 'validate_window=True' parameter from the get_date_range_from_params function signature. Edit 1 changes a test that was expecting this function to raise an InvalidParams exception when called with '91d' statsPeriod, but now expects it to return start/end values instead. Both edits reference the exact same function symbol 'get_date_range_from_params'. The function signature change in edit 0 directly affects the behavior being tested in edit 1 - removing validation means the function no longer raises exceptions for previously invalid inputs. These edits are part of the same logical change where validation is being removed from the function, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 removes the 'validate_window=True' parameter from the get_date_range_from_params function signature. Edit 1 changes a test that was expecting this function to raise an InvalidParams exception when called with '91d' statsPeriod, but now expects it to return start/end values instead. Both edits reference the exact same function symbol 'get_date_range_from_params'. The function signature change in edit 0 directly affects the behavior being tested in edit 1 - removing validation means the function no longer raises exceptions for previously invalid inputs. These edits are part of the same logical change where validation is being removed from the function, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

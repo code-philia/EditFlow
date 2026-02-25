@@ -1,0 +1,69 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 initializes the variable `optional_orig_delta` to an empty string, and Edit 1 assigns a formatted value to this same variable `optional_orig_delta` within a conditional block. The changed lines in both edits reference the exact same symbol `optional_orig_delta`. Edit 0 creates the variable declaration that Edit 1 then uses and modifies. This represents a definition-usage relationship where both edits reference the same symbol and would naturally occur in sequence during the same micro-task of implementing this logging functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 initializes the variable `optional_orig_delta` to an empty string, and Edit 1 assigns a formatted value to this same variable `optional_orig_delta` within a conditional block. The changed lines in both edits reference the exact same symbol `optional_orig_delta`. Edit 0 creates the variable declaration that Edit 1 then uses and modifies. This represents a definition-usage relationship where both edits reference the same symbol and would naturally occur in sequence during the same micro-task of implementing this logging functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'optional_orig_delta' that is calculated and assigned within the same function. Edit 1 then uses this exact same variable 'optional_orig_delta' in a logger.info call. The changed lines reference the exact same symbol - 'optional_orig_delta' is defined in edit 0 and used in edit 1. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly created variable. Both edits are within the same function (process_response) and represent a single micro-task of adding timing information to the log output."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'optional_orig_delta' that is calculated and assigned within the same function. Edit 1 then uses this exact same variable 'optional_orig_delta' in a logger.info call. The changed lines reference the exact same symbol - 'optional_orig_delta' is defined in edit 0 and used in edit 1. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly created variable. Both edits are within the same function (process_response) and represent a single micro-task of adding timing information to the log output."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'optional_orig_delta' by assigning it an empty string, and Edit 1 uses this exact same variable by adding it as a parameter to the format_timedelta function call. The changed lines reference the exact same symbol - 'optional_orig_delta'. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to actually use that variable. Similarly, if Edit 1 were made first, it would create an undefined variable error that would prompt the need for Edit 0. This is a classic definition-usage relationship for the same symbol within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'optional_orig_delta' by assigning it an empty string, and Edit 1 uses this exact same variable by adding it as a parameter to the format_timedelta function call. The changed lines reference the exact same symbol - 'optional_orig_delta'. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to actually use that variable. Similarly, if Edit 1 were made first, it would create an undefined variable error that would prompt the need for Edit 0. This is a classic definition-usage relationship for the same symbol within the same function scope."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 sets the attribute `request._time_stopped` on a request object, and Edit 1 checks for the existence of this exact same attribute using `hasattr(request, \"_time_stopped\")` and then uses it in calculations. The changed lines reference the exact same symbol (`request._time_stopped`) - one edit creates/assigns it, the other checks for and uses it. This creates a direct code dependency where setting the attribute in one location enables its usage in another location. Both edits can be staged in either order without parser errors (the hasattr check handles the case where the attribute doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 sets the attribute `request._time_stopped` on a request object, and Edit 1 checks for the existence of this exact same attribute using `hasattr(request, \"_time_stopped\")` and then uses it in calculations. The changed lines reference the exact same symbol (`request._time_stopped`) - one edit creates/assigns it, the other checks for and uses it. This creates a direct code dependency where setting the attribute in one location enables its usage in another location. Both edits can be staged in either order without parser errors (the hasattr check handles the case where the attribute doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds code that checks for and uses the attribute `request._time_restarted` in a calculation (line 34: `(time.time() - request._time_restarted)`). Edit 1 sets this exact same attribute `request._time_restarted = time.time()`. The changed lines reference the exact same symbol `request._time_restarted`. Edit 0's usage of this attribute creates an immediate, mechanically obvious prompt for Edit 1 to define/set it, as the attribute must be set before it can be used in the calculation. However, in Python, accessing an undefined attribute would cause an AttributeError at runtime, not a parse-time error, so both edits can be staged in either order. This represents a bi-directional definition-usage relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds code that checks for and uses the attribute `request._time_restarted` in a calculation (line 34: `(time.time() - request._time_restarted)`). Edit 1 sets this exact same attribute `request._time_restarted = time.time()`. The changed lines reference the exact same symbol `request._time_restarted`. Edit 0's usage of this attribute creates an immediate, mechanically obvious prompt for Edit 1 to define/set it, as the attribute must be set before it can be used in the calculation. However, in Python, accessing an undefined attribute would cause an AttributeError at runtime, not a parse-time error, so both edits can be staged in either order. This represents a bi-directional definition-usage relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify the same logger.info statement within the same function. Edit 0 adds a '%s' format specifier to the format string, and Edit 1 adds 'optional_orig_delta' to the corresponding tuple of arguments. These changes are directly linked - the format string and its arguments must match in count and order for the logging statement to work correctly. Adding a format specifier without its corresponding argument (or vice versa) would cause a runtime error. Both edits reference the exact same logger.info statement and are part of a single micro-task to add an additional field to the log output."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify the same logger.info statement within the same function. Edit 0 adds a '%s' format specifier to the format string, and Edit 1 adds 'optional_orig_delta' to the corresponding tuple of arguments. These changes are directly linked - the format string and its arguments must match in count and order for the logging statement to work correctly. Adding a format specifier without its corresponding argument (or vice versa) would cause a runtime error. Both edits reference the exact same logger.info statement and are part of a single micro-task to add an additional field to the log output."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        5,
+        3
+    ]
+}

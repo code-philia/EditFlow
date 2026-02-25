@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct within the same function. They both change 'diffusion_map.T[:n_components]' to 'diffusion_map.T[1:n_components+1]' in assignment statements to the 'embedding' variable. This is a clear case of bulk-edit pattern synchronization where the same before\u2192after pattern is applied to identical construct types as part of a single, contiguous refactor. The edits are mechanically linked by the identical substitution pattern and would naturally occur together in one uninterrupted micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct within the same function. They both change 'diffusion_map.T[:n_components]' to 'diffusion_map.T[1:n_components+1]' in assignment statements to the 'embedding' variable. This is a clear case of bulk-edit pattern synchronization where the same before\u2192after pattern is applied to identical construct types as part of a single, contiguous refactor. The edits are mechanically linked by the identical substitution pattern and would naturally occur together in one uninterrupted micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports SkipTest from nose.plugins.skip, and Edit 1 uses SkipTest in a raise statement within the test function. This is a classic import-usage relationship where the changed lines reference the exact same symbol (SkipTest). After importing SkipTest in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. In Python, using an undefined symbol like SkipTest would cause a runtime NameError, but both edits can be parsed and staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports SkipTest from nose.plugins.skip, and Edit 1 uses SkipTest in a raise statement within the test function. This is a classic import-usage relationship where the changed lines reference the exact same symbol (SkipTest). After importing SkipTest in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. In Python, using an undefined symbol like SkipTest would cause a runtime NameError, but both edits can be parsed and staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "These edits are part of the same function modification where edit 0 replaces the original function body with an import check, and edit 1 removes the old function definition line that's no longer needed. The edits are mechanically linked as part of restructuring the same function - after replacing the function body (edit 0), the old function definition line becomes redundant and needs removal (edit 1). However, both edits can be staged independently without parser errors, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "These edits are part of the same function modification where edit 0 replaces the original function body with an import check, and edit 1 removes the old function definition line that's no longer needed. The edits are mechanically linked as part of restructuring the same function - after replacing the function body (edit 0), the old function definition line becomes redundant and needs removal (edit 1). However, both edits can be staged independently without parser errors, making this bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        7
+    ]
+}

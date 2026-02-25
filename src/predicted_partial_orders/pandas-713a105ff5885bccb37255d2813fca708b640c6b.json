@@ -1,0 +1,52 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'unittest.TestCase' to 'tm.TestCase' in class inheritance declarations. This is a uniform, synchronized substitution across the same type of syntactic construct (class inheritance statements) within the same file. Both edits are part of the same refactoring operation to replace unittest.TestCase with tm.TestCase throughout the codebase. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'unittest.TestCase' to 'tm.TestCase' in class inheritance declarations. This is a uniform, synchronized substitution across the same type of syntactic construct (class inheritance statements) within the same file. Both edits are part of the same refactoring operation to replace unittest.TestCase with tm.TestCase throughout the codebase. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new class 'TestCase' in pandas/util/testing.py, and edit 0 changes the inheritance of TestDataFrameQueryNumExprPandas from 'unittest.TestCase' to 'tm.TestCase' (where tm refers to the testing module). The changed lines reference the exact same symbol - the TestCase class being defined in edit 1 and used in edit 0. This creates a direct definition-usage relationship where edit 1 must come before edit 0 because the TestCase class needs to be defined before it can be referenced. Without edit 1, edit 0 would result in a NameError when tm.TestCase is accessed."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 1 defines a new class 'TestCase' in pandas/util/testing.py, and edit 0 changes the inheritance of TestDataFrame to use 'tm.TestCase' (where tm refers to the testing module). The changed line in edit 0 explicitly references the exact same symbol (TestCase) that is being defined in edit 1. This creates a direct definition-usage relationship where defining the TestCase class enables its usage in the inheritance declaration. Both edits can be parsed and staged in either order (the usage before definition would only cause a runtime ImportError/AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 defines a new class 'TestCase' in pandas/util/testing.py, and edit 0 changes the inheritance of TestDataFrame to use 'tm.TestCase' (where tm refers to the testing module). The changed line in edit 0 explicitly references the exact same symbol (TestCase) that is being defined in edit 1. This creates a direct definition-usage relationship where defining the TestCase class enables its usage in the inheritance declaration. Both edits can be parsed and staged in either order (the usage before definition would only cause a runtime ImportError/AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'TestDataFrameQueryNumExprPandas' in their changed lines. Edit 0 changes the class inheritance from unittest.TestCase to tm.TestCase, while Edit 1 adds a super() call that references the same class name. These edits are part of a coordinated refactoring to change the test base class - when you change a class's parent class, you typically need to update super() calls to reference the correct class name. Either edit can be made first without causing parse errors, and making either edit creates an immediate prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'TestDataFrameQueryNumExprPandas' in their changed lines. Edit 0 changes the class inheritance from unittest.TestCase to tm.TestCase, while Edit 1 adds a super() call that references the same class name. These edits are part of a coordinated refactoring to change the test base class - when you change a class's parent class, you typically need to update super() calls to reference the correct class name. Either edit can be made first without causing parse errors, and making either edit creates an immediate prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports the unittest module, and Edit 1 uses that exact same unittest module in the class definition 'unittest.TestCase'. The changed lines reference the exact same symbol - the unittest module. After importing unittest in Edit 0, Edit 1 becomes the immediate next step to use that imported module. This is a classic import-usage pattern within the same file where both edits reference the identical symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports the unittest module, and Edit 1 uses that exact same unittest module in the class definition 'unittest.TestCase'. The changed lines reference the exact same symbol - the unittest module. After importing unittest in Edit 0, Edit 1 becomes the immediate next step to use that imported module. This is a classic import-usage pattern within the same file where both edits reference the identical symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

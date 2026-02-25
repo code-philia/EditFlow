@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the default_get method to look for 'default_production_id' in the context (line 19), while Edit 1 creates a new method that sets 'default_production_id' in the action context (line 107). Both edits reference the exact same context key 'default_production_id' - Edit 1 sets it and Edit 0 reads it. This creates a direct code dependency where the context key set in Edit 1 is explicitly checked for in Edit 0. Either edit can be made first since both are syntactically valid independently, but they form a producer-consumer relationship for the same context variable."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the default_get method to look for 'default_production_id' in the context (line 19), while Edit 1 creates a new method that sets 'default_production_id' in the action context (line 107). Both edits reference the exact same context key 'default_production_id' - Edit 1 sets it and Edit 0 reads it. This creates a direct code dependency where the context key set in Edit 1 is explicitly checked for in Edit 0. Either edit can be made first since both are syntactically valid independently, but they form a producer-consumer relationship for the same context variable."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 modifies the default_get method to check for 'default_production_id' in the context as an alternative to 'active_id'. Edit 1 adds 'default_production_id=production.id' to the context when creating a mrp.product.produce record. These edits reference the exact same context key 'default_production_id' - Edit 1 sets it in the context, and Edit 0 reads it from the context. This creates a direct code dependency where Edit 1 provides the context value that Edit 0 is designed to consume. Either edit can be staged first without parser errors, but they form a bi-directional relationship where making either edit creates an immediate prompt for the other to complete the feature implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the default_get method to check for 'default_production_id' in the context as an alternative to 'active_id'. Edit 1 adds 'default_production_id=production.id' to the context when creating a mrp.product.produce record. These edits reference the exact same context key 'default_production_id' - Edit 1 sets it in the context, and Edit 0 reads it from the context. This creates a direct code dependency where Edit 1 provides the context value that Edit 0 is designed to consume. Either edit can be staged first without parser errors, but they form a bi-directional relationship where making either edit creates an immediate prompt for the other to complete the feature implementation."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "These edits are bi-directional neighbours because they implement a coordinated change to how production_id is passed through context. Edit 0 modifies the default_get method to accept 'default_production_id' from context (in addition to 'active_id'), while Edit 1 changes the continue_production method to pass 'default_production_id' instead of 'active_id' in the action context. Both edits reference the exact same context key 'default_production_id' and work together to establish a new parameter passing convention. Either edit can be implemented first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the coordinated context parameter change."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "These edits are bi-directional neighbours because they implement a coordinated change to how production_id is passed through context. Edit 0 modifies the default_get method to accept 'default_production_id' from context (in addition to 'active_id'), while Edit 1 changes the continue_production method to pass 'default_production_id' instead of 'active_id' in the action context. Both edits reference the exact same context key 'default_production_id' and work together to establish a new parameter passing convention. Either edit can be implemented first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the coordinated context parameter change."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes the line that assigns `production = self.move_orig_ids.production_id`, while Edit 1 removes code that uses the `production` variable (specifically `active_id=production.id`). After Edit 0 is applied, the `production` variable is no longer defined, making the code in Edit 1's original state syntactically invalid due to an undefined variable. Edit 1 replaces this problematic code with a method call that doesn't depend on the `production` variable. However, both edits can be written and parsed independently - the issue is only a runtime NameError, not a parse-time syntax error. In Python, referencing undefined variables is allowed at parse time and only fails at runtime."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line that assigns `production = self.move_orig_ids.production_id`, while Edit 1 removes code that uses the `production` variable (specifically `active_id=production.id`). After Edit 0 is applied, the `production` variable is no longer defined, making the code in Edit 1's original state syntactically invalid due to an undefined variable. Edit 1 replaces this problematic code with a method call that doesn't depend on the `production` variable. However, both edits can be written and parsed independently - the issue is only a runtime NameError, not a parse-time syntax error. In Python, referencing undefined variables is allowed at parse time and only fails at runtime."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new method `_action_record_components` and Edit 0 calls that exact same method. The changed line in Edit 0 contains `return self._action_record_components()` which directly references the method being defined in Edit 1. This creates an immediate code dependency where Edit 0 cannot function without Edit 1's definition. Since this is Python, the method call in Edit 0 would result in an AttributeError at runtime if Edit 1's method definition doesn't exist, but both edits can be parsed and staged in either order. This represents a definition-usage relationship for the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 1 defines a new method `_action_record_components` and Edit 0 calls that exact same method. The changed line in Edit 0 contains `return self._action_record_components()` which directly references the method being defined in Edit 1. This creates an immediate code dependency where Edit 0 cannot function without Edit 1's definition. Since this is Python, the method call in Edit 0 would result in an AttributeError at runtime if Edit 1's method definition doesn't exist, but both edits can be parsed and staged in either order. This represents a definition-usage relationship for the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits replace identical code blocks that create an action dictionary for 'mrp.act_mrp_product_produce' with calls to the same method '_action_record_components()'. This is a clear bulk refactoring pattern where the same before\u2192after substitution is being applied to the same type of syntactic construct (action creation code blocks) across different files. The edits are part of a single refactoring operation to extract common action creation logic into a shared method."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits replace identical code blocks that create an action dictionary for 'mrp.act_mrp_product_produce' with calls to the same method '_action_record_components()'. This is a clear bulk refactoring pattern where the same before\u2192after substitution is being applied to the same type of syntactic construct (action creation code blocks) across different files. The edits are part of a single refactoring operation to extract common action creation logic into a shared method."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new method `_action_record_components()` in the `StockMove` class, while Edit 1 replaces inline code with a call to that exact same method (`move._action_record_components()`). The changed lines in Edit 1 directly reference and call the method being defined in Edit 0. This creates an immediate code dependency where defining the method enables its usage, making them bi-directional neighbours in mental flow - either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `_action_record_components()` in the `StockMove` class, while Edit 1 replaces inline code with a call to that exact same method (`move._action_record_components()`). The changed lines in Edit 1 directly reference and call the method being defined in Edit 0. This creates an immediate code dependency where defining the method enables its usage, making them bi-directional neighbours in mental flow - either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        6
+    ]
+}

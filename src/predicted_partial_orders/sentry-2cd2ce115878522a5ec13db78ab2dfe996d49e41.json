@@ -1,0 +1,110 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 changes the `possibilities` variable from a set to a list (removing `set()` wrapper), while Edit 1 adds a comment explaining that lines should be scanned sequentially with the last one winning. The comment directly explains why the change in Edit 0 was necessary - sets don't preserve order, but lists do, which is required for the sequential scanning behavior described in the comment. The comment references the same `possibilities` variable that was modified in Edit 0, creating a direct code linkage where the comment explains the rationale for the structural change."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 changes the `possibilities` variable from a set to a list (removing `set()` wrapper), while Edit 1 adds a comment explaining that lines should be scanned sequentially with the last one winning. The comment directly explains why the change in Edit 0 was necessary - sets don't preserve order, but lists do, which is required for the sequential scanning behavior described in the comment. The comment references the same `possibilities` variable that was modified in Edit 0, creating a direct code linkage where the comment explains the rationale for the structural change."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "These edits are part of a single, contiguous code modification within the same function. Edit 0 adds a comment explaining that 'the last one found wins' and that lines should be scanned sequentially. Edit 1 removes the 'break' statement that would stop the loop after finding the first match. These changes work together to implement the behavior described in the comment - allowing the loop to continue and letting the last found sourcemap win instead of the first. The removal of 'break' is the mechanical implementation of the sequential scanning behavior described in the comment. Both edits reference the same loop construct and implement a unified change to the loop's termination behavior."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "These edits are part of a single, contiguous code modification within the same function. Edit 0 adds a comment explaining that 'the last one found wins' and that lines should be scanned sequentially. Edit 1 removes the 'break' statement that would stop the loop after finding the first match. These changes work together to implement the behavior described in the comment - allowing the loop to continue and letting the last found sourcemap win instead of the first. The removal of 'break' is the mechanical implementation of the sequential scanning behavior described in the comment. Both edits reference the same loop construct and implement a unified change to the loop's termination behavior."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 changes the `possibilities` variable from a set to a list (removing `set()` wrapper), and Edit 1 modifies code that iterates over this same `possibilities` variable. The change in Edit 0 directly affects the data structure that Edit 1 operates on. However, both edits can be staged independently - Edit 0 changes the data type but preserves iteration capability, and Edit 1's string slicing optimization works on both sets and lists since both are iterable. The edits reference the exact same symbol (`possibilities`) and are part of the same optimization task, but neither edit creates a parse-time dependency on the other."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 changes the `possibilities` variable from a set to a list (removing `set()` wrapper), and Edit 1 modifies code that iterates over this same `possibilities` variable. The change in Edit 0 directly affects the data structure that Edit 1 operates on. However, both edits can be staged independently - Edit 0 changes the data type but preserves iteration capability, and Edit 1's string slicing optimization works on both sets and lists since both are iterable. The edits reference the exact same symbol (`possibilities`) and are part of the same optimization task, but neither edit creates a parse-time dependency on the other."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes the implementation of `discover_sourcemap` function by modifying how `possibilities` is assigned (from `set(parsed_body)` to `parsed_body`). Edit 1 adds a test case that calls the exact same `discover_sourcemap` function and asserts its behavior. The test is specifically designed to verify the function's behavior when there are multiple sourcemap URLs, which directly relates to the implementation change in edit 0. The changed lines reference the exact same symbol (`discover_sourcemap` function), and the test appears to be validating the specific behavior change made in edit 0. This creates a bi-directional relationship where either edit could prompt the other as the next mechanical step - changing the implementation prompts updating/adding tests, or adding a test case prompts implementing the corresponding functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes the implementation of `discover_sourcemap` function by modifying how `possibilities` is assigned (from `set(parsed_body)` to `parsed_body`). Edit 1 adds a test case that calls the exact same `discover_sourcemap` function and asserts its behavior. The test is specifically designed to verify the function's behavior when there are multiple sourcemap URLs, which directly relates to the implementation change in edit 0. The changed lines reference the exact same symbol (`discover_sourcemap` function), and the test appears to be validating the specific behavior change made in edit 0. This creates a bi-directional relationship where either edit could prompt the other as the next mechanical step - changing the implementation prompts updating/adding tests, or adding a test case prompts implementing the corresponding functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes the assignment from `set(parsed_body)` to `parsed_body`, removing the set conversion. Edit 1 adds a comment explaining that lines should be scanned sequentially with the last one winning. These edits are directly related because removing the set conversion (which would eliminate ordering) is necessary to enable the sequential scanning behavior described in the comment. The variable `possibilities` is the exact same symbol referenced in both edits - edit 0 changes how it's assigned and edit 1 explains why this change was needed. This represents a single micro-task where changing the data structure prompts adding explanatory documentation."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes the assignment from `set(parsed_body)` to `parsed_body`, removing the set conversion. Edit 1 adds a comment explaining that lines should be scanned sequentially with the last one winning. These edits are directly related because removing the set conversion (which would eliminate ordering) is necessary to enable the sequential scanning behavior described in the comment. The variable `possibilities` is the exact same symbol referenced in both edits - edit 0 changes how it's assigned and edit 1 explains why this change was needed. This represents a single micro-task where changing the data structure prompts adding explanatory documentation."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are removing the `set()` wrapper from the `possibilities` variable assignment within the same function `discover_sourcemap`. Edit 0 changes `possibilities = set(parsed_body[:5] + parsed_body[-5:])` to `possibilities = parsed_body[:5] + parsed_body[-5:]`, and Edit 1 changes `possibilities = set(parsed_body)` to `possibilities = parsed_body`. These are part of the same refactoring operation - converting from set to list for the `possibilities` variable in different branches of the same conditional statement. Both edits reference the exact same variable `possibilities` and perform identical structural transformations (removing `set()` wrapper). This represents a uniform substitution pattern within the same function scope, making either edit naturally prompt the other as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are removing the `set()` wrapper from the `possibilities` variable assignment within the same function `discover_sourcemap`. Edit 0 changes `possibilities = set(parsed_body[:5] + parsed_body[-5:])` to `possibilities = parsed_body[:5] + parsed_body[-5:]`, and Edit 1 changes `possibilities = set(parsed_body)` to `possibilities = parsed_body`. These are part of the same refactoring operation - converting from set to list for the `possibilities` variable in different branches of the same conditional statement. Both edits reference the exact same variable `possibilities` and perform identical structural transformations (removing `set()` wrapper). This represents a uniform substitution pattern within the same function scope, making either edit naturally prompt the other as part of the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a comment explaining that when scanning sourcemap URLs, the last one found wins, matching Chrome and Firefox behavior. Edit 1 adds a test that verifies this exact behavior by providing multiple sourceMappingURL comments and asserting that the last one ('source2.map.js') is returned. The test directly validates the implementation behavior described in the comment, making this a test-production code synchronization where the test asserts on the exact same function (discover_sourcemap) being modified in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a comment explaining that when scanning sourcemap URLs, the last one found wins, matching Chrome and Firefox behavior. Edit 1 adds a test that verifies this exact behavior by providing multiple sourceMappingURL comments and asserting that the last one ('source2.map.js') is returned. The test directly validates the implementation behavior described in the comment, making this a test-production code synchronization where the test asserts on the exact same function (discover_sourcemap) being modified in the production code."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the implementation of sourcemap URL detection in the discover_sourcemap function, optimizing the string matching logic. Edit 1 adds a test case that specifically tests the discover_sourcemap function with multiple sourceMappingURL comments. The test directly calls the exact same function that was modified in edit 0, creating an immediate code dependency where the test validates the behavior of the changed implementation. This is a classic test-production code synchronization pattern where one edit modifies implementation and another adds corresponding test coverage for that exact same function."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the implementation of sourcemap URL detection in the discover_sourcemap function, optimizing the string matching logic. Edit 1 adds a test case that specifically tests the discover_sourcemap function with multiple sourceMappingURL comments. The test directly calls the exact same function that was modified in edit 0, creating an immediate code dependency where the test validates the behavior of the changed implementation. This is a classic test-production code synchronization pattern where one edit modifies implementation and another adds corresponding test coverage for that exact same function."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes a 'break' statement from the discover_sourcemap function, which changes its behavior to continue processing multiple sourceMappingURL comments instead of stopping at the first one. Edit 1 adds a test that specifically verifies this new behavior by testing that when multiple sourceMappingURL comments are present, the function returns the last one ('source2.map.js'). The test directly calls the exact same function (discover_sourcemap) that was modified in edit 0, and the test would fail with the original implementation (with the break statement) but passes with the modified implementation. This creates a direct code dependency where the test validates the specific behavioral change made in the implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes a 'break' statement from the discover_sourcemap function, which changes its behavior to continue processing multiple sourceMappingURL comments instead of stopping at the first one. Edit 1 adds a test that specifically verifies this new behavior by testing that when multiple sourceMappingURL comments are present, the function returns the last one ('source2.map.js'). The test directly calls the exact same function (discover_sourcemap) that was modified in edit 0, and the test would fail with the original implementation (with the break statement) but passes with the modified implementation. This creates a direct code dependency where the test validates the specific behavioral change made in the implementation."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "These edits are part of a single, contiguous micro-task optimizing sourcemap URL detection. Edit 0 changes the condition from using `startswith()` calls to a more efficient slice-based check `line[:21] in (...)`, while edit 1 removes the `break` statement. The comment in edit 0 explicitly states '21 chars long' and edit 1 uses the same magic number `line[21:]`. Both edits reference the same line variable and work together to optimize the same loop logic - the slice length optimization in edit 0 creates an immediate prompt to also remove the break for consistency in the refactored loop structure. However, both edits can be staged independently without causing parse errors, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These edits are part of a single, contiguous micro-task optimizing sourcemap URL detection. Edit 0 changes the condition from using `startswith()` calls to a more efficient slice-based check `line[:21] in (...)`, while edit 1 removes the `break` statement. The comment in edit 0 explicitly states '21 chars long' and edit 1 uses the same magic number `line[21:]`. Both edits reference the same line variable and work together to optimize the same loop logic - the slice length optimization in edit 0 creates an immediate prompt to also remove the break for consistency in the refactored loop structure. However, both edits can be staged independently without causing parse errors, making this bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        3,
+        1
+    ]
+}

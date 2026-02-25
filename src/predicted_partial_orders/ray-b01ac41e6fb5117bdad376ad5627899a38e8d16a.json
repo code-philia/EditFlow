@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 defines two new variables UNIQUE_FILE_2 and UNIQUE_FILE_3 by assigning them the results of tempfile.mkstemp() calls. Edit 1 uses these exact same variables in os.unlink() calls within a close() method. The changed lines in edit 1 directly reference the symbols defined in edit 0's changed lines. This creates an immediate code dependency where defining the variables naturally prompts their usage, and using undefined variables would cause a NameError at runtime. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 defines two new variables UNIQUE_FILE_2 and UNIQUE_FILE_3 by assigning them the results of tempfile.mkstemp() calls. Edit 1 uses these exact same variables in os.unlink() calls within a close() method. The changed lines in edit 1 directly reference the symbols defined in edit 0's changed lines. This creates an immediate code dependency where defining the variables naturally prompts their usage, and using undefined variables would cause a NameError at runtime. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 assigns the config parameter to self.config in the __init__ method, and Edit 1 references self.config in the newly added close method. The changed lines reference the exact same symbol (self.config), where Edit 0 creates the attribute and Edit 1 uses it. This creates an immediate code dependency where defining self.config naturally prompts its usage in the close method as part of implementing the class functionality. Both edits can be staged in either order since Python allows attribute access that would fail at runtime rather than parse time."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 assigns the config parameter to self.config in the __init__ method, and Edit 1 references self.config in the newly added close method. The changed lines reference the exact same symbol (self.config), where Edit 0 creates the attribute and Edit 1 uses it. This creates an immediate code dependency where defining self.config naturally prompts its usage in the close method as part of implementing the class functionality. Both edits can be staged in either order since Python allows attribute access that would fail at runtime rather than parse time."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a close() method that deletes UNIQUE_FILE_2 and UNIQUE_FILE_3 based on worker_index. Edit 1 adds assertions to check that these same files (UNIQUE_FILE_2 and UNIQUE_FILE_3) don't exist, verifying that the close method was called. The changed lines in edit 1 directly reference the exact same symbols (UNIQUE_FILE_2 and UNIQUE_FILE_3) that are being operated on in edit 0. This creates a direct code dependency where the test assertions in edit 1 are specifically designed to verify the behavior implemented in edit 0. Both edits can be staged in either order since they don't create parse errors, making this a bi-directional relationship where either edit naturally prompts the other as the next step in implementing and testing the close functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a close() method that deletes UNIQUE_FILE_2 and UNIQUE_FILE_3 based on worker_index. Edit 1 adds assertions to check that these same files (UNIQUE_FILE_2 and UNIQUE_FILE_3) don't exist, verifying that the close method was called. The changed lines in edit 1 directly reference the exact same symbols (UNIQUE_FILE_2 and UNIQUE_FILE_3) that are being operated on in edit 0. This creates a direct code dependency where the test assertions in edit 1 are specifically designed to verify the behavior implemented in edit 0. Both edits can be staged in either order since they don't create parse errors, making this a bi-directional relationship where either edit naturally prompts the other as the next step in implementing and testing the close functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbols (UNIQUE_FILE_2 and UNIQUE_FILE_3). Edit 0 defines these variables by creating temporary files, and Edit 1 uses these same variables in assertions to check if the files exist. This creates a direct definition-usage relationship where the changed lines in both edits reference the identical symbols. After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the variable definitions, you need the corresponding assertions, and vice versa. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined variables at parse time, only failing at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbols (UNIQUE_FILE_2 and UNIQUE_FILE_3). Edit 0 defines these variables by creating temporary files, and Edit 1 uses these same variables in assertions to check if the files exist. This creates a direct definition-usage relationship where the changed lines in both edits reference the identical symbols. After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the variable definitions, you need the corresponding assertions, and vice versa. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined variables at parse time, only failing at runtime)."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

@@ -1,0 +1,54 @@
+sequenceDiagram
+    participant U as User
+    participant V as VS Code
+    participant S as Simulation
+    participant T as System under test
+
+		U-->>V: Enter commit URL and select system under test
+	    V-->>V: Git clone project and checkout to commit base
+	    V-->>S: Share commit URL and system under test
+		Note left of S: {"commit_url": xx, "system_under_test": enum["CoEdPilot", "Cursor"],
+		Note left of S: "status": enum["init", "suggestion", xx]}
+	    S-->>S: Git clone project and checkout to commit base
+	    S-->>S: Generate edit partial order graph
+	    S-->>T: Set up system under test
+		Note left of T: {"commit_url": xx, "repo_dir": xx, 
+		Note left of T: "init_edit": dict}
+	    S-->>V: Provide initial edit hunk
+		Note left of S: {"pred_snapshots": [list|dict], "gdth_snapshots": [list|dict],
+		Note left of S: "evaluations": xx, "status": enum["init", "suggestion", xx],
+		Note left of S: "next_edit_snapshots": [list|dict],
+		Note left of S: "partial_order_graph": dict, with key node and edge, node has key:
+		Note left of S: idx, simulated, allowed_as_next. edge has key: source, target
+	    V-->>U: Display initial edit hunk, pause
+		alt Simulation has no record for this commit and system under test
+			loop while exist unsimulated edits
+				U-->>V: Click resume simulation button
+				V-->>S: Request for sub-sequent edit recommendation
+				Note left of S: {"commit_url": xx, "system_under_test": enum["CoEdPilot", "Cursor"],
+				Note left of S: "status": enum["init", "suggestion", xx]}
+				S-->>T: Request for sub-sequent edit recommendation
+				T-->>S: Recommended sub-seuqent edits (location + content)
+				Note right of S: In json format: {file_path: edit snapshot}
+				Note right of S: Edit snapshot: list[list[str] | dict], 
+				Note right of S: where list[str] is code unchanged, 
+				Note right of S: and dict contain keys: before, after, of value type list[str]
+				S-->>S: Compare with edit partial order graph, evaluate flow consistency
+				S-->>S: Update simulation progress
+				S-->>T: Update project status
+				S-->>V: Share recommended edit suggestions and evaluation results
+				Note left of S: {"predicted_snapshots": [list|dict], "groundtruth_snapshots": [list|dict],
+				Note left of S: "evaluation": xx, "status": enum["init", "suggestion", xx],
+				Note left of S: "next_edit_snapshots": [list|dict],
+				Note left of S: "partial_order_graph": dict, with key node and edge, node has key:
+				Note left of S: idx, simulated, allowed_as_next. edge has key: source, target
+				V-->>U: Display initial edit hunk, pause
+			end
+		else
+			loop while exist edit not displayed
+				U-->>V: Click resume simulation button
+				V-->>S: Request for sub-sequent edit recommendation
+				S-->>V: Share recommended edit suggestions and evaluation results
+				V-->>U: Display initial edit hunk, pause
+			end
+		end

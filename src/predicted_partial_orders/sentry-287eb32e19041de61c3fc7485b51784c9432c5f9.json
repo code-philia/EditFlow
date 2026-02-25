@@ -1,0 +1,89 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new field 'discoverSplitDecision' to the response metadata in the production code, setting it to the result of DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.TRANSACTION_LIKE). Edit 1 adds a test assertion that checks for this exact same field and value in the response. The test is directly verifying the behavior implemented in edit 0 - both edits reference the same response field 'discoverSplitDecision' and the same method call DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.TRANSACTION_LIKE). This is a classic test-production code synchronization where the test validates the exact implementation added in the production code."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new field 'discoverSplitDecision' to the response metadata in the production code, setting it to the result of DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.TRANSACTION_LIKE). Edit 1 adds a test assertion that checks for this exact same field and value in the response. The test is directly verifying the behavior implemented in edit 0 - both edits reference the same response field 'discoverSplitDecision' and the same method call DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.TRANSACTION_LIKE). This is a classic test-production code synchronization where the test validates the exact implementation added in the production code."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds code that sets response.data['meta']['discoverSplitDecision'] to a specific value when decision == DashboardWidgetTypes.TRANSACTION_LIKE. Edit 1 adds a test assertion that checks response.data.get('meta').get('discoverSplitDecision') is None. These edits reference the exact same data structure path ('meta']['discoverSplitDecision']) but are testing different scenarios - one sets the value in production code, the other asserts it should be None in a specific test case. This represents test-production code synchronization where the test is validating the behavior of the exact same data field being modified in the production code."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds code that sets response.data['meta']['discoverSplitDecision'] to a specific value when decision == DashboardWidgetTypes.TRANSACTION_LIKE. Edit 1 adds a test assertion that checks response.data.get('meta').get('discoverSplitDecision') is None. These edits reference the exact same data structure path ('meta']['discoverSplitDecision']) but are testing different scenarios - one sets the value in production code, the other asserts it should be None in a specific test case. This represents test-production code synchronization where the test is validating the behavior of the exact same data field being modified in the production code."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'discoverSplitDecision' field to the error_results meta dictionary with a specific value from DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.ERROR_EVENTS). Edit 1 adds a test assertion that checks for the exact same field ('discoverSplitDecision') in the response meta with the exact same expected value. This is a classic test-production code synchronization pattern where the production code implements a feature and the test code verifies that exact feature. Both edits reference the same field name and expected value, making them bi-directional neighbors in the mental flow of implementing and testing the same functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'discoverSplitDecision' field to the error_results meta dictionary with a specific value from DashboardWidgetTypes.get_type_name(DashboardWidgetTypes.ERROR_EVENTS). Edit 1 adds a test assertion that checks for the exact same field ('discoverSplitDecision') in the response meta with the exact same expected value. This is a classic test-production code synchronization pattern where the production code implements a feature and the test code verifies that exact feature. Both edits reference the same field name and expected value, making them bi-directional neighbors in the mental flow of implementing and testing the same functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds code that sets response.data['meta']['discoverSplitDecision'] to a specific value when the decision is TRANSACTION_LIKE. Edit 1 adds a test assertion that checks response.data.get('meta').get('discoverSplitDecision') is None. These edits reference the exact same data structure path ('meta.discoverSplitDecision') but appear to be testing different scenarios - the production code sets this field under certain conditions while the test asserts it should be None in a different scenario. This represents a test-production code synchronization where the test is validating the behavior of the exact same field being modified in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds code that sets response.data['meta']['discoverSplitDecision'] to a specific value when the decision is TRANSACTION_LIKE. Edit 1 adds a test assertion that checks response.data.get('meta').get('discoverSplitDecision') is None. These edits reference the exact same data structure path ('meta.discoverSplitDecision') but appear to be testing different scenarios - the production code sets this field under certain conditions while the test asserts it should be None in a different scenario. This represents a test-production code synchronization where the test is validating the behavior of the exact same field being modified in the production code."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits add nearly identical assertion patterns in different test methods within the same test class. They follow the same structural pattern: `assert response.data.get(\"meta\").get(\"discoverSplitDecision\") is DashboardWidgetTypes.get_type_name(...)` with only the final enum value differing (ERROR_EVENTS vs TRANSACTION_LIKE). This represents a bulk-edit pattern where the same assertion structure is being added to multiple test methods as part of a single refactoring task. The edits are synchronized additions of the same type of syntactic construct (test assertions) with identical before\u2192after patterns, making them part of a contiguous micro-task where either could be implemented first."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits add nearly identical assertion patterns in different test methods within the same test class. They follow the same structural pattern: `assert response.data.get(\"meta\").get(\"discoverSplitDecision\") is DashboardWidgetTypes.get_type_name(...)` with only the final enum value differing (ERROR_EVENTS vs TRANSACTION_LIKE). This represents a bulk-edit pattern where the same assertion structure is being added to multiple test methods as part of a single refactoring task. The edits are synchronized additions of the same type of syntactic construct (test assertions) with identical before\u2192after patterns, making them part of a contiguous micro-task where either could be implemented first."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform identical structural operations within the same function context. They both add the same pattern of code: setting a 'discoverSplitDecision' key in a results dictionary's 'meta' field using the same method call pattern (DashboardWidgetTypes.get_type_name()). The only differences are the specific enum values (TRANSACTION_LIKE vs ERROR_EVENTS) and the target dictionaries (original_results vs error_results). This represents a synchronized pattern addition where both edits are part of the same refactoring task to add decision metadata to different result types. The edits are structurally identical substitutions of the same type of syntactic construct (dictionary assignment with method call) and would naturally be implemented together in a single, contiguous micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform identical structural operations within the same function context. They both add the same pattern of code: setting a 'discoverSplitDecision' key in a results dictionary's 'meta' field using the same method call pattern (DashboardWidgetTypes.get_type_name()). The only differences are the specific enum values (TRANSACTION_LIKE vs ERROR_EVENTS) and the target dictionaries (original_results vs error_results). This represents a synchronized pattern addition where both edits are part of the same refactoring task to add decision metadata to different result types. The edits are structurally identical substitutions of the same type of syntactic construct (dictionary assignment with method call) and would naturally be implemented together in a single, contiguous micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits add identical assertion lines (`assert response.data.get(\"meta\").get(\"discoverSplitDecision\") is None`) to different test methods within the same test class. This represents a bulk-edit pattern where the same structural substitution (adding the same assertion) is being applied to the same type of syntactic construct (test method assertions). Both edits are part of what appears to be a single, contiguous refactor to add consistent test assertions across related test methods. Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency across the test suite."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits add identical assertion lines (`assert response.data.get(\"meta\").get(\"discoverSplitDecision\") is None`) to different test methods within the same test class. This represents a bulk-edit pattern where the same structural substitution (adding the same assertion) is being applied to the same type of syntactic construct (test method assertions). Both edits are part of what appears to be a single, contiguous refactor to add consistent test assertions across related test methods. Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency across the test suite."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds code that sets a 'discoverSplitDecision' field in the meta dictionary to a specific value when the decision is ERROR_EVENTS. Edit 1 adds a test assertion that checks if 'discoverSplitDecision' is None in the response meta. These edits reference the exact same field ('discoverSplitDecision') in the meta dictionary - one sets it conditionally in the production code, and the other tests its value in a specific scenario. This creates a direct test-production code synchronization where the test is verifying the behavior of the exact same field being modified in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds code that sets a 'discoverSplitDecision' field in the meta dictionary to a specific value when the decision is ERROR_EVENTS. Edit 1 adds a test assertion that checks if 'discoverSplitDecision' is None in the response meta. These edits reference the exact same field ('discoverSplitDecision') in the meta dictionary - one sets it conditionally in the production code, and the other tests its value in a specific scenario. This creates a direct test-production code synchronization where the test is verifying the behavior of the exact same field being modified in the production code."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        2
+    ]
+}

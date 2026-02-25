@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 removes the definition of the variable 'enabled_features', while Edit 1 still references 'enabled_features' in the changed lines (lines 108 and 110). After Edit 0 is applied, the variable 'enabled_features' would be undefined, making Edit 1's references to it cause a NameError at runtime. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be written and parsed in either order. The relationship is bi-directional because both edits reference the exact same symbol 'enabled_features', and making either edit creates an immediate prompt for the other to maintain code consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the variable 'enabled_features', while Edit 1 still references 'enabled_features' in the changed lines (lines 108 and 110). After Edit 0 is applied, the variable 'enabled_features' would be undefined, making Edit 1's references to it cause a NameError at runtime. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be written and parsed in either order. The relationship is bi-directional because both edits reference the exact same symbol 'enabled_features', and making either edit creates an immediate prompt for the other to maintain code consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines the variable 'enabled_features' by assigning it the result of 'on_demand_metrics_feature_flags(project.organization)'. Edit 1 uses this exact same variable 'enabled_features' as a parameter in two function calls. The changed lines in edit 1 explicitly reference the same symbol that was defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol within the same function scope. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable, and vice versa - both edits are part of the same contiguous micro-task of adding spans and using the enabled_features variable."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines the variable 'enabled_features' by assigning it the result of 'on_demand_metrics_feature_flags(project.organization)'. Edit 1 uses this exact same variable 'enabled_features' as a parameter in two function calls. The changed lines in edit 1 explicitly reference the same symbol that was defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol within the same function scope. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable, and vice versa - both edits are part of the same contiguous micro-task of adding spans and using the enabled_features variable."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are adding sentry_sdk.start_span() wrappers around consecutive function calls within the same function. Edit 0 wraps the calls to _get_alert_metric_specs() and _get_widget_metric_specs() that assign to alert_specs and widget_specs variables. Edit 1 wraps the call to _merge_metric_specs() that uses those same alert_specs and widget_specs variables. This appears to be part of a single micro-task to add performance monitoring spans around related operations. The edits reference the exact same symbols (alert_specs and widget_specs) and follow a natural flow where you would add spans to the data generation calls first, then add a span to the function that processes that data. Either edit could be made first without causing parsing issues, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are adding sentry_sdk.start_span() wrappers around consecutive function calls within the same function. Edit 0 wraps the calls to _get_alert_metric_specs() and _get_widget_metric_specs() that assign to alert_specs and widget_specs variables. Edit 1 wraps the call to _merge_metric_specs() that uses those same alert_specs and widget_specs variables. This appears to be part of a single micro-task to add performance monitoring spans around related operations. The edits reference the exact same symbols (alert_specs and widget_specs) and follow a natural flow where you would add spans to the data generation calls first, then add a span to the function that processes that data. Either edit could be made first without causing parsing issues, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes the line 'enabled_features = on_demand_metrics_feature_flags(project.organization)' while Edit 1 adds back the same function call but wrapped in a sentry_sdk span. The changed lines reference the exact same symbol 'on_demand_metrics_feature_flags' and the same variable assignment 'enabled_features'. Edit 0 removes this code and Edit 1 re-adds it with additional instrumentation. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step - removing the call creates a prompt to add it back (potentially with improvements), and adding the instrumented version creates a prompt to remove the old version. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line 'enabled_features = on_demand_metrics_feature_flags(project.organization)' while Edit 1 adds back the same function call but wrapped in a sentry_sdk span. The changed lines reference the exact same symbol 'on_demand_metrics_feature_flags' and the same variable assignment 'enabled_features'. Edit 0 removes this code and Edit 1 re-adds it with additional instrumentation. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step - removing the call creates a prompt to add it back (potentially with improvements), and adding the instrumented version creates a prompt to remove the old version. Both edits can be staged in either order without parser errors."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

@@ -1,0 +1,72 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'loader.get_template(template_name).render(...)' with 'loader.render_to_string(template_name, ...)'. This is a uniform refactoring across two different functions in the same file, changing the same type of syntactic construct (method call chains) with the same before\u2192after pattern. Both edits are part of a single, contiguous refactor to modernize the template rendering approach. The changes are mechanically identical in structure and would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'loader.get_template(template_name).render(...)' with 'loader.render_to_string(template_name, ...)'. This is a uniform refactoring across two different functions in the same file, changing the same type of syntactic construct (method call chains) with the same before\u2192after pattern. Both edits are part of a single, contiguous refactor to modernize the template rendering approach. The changes are mechanically identical in structure and would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds a test method that makes a GET request to '/render/multiple_templates/' URL path, while Edit 1 adds the URL pattern that maps '/render/multiple_templates/' to the view function 'views.render_view_with_multiple_templates'. The test in Edit 0 directly references the URL path that is being defined in Edit 1. Without the URL pattern from Edit 1, the test in Edit 0 would fail with a 404 error when trying to access that path. However, both edits can be written and staged in either order - the test can be written before the URL is defined (it would just fail when run), and the URL can be defined before the test exists. This represents a bi-directional relationship where either edit naturally prompts the other as the next step in implementing the feature."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds a test method that makes a GET request to '/render/multiple_templates/' URL path, while Edit 1 adds the URL pattern that maps '/render/multiple_templates/' to the view function 'views.render_view_with_multiple_templates'. The test in Edit 0 directly references the URL path that is being defined in Edit 1. Without the URL pattern from Edit 1, the test in Edit 0 would fail with a 404 error when trying to access that path. However, both edits can be written and staged in either order - the test can be written before the URL is defined (it would just fail when run), and the URL can be defined before the test exists. This represents a bi-directional relationship where either edit naturally prompts the other as the next step in implementing the feature."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds a test that makes a GET request to '/render_to_response/multiple_templates/' URL path, while Edit 1 adds the URL pattern that maps this exact path to a view function. The test in Edit 0 references the specific URL path that is being defined in Edit 1. However, both edits can be written and parsed independently - the test would simply fail at runtime with a 404 error if the URL pattern doesn't exist, but this doesn't prevent the test code from being staged. Since both edits reference the same URL path and either could prompt the other as the next logical step (adding the URL pattern after writing the test, or writing the test after adding the URL pattern), this is a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds a test that makes a GET request to '/render_to_response/multiple_templates/' URL path, while Edit 1 adds the URL pattern that maps this exact path to a view function. The test in Edit 0 references the specific URL path that is being defined in Edit 1. However, both edits can be written and parsed independently - the test would simply fail at runtime with a 404 error if the URL pattern doesn't exist, but this doesn't prevent the test code from being staged. Since both edits reference the same URL path and either could prompt the other as the next logical step (adding the URL pattern after writing the test, or writing the test after adding the URL pattern), this is a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits add URL patterns with identical structure and naming convention (adding '/multiple_templates/$' routes) to the same URL configuration file. They follow the exact same pattern: adding a new URL route that references a view function with '_with_multiple_templates' suffix. This represents a synchronized, mirrored addition where both edits perform structurally identical substitutions (adding the same type of URL pattern) as part of what appears to be a single, contiguous refactoring task to add multiple template support to both render_to_response and render views. The edits can be applied in either order since they modify different lines and don't create dependencies between each other."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits add URL patterns with identical structure and naming convention (adding '/multiple_templates/$' routes) to the same URL configuration file. They follow the exact same pattern: adding a new URL route that references a view function with '_with_multiple_templates' suffix. This represents a synchronized, mirrored addition where both edits perform structurally identical substitutions (adding the same type of URL pattern) as part of what appears to be a single, contiguous refactoring task to add multiple template support to both render_to_response and render views. The edits can be applied in either order since they modify different lines and don't create dependencies between each other."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a URL pattern that references `views.render_to_response_view_with_multiple_templates`, while Edit 1 defines that exact same function. The changed line in Edit 0 explicitly calls/references the symbol that Edit 1 defines. This creates a direct code dependency where defining the function (Edit 1) enables the URL pattern to work (Edit 0), and adding the URL pattern creates an immediate need for the function definition. Both edits reference the exact same symbol and either can be staged first - the URL pattern can reference a not-yet-defined function (causing a runtime AttributeError when accessed, but no parse error), and the function can be defined before being referenced in URLs."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a URL pattern that references `views.render_to_response_view_with_multiple_templates`, while Edit 1 defines that exact same function. The changed line in Edit 0 explicitly calls/references the symbol that Edit 1 defines. This creates a direct code dependency where defining the function (Edit 1) enables the URL pattern to work (Edit 0), and adding the URL pattern creates an immediate need for the function definition. Both edits reference the exact same symbol and either can be staged first - the URL pattern can reference a not-yet-defined function (causing a runtime AttributeError when accessed, but no parse error), and the function can be defined before being referenced in URLs."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 adds a URL pattern that references `views.render_view_with_multiple_templates`, while Edit 1 defines that exact same function. The changed line in Edit 0 explicitly references the symbol being defined in Edit 1. This creates a direct code dependency where defining the function (Edit 1) and adding the URL route that calls it (Edit 0) are part of the same development session. Either edit can be staged first - if Edit 0 is staged first, it creates an immediate prompt to define the missing function; if Edit 1 is staged first, it creates a prompt to add the URL route. Both reference the exact same symbol and form a natural bi-directional relationship in a single micro-task of adding a new view and its corresponding URL pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 adds a URL pattern that references `views.render_view_with_multiple_templates`, while Edit 1 defines that exact same function. The changed line in Edit 0 explicitly references the symbol being defined in Edit 1. This creates a direct code dependency where defining the function (Edit 1) and adding the URL route that calls it (Edit 0) are part of the same development session. Either edit can be staged first - if Edit 0 is staged first, it creates an immediate prompt to define the missing function; if Edit 1 is staged first, it creates a prompt to add the URL route. Both reference the exact same symbol and form a natural bi-directional relationship in a single micro-task of adding a new view and its corresponding URL pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        3,
+        2,
+        6,
+        7
+    ]
+}

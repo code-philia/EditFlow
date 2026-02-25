@@ -1,0 +1,110 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits add the exact same line 'self.n_features = n_features' to the __init__ methods of related classes (LARS and LassoLARS, where LassoLARS inherits from LARS). This represents a synchronized addition of the same attribute assignment across a class hierarchy. The changed lines in both edits reference the exact same symbol 'n_features' and perform identical structural operations (attribute assignment). This appears to be part of a single refactoring task to add the n_features attribute to both parent and child classes simultaneously. Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency across the class hierarchy."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits add the exact same line 'self.n_features = n_features' to the __init__ methods of related classes (LARS and LassoLARS, where LassoLARS inherits from LARS). This represents a synchronized addition of the same attribute assignment across a class hierarchy. The changed lines in both edits reference the exact same symbol 'n_features' and perform identical structural operations (attribute assignment). This appears to be part of a single refactoring task to add the n_features attribute to both parent and child classes simultaneously. Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency across the class hierarchy."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'n_features' within the same function (__init__ method of LARS class). Edit 0 adds 'n_features' as a parameter to the function signature, and Edit 1 assigns that parameter to self.n_features in the function body. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the natural next step is to assign it to an instance variable in the constructor body. Both edits can be staged in either order without causing parse errors (Python allows parameters to exist without being used in the body, and allows assignment of undefined parameters which would only cause runtime errors). This is a classic parameter addition followed by parameter usage pattern within the same function."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'n_features' within the same function (__init__ method of LARS class). Edit 0 adds 'n_features' as a parameter to the function signature, and Edit 1 assigns that parameter to self.n_features in the function body. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the natural next step is to assign it to an instance variable in the constructor body. Both edits can be staged in either order without causing parse errors (Python allows parameters to exist without being used in the body, and allows assignment of undefined parameters which would only cause runtime errors). This is a classic parameter addition followed by parameter usage pattern within the same function."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'n_features=None' to the LARS class constructor's __init__ method signature. Edit 1 adds code in the fit method that references 'self.n_features' - the exact same attribute that would be set from the constructor parameter. The changed lines in edit 1 explicitly reference the same symbol (n_features) that was added in edit 0's constructor signature. After adding the parameter to __init__, the natural next step would be to use that parameter in the class methods, which is exactly what edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of adding n_features functionality to the LARS class."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'n_features=None' to the LARS class constructor's __init__ method signature. Edit 1 adds code in the fit method that references 'self.n_features' - the exact same attribute that would be set from the constructor parameter. The changed lines in edit 1 explicitly reference the same symbol (n_features) that was added in edit 0's constructor signature. After adding the parameter to __init__, the natural next step would be to use that parameter in the class methods, which is exactly what edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of adding n_features functionality to the LARS class."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits add the same parameter 'n_features=None' to the __init__ method signatures of related classes in an inheritance hierarchy. Edit 0 adds it to the LARS parent class, and Edit 1 adds it to the LassoLARS child class that inherits from LARS. This represents a synchronized parameter addition across a class hierarchy where both changed lines explicitly reference the exact same parameter name and structure. This is a uniform substitution pattern (adding the same parameter with the same default value) applied to the same type of syntactic construct (constructor signatures) in related classes. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency in the class hierarchy."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits add the same parameter 'n_features=None' to the __init__ method signatures of related classes in an inheritance hierarchy. Edit 0 adds it to the LARS parent class, and Edit 1 adds it to the LassoLARS child class that inherits from LARS. This represents a synchronized parameter addition across a class hierarchy where both changed lines explicitly reference the exact same parameter name and structure. This is a uniform substitution pattern (adding the same parameter with the same default value) applied to the same type of syntactic construct (constructor signatures) in related classes. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency in the class hierarchy."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 assigns a value to the attribute `self.n_features` in the `__init__` method, while Edit 1 references this exact same attribute `self.n_features` multiple times in the `fit` method. The changed lines in Edit 1 directly reference the attribute that is being assigned in Edit 0. This creates a definition-usage relationship where both edits reference the exact same symbol (`self.n_features`). Since this is Python, the usage in Edit 1 can be written and parsed even before the assignment in Edit 0 exists (it would only cause a runtime AttributeError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 assigns a value to the attribute `self.n_features` in the `__init__` method, while Edit 1 references this exact same attribute `self.n_features` multiple times in the `fit` method. The changed lines in Edit 1 directly reference the attribute that is being assigned in Edit 0. This creates a definition-usage relationship where both edits reference the exact same symbol (`self.n_features`). Since this is Python, the usage in Edit 1 can be written and parsed even before the assignment in Edit 0 exists (it would only cause a runtime AttributeError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds the parameter 'n_features=None' to the LARS class constructor signature. Edit 1 updates test code that creates LARS instances and passes the 'n_features' parameter. Both edits reference the exact same symbol 'n_features' - edit 0 defines it as a parameter in the constructor, and edit 1 uses it when instantiating LARS objects. This creates a direct code dependency where the parameter addition in the constructor enables its usage in the test code. Either edit could be made first since Python allows passing keyword arguments that don't exist (would cause a TypeError at runtime, not a parse error), making this a bi-directional relationship where each edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds the parameter 'n_features=None' to the LARS class constructor signature. Edit 1 updates test code that creates LARS instances and passes the 'n_features' parameter. Both edits reference the exact same symbol 'n_features' - edit 0 defines it as a parameter in the constructor, and edit 1 uses it when instantiating LARS objects. This creates a direct code dependency where the parameter addition in the constructor enables its usage in the test code. Either edit could be made first since Python allows passing keyword arguments that don't exist (would cause a TypeError at runtime, not a parse error), making this a bi-directional relationship where each edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds the n_features parameter to the LassoLARS class constructor, while Edit 1 updates test code to use this new n_features parameter when creating LassoLARS instances. The test code in Edit 1 directly calls LassoLARS(n_features=6, ...) which references the exact same parameter that was added in Edit 0. This creates a direct code dependency where the test cannot successfully instantiate LassoLARS with the n_features parameter until that parameter is added to the constructor. However, in Python, both edits can be written and parsed in either order - the test would only fail at runtime if the parameter doesn't exist. Since there's no parser-level syntax error, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds the n_features parameter to the LassoLARS class constructor, while Edit 1 updates test code to use this new n_features parameter when creating LassoLARS instances. The test code in Edit 1 directly calls LassoLARS(n_features=6, ...) which references the exact same parameter that was added in Edit 0. This creates a direct code dependency where the test cannot successfully instantiate LassoLARS with the n_features parameter until that parameter is added to the constructor. However, in Python, both edits can be written and parsed in either order - the test would only fail at runtime if the parameter doesn't exist. Since there's no parser-level syntax error, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds code that references `self.n_features` in the fit method, checking if it exists and using it to set max_features. Edit 1 adds the `n_features=None` parameter to the LassoLARS constructor's __init__ method. These edits reference the exact same attribute symbol `n_features` - edit 1 makes the parameter available as an instance attribute, and edit 0 uses that same attribute. However, edit 0 can be written and parsed without edit 1 (it would just result in an AttributeError at runtime when `self.n_features` is accessed), while edit 1 can also be written independently. Since both edits can be staged in either order without parser errors, and they form a definition-usage pair for the same symbol, this is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds code that references `self.n_features` in the fit method, checking if it exists and using it to set max_features. Edit 1 adds the `n_features=None` parameter to the LassoLARS constructor's __init__ method. These edits reference the exact same attribute symbol `n_features` - edit 1 makes the parameter available as an instance attribute, and edit 0 uses that same attribute. However, edit 0 can be written and parsed without edit 1 (it would just result in an AttributeError at runtime when `self.n_features` is accessed), while edit 1 can also be written independently. Since both edits can be staged in either order without parser errors, and they form a definition-usage pair for the same symbol, this is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are modifying the same constructor method (__init__) of the LassoLARS class. Edit 0 adds a new parameter 'n_features=None' to the function signature, and Edit 1 adds the corresponding instance variable assignment 'self.n_features = n_features' in the constructor body. This is a classic definition-usage pattern where the parameter defined in the signature needs to be assigned to an instance variable in the body. Both edits reference the exact same symbol 'n_features' - one defines it as a parameter, the other uses it in assignment. This creates an immediate, mechanically obvious prompt where adding a parameter to a constructor signature naturally requires assigning it to an instance variable as the next contiguous action."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are modifying the same constructor method (__init__) of the LassoLARS class. Edit 0 adds a new parameter 'n_features=None' to the function signature, and Edit 1 adds the corresponding instance variable assignment 'self.n_features = n_features' in the constructor body. This is a classic definition-usage pattern where the parameter defined in the signature needs to be assigned to an instance variable in the body. Both edits reference the exact same symbol 'n_features' - one defines it as a parameter, the other uses it in assignment. This creates an immediate, mechanically obvious prompt where adding a parameter to a constructor signature naturally requires assigning it to an instance variable as the next contiguous action."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds the n_features parameter to the LassoLARS.__init__ method signature. Edit 1 updates test code to use this new n_features parameter when creating LassoLARS instances. The test code in edit 1 explicitly references the same n_features parameter that was added in edit 0's constructor signature. This creates a direct code dependency where the test usage of n_features=6 in the LassoLARS constructor calls depends on the parameter being defined in the constructor signature. However, since this is Python, the test code can be written and parsed even before the parameter is added to the constructor (it would just cause a TypeError at runtime), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds the n_features parameter to the LassoLARS.__init__ method signature. Edit 1 updates test code to use this new n_features parameter when creating LassoLARS instances. The test code in edit 1 explicitly references the same n_features parameter that was added in edit 0's constructor signature. This creates a direct code dependency where the test usage of n_features=6 in the LassoLARS constructor calls depends on the parameter being defined in the constructor signature. However, since this is Python, the test code can be written and parsed even before the parameter is added to the constructor (it would just cause a TypeError at runtime), making this a bi-directional relationship rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        4,
+        2,
+        5
+    ]
+}

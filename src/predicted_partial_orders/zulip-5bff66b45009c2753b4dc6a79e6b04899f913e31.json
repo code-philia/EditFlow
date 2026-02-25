@@ -1,0 +1,89 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 assigns a value to the variable `stream_message`, and Edit 1 uses that exact same variable `stream_message` as an argument to `self.assert_stream_message()`. The changed lines reference the exact same symbol - the variable `stream_message` defined in Edit 0 and used in Edit 1. This creates an immediate, mechanically obvious code dependency where after making Edit 0 (defining the variable), Edit 1 becomes the natural next step (using the variable). Both edits are within the same function scope and represent a single micro-task of refactoring test code to use a new pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 assigns a value to the variable `stream_message`, and Edit 1 uses that exact same variable `stream_message` as an argument to `self.assert_stream_message()`. The changed lines reference the exact same symbol - the variable `stream_message` defined in Edit 0 and used in Edit 1. This creates an immediate, mechanically obvious code dependency where after making Edit 0 (defining the variable), Edit 1 becomes the natural next step (using the variable). Both edits are within the same function scope and represent a single micro-task of refactoring test code to use a new pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits are modifying the same test method `test_team_edited_error_handling` (renamed to `test_team_edited_with_unsupported_keys` in edit 0). Edit 0 changes the method signature and adds the initial setup line, while edit 1 adds the assertion logic within the same method body. The changed lines in both edits reference the exact same `self` symbol within the same method context, and both are part of implementing the complete test method functionality. After making either edit, the other becomes the immediate next step to complete the test method implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits are modifying the same test method `test_team_edited_error_handling` (renamed to `test_team_edited_with_unsupported_keys` in edit 0). Edit 0 changes the method signature and adds the initial setup line, while edit 1 adds the assertion logic within the same method body. The changed lines in both edits reference the exact same `self` symbol within the same method context, and both are part of implementing the complete test method functionality. After making either edit, the other becomes the immediate next step to complete the test method implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "These edits are bi-directional neighbours because they implement synchronized test-production code changes for the same functionality. Edit 1 changes the behavior of `get_team_body` function to return a specific message format instead of raising an exception, while Edit 0 adds a test assertion that expects exactly that same message format ('Team has changes to `bogus_key1/bogus_key2` data.'). The test assertion directly validates the exact string format being returned by the production code change. Both edits reference the same logical behavior change and either edit naturally prompts the other as the next mechanical step - implementing the new return behavior requires updating the test expectations, and vice versa."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they implement synchronized test-production code changes for the same functionality. Edit 1 changes the behavior of `get_team_body` function to return a specific message format instead of raising an exception, while Edit 0 adds a test assertion that expects exactly that same message format ('Team has changes to `bogus_key1/bogus_key2` data.'). The test assertion directly validates the exact string format being returned by the production code change. Both edits reference the same logical behavior change and either edit naturally prompts the other as the next mechanical step - implementing the new return behavior requires updating the test expectations, and vice versa."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor signature. Edit 1 then uses these exact same parameters by assigning them to instance variables (self._request = request, self._user_profile = user_profile) within the same constructor method. The changed lines in edit 1 directly reference the exact same symbols (request and user_profile) that were added in edit 0's parameter list. This creates an immediate, mechanically obvious code dependency where adding the parameters naturally prompts their assignment to instance variables as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor signature. Edit 1 then uses these exact same parameters by assigning them to instance variables (self._request = request, self._user_profile = user_profile) within the same constructor method. The changed lines in edit 1 directly reference the exact same symbols (request and user_profile) that were added in edit 0's parameter list. This creates an immediate, mechanically obvious code dependency where adding the parameters naturally prompts their assignment to instance variables as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor's __init__ method, storing them as instance variables. Edit 1 updates the Helper instantiation call site to pass these exact same parameters. The changed lines reference the exact same symbols - the 'request' and 'user_profile' parameters being added to the constructor signature in edit 0 are the same symbols being passed in the call site in edit 1. This creates an immediate, mechanically obvious code dependency where after making either edit, the other becomes the next required step to maintain code consistency. Both edits can be staged in either order without causing parser errors (the constructor can accept the parameters before the call site provides them, and vice versa), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor's __init__ method, storing them as instance variables. Edit 1 updates the Helper instantiation call site to pass these exact same parameters. The changed lines reference the exact same symbols - the 'request' and 'user_profile' parameters being added to the constructor signature in edit 0 are the same symbols being passed in the call site in edit 1. This creates an immediate, mechanically obvious code dependency where after making either edit, the other becomes the next required step to maintain code consistency. Both edits can be staged in either order without causing parser errors (the constructor can accept the parameters before the call site provides them, and vice versa), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor signature. Edit 1 updates the Helper constructor call to pass these exact same parameters. The changed lines in both edits reference the exact same symbols (request and user_profile parameters) and the exact same Helper constructor. After making edit 0, the constructor call in edit 1 becomes immediately necessary to match the new signature, and vice versa - after making edit 1, the constructor signature in edit 0 must be updated to accept these parameters. This is a classic signature-caller relationship for the same function where both edits can be staged in either order (no parse errors) but either edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 adds two new parameters (request and user_profile) to the Helper class constructor signature. Edit 1 updates the Helper constructor call to pass these exact same parameters. The changed lines in both edits reference the exact same symbols (request and user_profile parameters) and the exact same Helper constructor. After making edit 0, the constructor call in edit 1 becomes immediately necessary to match the new signature, and vice versa - after making edit 1, the constructor signature in edit 0 must be updated to accept these parameters. This is a classic signature-caller relationship for the same function where both edits can be staged in either order (no parse errors) but either edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports the function 'log_exception_to_webhook_logger' from zerver.decorator, and Edit 1 uses this exact same function in the log_unexpected method (line 47). The changed lines reference the exact same symbol - Edit 0 makes the function available via import, and Edit 1 calls that imported function. This creates an immediate code dependency where importing the function naturally prompts its usage, and using the function requires it to be imported. Both edits can be staged in either order in Python since the usage in Edit 1 would only cause a runtime NameError if the import in Edit 0 wasn't present, not a parse-time syntax error."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function 'log_exception_to_webhook_logger' from zerver.decorator, and Edit 1 uses this exact same function in the log_unexpected method (line 47). The changed lines reference the exact same symbol - Edit 0 makes the function available via import, and Edit 1 calls that imported function. This creates an immediate code dependency where importing the function naturally prompts its usage, and using the function requires it to be imported. Both edits can be staged in either order in Python since the usage in Edit 1 would only cause a runtime NameError if the import in Edit 0 wasn't present, not a parse-time syntax error."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new method `log_unexpected` in the Helper class, and Edit 1 calls this exact same method `helper.log_unexpected()`. The changed lines reference the exact same symbol - the `log_unexpected` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined functionality. Both edits can be staged in either order since Python allows method calls to be written before the method definition (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next contiguous action."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new method `log_unexpected` in the Helper class, and Edit 1 calls this exact same method `helper.log_unexpected()`. The changed lines reference the exact same symbol - the `log_unexpected` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined functionality. Both edits can be staged in either order since Python allows method calls to be written before the method definition (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next contiguous action."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        0,
+        3
+    ]
+}

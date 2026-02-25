@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 initializes self.outfiles as an empty list instead of None, and Edit 1 appends to self.outfiles. The initialization change in Edit 0 creates an immediate code-driven prompt for Edit 1 - once self.outfiles is changed from None to a list, any code that appends to it (like Edit 1) becomes the natural next step. This represents a definition-usage relationship where both edits reference the same attribute symbol and form part of a single micro-task of properly implementing the outfiles tracking functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 initializes self.outfiles as an empty list instead of None, and Edit 1 appends to self.outfiles. The initialization change in Edit 0 creates an immediate code-driven prompt for Edit 1 - once self.outfiles is changed from None to a list, any code that appends to it (like Edit 1) becomes the natural next step. This represents a definition-usage relationship where both edits reference the same attribute symbol and form part of a single micro-task of properly implementing the outfiles tracking functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 changes the initialization from None to an empty list [], and Edit 1 removes the 'or []' fallback since outfiles is now guaranteed to be a list. This creates a direct code dependency where either edit prompts the other as the next mechanical step - if you initialize outfiles as a list, you no longer need the None fallback, and vice versa. Both edits can be staged in either order without parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 changes the initialization from None to an empty list [], and Edit 1 removes the 'or []' fallback since outfiles is now guaranteed to be a list. This creates a direct code dependency where either edit prompts the other as the next mechanical step - if you initialize outfiles as a list, you no longer need the None fallback, and vice versa. Both edits can be staged in either order without parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 initializes self.outfiles as an empty list instead of None, and Edit 1 uses self.outfiles by appending to it. The initialization change in Edit 0 creates the proper data structure (list) that Edit 1 requires for the append operation. Either edit can be made first - if Edit 0 is made first, it sets up the list for appending; if Edit 1 is made first, it would still work since Python allows appending to None (though it would cause a runtime AttributeError). Both edits reference the same symbol and form a natural definition-usage pair within the same class."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 initializes self.outfiles as an empty list instead of None, and Edit 1 uses self.outfiles by appending to it. The initialization change in Edit 0 creates the proper data structure (list) that Edit 1 requires for the append operation. Either edit can be made first - if Edit 0 is made first, it sets up the list for appending; if Edit 1 is made first, it would still work since Python allows appending to None (though it would cause a runtime AttributeError). Both edits reference the same symbol and form a natural definition-usage pair within the same class."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform identical structural transformations on the same type of syntactic construct within the same method. Each edit changes a `self.copy_file()` call by: (1) capturing the return value in a variable named `out`, and (2) appending that value to `self.outfiles`. This represents a uniform, synchronized pattern substitution where the same before\u2192after transformation is applied to multiple instances of the same construct type (copy_file calls) within the same function context. The edits are part of a single, contiguous refactoring task to consistently handle copy_file return values throughout the method."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform identical structural transformations on the same type of syntactic construct within the same method. Each edit changes a `self.copy_file()` call by: (1) capturing the return value in a variable named `out`, and (2) appending that value to `self.outfiles`. This represents a uniform, synchronized pattern substitution where the same before\u2192after transformation is applied to multiple instances of the same construct type (copy_file calls) within the same function context. The edits are part of a single, contiguous refactoring task to consistently handle copy_file return values throughout the method."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the run() method to capture the return value of copy_file() and append it to self.outfiles. Edit 1 modifies the get_outputs() method to return self.outfiles directly instead of 'self.outfiles or []'. These edits reference the same symbol (self.outfiles) and appear to be part of a coordinated change to properly track output files. Edit 0 ensures self.outfiles is populated, while Edit 1 simplifies the return logic assuming self.outfiles will always be a valid list. However, the changed lines don't create an immediate mechanical dependency - both edits can be staged independently without parser errors, and either edit prompts consideration of the other as part of the same logical change to the outfiles tracking mechanism."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the run() method to capture the return value of copy_file() and append it to self.outfiles. Edit 1 modifies the get_outputs() method to return self.outfiles directly instead of 'self.outfiles or []'. These edits reference the same symbol (self.outfiles) and appear to be part of a coordinated change to properly track output files. Edit 0 ensures self.outfiles is populated, while Edit 1 simplifies the return logic assuming self.outfiles will always be a valid list. However, the changed lines don't create an immediate mechanical dependency - both edits can be staged independently without parser errors, and either edit prompts consideration of the other as part of the same logical change to the outfiles tracking mechanism."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the run() method to capture the output of copy_file() and append it to self.outfiles, while Edit 1 modifies the get_outputs() method to return self.outfiles directly instead of 'self.outfiles or []'. Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 ensures that self.outfiles is populated with actual file paths, making the fallback to empty list in Edit 1 unnecessary. These edits are part of a single micro-task to properly track and return output files, where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the run() method to capture the output of copy_file() and append it to self.outfiles, while Edit 1 modifies the get_outputs() method to return self.outfiles directly instead of 'self.outfiles or []'. Both edits reference the exact same symbol 'self.outfiles' in their changed lines. Edit 0 ensures that self.outfiles is populated with actual file paths, making the fallback to empty list in Edit 1 unnecessary. These edits are part of a single micro-task to properly track and return output files, where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution pattern on the same type of syntactic construct. They both change a simple `self.copy_file(source, destination)` call to capture the return value in a variable `out` and then append it to `self.outfiles`. This is a uniform refactoring pattern applied to the same method call structure across different files, representing a single contiguous micro-task of updating all copy_file calls to track output files. The edits reference the same method (`copy_file`) and follow the exact same before\u2192after transformation pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern on the same type of syntactic construct. They both change a simple `self.copy_file(source, destination)` call to capture the return value in a variable `out` and then append it to `self.outfiles`. This is a uniform refactoring pattern applied to the same method call structure across different files, representing a single contiguous micro-task of updating all copy_file calls to track output files. The edits reference the same method (`copy_file`) and follow the exact same before\u2192after transformation pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 initializes the instance variable `self.outfiles = []` in the `initialize_options` method, while Edit 1 adds a `get_outputs` method that returns `self.outfiles`. The changed lines reference the exact same symbol (`self.outfiles`). After making Edit 0, the next logical step would be to use this newly initialized attribute, which Edit 1 does by returning it in the `get_outputs` method. Conversely, if Edit 1 were made first, it would reference an undefined attribute, creating an immediate need to initialize `self.outfiles` as done in Edit 0. This represents a definition-usage relationship for the same symbol within the same class, making both edits part of a single micro-task of implementing the outfiles tracking functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 initializes the instance variable `self.outfiles = []` in the `initialize_options` method, while Edit 1 adds a `get_outputs` method that returns `self.outfiles`. The changed lines reference the exact same symbol (`self.outfiles`). After making Edit 0, the next logical step would be to use this newly initialized attribute, which Edit 1 does by returning it in the `get_outputs` method. Conversely, if Edit 1 were made first, it would reference an undefined attribute, creating an immediate need to initialize `self.outfiles` as done in Edit 0. This represents a definition-usage relationship for the same symbol within the same class, making both edits part of a single micro-task of implementing the outfiles tracking functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural transformation: they change a simple `self.copy_file()` call to capture its return value in a variable `out` and then append that value to `self.outfiles`. This is a uniform pattern substitution applied to the same type of syntactic construct (method calls to `copy_file`) in similar contexts (distutils command classes). The edits are part of what appears to be a systematic refactor to track output files across multiple distutils commands. Since both edits apply the exact same before\u2192after pattern to the same method call structure, they represent synchronized bulk editing that would naturally occur in a single contiguous refactoring session."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural transformation: they change a simple `self.copy_file()` call to capture its return value in a variable `out` and then append that value to `self.outfiles`. This is a uniform pattern substitution applied to the same type of syntactic construct (method calls to `copy_file`) in similar contexts (distutils command classes). The edits are part of what appears to be a systematic refactor to track output files across multiple distutils commands. Since both edits apply the exact same before\u2192after pattern to the same method call structure, they represent synchronized bulk editing that would naturally occur in a single contiguous refactoring session."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 modifies the run() method to capture the output of copy_file() and append it to self.outfiles. Edit 1 adds a get_outputs() method that returns self.outfiles. There is a direct code dependency: the get_outputs() method relies on the self.outfiles attribute that is populated by the changes in edit 0. However, both edits can be written and parsed independently - edit 1 would simply return an empty or uninitialized self.outfiles if edit 0 hasn't run yet, which is a runtime behavior issue, not a parse-time syntax error. The relationship is bi-directional because either edit can be staged first, and after making either edit, the other becomes the natural next step to complete the functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 modifies the run() method to capture the output of copy_file() and append it to self.outfiles. Edit 1 adds a get_outputs() method that returns self.outfiles. There is a direct code dependency: the get_outputs() method relies on the self.outfiles attribute that is populated by the changes in edit 0. However, both edits can be written and parsed independently - edit 1 would simply return an empty or uninitialized self.outfiles if edit 0 hasn't run yet, which is a runtime behavior issue, not a parse-time syntax error. The relationship is bi-directional because either edit can be staged first, and after making either edit, the other becomes the natural next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 initializes the 'outfiles' attribute as an empty list in the initialize_options method, while Edit 1 uses this same 'outfiles' attribute by appending to it in the run method. The changed lines reference the exact same symbol (self.outfiles) - Edit 0 creates/initializes it and Edit 1 uses it. This creates a direct code dependency where initializing the attribute naturally prompts its usage, and using the attribute requires it to be initialized. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 initializes the 'outfiles' attribute as an empty list in the initialize_options method, while Edit 1 uses this same 'outfiles' attribute by appending to it in the run method. The changed lines reference the exact same symbol (self.outfiles) - Edit 0 creates/initializes it and Edit 1 uses it. This creates a direct code dependency where initializing the attribute naturally prompts its usage, and using the attribute requires it to be initialized. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

@@ -1,0 +1,142 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'conf.threadContinue = True' and Edit 1 uses 'conf.threadContinue = False' in a KeyboardInterrupt handler. The changed lines reference the exact same symbol 'conf.threadContinue' - Edit 0 initializes it and Edit 1 uses it for thread control. This creates a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1, making them part of the same threading control mechanism within a single micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'conf.threadContinue = True' and Edit 1 uses 'conf.threadContinue = False' in a KeyboardInterrupt handler. The changed lines reference the exact same symbol 'conf.threadContinue' - Edit 0 initializes it and Edit 1 uses it for thread control. This creates a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1, making them part of the same threading control mechanism within a single micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration, while Edit 1 changes a while loop condition from 'while True:' to 'while conf.threadContinue:'. Both edits reference the exact same symbol 'conf.threadContinue' - Edit 0 defines/initializes it and Edit 1 uses it as a loop condition. This creates a direct code dependency where the symbol must be defined before it can be used, making Edit 0 a prerequisite for Edit 1 to function correctly without a NameError."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue' in their changed lines. Edit 0 changes a while loop condition to use 'conf.threadContinue', and Edit 1 adds a conditional check using the same 'conf.threadContinue' symbol. These edits are part of the same threading control mechanism within the same function context, where both changed lines explicitly reference the identical symbol. This creates a direct code linkage where both edits are mechanically related through their shared reference to the same control variable, making either edit a natural prompt for considering the other as part of the same micro-task of implementing thread continuation control."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue' in their changed lines. Edit 0 changes a while loop condition to use 'conf.threadContinue', and Edit 1 adds a conditional check using the same 'conf.threadContinue' symbol. These edits are part of the same threading control mechanism within the same function context, where both changed lines explicitly reference the identical symbol. This creates a direct code linkage where both edits are mechanically related through their shared reference to the same control variable, making either edit a natural prompt for considering the other as part of the same micro-task of implementing thread continuation control."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration object, while Edit 1 adds code that checks 'if conf.threadContinue:' to control thread execution flow. The changed lines reference the exact same symbol 'conf.threadContinue' - Edit 0 defines/initializes it and Edit 1 uses it. This creates an immediate code dependency where defining the attribute naturally prompts its usage, and using the attribute requires its prior definition. Both edits are part of the same micro-task of implementing thread continuation control."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration object, while Edit 1 adds code that checks 'if conf.threadContinue:' to control thread execution flow. The changed lines reference the exact same symbol 'conf.threadContinue' - Edit 0 defines/initializes it and Edit 1 uses it. This creates an immediate code dependency where defining the attribute naturally prompts its usage, and using the attribute requires its prior definition. Both edits are part of the same micro-task of implementing thread continuation control."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces the variable `conf.threadContinue = True` and edit 1 uses this exact same variable in a while loop condition `while conf.threadContinue:`. The changed lines reference the exact same symbol `conf.threadContinue`. After making edit 0 (introducing the variable), edit 1 becomes the immediate next step to use this variable for thread control. Conversely, after making edit 1 (using the variable), edit 0 becomes necessary to define it. Both edits are part of the same micro-task of implementing thread continuation control, and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 introduces the variable `conf.threadContinue = True` and edit 1 uses this exact same variable in a while loop condition `while conf.threadContinue:`. The changed lines reference the exact same symbol `conf.threadContinue`. After making edit 0 (introducing the variable), edit 1 becomes the immediate next step to use this variable for thread control. Conversely, after making edit 1 (using the variable), edit 0 becomes necessary to define it. Both edits are part of the same micro-task of implementing thread continuation control, and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new attribute `conf.threadContinue = True` and edit 1 uses this exact same attribute in a conditional check `if conf.threadContinue:`. The changed lines reference the exact same symbol `conf.threadContinue`. After making edit 0 (defining the attribute), edit 1 becomes the immediate next step to use this newly defined attribute. After making edit 1 (using the attribute), edit 0 would be required to define it. This creates a bi-directional definition-usage relationship where either edit can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new attribute `conf.threadContinue = True` and edit 1 uses this exact same attribute in a conditional check `if conf.threadContinue:`. The changed lines reference the exact same symbol `conf.threadContinue`. After making edit 0 (defining the attribute), edit 1 becomes the immediate next step to use this newly defined attribute. After making edit 1 (using the attribute), edit 0 would be required to define it. This creates a bi-directional definition-usage relationship where either edit can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration initialization. Edit 1 uses this exact same attribute 'conf.threadContinue' in line 233 where it sets 'conf.threadContinue = False' during KeyboardInterrupt handling. The changed lines reference the exact same symbol (conf.threadContinue), creating a direct code dependency where the attribute must be defined before it can be used. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error, so both edits can be written and parsed in either order."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration initialization. Edit 1 uses this exact same attribute 'conf.threadContinue' in line 233 where it sets 'conf.threadContinue = False' during KeyboardInterrupt handling. The changed lines reference the exact same symbol (conf.threadContinue), creating a direct code dependency where the attribute must be defined before it can be used. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error, so both edits can be written and parsed in either order."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same downloadThread function within the bisection function to add thread continuation control using conf.threadContinue. Edit 0 changes the while loop condition from 'while True:' to 'while conf.threadContinue:', and Edit 1 adds an additional check for conf.threadContinue within the loop body with a break statement. Both edits reference the exact same symbol (conf.threadContinue) and are part of implementing the same thread control mechanism. After making either edit, the other becomes a natural next step to complete the thread continuation logic - they work together to provide both loop-level and in-body thread control checks."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same downloadThread function within the bisection function to add thread continuation control using conf.threadContinue. Edit 0 changes the while loop condition from 'while True:' to 'while conf.threadContinue:', and Edit 1 adds an additional check for conf.threadContinue within the loop body with a break statement. Both edits reference the exact same symbol (conf.threadContinue) and are part of implementing the same thread control mechanism. After making either edit, the other becomes a natural next step to complete the thread continuation logic - they work together to provide both loop-level and in-body thread control checks."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds the assignment `conf.threadContinue = True` to initialize a thread control variable. Edit 1 then uses this exact same variable `conf.threadContinue` in a conditional check to control thread execution flow. The changed lines in both edits reference the exact same symbol `conf.threadContinue` - one edit defines/initializes it, and the other edit uses it. This creates an immediate, mechanically obvious code dependency where after adding the initialization in edit 0, using it in the conditional check in edit 1 becomes the natural next step in implementing thread control logic. Both edits are part of the same micro-task of adding thread continuation control to the bisection function."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds the assignment `conf.threadContinue = True` to initialize a thread control variable. Edit 1 then uses this exact same variable `conf.threadContinue` in a conditional check to control thread execution flow. The changed lines in both edits reference the exact same symbol `conf.threadContinue` - one edit defines/initializes it, and the other edit uses it. This creates an immediate, mechanically obvious code dependency where after adding the initialization in edit 0, using it in the conditional check in edit 1 becomes the natural next step in implementing thread control logic. Both edits are part of the same micro-task of adding thread continuation control to the bisection function."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration initialization, while Edit 1 uses this exact same attribute 'conf.threadContinue' in a conditional check to control thread execution flow. The changed lines reference the exact same symbol (conf.threadContinue), creating a definition-usage relationship. After adding the attribute in Edit 0, using it in Edit 1 becomes a natural next step, and vice versa - if Edit 1 is made first, it creates an immediate need for the attribute to be defined in Edit 0. Both edits can be staged in either order since Python allows referencing undefined attributes (resulting in AttributeError at runtime, not parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds the attribute 'conf.threadContinue = True' to the configuration initialization, while Edit 1 uses this exact same attribute 'conf.threadContinue' in a conditional check to control thread execution flow. The changed lines reference the exact same symbol (conf.threadContinue), creating a definition-usage relationship. After adding the attribute in Edit 0, using it in Edit 1 becomes a natural next step, and vice versa - if Edit 1 is made first, it creates an immediate need for the attribute to be defined in Edit 0. Both edits can be staged in either order since Python allows referencing undefined attributes (resulting in AttributeError at runtime, not parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue'. Edit 0 changes a while loop condition to use 'conf.threadContinue', and Edit 1 adds code that sets 'conf.threadContinue = False' in a KeyboardInterrupt handler. These edits are part of implementing a thread control mechanism where the variable introduced in Edit 0 is used to control thread execution, and Edit 1 provides the mechanism to stop threads by setting this same variable to False. The relationship is bi-directional because either edit could be implemented first - both reference the same symbol and together form a coherent thread control pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue'. Edit 0 changes a while loop condition to use 'conf.threadContinue', and Edit 1 adds code that sets 'conf.threadContinue = False' in a KeyboardInterrupt handler. These edits are part of implementing a thread control mechanism where the variable introduced in Edit 0 is used to control thread execution, and Edit 1 provides the mechanism to stop threads by setting this same variable to False. The relationship is bi-directional because either edit could be implemented first - both reference the same symbol and together form a coherent thread control pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue' in their changed lines. Edit 0 adds a check for 'conf.threadContinue' to conditionally execute progress reporting code, while Edit 1 sets 'conf.threadContinue = False' in a KeyboardInterrupt handler. These edits are part of implementing a thread control mechanism where the flag is checked in one location and set in another. Either edit could be implemented first, and after making either edit, the other becomes a natural next step to complete the thread control functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'conf.threadContinue' in their changed lines. Edit 0 adds a check for 'conf.threadContinue' to conditionally execute progress reporting code, while Edit 1 sets 'conf.threadContinue = False' in a KeyboardInterrupt handler. These edits are part of implementing a thread control mechanism where the flag is checked in one location and set in another. Either edit could be implemented first, and after making either edit, the other becomes a natural next step to complete the thread control functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same variable 'charStart' in their changed lines. Edit 0 assigns to charStart (charStart = time.time()) and edit 1 uses charStart in a calculation (time.time() - charStart). Both edits are also adding the same conditional check 'if conf.threadContinue:' around existing code blocks within the same function. The variable charStart is defined in edit 0 and used in edit 1, creating a direct code dependency. However, since charStart is a local variable assignment that can be parsed regardless of order (Python allows referencing undefined variables at parse time), and both edits can be staged independently without syntax errors, this is a bi-directional relationship where either edit naturally prompts the other as the next step in the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same variable 'charStart' in their changed lines. Edit 0 assigns to charStart (charStart = time.time()) and edit 1 uses charStart in a calculation (time.time() - charStart). Both edits are also adding the same conditional check 'if conf.threadContinue:' around existing code blocks within the same function. The variable charStart is defined in edit 0 and used in edit 1, creating a direct code dependency. However, since charStart is a local variable assignment that can be parsed regardless of order (Python allows referencing undefined variables at parse time), and both edits can be staged independently without syntax errors, this is a bi-directional relationship where either edit naturally prompts the other as the next step in the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits work together to implement a thread interruption mechanism using the same `conf.threadContinue` variable. Edit 0 adds a check for `conf.threadContinue` to conditionally execute character fetching logic, while Edit 1 modifies the thread joining logic to set `conf.threadContinue = False` on KeyboardInterrupt. The changed lines in both edits reference the exact same symbol `conf.threadContinue`, creating a direct code dependency where the variable set in Edit 1's exception handler controls the execution flow in Edit 0's conditional check. This represents a synchronized implementation of a thread control mechanism where both edits are part of the same micro-task of adding keyboard interrupt handling."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits work together to implement a thread interruption mechanism using the same `conf.threadContinue` variable. Edit 0 adds a check for `conf.threadContinue` to conditionally execute character fetching logic, while Edit 1 modifies the thread joining logic to set `conf.threadContinue = False` on KeyboardInterrupt. The changed lines in both edits reference the exact same symbol `conf.threadContinue`, creating a direct code dependency where the variable set in Edit 1's exception handler controls the execution flow in Edit 0's conditional check. This represents a synchronized implementation of a thread control mechanism where both edits are part of the same micro-task of adding keyboard interrupt handling."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

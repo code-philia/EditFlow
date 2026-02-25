@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the execute method in WasbBlobSensor to add a conditional check (if not self.poke(context=context)) before deferring. Edit 1 adds a new test method that specifically tests this new behavior - it mocks the hook to return True (blob exists) and verifies that defer is not called. The test directly validates the exact code change made in edit 0. Both edits reference the same execute method and the same defer behavior, with the test specifically designed to verify the conditional logic added in the implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the execute method in WasbBlobSensor to add a conditional check (if not self.poke(context=context)) before deferring. Edit 1 adds a new test method that specifically tests this new behavior - it mocks the hook to return True (blob exists) and verifies that defer is not called. The test directly validates the exact code change made in edit 0. Both edits reference the same execute method and the same defer behavior, with the test specifically designed to verify the conditional logic added in the implementation."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural transformation: wrapping existing `self.defer()` calls with `if not self.poke(context=context):` conditions. This is a uniform pattern substitution applied to the same type of syntactic construct (defer calls) in two different sensor classes within the same file. The changes follow the exact same before\u2192after pattern and appear to be part of a single, contiguous refactoring operation to add conditional logic before deferring. Both edits can be applied in either order since they modify different classes and don't have any code dependencies between them."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural transformation: wrapping existing `self.defer()` calls with `if not self.poke(context=context):` conditions. This is a uniform pattern substitution applied to the same type of syntactic construct (defer calls) in two different sensor classes within the same file. The changes follow the exact same before\u2192after pattern and appear to be part of a single, contiguous refactoring operation to add conditional logic before deferring. Both edits can be applied in either order since they modify different classes and don't have any code dependencies between them."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'mock_hook' within the same test method. Edit 0 adds 'mock_hook' as a parameter to the test method signature, and Edit 1 uses that same 'mock_hook' parameter in the method body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately used in the body. After making either edit, the other becomes the mechanically obvious next step to complete the parameter threading pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'mock_hook' within the same test method. Edit 0 adds 'mock_hook' as a parameter to the test method signature, and Edit 1 uses that same 'mock_hook' parameter in the method body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately used in the body. After making either edit, the other becomes the mechanically obvious next step to complete the parameter threading pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the WasbPrefixSensor.execute method to add a conditional check (if not self.poke(context=context)) before deferring. Edit 1 adds a new test method that specifically tests the scenario where the sensor finishes before being deferred, mocking the defer method and asserting it's not called. The test directly validates the new conditional behavior introduced in edit 0 - when poke() returns True, defer should not be called. Both edits reference the exact same execute method and defer functionality, with the test specifically designed to verify the new conditional logic."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the WasbPrefixSensor.execute method to add a conditional check (if not self.poke(context=context)) before deferring. Edit 1 adds a new test method that specifically tests the scenario where the sensor finishes before being deferred, mocking the defer method and asserting it's not called. The test directly validates the new conditional behavior introduced in edit 0 - when poke() returns True, defer should not be called. Both edits reference the exact same execute method and defer functionality, with the test specifically designed to verify the new conditional logic."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits follow an identical pattern: they add a new test method called `test_*_sensor_finish_before_deferred` with the same structure (mocking WasbHook, mocking the sensor's defer method, setting up return values, executing the sensor, and asserting defer wasn't called). The edits are structurally identical substitutions applied to different sensor test classes (WasbBlobAsyncSensor vs WasbPrefixAsyncSensor) but target the same type of syntactic construct (test method additions with identical mock patterns). This represents a bulk-edit pattern where the same refactoring template is being applied across multiple test classes in a single, contiguous development task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits follow an identical pattern: they add a new test method called `test_*_sensor_finish_before_deferred` with the same structure (mocking WasbHook, mocking the sensor's defer method, setting up return values, executing the sensor, and asserting defer wasn't called). The edits are structurally identical substitutions applied to different sensor test classes (WasbBlobAsyncSensor vs WasbPrefixAsyncSensor) but target the same type of syntactic construct (test method additions with identical mock patterns). This represents a bulk-edit pattern where the same refactoring template is being applied across multiple test classes in a single, contiguous development task."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits add the same mock.patch decorator '@mock.patch(\"airflow.providers.microsoft.azure.sensors.wasb.WasbHook\")' to test methods in different test classes (TestWasbBlobAsyncSensor and TestWasbPrefixAsyncSensor). This represents a bulk-edit pattern where identical structural substitutions are being applied to the same type of syntactic construct (test method decorators). Both edits are adding the exact same decorator pattern to similar test methods as part of what appears to be a single refactoring effort to mock the WasbHook dependency across multiple test methods. The changes follow the same before\u2192after pattern and target the same construct type (method decorators), making this a synchronized bulk edit operation."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits add the same mock.patch decorator '@mock.patch(\"airflow.providers.microsoft.azure.sensors.wasb.WasbHook\")' to test methods in different test classes (TestWasbBlobAsyncSensor and TestWasbPrefixAsyncSensor). This represents a bulk-edit pattern where identical structural substitutions are being applied to the same type of syntactic construct (test method decorators). Both edits are adding the exact same decorator pattern to similar test methods as part of what appears to be a single refactoring effort to mock the WasbHook dependency across multiple test methods. The changes follow the same before\u2192after pattern and target the same construct type (method decorators), making this a synchronized bulk edit operation."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        5
+    ]
+}

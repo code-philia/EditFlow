@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses that exact same 're' module in a regex match operation. After importing 're' in Edit 0, using 're.match()' in Edit 1 becomes the immediate next step that utilizes the imported module. The changed lines reference the exact same symbol ('re'), creating a direct import-usage dependency within the same file. In Python, the usage can be written before the import (causing only a runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses that exact same 're' module in a regex match operation. After importing 're' in Edit 0, using 're.match()' in Edit 1 becomes the immediate next step that utilizes the imported module. The changed lines reference the exact same symbol ('re'), creating a direct import-usage dependency within the same file. In Python, the usage can be written before the import (causing only a runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'DEPLOYED' with '(DEPLOYED and not TESTING_DEPLOYED)' in conditional expressions. This is a uniform refactoring operation where the same logical change is being applied to multiple locations in the same file. The edits target the same type of syntactic construct (conditional expressions using the DEPLOYED variable) and apply the exact same before\u2192after transformation pattern. This represents a single, contiguous refactoring task where both changes would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'DEPLOYED' with '(DEPLOYED and not TESTING_DEPLOYED)' in conditional expressions. This is a uniform refactoring operation where the same logical change is being applied to multiple locations in the same file. The edits target the same type of syntactic construct (conditional expressions using the DEPLOYED variable) and apply the exact same before\u2192after transformation pattern. This represents a single, contiguous refactoring task where both changes would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines the variable TESTING_DEPLOYED on line 14, and Edit 1 uses this exact same variable in a conditional expression on line 22. The changed lines reference the exact same symbol - TESTING_DEPLOYED. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to use this newly defined variable. Conversely, if Edit 1 were made first, it would reference an undefined variable, but in Python this would only cause a runtime NameError, not a parse error, so both edits can be staged in either order. This is a classic definition-usage relationship for the same symbol within the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable TESTING_DEPLOYED on line 14, and Edit 1 uses this exact same variable in a conditional expression on line 22. The changed lines reference the exact same symbol - TESTING_DEPLOYED. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to use this newly defined variable. Conversely, if Edit 1 were made first, it would reference an undefined variable, but in Python this would only cause a runtime NameError, not a parse error, so both edits can be staged in either order. This is a classic definition-usage relationship for the same symbol within the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces the variable TESTING_DEPLOYED in a conditional expression (DEPLOYED and not TESTING_DEPLOYED), while Edit 1 uses that exact same variable TESTING_DEPLOYED in a new elif condition. The changed line in Edit 0 references TESTING_DEPLOYED, and the changed line in Edit 1 also references TESTING_DEPLOYED. After making Edit 0, the code now depends on TESTING_DEPLOYED being defined, making Edit 1 (which uses TESTING_DEPLOYED) a natural next step. However, both edits can be written and parsed in either order since Python allows referencing undefined variables at parse time (they only fail at runtime). This creates a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 introduces the variable TESTING_DEPLOYED in a conditional expression (DEPLOYED and not TESTING_DEPLOYED), while Edit 1 uses that exact same variable TESTING_DEPLOYED in a new elif condition. The changed line in Edit 0 references TESTING_DEPLOYED, and the changed line in Edit 1 also references TESTING_DEPLOYED. After making Edit 0, the code now depends on TESTING_DEPLOYED being defined, making Edit 1 (which uses TESTING_DEPLOYED) a natural next step. However, both edits can be written and parsed in either order since Python allows referencing undefined variables at parse time (they only fail at runtime). This creates a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new variable TESTING_DEPLOYED, and Edit 1 uses that exact same variable in a conditional expression. The changed line in Edit 1 explicitly references the TESTING_DEPLOYED symbol that is created in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new variable TESTING_DEPLOYED, and Edit 1 uses that exact same variable in a conditional expression. The changed line in Edit 1 explicitly references the TESTING_DEPLOYED symbol that is created in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new setting TESTING_DEPLOYED in the settings module, and Edit 1 immediately uses that exact same symbol (settings.TESTING_DEPLOYED) in a conditional expression. The changed line in Edit 1 explicitly references the symbol that was just defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined setting. This is a classic definition-usage pattern where the exact same symbol is involved in both changes."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new setting TESTING_DEPLOYED in the settings module, and Edit 1 immediately uses that exact same symbol (settings.TESTING_DEPLOYED) in a conditional expression. The changed line in Edit 1 explicitly references the symbol that was just defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined setting. This is a classic definition-usage pattern where the exact same symbol is involved in both changes."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines the variable TESTING_DEPLOYED on line 14, and Edit 1 uses that exact same variable TESTING_DEPLOYED in an elif condition on line 25. The changed lines reference the exact same symbol - TESTING_DEPLOYED. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to use that newly defined variable. Conversely, if Edit 1 were made first, it would reference an undefined variable, creating an immediate prompt to define TESTING_DEPLOYED in Edit 0. This is a classic definition-usage relationship where both edits reference the exact same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable TESTING_DEPLOYED on line 14, and Edit 1 uses that exact same variable TESTING_DEPLOYED in an elif condition on line 25. The changed lines reference the exact same symbol - TESTING_DEPLOYED. After making Edit 0 (defining the variable), Edit 1 becomes the immediate next step to use that newly defined variable. Conversely, if Edit 1 were made first, it would reference an undefined variable, creating an immediate prompt to define TESTING_DEPLOYED in Edit 0. This is a classic definition-usage relationship where both edits reference the exact same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the same symbol TESTING_DEPLOYED in their changed lines. Edit 0 adds a conditional check using TESTING_DEPLOYED, while Edit 1 modifies a boolean expression to include 'not TESTING_DEPLOYED'. Both edits are part of handling the same configuration variable and would naturally occur together when implementing test deployment logic. Either edit could be made first and would create an immediate prompt for the other as part of the same micro-task of adding TESTING_DEPLOYED support."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the same symbol TESTING_DEPLOYED in their changed lines. Edit 0 adds a conditional check using TESTING_DEPLOYED, while Edit 1 modifies a boolean expression to include 'not TESTING_DEPLOYED'. Both edits are part of handling the same configuration variable and would naturally occur together when implementing test deployment logic. Either edit could be made first and would create an immediate prompt for the other as part of the same micro-task of adding TESTING_DEPLOYED support."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'settings.TESTING_DEPLOYED' in their changed lines. Edit 0 adds a conditional check for TESTING_DEPLOYED in settings.py, while Edit 1 adds TESTING_DEPLOYED to an existing conditional in bugdown/__init__.py. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where both edits are part of introducing and using the TESTING_DEPLOYED setting. Either edit could be made first and would naturally prompt the other as the next step in implementing this new configuration option."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'settings.TESTING_DEPLOYED' in their changed lines. Edit 0 adds a conditional check for TESTING_DEPLOYED in settings.py, while Edit 1 adds TESTING_DEPLOYED to an existing conditional in bugdown/__init__.py. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where both edits are part of introducing and using the TESTING_DEPLOYED setting. Either edit could be made first and would naturally prompt the other as the next step in implementing this new configuration option."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the same symbol 'TESTING_DEPLOYED' from the settings module. Edit 0 adds 'TESTING_DEPLOYED' to a conditional expression in settings.py, while Edit 1 adds 'TESTING_DEPLOYED' to a conditional expression in another file that imports from settings. The changed lines in both edits explicitly reference the exact same symbol (settings.TESTING_DEPLOYED). However, Edit 1 references 'settings.TESTING_DEPLOYED' which suggests it's importing from the settings module where Edit 0 defines the usage. For Edit 1 to work properly, the TESTING_DEPLOYED symbol needs to be available in the settings module context that Edit 0 is modifying. This creates a direct code dependency where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step in implementing TESTING_DEPLOYED functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the same symbol 'TESTING_DEPLOYED' from the settings module. Edit 0 adds 'TESTING_DEPLOYED' to a conditional expression in settings.py, while Edit 1 adds 'TESTING_DEPLOYED' to a conditional expression in another file that imports from settings. The changed lines in both edits explicitly reference the exact same symbol (settings.TESTING_DEPLOYED). However, Edit 1 references 'settings.TESTING_DEPLOYED' which suggests it's importing from the settings module where Edit 0 defines the usage. For Edit 1 to work properly, the TESTING_DEPLOYED symbol needs to be available in the settings module context that Edit 0 is modifying. This creates a direct code dependency where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step in implementing TESTING_DEPLOYED functionality."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

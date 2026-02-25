@@ -1,0 +1,118 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'cast' from typing, and Edit 1 removes the usage of 'cast' in the code. Both edits reference the exact same symbol 'cast' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the usage makes the import unnecessary, and removing the import would cause a NameError if the usage remained. Since Python allows referencing undefined symbols at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'cast' from typing, and Edit 1 removes the usage of 'cast' in the code. Both edits reference the exact same symbol 'cast' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the usage makes the import unnecessary, and removing the import would cause a NameError if the usage remained. Since Python allows referencing undefined symbols at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the assignment of the 'period' variable from serializer.validated_data, while Edit 1 removes the usage of that same 'period' variable in the parse_stats_period() call and replaces it with a hardcoded timedelta. The changed lines in both edits reference the exact same symbol 'period' - Edit 0 removes its definition and Edit 1 removes its usage. After making either edit, the other becomes the immediate next step to maintain code consistency, as leaving one without the other would result in either an unused variable or an undefined variable reference."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 removes the assignment of the 'period' variable from serializer.validated_data, while Edit 1 removes the usage of that same 'period' variable in the parse_stats_period() call and replaces it with a hardcoded timedelta. The changed lines in both edits reference the exact same symbol 'period' - Edit 0 removes its definition and Edit 1 removes its usage. After making either edit, the other becomes the immediate next step to maintain code consistency, as leaving one without the other would result in either an unused variable or an undefined variable reference."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution (changing 'timedelta(hours=1)' to 'timedelta(days=2)') on the same type of syntactic construct (assert statements with timedelta comparisons). This appears to be part of a single, contiguous refactor updating test expectations across multiple test methods. The edits represent a bulk pattern synchronization where the same before\u2192after pattern is applied to identical construct types within the same test class."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution (changing 'timedelta(hours=1)' to 'timedelta(days=2)') on the same type of syntactic construct (assert statements with timedelta comparisons). This appears to be part of a single, contiguous refactor updating test expectations across multiple test methods. The edits represent a bulk pattern synchronization where the same before\u2192after pattern is applied to identical construct types within the same test class."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution (changing 'timedelta(hours=1)' to 'timedelta(days=2)') on the same type of syntactic construct (assert statements with timedelta comparisons). This represents a bulk-edit pattern where the same before\u2192after change is being applied uniformly across multiple locations within the same test file. The edits are part of a single, contiguous refactor to update test expectations from 1 hour to 2 days. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution (changing 'timedelta(hours=1)' to 'timedelta(days=2)') on the same type of syntactic construct (assert statements with timedelta comparisons). This represents a bulk-edit pattern where the same before\u2192after change is being applied uniformly across multiple locations within the same test file. The edits are part of a single, contiguous refactor to update test expectations from 1 hour to 2 days. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the implementation to use a fixed 2-day delta instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect a 2-day difference instead of 1 hour. Both edits reference the exact same concept (the time delta calculation) and the test is directly validating the behavior that was changed in the implementation. The test assertion in Edit 1 is testing the exact same delta calculation that was modified in Edit 0, making this a clear case of implementation-test synchronization where both edits reference the same logical symbol (the time delta between start and end dates)."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the implementation to use a fixed 2-day delta instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect a 2-day difference instead of 1 hour. Both edits reference the exact same concept (the time delta calculation) and the test is directly validating the behavior that was changed in the implementation. The test assertion in Edit 1 is testing the exact same delta calculation that was modified in Edit 0, making this a clear case of implementation-test synchronization where both edits reference the same logical symbol (the time delta between start and end dates)."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 changes the implementation to use a fixed 2-day delta instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect a 2-day difference instead of 1 hour. Both edits reference the exact same concept (the time delta calculation) and the test edit directly validates the behavior changed in the implementation edit. The test assertion in Edit 1 is testing the exact behavior that was modified in Edit 0, making this a clear test-production code synchronization where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 changes the implementation to use a fixed 2-day delta instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect a 2-day difference instead of 1 hour. Both edits reference the exact same concept (the time delta calculation) and the test edit directly validates the behavior changed in the implementation edit. The test assertion in Edit 1 is testing the exact behavior that was modified in Edit 0, making this a clear test-production code synchronization where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits change the same timedelta calculation from a parsed period to a fixed 2-day period. Edit 0 changes the production code to use `timedelta(days=2)` instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect `timedelta(days=2)` instead of `timedelta(hours=1)`. The test is directly asserting on the behavior that was changed in the production code - both edits reference the exact same timedelta calculation logic. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain code-test synchronization."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits change the same timedelta calculation from a parsed period to a fixed 2-day period. Edit 0 changes the production code to use `timedelta(days=2)` instead of parsing a period, while Edit 1 updates the corresponding test assertion to expect `timedelta(days=2)` instead of `timedelta(hours=1)`. The test is directly asserting on the behavior that was changed in the production code - both edits reference the exact same timedelta calculation logic. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain code-test synchronization."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct (assertion statements). They change 'timedelta(hours=1)' to 'timedelta(days=2)' in similar test assertion contexts within the same test file. This represents a bulk uniform substitution pattern where the same before\u2192after change is applied to the same construct type across multiple locations, indicating a single contiguous refactor operation."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct (assertion statements). They change 'timedelta(hours=1)' to 'timedelta(days=2)' in similar test assertion contexts within the same test file. This represents a bulk uniform substitution pattern where the same before\u2192after change is applied to the same construct type across multiple locations, indicating a single contiguous refactor operation."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern (changing 'hours' to 'days' in timedelta calls) and target the same type of syntactic construct (timedelta function calls within assert statements). Both changed lines are structurally identical test assertions that are part of the same test method, representing a uniform refactor to change the time unit from hours to days. This is a clear case of bulk-edit pattern synchronization where both edits would naturally occur in one contiguous micro-task as part of a single search-and-replace operation."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern (changing 'hours' to 'days' in timedelta calls) and target the same type of syntactic construct (timedelta function calls within assert statements). Both changed lines are structurally identical test assertions that are part of the same test method, representing a uniform refactor to change the time unit from hours to days. This is a clear case of bulk-edit pattern synchronization where both edits would naturally occur in one contiguous micro-task as part of a single search-and-replace operation."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits change the same timedelta value from a different duration to `timedelta(days=2)`. Edit 0 changes the implementation in the production code to use a fixed 2-day delta, while Edit 1 updates the corresponding test assertion to expect this new 2-day minimum duration. The test is directly validating the behavior implemented in the production code - both edits reference the same logical constraint (the minimum time period) and the test assertion needs to match the implementation change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step to maintain consistency between implementation and test expectations."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits change the same timedelta value from a different duration to `timedelta(days=2)`. Edit 0 changes the implementation in the production code to use a fixed 2-day delta, while Edit 1 updates the corresponding test assertion to expect this new 2-day minimum duration. The test is directly validating the behavior implemented in the production code - both edits reference the same logical constraint (the minimum time period) and the test assertion needs to match the implementation change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step to maintain consistency between implementation and test expectations."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern, changing 'hours=' to 'days=' in timedelta function calls within assertion statements. However, these are different assertion statements in different test methods (test_simple vs test_updates_existing) that reference different local variables (different end_date and start_date variables in different scopes). While the substitution pattern is identical, the changed lines reference different symbols - the timedelta calls and assertion variables exist in separate function scopes. This is a bulk edit pattern but the symbols being referenced are not the exact same symbols."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern, changing 'hours=' to 'days=' in timedelta function calls within assertion statements. However, these are different assertion statements in different test methods (test_simple vs test_updates_existing) that reference different local variables (different end_date and start_date variables in different scopes). While the substitution pattern is identical, the changed lines reference different symbols - the timedelta calls and assertion variables exist in separate function scopes. This is a bulk edit pattern but the symbols being referenced are not the exact same symbols."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

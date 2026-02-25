@@ -1,0 +1,97 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 changes string concatenation to use pathlib's path division operator (/). The changed line in Edit 1 uses the / operator which requires pathlib functionality, creating a direct code dependency on the import added in Edit 0. However, both edits can be staged in either order - if Edit 1 is staged first, it would cause a runtime NameError when executed, but Python allows the code to be parsed and staged. The import in Edit 0 enables the path operation in Edit 1, making them bi-directional neighbours in the same micro-task of converting string path operations to pathlib operations."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 changes string concatenation to use pathlib's path division operator (/). The changed line in Edit 1 uses the / operator which requires pathlib functionality, creating a direct code dependency on the import added in Edit 0. However, both edits can be staged in either order - if Edit 1 is staged first, it would cause a runtime NameError when executed, but Python allows the code to be parsed and staged. The import in Edit 0 enables the path operation in Edit 1, making them bi-directional neighbours in the same micro-task of converting string path operations to pathlib operations."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 uses pathlib.Path in a function parameter type annotation. The changed lines reference the exact same symbol 'pathlib' - Edit 0 makes it available via import, and Edit 1 uses it directly. This creates an immediate code dependency where importing pathlib enables its usage in the type annotation. Both edits can be staged in either order since Python allows forward references in type annotations, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 uses pathlib.Path in a function parameter type annotation. The changed lines reference the exact same symbol 'pathlib' - Edit 0 makes it available via import, and Edit 1 uses it directly. This creates an immediate code dependency where importing pathlib enables its usage in the type annotation. Both edits can be staged in either order since Python allows forward references in type annotations, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 uses pathlib.Path in a type annotation for the ip_adapter_ckpt_path parameter. The changed lines reference the exact same symbol 'pathlib' - Edit 0 imports it and Edit 1 uses it. This creates a direct code dependency where using pathlib.Path requires the pathlib import to be present. In Python, using an undefined module in a type annotation would cause a NameError at runtime/import time, but both edits can be written and parsed in either order since type annotations are not evaluated at parse time. Either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 imports the pathlib module, and Edit 1 uses pathlib.Path in a type annotation for the ip_adapter_ckpt_path parameter. The changed lines reference the exact same symbol 'pathlib' - Edit 0 imports it and Edit 1 uses it. This creates a direct code dependency where using pathlib.Path requires the pathlib import to be present. In Python, using an undefined module in a type annotation would cause a NameError at runtime/import time, but both edits can be written and parsed in either order since type annotations are not evaluated at parse time. Either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern, changing the parameter type from 'str' to 'pathlib.Path' for the 'ip_adapter_ckpt_path' parameter in two different function signatures within the same file. This is a uniform, synchronized type annotation change targeting the same type of syntactic construct (function parameter type annotations) as part of what appears to be a single refactoring operation to standardize path handling."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern, changing the parameter type from 'str' to 'pathlib.Path' for the 'ip_adapter_ckpt_path' parameter in two different function signatures within the same file. This is a uniform, synchronized type annotation change targeting the same type of syntactic construct (function parameter type annotations) as part of what appears to be a single refactoring operation to standardize path handling."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same parameter symbol 'ip_adapter_ckpt_path' within the same function. Edit 0 changes the parameter type from str to pathlib.Path in the function signature, and Edit 1 updates the usage of that same parameter to use pathlib.Path's '/' operator instead of string concatenation with '+'. This creates a direct code dependency where changing the parameter type necessitates updating its usage to match the new type's API. Either edit can be made first and would create an immediate, mechanically obvious prompt for the other as the next step to maintain type consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same parameter symbol 'ip_adapter_ckpt_path' within the same function. Edit 0 changes the parameter type from str to pathlib.Path in the function signature, and Edit 1 updates the usage of that same parameter to use pathlib.Path's '/' operator instead of string concatenation with '+'. This creates a direct code dependency where changing the parameter type necessitates updating its usage to match the new type's API. Either edit can be made first and would create an immediate, mechanically obvious prompt for the other as the next step to maintain type consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the parameter type from `str` to `pathlib.Path` in the function signature. Edit 1 changes how that same parameter is used in the function body, switching from string method `.endswith()` to Path method `.stem`. These edits reference the exact same symbol `ip_adapter_ckpt_path` and form a cohesive refactoring where changing the parameter type necessitates updating its usage pattern. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the type to Path, you need to update the usage, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the parameter type from `str` to `pathlib.Path` in the function signature. Edit 1 changes how that same parameter is used in the function body, switching from string method `.endswith()` to Path method `.stem`. These edits reference the exact same symbol `ip_adapter_ckpt_path` and form a cohesive refactoring where changing the parameter type necessitates updating its usage pattern. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the type to Path, you need to update the usage, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes string concatenation to pathlib.Path division operator (ip_adapter_ckpt_path / \"ip_adapter.bin\"), which requires ip_adapter_ckpt_path to be a pathlib.Path object. Edit 1 changes the parameter type annotation from str to pathlib.Path for the same parameter ip_adapter_ckpt_path. These edits reference the exact same parameter symbol and create a direct code dependency - the usage in edit 0 requires the type change in edit 1 to work correctly. Either edit can be made first and would prompt the other as the immediate next step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes string concatenation to pathlib.Path division operator (ip_adapter_ckpt_path / \"ip_adapter.bin\"), which requires ip_adapter_ckpt_path to be a pathlib.Path object. Edit 1 changes the parameter type annotation from str to pathlib.Path for the same parameter ip_adapter_ckpt_path. These edits reference the exact same parameter symbol and create a direct code dependency - the usage in edit 0 requires the type change in edit 1 to work correctly. Either edit can be made first and would prompt the other as the immediate next step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "These edits are part of a coordinated refactor to change how ip_adapter_ckpt_path is handled - from string concatenation to Path object operations. Edit 0 changes string concatenation (+ \"/ip_adapter.bin\") to Path division (/ \"ip_adapter.bin\"), which requires ip_adapter_ckpt_path to be a Path object. Edit 1 removes the str() conversion when passing model_path to build_ip_adapter, allowing it to remain as a Path object. Both edits reference the same parameter ip_adapter_ckpt_path in the same function call chain, and they form a synchronized change where the parameter type is being changed from string to Path throughout the system. This is a uniform substitution pattern where both edits are removing string conversions/operations in favor of Path operations for the same logical parameter."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "These edits are part of a coordinated refactor to change how ip_adapter_ckpt_path is handled - from string concatenation to Path object operations. Edit 0 changes string concatenation (+ \"/ip_adapter.bin\") to Path division (/ \"ip_adapter.bin\"), which requires ip_adapter_ckpt_path to be a Path object. Edit 1 removes the str() conversion when passing model_path to build_ip_adapter, allowing it to remain as a Path object. Both edits reference the same parameter ip_adapter_ckpt_path in the same function call chain, and they form a synchronized change where the parameter type is being changed from string to Path throughout the system. This is a uniform substitution pattern where both edits are removing string conversions/operations in favor of Path operations for the same logical parameter."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the parameter type of `ip_adapter_ckpt_path` from `str` to `pathlib.Path` in the function signature. Edit 1 removes the `str()` conversion when calling this same function, passing `model_path` directly instead of `str(model_path)`. These edits reference the exact same parameter symbol and form a signature-caller relationship where the parameter type change in the definition requires updating the call site to match the new expected type. After making either edit, the other becomes the immediate next step to maintain type consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the parameter type of `ip_adapter_ckpt_path` from `str` to `pathlib.Path` in the function signature. Edit 1 removes the `str()` conversion when calling this same function, passing `model_path` directly instead of `str(model_path)`. These edits reference the exact same parameter symbol and form a signature-caller relationship where the parameter type change in the definition requires updating the call site to match the new expected type. After making either edit, the other becomes the immediate next step to maintain type consistency."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

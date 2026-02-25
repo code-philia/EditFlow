@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 imports the symbol 'log' from pytorch_lightning._logger, and Edit 1 uses that exact same 'log' symbol in the changed line by calling 'log.info()'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1's changed line. In Python, both edits can be staged in either order since using an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'log' from pytorch_lightning._logger, and Edit 1 uses that exact same 'log' symbol in the changed line by calling 'log.info()'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1's changed line. In Python, both edits can be staged in either order since using an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 imports the symbol 'log' from pytorch_lightning._logger, and Edit 1 uses that exact same 'log' symbol in the changed line by calling log.info(). This creates a direct definition-usage relationship where the import in Edit 0 makes the 'log' symbol available for use in Edit 1. In Python, using an undefined symbol like 'log' would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage doesn't create a syntax error. The changed lines reference the exact same symbol 'log', making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'log' from pytorch_lightning._logger, and Edit 1 uses that exact same 'log' symbol in the changed line by calling log.info(). This creates a direct definition-usage relationship where the import in Edit 0 makes the 'log' symbol available for use in Edit 1. In Python, using an undefined symbol like 'log' would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage doesn't create a syntax error. The changed lines reference the exact same symbol 'log', making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 adds a new instance attribute `self._pruning_fn_name = None` to the class constructor, while Edit 1 changes a logging statement to use `self._pruning_fn_name` instead of `pruning_fn_name`. The changed lines reference the exact same symbol (`_pruning_fn_name`) - Edit 0 defines/initializes it as an instance attribute, and Edit 1 uses that same instance attribute. This creates a direct code dependency where the attribute must be defined before it can be used, making this a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new instance attribute `self._pruning_fn_name = None` to the class constructor, while Edit 1 changes a logging statement to use `self._pruning_fn_name` instead of `pruning_fn_name`. The changed lines reference the exact same symbol (`_pruning_fn_name`) - Edit 0 defines/initializes it as an instance attribute, and Edit 1 uses that same instance attribute. This creates a direct code dependency where the attribute must be defined before it can be used, making this a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the attribute `self._pruning_fn_name = None` in the constructor, while Edit 1 assigns a value to this same attribute `self._pruning_fn_name = pruning_fn.__name__` in the `_create_pruning_fn` method. Both edits reference the exact same symbol (`self._pruning_fn_name`) and represent a typical definition-usage pattern where an attribute is initialized in the constructor and then assigned a meaningful value in a method. Either edit can be staged first without causing parse errors, making this a bi-directional relationship where both edits are part of the same micro-task of adding this attribute to the class."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 initializes the attribute `self._pruning_fn_name = None` in the constructor, while Edit 1 assigns a value to this same attribute `self._pruning_fn_name = pruning_fn.__name__` in the `_create_pruning_fn` method. Both edits reference the exact same symbol (`self._pruning_fn_name`) and represent a typical definition-usage pattern where an attribute is initialized in the constructor and then assigned a meaningful value in a method. Either edit can be staged first without causing parse errors, making this a bi-directional relationship where both edits are part of the same micro-task of adding this attribute to the class."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new instance variable `self._pruning_fn_name = None` to the constructor, while Edit 1 changes the logging code to use `self._pruning_fn_name` instead of `self.pruning_fn.__name__`. The changed lines reference the exact same symbol (`self._pruning_fn_name`) - Edit 0 defines/initializes it and Edit 1 uses it. This creates a direct code dependency where after making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without parser errors (the usage in Edit 1 would just reference an undefined attribute at runtime if Edit 0 hasn't been applied yet, but this doesn't prevent parsing or staging)."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new instance variable `self._pruning_fn_name = None` to the constructor, while Edit 1 changes the logging code to use `self._pruning_fn_name` instead of `self.pruning_fn.__name__`. The changed lines reference the exact same symbol (`self._pruning_fn_name`) - Edit 0 defines/initializes it and Edit 1 uses it. This creates a direct code dependency where after making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without parser errors (the usage in Edit 1 would just reference an undefined attribute at runtime if Edit 0 hasn't been applied yet, but this doesn't prevent parsing or staging)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "These edits are bi-directional neighbours because they work together to refactor how the pruning_fn variable is handled. Edit 0 extracts the pruning function lookup (`_PYTORCH_PRUNING_FUNCTIONS[pruning_fn]`) and assigns it to the `pruning_fn` variable, while Edit 1 updates the return statement to use this newly assigned `pruning_fn` variable instead of performing the lookup again. The changed lines reference the exact same symbol (`pruning_fn`) and either edit creates an immediate prompt for the other - if you make the assignment in Edit 0, you naturally need to update the usage in Edit 1, and vice versa. This is a classic refactoring pattern where a repeated expression is extracted to a variable."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These edits are bi-directional neighbours because they work together to refactor how the pruning_fn variable is handled. Edit 0 extracts the pruning function lookup (`_PYTORCH_PRUNING_FUNCTIONS[pruning_fn]`) and assigns it to the `pruning_fn` variable, while Edit 1 updates the return statement to use this newly assigned `pruning_fn` variable instead of performing the lookup again. The changed lines reference the exact same symbol (`pruning_fn`) and either edit creates an immediate prompt for the other - if you make the assignment in Edit 0, you naturally need to update the usage in Edit 1, and vice versa. This is a classic refactoring pattern where a repeated expression is extracted to a variable."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 introduces the attribute `self._pruning_fn_name = pruning_fn.__name__` in the `_create_pruning_fn` method, while Edit 1 uses this exact same attribute `self._pruning_fn_name` in the `_log_sparsity_stats` method. The changed line in Edit 1 directly references the attribute that was created in Edit 0. This creates an immediate code dependency where Edit 0 defines the attribute and Edit 1 uses it. Both edits reference the exact same symbol (`self._pruning_fn_name`) and either edit naturally prompts the other as the next mechanical step in a single development task."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 introduces the attribute `self._pruning_fn_name = pruning_fn.__name__` in the `_create_pruning_fn` method, while Edit 1 uses this exact same attribute `self._pruning_fn_name` in the `_log_sparsity_stats` method. The changed line in Edit 1 directly references the attribute that was created in Edit 0. This creates an immediate code dependency where Edit 0 defines the attribute and Edit 1 uses it. Both edits reference the exact same symbol (`self._pruning_fn_name`) and either edit naturally prompts the other as the next mechanical step in a single development task."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new instance attribute `self._pruning_fn_name = pruning_fn.__name__` that stores the function name. Edit 1 then uses this exact same attribute `self._pruning_fn_name` in place of the previous `self.pruning_fn.__name__` access. The changed lines reference the exact same symbol - the `_pruning_fn_name` attribute. Edit 0 creates the attribute and Edit 1 uses it, making them directly linked through this shared symbol. Either edit could be staged first (both are syntactically valid), but after making either edit, the other becomes the immediate next step to complete the refactoring from direct `__name__` access to the stored attribute."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new instance attribute `self._pruning_fn_name = pruning_fn.__name__` that stores the function name. Edit 1 then uses this exact same attribute `self._pruning_fn_name` in place of the previous `self.pruning_fn.__name__` access. The changed lines reference the exact same symbol - the `_pruning_fn_name` attribute. Edit 0 creates the attribute and Edit 1 uses it, making them directly linked through this shared symbol. Either edit could be staged first (both are syntactically valid), but after making either edit, the other becomes the immediate next step to complete the refactoring from direct `__name__` access to the stored attribute."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform identical substitutions on the same symbol references within the same method. Edit 0 changes `pruning_fn_name` to `self._pruning_fn_name` in one location, and Edit 1 makes the exact same substitution (`pruning_fn_name` to `self._pruning_fn_name`) in another location within the same `_log_sparsity_stats` method. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after pattern to the same type of syntactic construct (variable references). Both edits reference the exact same symbol and are part of a single, contiguous refactor to replace local variable access with instance attribute access. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform identical substitutions on the same symbol references within the same method. Edit 0 changes `pruning_fn_name` to `self._pruning_fn_name` in one location, and Edit 1 makes the exact same substitution (`pruning_fn_name` to `self._pruning_fn_name`) in another location within the same `_log_sparsity_stats` method. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after pattern to the same type of syntactic construct (variable references). Both edits reference the exact same symbol and are part of a single, contiguous refactor to replace local variable access with instance attribute access. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes the import from 'rank_zero_info' to 'rank_zero_only', and Edit 1 uses 'rank_zero_only' as a decorator. The changed lines reference the exact same symbol 'rank_zero_only' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing the symbol enables its usage as a decorator. Both edits can be staged in either order since Python allows using undefined symbols at parse time (they only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes the import from 'rank_zero_info' to 'rank_zero_only', and Edit 1 uses 'rank_zero_only' as a decorator. The changed lines reference the exact same symbol 'rank_zero_only' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing the symbol enables its usage as a decorator. Both edits can be staged in either order since Python allows using undefined symbols at parse time (they only fail at runtime), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        8
+    ]
+}

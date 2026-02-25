@@ -1,0 +1,90 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes KAFKA_OUTCOMES_BILLING from None to {\"cluster\": \"default\"}, while Edit 1 removes the check for 'settings.KAFKA_TOPICS[settings.KAFKA_OUTCOMES_BILLING] is not None' in the use_billing condition. These edits reference the exact same symbol (KAFKA_OUTCOMES_BILLING) and are directly related: Edit 0 ensures KAFKA_OUTCOMES_BILLING is no longer None, which makes the None check in Edit 1 unnecessary. The edits form a coherent micro-task where changing the configuration value creates an immediate prompt to simplify the conditional logic that was checking for that None value. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes KAFKA_OUTCOMES_BILLING from None to {\"cluster\": \"default\"}, while Edit 1 removes the check for 'settings.KAFKA_TOPICS[settings.KAFKA_OUTCOMES_BILLING] is not None' in the use_billing condition. These edits reference the exact same symbol (KAFKA_OUTCOMES_BILLING) and are directly related: Edit 0 ensures KAFKA_OUTCOMES_BILLING is no longer None, which makes the None check in Edit 1 unnecessary. The edits form a coherent micro-task where changing the configuration value creates an immediate prompt to simplify the conditional logic that was checking for that None value. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 changes the type annotation of KAFKA_TOPICS from 'Mapping[str, TopicDefinition | None]' to 'Mapping[str, TopicDefinition]', removing the None option. Edit 1 simplifies a conditional check that was previously testing 'settings.KAFKA_TOPICS[settings.KAFKA_OUTCOMES_BILLING] is not None' by removing this None check entirely. The changed lines reference the exact same symbol (settings.KAFKA_TOPICS) and the edits are mechanically linked - after removing None from the type annotation in edit 0, the None check in edit 1 becomes unnecessary and should be removed as the next immediate step. This represents a direct code dependency where one edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 changes the type annotation of KAFKA_TOPICS from 'Mapping[str, TopicDefinition | None]' to 'Mapping[str, TopicDefinition]', removing the None option. Edit 1 simplifies a conditional check that was previously testing 'settings.KAFKA_TOPICS[settings.KAFKA_OUTCOMES_BILLING] is not None' by removing this None check entirely. The changed lines reference the exact same symbol (settings.KAFKA_TOPICS) and the edits are mechanically linked - after removing None from the type annotation in edit 0, the None check in edit 1 becomes unnecessary and should be removed as the next immediate step. This represents a direct code dependency where one edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are modifying the same KAFKA_TOPICS dictionary configuration. Edit 0 changes the type annotation from 'TopicDefinition | None' to 'TopicDefinition' (removing the None option), while Edit 1 changes the KAFKA_OUTCOMES_BILLING value from None to {'cluster': 'default'}. These edits are part of a single refactoring task to eliminate None values from the KAFKA_TOPICS configuration - the type change in edit 0 removes None as a valid type, and edit 1 removes the actual None value. Both edits reference the same data structure and are mechanically linked as part of making the configuration consistent with the new type constraint."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are modifying the same KAFKA_TOPICS dictionary configuration. Edit 0 changes the type annotation from 'TopicDefinition | None' to 'TopicDefinition' (removing the None option), while Edit 1 changes the KAFKA_OUTCOMES_BILLING value from None to {'cluster': 'default'}. These edits are part of a single refactoring task to eliminate None values from the KAFKA_TOPICS configuration - the type change in edit 0 removes None as a valid type, and edit 1 removes the actual None value. Both edits reference the same data structure and are mechanically linked as part of making the configuration consistent with the new type constraint."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 changes the type annotation of KAFKA_TOPICS from 'Mapping[str, TopicDefinition | None]' to 'Mapping[str, TopicDefinition]', removing the None option. Edit 1 removes the _validate_topic_definitions function that was specifically checking for None values in KAFKA_TOPICS (with the assertion 'defn is not None'). These edits reference the exact same symbol (settings.KAFKA_TOPICS) and are part of a coordinated refactoring to eliminate None values from the mapping. The validation function becomes unnecessary once the type system guarantees no None values can exist. Either edit could be made first since both are syntactically valid independently, but together they form a coherent refactoring of the same data structure."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 changes the type annotation of KAFKA_TOPICS from 'Mapping[str, TopicDefinition | None]' to 'Mapping[str, TopicDefinition]', removing the None option. Edit 1 removes the _validate_topic_definitions function that was specifically checking for None values in KAFKA_TOPICS (with the assertion 'defn is not None'). These edits reference the exact same symbol (settings.KAFKA_TOPICS) and are part of a coordinated refactoring to eliminate None values from the mapping. The validation function becomes unnecessary once the type system guarantees no None values can exist. Either edit could be made first since both are syntactically valid independently, but together they form a coherent refactoring of the same data structure."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same function `get_topic_definition` and involve the same parameter being renamed from `cluster` to `topic`. Edit 0 changes the function signature parameter name from `cluster` to `topic`, while Edit 1 removes code that references the old parameter name `cluster` and calls the same function `get_topic_definition`. These edits reference the exact same symbol (the parameter of `get_topic_definition`) and form a cohesive refactoring where renaming the parameter necessitates removing code that used the old parameter name. Either edit could be made first since both are syntactically valid, but together they complete a single refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `get_topic_definition` and involve the same parameter being renamed from `cluster` to `topic`. Edit 0 changes the function signature parameter name from `cluster` to `topic`, while Edit 1 removes code that references the old parameter name `cluster` and calls the same function `get_topic_definition`. These edits reference the exact same symbol (the parameter of `get_topic_definition`) and form a cohesive refactoring where renaming the parameter necessitates removing code that used the old parameter name. Either edit could be made first since both are syntactically valid, but together they complete a single refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits change references to the exact same parameter symbol within the same function. Edit 0 renames the parameter from 'cluster' to 'topic' in the function signature, and edit 1 updates the usage of that same parameter in the function body from 'cluster' to 'topic'. These edits reference the exact same symbol (the parameter of the get_topic_definition function) and form a direct definition-usage relationship within the same function scope. Either edit can be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits change references to the exact same parameter symbol within the same function. Edit 0 renames the parameter from 'cluster' to 'topic' in the function signature, and edit 1 updates the usage of that same parameter in the function body from 'cluster' to 'topic'. These edits reference the exact same symbol (the parameter of the get_topic_definition function) and form a direct definition-usage relationship within the same function scope. Either edit can be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 changes the parameter name of get_topic_definition from 'cluster' to 'topic', and Edit 1 calls get_topic_definition with settings.KAFKA_OUTCOMES_BILLING. The changed lines reference the exact same function symbol (get_topic_definition), creating a direct code dependency where the parameter rename in Edit 0 affects the call site in Edit 1. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 changes the parameter name of get_topic_definition from 'cluster' to 'topic', and Edit 1 calls get_topic_definition with settings.KAFKA_OUTCOMES_BILLING. The changed lines reference the exact same function symbol (get_topic_definition), creating a direct code dependency where the parameter rename in Edit 0 affects the call site in Edit 1. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits are part of updating the same test function to change its behavior from testing SHARED topic routing to DEDICATED topic routing. Edit 0 updates the docstring to reflect the new expected behavior (DEDICATED instead of SHARED), while Edit 1 updates the actual assertion to check for the correct Kafka topic (KAFKA_OUTCOMES_BILLING instead of KAFKA_OUTCOMES). These changes are synchronized updates within the same test function that must be made together to maintain consistency between the test's documentation and its implementation. Both edits reference the same conceptual change but involve different code elements (docstring vs assertion), and either can be made first as both are valid independently."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits are part of updating the same test function to change its behavior from testing SHARED topic routing to DEDICATED topic routing. Edit 0 updates the docstring to reflect the new expected behavior (DEDICATED instead of SHARED), while Edit 1 updates the actual assertion to check for the correct Kafka topic (KAFKA_OUTCOMES_BILLING instead of KAFKA_OUTCOMES). These changes are synchronized updates within the same test function that must be made together to maintain consistency between the test's documentation and its implementation. Both edits reference the same conceptual change but involve different code elements (docstring vs assertion), and either can be made first as both are valid independently."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        6,
+        7
+    ]
+}

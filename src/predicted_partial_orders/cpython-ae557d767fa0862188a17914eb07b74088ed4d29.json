@@ -1,0 +1,80 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution (changing 'self.seekable()' to 'self.readable()') within the same type of syntactic construct (method call within conditional statement) and the same structural context (_check_can_seek method in similar file compression classes). This represents a bulk uniform substitution pattern where the same before\u2192after change is being applied to the same construct type across multiple files, indicating a single contiguous refactor operation."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution (changing 'self.seekable()' to 'self.readable()') within the same type of syntactic construct (method call within conditional statement) and the same structural context (_check_can_seek method in similar file compression classes). This represents a bulk uniform substitution pattern where the same before\u2192after change is being applied to the same construct type across multiple files, indicating a single contiguous refactor operation."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same method `self._fp.seekable()` in their changed lines. Edit 0 adds a call to `self._fp.seekable()` in the return statement of the `seekable()` method, while Edit 1 adds a check using `self._fp.seekable()` in the `_check_can_seek()` method. Both edits are part of implementing consistent seeking behavior by checking the underlying file object's seekable capability. Either edit can be made first without causing parse errors, and both reference the same method call, making them mechanically linked through the shared symbol reference."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same method `self._fp.seekable()` in their changed lines. Edit 0 adds a call to `self._fp.seekable()` in the return statement of the `seekable()` method, while Edit 1 adds a check using `self._fp.seekable()` in the `_check_can_seek()` method. Both edits are part of implementing consistent seeking behavior by checking the underlying file object's seekable capability. Either edit can be made first without causing parse errors, and both reference the same method call, making them mechanically linked through the shared symbol reference."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'return self.readable()' to 'return self.readable() and self._fp.seekable()' in the seekable() method of different compression file classes (BZ2File and LZMAFile). This represents a uniform, synchronized refactor applying the same fix to the same type of syntactic construct (seekable method implementations) across multiple files. The edits are part of a single, contiguous refactoring task where the same logical change is being applied consistently to similar classes."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'return self.readable()' to 'return self.readable() and self._fp.seekable()' in the seekable() method of different compression file classes (BZ2File and LZMAFile). This represents a uniform, synchronized refactor applying the same fix to the same type of syntactic construct (seekable method implementations) across multiple files. The edits are part of a single, contiguous refactoring task where the same logical change is being applied consistently to similar classes."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 modifies the implementation of the `seekable()` method in the `BZ2File` class to return `self.readable() and self._fp.seekable()` instead of just `self.readable()`. Edit 1 adds a test that specifically tests this new behavior by creating a `BZ2File` with a non-seekable file object and asserting that `bz2f.seekable()` returns `False`. The test directly calls and validates the exact same `seekable()` method that was modified in edit 0. This is a classic test-production code synchronization where the test is written to verify the specific behavior change made to the production code."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the implementation of the `seekable()` method in the `BZ2File` class to return `self.readable() and self._fp.seekable()` instead of just `self.readable()`. Edit 1 adds a test that specifically tests this new behavior by creating a `BZ2File` with a non-seekable file object and asserting that `bz2f.seekable()` returns `False`. The test directly calls and validates the exact same `seekable()` method that was modified in edit 0. This is a classic test-production code synchronization where the test is written to verify the specific behavior change made to the production code."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits add identical code (checking if self._fp.seekable() and raising the same UnsupportedOperation exception) to the same method name (_check_can_seek) in different but structurally similar classes (BZ2File and LZMAFile). This represents a bulk-edit pattern where the exact same before\u2192after substitution is being applied to the same type of syntactic construct (method bodies) across multiple files. The changes are clearly part of a single, contiguous refactor to add consistent seekability checking to compression file classes."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits add identical code (checking if self._fp.seekable() and raising the same UnsupportedOperation exception) to the same method name (_check_can_seek) in different but structurally similar classes (BZ2File and LZMAFile). This represents a bulk-edit pattern where the exact same before\u2192after substitution is being applied to the same type of syntactic construct (method bodies) across multiple files. The changes are clearly part of a single, contiguous refactor to add consistent seekability checking to compression file classes."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same method `self._fp.seekable()` in their changed lines. Edit 0 adds a call to `self._fp.seekable()` in the `seekable()` method's return statement, while Edit 1 adds a check using `self._fp.seekable()` in the `_check_can_seek()` method. These edits appear to be part of the same micro-task of adding proper seekability checks throughout the class by consistently checking the underlying file object's seekability. The changes reference the same symbol and represent a coordinated enhancement to seekability validation that would naturally be done together in a single editing session."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same method `self._fp.seekable()` in their changed lines. Edit 0 adds a call to `self._fp.seekable()` in the `seekable()` method's return statement, while Edit 1 adds a check using `self._fp.seekable()` in the `_check_can_seek()` method. These edits appear to be part of the same micro-task of adding proper seekability checks throughout the class by consistently checking the underlying file object's seekability. The changes reference the same symbol and represent a coordinated enhancement to seekability validation that would naturally be done together in a single editing session."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 modifies the `seekable()` method implementation in the `LZMAFile` class to return `self.readable() and self._fp.seekable()` instead of just `self.readable()`. Edit 1 adds a test that specifically tests the new behavior by creating a mock file object where `seekable()` returns `False`, then verifying that `f.seekable()` returns `False`. The test directly calls and asserts on the exact same `seekable()` method that was modified in edit 0. This creates a direct test-production code synchronization where the test validates the specific implementation change made to the `seekable()` method."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the `seekable()` method implementation in the `LZMAFile` class to return `self.readable() and self._fp.seekable()` instead of just `self.readable()`. Edit 1 adds a test that specifically tests the new behavior by creating a mock file object where `seekable()` returns `False`, then verifying that `f.seekable()` returns `False`. The test directly calls and asserts on the exact same `seekable()` method that was modified in edit 0. This creates a direct test-production code synchronization where the test validates the specific implementation change made to the `seekable()` method."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        4,
+        6,
+        7
+    ]
+}

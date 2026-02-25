@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports the symbol 'check_config' from zerver.lib.management, and Edit 1 calls that exact same symbol 'check_config()' in the handle method. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After importing check_config in Edit 0, calling it in Edit 1 becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports the symbol 'check_config' from zerver.lib.management, and Edit 1 calls that exact same symbol 'check_config()' in the handle method. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After importing check_config in Edit 0, calling it in Edit 1 becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new function 'check_config' in zerver/lib/management.py, while Edit 1 imports that exact same function 'check_config' from the same module in a test file. The changed lines reference the exact same symbol - the check_config function. After defining the function in Edit 0, importing it in Edit 1 becomes a natural next step for using it in tests. Since Python allows importing undefined symbols (they only fail at runtime/import time, not parse time), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function 'check_config' in zerver/lib/management.py, while Edit 1 imports that exact same function 'check_config' from the same module in a test file. The changed lines reference the exact same symbol - the check_config function. After defining the function in Edit 0, importing it in Edit 1 becomes a natural next step for using it in tests. Since Python allows importing undefined symbols (they only fail at runtime/import time, not parse time), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a function `check_config` in `zerver/lib/management.py`, and Edit 1 imports that exact same function `check_config` from `zerver.lib.management` in `zerver/management/commands/checkconfig.py`. The changed lines reference the exact same symbol - the `check_config` function. This creates an immediate code dependency where after defining the function, importing it becomes a natural next step, or vice versa. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the function doesn't exist, not at parse time. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a function `check_config` in `zerver/lib/management.py`, and Edit 1 imports that exact same function `check_config` from `zerver.lib.management` in `zerver/management/commands/checkconfig.py`. The changed lines reference the exact same symbol - the `check_config` function. This creates an immediate code dependency where after defining the function, importing it becomes a natural next step, or vice versa. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the function doesn't exist, not at parse time. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `check_config()` and Edit 1 creates a test that calls that exact same function `check_config()`. The changed lines in both edits reference the exact same symbol - the `check_config` function. After defining the function in Edit 0, the natural next step would be to test it (Edit 1), and conversely, after writing a test that calls `check_config()`, the function needs to be defined. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step. Since Python allows referencing undefined functions at parse time (they only fail at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `check_config()` and Edit 1 creates a test that calls that exact same function `check_config()`. The changed lines in both edits reference the exact same symbol - the `check_config` function. After defining the function in Edit 0, the natural next step would be to test it (Edit 1), and conversely, after writing a test that calls `check_config()`, the function needs to be defined. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step. Since Python allows referencing undefined functions at parse time (they only fail at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits import the exact same symbol 'check_config' from 'zerver.lib.management'. Edit 0 adds this import to checkconfig.py, while Edit 1 adds it to the existing import statement in test_management_commands.py. Since both changed lines reference the same fully qualified symbol and either edit can be made independently (both are valid import statements that can be parsed and staged in any order), this represents a bi-directional relationship where making either edit doesn't create a parse-time dependency on the other."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits import the exact same symbol 'check_config' from 'zerver.lib.management'. Edit 0 adds this import to checkconfig.py, while Edit 1 adds it to the existing import statement in test_management_commands.py. Since both changed lines reference the same fully qualified symbol and either edit can be made independently (both are valid import statements that can be parsed and staged in any order), this represents a bi-directional relationship where making either edit doesn't create a parse-time dependency on the other."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `check_config()` in zerver/lib/management.py, and Edit 1 calls that exact same function `check_config()` in the handle method. The changed lines reference the exact same symbol - the `check_config` function. Edit 1 removes the inline implementation and replaces it with a call to the newly defined function. This creates an immediate, mechanically obvious code dependency where defining the function prompts its usage as the next contiguous action. Both edits can be staged in either order since Python allows calling undefined functions (runtime NameError only, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `check_config()` in zerver/lib/management.py, and Edit 1 calls that exact same function `check_config()` in the handle method. The changed lines reference the exact same symbol - the `check_config` function. Edit 1 removes the inline implementation and replaces it with a call to the newly defined function. This creates an immediate, mechanically obvious code dependency where defining the function prompts its usage as the next contiguous action. Both edits can be staged in either order since Python allows calling undefined functions (runtime NameError only, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'check_config'. Edit 0 replaces inline configuration checking logic with a call to check_config(), while edit 1 adds a test that directly calls and tests the same check_config() function. The changed lines in both edits explicitly reference the same function symbol, creating a direct code dependency where testing the function becomes the immediate next step after implementing its usage."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'check_config'. Edit 0 replaces inline configuration checking logic with a call to check_config(), while edit 1 adds a test that directly calls and tests the same check_config() function. The changed lines in both edits explicitly reference the same function symbol, creating a direct code dependency where testing the function becomes the immediate next step after implementing its usage."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports 'settings' from django.conf, and Edit 1 uses that exact same 'settings' symbol in multiple places within the check_config() function (settings.REQUIRED_SETTINGS and settings.__getattr__(setting_name)). The import in Edit 0 makes the 'settings' symbol available for use in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'settings' from django.conf, and Edit 1 uses that exact same 'settings' symbol in multiple places within the check_config() function (settings.REQUIRED_SETTINGS and settings.__getattr__(setting_name)). The import in Edit 0 makes the 'settings' symbol available for use in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 replaces inline configuration checking code with a call to `check_config()` function, while Edit 1 adds `check_config` to the import statement in a test file. The changed lines reference the exact same symbol `check_config` - Edit 0 calls it and Edit 1 imports it. This creates a direct code dependency where the import in Edit 1 enables the usage in Edit 0. However, since this is Python, the call to `check_config()` in Edit 0 can be written and parsed even without the import in Edit 1 (it would only fail at runtime with a NameError). Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 replaces inline configuration checking code with a call to `check_config()` function, while Edit 1 adds `check_config` to the import statement in a test file. The changed lines reference the exact same symbol `check_config` - Edit 0 calls it and Edit 1 imports it. This creates a direct code dependency where the import in Edit 1 enables the usage in Edit 0. However, since this is Python, the call to `check_config()` in Edit 0 can be written and parsed even without the import in Edit 1 (it would only fail at runtime with a NameError). Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the function `check_config` from `zerver.lib.management`, while Edit 1 creates a test that calls the exact same `check_config` function. The changed lines reference the same symbol - `check_config`. After importing the function in Edit 0, it becomes available for use in tests like Edit 1. Conversely, if the test in Edit 1 is written first, it creates an immediate need for the import in Edit 0. Both edits can be staged in either order (the test will have a runtime NameError if the import doesn't exist, but it's still parseable), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the function `check_config` from `zerver.lib.management`, while Edit 1 creates a test that calls the exact same `check_config` function. The changed lines reference the same symbol - `check_config`. After importing the function in Edit 0, it becomes available for use in tests like Edit 1. Conversely, if the test in Edit 1 is written first, it creates an immediate need for the import in Edit 0. Both edits can be staged in either order (the test will have a runtime NameError if the import doesn't exist, but it's still parseable), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports the `check_config` function from `zerver.lib.management`, and Edit 1 uses that exact same `check_config` function in a test method. The changed lines reference the exact same symbol - `check_config`. After importing the function in Edit 0, using it in Edit 1 becomes the immediate next step to test the imported functionality. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports the `check_config` function from `zerver.lib.management`, and Edit 1 uses that exact same `check_config` function in a test method. The changed lines reference the exact same symbol - `check_config`. After importing the function in Edit 0, using it in Edit 1 becomes the immediate next step to test the imported functionality. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

@@ -1,0 +1,41 @@
+sequenceDiagram
+    participant U as User
+    participant V as VS Code
+    participant D as Docker router
+    participant R as Re-rank
+    participant T as System under test
+
+    U->>V: Open project inside VS Code
+    V->>D: Send project to Docker router
+    Note left of D: request json: {"project": dict, key of relative
+    Note left of D: file path, value of list[str] of file content,
+    Note left of D: "prior_edits": [], 
+    Note left of D: "status: enum["init", "suggestion", xx]}
+    D->>D: Create new container and bound to user
+    D->>R: Send project to re-rank layer
+    R->>T: Set up system under test with given project
+    T->>V: Backend is ready
+    Note left of T: {"status": enum["init"], pred_snapshots: dict,
+    Note left of T: key of relative file path contain edits
+    Note left of T: value of list[str] | dict}
+    T->>U: Pop notification of ready
+    U->>V: User make edits
+    V->>V: Record edits
+    U->>V: Click recommendation button
+    V->>D: Send subsequent edit recommendation request
+    Note left of D: request json: {"project": dict, key of relative
+    Note left of D: file path, value of list[str] of current 
+    Note left of D: file content, "prior_edits": list[dict],
+    Note left of D: "status": "suggestion"}
+    D->>D: Find the corresponding container
+    D->>R: Route request to re-rank layer
+    R->>T: Update the project status, formulate AI chat request
+    T->>R: Generate edit recommendation
+    R->>R: Convert to pred_snapshots format
+    R->>R: Rerank the edit recommendations
+    R->>V: Share recommended edit suggestions
+    Note left of R: {"status": enum["init"], pred_snapshots: dict,
+    Note left of R: key of relative file path contain edits
+    Note left of R: value of list[str] | dict}
+    V->>U: Display recommended edit suggestions based on ranked order
+

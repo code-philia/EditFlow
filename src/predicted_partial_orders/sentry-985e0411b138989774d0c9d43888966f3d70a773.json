@@ -1,0 +1,43 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes two enum values (RESPONSE_CONTENT_LENGTH and DECODED_RESPONSE_CONTENT_LENGTH) from the SpanMRI enum class, while Edit 1 adds back these same two enum values along with several new ones. The changed lines in both edits reference the exact same symbols (RESPONSE_CONTENT_LENGTH and DECODED_RESPONSE_CONTENT_LENGTH). However, Edit 1 cannot be applied successfully if Edit 0 has already been applied, as it would create duplicate enum values. Edit 0 must be applied before Edit 1 to avoid conflicts, making this an ordered relationship where Edit 0 comes before Edit 1."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 1 defines the SpanMRI.AI_TOTAL_TOKENS enum value, and Edit 0 uses that exact same symbol in a dictionary mapping (SpanMRI.AI_TOTAL_TOKENS.value). The changed lines reference the exact same symbol - AI_TOTAL_TOKENS from the SpanMRI enum. After defining the enum value in Edit 1, Edit 0 becomes the immediate next step to use it in the mapping. Conversely, after adding the usage in Edit 0, Edit 1 becomes necessary to define the referenced symbol. This is a classic definition-usage relationship where both edits reference the exact same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 1 defines the SpanMRI.AI_TOTAL_TOKENS enum value, and Edit 0 uses that exact same symbol in a dictionary mapping (SpanMRI.AI_TOTAL_TOKENS.value). The changed lines reference the exact same symbol - AI_TOTAL_TOKENS from the SpanMRI enum. After defining the enum value in Edit 1, Edit 0 becomes the immediate next step to use it in the mapping. Conversely, after adding the usage in Edit 0, Edit 1 becomes necessary to define the referenced symbol. This is a classic definition-usage relationship where both edits reference the exact same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same SpanMRI enum symbols in their changed lines. Edit 1 defines new SpanMRI enum values (MESSAGE_RECEIVE_LATENCY, MOBILE_FRAMES_DELAY, MOBILE_FROZEN_FRAMES, MOBILE_SLOW_FRAMES, MOBILE_TOTAL_FRAMES), and Edit 0 uses these exact same enum values in a mapping dictionary. The changed lines in both edits explicitly reference the same symbols - the SpanMRI enum constants. After defining these enum values in Edit 1, using them in the mapping in Edit 0 becomes the immediate, mechanically obvious next step. Either edit can be staged first since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship where both edits reference the exact same symbols and either naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same SpanMRI enum symbols in their changed lines. Edit 1 defines new SpanMRI enum values (MESSAGE_RECEIVE_LATENCY, MOBILE_FRAMES_DELAY, MOBILE_FROZEN_FRAMES, MOBILE_SLOW_FRAMES, MOBILE_TOTAL_FRAMES), and Edit 0 uses these exact same enum values in a mapping dictionary. The changed lines in both edits explicitly reference the same symbols - the SpanMRI enum constants. After defining these enum values in Edit 1, using them in the mapping in Edit 0 becomes the immediate, mechanically obvious next step. Either edit can be staged first since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship where both edits reference the exact same symbols and either naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds several new enum constants to the SpanMRI class, including MOBILE_SLOW_FRAMES = \"g:spans/mobile.slow_frames@none\". Edit 1 adds the string \"g:spans/mobile.slow_frames@none\" to a test list. The changed lines reference the exact same metric identifier string, and this appears to be part of adding a new metric where the enum definition and its test usage are being added together in the same development session. After defining the enum constant, the immediate next step would be to add it to the test data, or vice versa."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds several new enum constants to the SpanMRI class, including MOBILE_SLOW_FRAMES = \"g:spans/mobile.slow_frames@none\". Edit 1 adds the string \"g:spans/mobile.slow_frames@none\" to a test list. The changed lines reference the exact same metric identifier string, and this appears to be part of adding a new metric where the enum definition and its test usage are being added together in the same development session. After defining the enum constant, the immediate next step would be to add it to the test data, or vice versa."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4
+    ]
+}

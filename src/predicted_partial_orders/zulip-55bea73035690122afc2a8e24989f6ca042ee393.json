@@ -1,0 +1,85 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports DjangoStrategy from social_django.strategy, and Edit 1 uses DjangoStrategy to replace SocialAuthStrategy in the same file. The changed line in Edit 1 directly references the exact same symbol (DjangoStrategy) that is imported in Edit 0. This creates an immediate code dependency where the import in Edit 0 enables the usage in Edit 1. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports DjangoStrategy from social_django.strategy, and Edit 1 uses DjangoStrategy to replace SocialAuthStrategy in the same file. The changed line in Edit 1 directly references the exact same symbol (DjangoStrategy) that is imported in Edit 0. This creates an immediate code dependency where the import in Edit 0 enables the usage in Edit 1. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 1 removes the definition of the SocialAuthStrategy class, while Edit 0 removes the import of SocialAuthStrategy from the same module. These edits reference the exact same symbol (SocialAuthStrategy) and form a definition-usage relationship. After removing the class definition in Edit 1, the import in Edit 0 becomes unnecessary and should be removed as the next mechanical step. However, since the import can be removed before the class definition without causing a parse error (Python allows importing non-existent symbols, causing only a runtime ImportError), this is a bi-directional relationship where either edit can be performed first."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 removes the definition of the SocialAuthStrategy class, while Edit 0 removes the import of SocialAuthStrategy from the same module. These edits reference the exact same symbol (SocialAuthStrategy) and form a definition-usage relationship. After removing the class definition in Edit 1, the import in Edit 0 becomes unnecessary and should be removed as the next mechanical step. However, since the import can be removed before the class definition without causing a parse error (Python allows importing non-existent symbols, causing only a runtime ImportError), this is a bi-directional relationship where either edit can be performed first."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes 'SocialAuthStrategy' from the import statement, while Edit 1 changes the usage of 'SocialAuthStrategy' to 'DjangoStrategy' in the same file. These edits reference the exact same symbol 'SocialAuthStrategy' - one removes it from imports and the other stops using it. However, both edits can be staged in either order without causing parse errors. The import removal doesn't break parsing of the usage line (it would only cause a NameError at runtime), and the usage change doesn't require the import to be removed first. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in refactoring away from SocialAuthStrategy."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes 'SocialAuthStrategy' from the import statement, while Edit 1 changes the usage of 'SocialAuthStrategy' to 'DjangoStrategy' in the same file. These edits reference the exact same symbol 'SocialAuthStrategy' - one removes it from imports and the other stops using it. However, both edits can be staged in either order without causing parse errors. The import removal doesn't break parsing of the usage line (it would only cause a NameError at runtime), and the usage change doesn't require the import to be removed first. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in refactoring away from SocialAuthStrategy."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'SocialAuthStrategy' to 'DjangoStrategy' in type annotations and instantiations. Edit 0 changes the instantiation from SocialAuthStrategy to DjangoStrategy, while Edit 1 changes the type annotation from SocialAuthStrategy to DjangoStrategy. This represents a uniform refactoring operation where the same class name is being replaced consistently across the codebase. Both edits target the same syntactic construct type (class references) and apply the identical before\u2192after pattern, making this a clear case of bulk-edit synchronization that would naturally occur in a single contiguous refactor."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'SocialAuthStrategy' to 'DjangoStrategy' in type annotations and instantiations. Edit 0 changes the instantiation from SocialAuthStrategy to DjangoStrategy, while Edit 1 changes the type annotation from SocialAuthStrategy to DjangoStrategy. This represents a uniform refactoring operation where the same class name is being replaced consistently across the codebase. Both edits target the same syntactic construct type (class references) and apply the identical before\u2192after pattern, making this a clear case of bulk-edit synchronization that would naturally occur in a single contiguous refactor."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 1 removes the definition of the SocialAuthStrategy class, while Edit 0 changes a usage of SocialAuthStrategy to DjangoStrategy. These edits reference the exact same symbol (SocialAuthStrategy) and are part of a refactoring where the custom SocialAuthStrategy class is being removed and replaced with the standard DjangoStrategy. Edit 1 must occur before Edit 0 because if Edit 0 is applied first, the code would still reference the now-undefined SocialAuthStrategy class, creating a NameError at import time. The removal of the class definition must happen before the usage is updated to avoid referencing an undefined symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 1 removes the SocialAuthStrategy.authenticate method that was being called in edit 0. Edit 0 changes from calling self.backend.strategy.authenticate() to calling self.backend.authenticate() directly. This suggests that the SocialAuthStrategy wrapper method is being removed and the code is being updated to call the backend's authenticate method directly. The edits reference the exact same method call pattern - one removes the intermediate strategy.authenticate method, and the other updates the caller to bypass it. This creates a direct code dependency where removing the strategy method necessitates updating the call site to use the direct backend method instead."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the SocialAuthStrategy class definition entirely, while Edit 1 changes a type annotation from SocialAuthStrategy to DjangoStrategy. After removing the SocialAuthStrategy class in Edit 0, any references to it (like the type annotation in Edit 1) would need to be updated to avoid NameError. The changed lines reference the exact same symbol (SocialAuthStrategy), and removing the class definition creates an immediate code-driven prompt to update the type annotation that references it."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the SocialAuthStrategy class definition from zproject.backends, while Edit 1 removes the configuration line that references this class via 'zproject.backends.SocialAuthStrategy'. These edits reference the exact same symbol (the SocialAuthStrategy class) - one removes its definition and the other removes its configuration reference. This creates a direct code dependency where both edits are part of removing the same class from the codebase. Either edit can be performed first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the SocialAuthStrategy class definition from zproject.backends, while Edit 1 removes the configuration line that references this class via 'zproject.backends.SocialAuthStrategy'. These edits reference the exact same symbol (the SocialAuthStrategy class) - one removes its definition and the other removes its configuration reference. This creates a direct code dependency where both edits are part of removing the same class from the codebase. Either edit can be performed first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import of BaseAuth from social_core.backends.base, while Edit 1 removes a class method that uses BaseAuth in its type annotation (line 107: '# type: (BaseAuth, *Any, **Any) -> None'). These edits reference the exact same symbol 'BaseAuth' - one removes its import and the other removes its usage in a type annotation. After removing the import in Edit 0, the type annotation in Edit 1 would reference an undefined symbol, making Edit 1 the immediate next step to clean up the now-invalid reference. However, since this is a type annotation comment in Python (not parsed syntax), both edits can be staged in either order without causing parse errors - the type annotation would simply reference an undefined name but wouldn't break parsing. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of BaseAuth from social_core.backends.base, while Edit 1 removes a class method that uses BaseAuth in its type annotation (line 107: '# type: (BaseAuth, *Any, **Any) -> None'). These edits reference the exact same symbol 'BaseAuth' - one removes its import and the other removes its usage in a type annotation. After removing the import in Edit 0, the type annotation in Edit 1 would reference an undefined symbol, making Edit 1 the immediate next step to clean up the now-invalid reference. However, since this is a type annotation comment in Python (not parsed syntax), both edits can be staged in either order without causing parse errors - the type annotation would simply reference an undefined name but wouldn't break parsing. This makes it bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        3,
+        7,
+        4
+    ]
+}

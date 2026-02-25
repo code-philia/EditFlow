@@ -1,0 +1,82 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of GitRepo from streamlit.git_util, while Edit 1 removes the usage of GitRepo in the ReportSession constructor. These edits reference the exact same symbol (GitRepo) - one removes the import and the other removes the usage. After removing the import, the usage becomes undefined, and after removing the usage, the import becomes unused. Both edits are part of removing GitRepo entirely from this file. Either edit can be staged first since Python allows undefined references at parse time (they only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of GitRepo from streamlit.git_util, while Edit 1 removes the usage of GitRepo in the ReportSession constructor. These edits reference the exact same symbol (GitRepo) - one removes the import and the other removes the usage. After removing the import, the usage becomes undefined, and after removing the usage, the import becomes unused. Both edits are part of removing GitRepo entirely from this file. Either edit can be staged first since Python allows undefined references at parse time (they only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line 'self._repo = GitRepo(self._report.script_path)' from the __init__ method, while Edit 1 adds the exact same line 'self._repo = GitRepo(self._report.script_path)' inside a new get_deploy_params method. This appears to be a refactoring where the GitRepo initialization is being moved from the constructor to a method where it's actually needed. The changed lines reference the exact same symbol assignment (self._repo) and the exact same GitRepo instantiation pattern. This is a cut-and-paste move operation where the code is removed from one location and added to another location."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import statement 'from streamlit.git_util import GitRepo' from the top-level imports, while Edit 1 adds the same import statement inside the get_deploy_params method. This is a refactoring pattern where a top-level import is moved to be a local import within a specific method. The exact same symbol (GitRepo from streamlit.git_util) is being referenced in both edits - one removes it from global scope and the other adds it to local scope. This creates a direct code dependency where both edits reference the same import statement, making them part of a single refactoring micro-task. Either edit can be applied first without causing parse errors, as removing a top-level import doesn't break parsing, and adding a local import is also valid independently."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import statement 'from streamlit.git_util import GitRepo' from the top-level imports, while Edit 1 adds the same import statement inside the get_deploy_params method. This is a refactoring pattern where a top-level import is moved to be a local import within a specific method. The exact same symbol (GitRepo from streamlit.git_util) is being referenced in both edits - one removes it from global scope and the other adds it to local scope. This creates a direct code dependency where both edits reference the same import statement, making them part of a single refactoring micro-task. Either edit can be applied first without causing parse errors, as removing a top-level import doesn't break parsing, and adding a local import is also valid independently."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 removes the assignment `self._repo = GitRepo(self._report.script_path)` from the constructor, while Edit 1 removes the usage of `self._repo.get_repo_info()` and replaces it with `self.get_deploy_params()`. Both edits reference the exact same symbol `self._repo` - Edit 0 removes its definition and Edit 1 removes its usage. This creates a direct code dependency where removing the definition makes the usage invalid. However, since both edits can be written and parsed independently (the usage would just cause a runtime AttributeError if staged before the definition removal), and both are part of refactoring away the `_repo` attribute, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 removes the assignment `self._repo = GitRepo(self._report.script_path)` from the constructor, while Edit 1 removes the usage of `self._repo.get_repo_info()` and replaces it with `self.get_deploy_params()`. Both edits reference the exact same symbol `self._repo` - Edit 0 removes its definition and Edit 1 removes its usage. This creates a direct code dependency where removing the definition makes the usage invalid. However, since both edits can be written and parsed independently (the usage would just cause a runtime AttributeError if staged before the definition removal), and both are part of refactoring away the `_repo` attribute, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `get_deploy_params` in the ReportSession class, and Edit 1 calls that exact same method (`self.get_deploy_params()`) while removing the inline implementation. The changed lines reference the exact same symbol - the `get_deploy_params` method. Edit 1 replaces inline code with a call to the method defined in Edit 0, creating a direct definition-usage relationship. This is a refactoring where functionality is extracted into a method and then called, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `get_deploy_params` in the ReportSession class, and Edit 1 calls that exact same method (`self.get_deploy_params()`) while removing the inline implementation. The changed lines reference the exact same symbol - the `get_deploy_params` method. Edit 1 replaces inline code with a call to the method defined in Edit 0, creating a direct definition-usage relationship. This is a refactoring where functionality is extracted into a method and then called, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new method `get_deploy_params` in the ReportSession class, while Edit 1 creates a test that calls this exact same method (`rs.get_deploy_params()`). The changed lines reference the exact same symbol - the `get_deploy_params` method. After defining the method in Edit 0, testing it in Edit 1 becomes the immediate next step in the development flow. Both edits can be staged in either order since Python allows referencing methods that will be defined later (no parse-time error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `get_deploy_params` in the ReportSession class, while Edit 1 creates a test that calls this exact same method (`rs.get_deploy_params()`). The changed lines reference the exact same symbol - the `get_deploy_params` method. After defining the method in Edit 0, testing it in Edit 1 becomes the immediate next step in the development flow. Both edits can be staged in either order since Python allows referencing methods that will be defined later (no parse-time error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports the report_session module and ReportSession class, while Edit 1 uses both the imported report_session module and ReportSession class in the exact same symbols referenced in the changed lines. The changed line in Edit 1 explicitly references both 'report_session' (as report_session.__file__) and 'ReportSession' (in the constructor call), which are the exact same symbols imported in Edit 0. This creates a direct import-usage relationship within the same file, making either edit prompt the other as the immediate next step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports the report_session module and ReportSession class, while Edit 1 uses both the imported report_session module and ReportSession class in the exact same symbols referenced in the changed lines. The changed line in Edit 1 explicitly references both 'report_session' (as report_session.__file__) and 'ReportSession' (in the constructor call), which are the exact same symbols imported in Edit 0. This creates a direct import-usage relationship within the same file, making either edit prompt the other as the immediate next step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 replaces inline git repository handling code with a call to `self.get_deploy_params()`, while Edit 1 adds a test method `test_get_deploy_params_with_no_git` that tests the `get_deploy_params()` method. The changed lines reference the exact same method symbol `get_deploy_params()` - Edit 0 calls it and Edit 1 tests it. This creates a direct code linkage where the method call in the production code corresponds to the test for that same method. Both edits can be staged in either order since the method `get_deploy_params()` likely already exists (Edit 0 is calling it, not defining it), making this a bi-directional relationship where either edit naturally prompts the other as part of the same development task."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 replaces inline git repository handling code with a call to `self.get_deploy_params()`, while Edit 1 adds a test method `test_get_deploy_params_with_no_git` that tests the `get_deploy_params()` method. The changed lines reference the exact same method symbol `get_deploy_params()` - Edit 0 calls it and Edit 1 tests it. This creates a direct code linkage where the method call in the production code corresponds to the test for that same method. Both edits can be staged in either order since the method `get_deploy_params()` likely already exists (Edit 0 is calling it, not defining it), making this a bi-directional relationship where either edit naturally prompts the other as part of the same development task."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

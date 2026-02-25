@@ -1,0 +1,82 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'subtype' by extracting message.get('subtype') into a variable assignment. Edit 1 then uses this exact same 'subtype' variable in multiple conditional statements. The changed lines in edit 1 directly reference the 'subtype' variable that was defined in edit 0. This creates an immediate code dependency where edit 0 defines the variable and edit 1 uses it. Since Python allows referencing undefined variables at parse time (they only fail at runtime), either edit could be staged first, but making edit 0 creates the immediate prompt to use the newly extracted variable in the subsequent conditional checks, making edit 1 the natural next step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a new variable 'subtype' by extracting message.get('subtype') into a variable assignment. Edit 1 then uses this exact same 'subtype' variable in multiple conditional statements. The changed lines in edit 1 directly reference the 'subtype' variable that was defined in edit 0. This creates an immediate code dependency where edit 0 defines the variable and edit 1 uses it. Since Python allows referencing undefined variables at parse time (they only fail at runtime), either edit could be staged first, but making edit 0 creates the immediate prompt to use the newly extracted variable in the subsequent conditional checks, making edit 1 the natural next step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'subtype' by extracting message.get('subtype', False) and assigns it to a variable. Edit 1 removes code that was previously accessing message['subtype'] and assigning it to a variable named 'subtype'. These edits reference the exact same symbol 'subtype' and the exact same data source message.get('subtype')/message['subtype']. Edit 0 creates the extraction pattern that makes Edit 1's removal of the redundant subtype assignment the immediate next step in refactoring this code. The edits are part of a single micro-task to consolidate subtype access into a single variable assignment."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a new variable 'subtype' by extracting message.get('subtype', False) and assigns it to a variable. Edit 1 removes code that was previously accessing message['subtype'] and assigning it to a variable named 'subtype'. These edits reference the exact same symbol 'subtype' and the exact same data source message.get('subtype')/message['subtype']. Edit 0 creates the extraction pattern that makes Edit 1's removal of the redundant subtype assignment the immediate next step in refactoring this code. The edits are part of a single micro-task to consolidate subtype access into a single variable assignment."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 removes the definition and assignment of the 'subtype' variable (line 594: subtype = message['subtype']), while Edit 1 removes a usage of that same 'subtype' variable (line 625: elif subtype == \"file_share\"). After Edit 0 is applied, the 'subtype' variable is no longer defined, making Edit 1's reference to 'subtype' create a NameError at runtime. However, in Python, both edits can be written and parsed in either order - the undefined variable reference only causes a runtime error, not a parse-time syntax error. Since both edits reference the exact same symbol ('subtype') and either edit naturally prompts the other as the next mechanical step in removing this subtype handling code, this is a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition and assignment of the 'subtype' variable (line 594: subtype = message['subtype']), while Edit 1 removes a usage of that same 'subtype' variable (line 625: elif subtype == \"file_share\"). After Edit 0 is applied, the 'subtype' variable is no longer defined, making Edit 1's reference to 'subtype' create a NameError at runtime. However, in Python, both edits can be written and parsed in either order - the undefined variable reference only causes a runtime error, not a parse-time syntax error. Since both edits reference the exact same symbol ('subtype') and either edit naturally prompts the other as the next mechanical step in removing this subtype handling code, this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 assigns a value to the variable 'url' on line 610 (url = fileinfo['url_private']), and Edit 1 immediately uses that same 'url' variable on line 612 (if 'files.slack.com' in url). The assignment in Edit 0 creates the variable that Edit 1 depends on. Both edits reference the exact same symbol 'url' and are part of the same code block processing file attachments. Either edit can be staged first since Python allows referencing undefined variables at parse time (only failing at runtime), making this a bi-directional relationship where making either edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 assigns a value to the variable 'url' on line 610 (url = fileinfo['url_private']), and Edit 1 immediately uses that same 'url' variable on line 612 (if 'files.slack.com' in url). The assignment in Edit 0 creates the variable that Edit 1 depends on. Both edits reference the exact same symbol 'url' and are part of the same code block processing file attachments. Either edit can be staged first since Python allows referencing undefined variables at parse time (only failing at runtime), making this a bi-directional relationship where making either edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 adds logic to prepend '/me ' to message content for certain subtypes including 'bot_add', while Edit 1 adds a test assertion that expects a message with content '/me added bot'. The test assertion directly validates the behavior implemented in Edit 0 - specifically testing that messages with 'bot_add' subtype get the '/me ' prefix added. Both edits reference the same functionality (the '/me ' prefix behavior for bot_add messages) and the test is directly asserting on the output of the code change made in Edit 0. This creates a bi-directional relationship where implementing the feature naturally prompts adding the test, and adding the test naturally prompts implementing the feature."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 adds logic to prepend '/me ' to message content for certain subtypes including 'bot_add', while Edit 1 adds a test assertion that expects a message with content '/me added bot'. The test assertion directly validates the behavior implemented in Edit 0 - specifically testing that messages with 'bot_add' subtype get the '/me ' prefix added. Both edits reference the same functionality (the '/me ' prefix behavior for bot_add messages) and the test is directly asserting on the output of the code change made in Edit 0. This creates a bi-directional relationship where implementing the feature naturally prompts adding the test, and adding the test naturally prompts implementing the feature."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds handling for the 'bot_add' subtype in the channel_message_to_zerver_message function, specifically adding logic to prepend '/me ' to content when subtype is 'bot_add'. Edit 1 modifies a test case to include 'subtype': 'bot_add' in the test data. These edits reference the exact same symbol ('bot_add' subtype) - Edit 0 implements the handling logic for this subtype, and Edit 1 provides test coverage for that exact same subtype handling. This creates a direct code dependency where the test in Edit 1 exercises the specific code path added in Edit 0. Both edits are part of the same development task of implementing and testing bot_add subtype handling."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds handling for the 'bot_add' subtype in the channel_message_to_zerver_message function, specifically adding logic to prepend '/me ' to content when subtype is 'bot_add'. Edit 1 modifies a test case to include 'subtype': 'bot_add' in the test data. These edits reference the exact same symbol ('bot_add' subtype) - Edit 0 implements the handling logic for this subtype, and Edit 1 provides test coverage for that exact same subtype handling. This creates a direct code dependency where the test in Edit 1 exercises the specific code path added in Edit 0. Both edits are part of the same development task of implementing and testing bot_add subtype handling."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 changes a test message from 'test message 2' to 'added bot' and adds a 'subtype': 'bot_add' field to a message dictionary at index position that will become zerver_message[3]. Edit 1 adds an assertion that checks zerver_message[3]['content'] equals '/me added bot'. These edits reference the exact same test data element (the message that becomes zerver_message[3]) - edit 0 modifies the input data and edit 1 adds a test assertion for the expected output of that same data. This is a direct test-production synchronization where both edits work on the same message object, making them bi-directional neighbors in the test flow."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 changes a test message from 'test message 2' to 'added bot' and adds a 'subtype': 'bot_add' field to a message dictionary at index position that will become zerver_message[3]. Edit 1 adds an assertion that checks zerver_message[3]['content'] equals '/me added bot'. These edits reference the exact same test data element (the message that becomes zerver_message[3]) - edit 0 modifies the input data and edit 1 adds a test assertion for the expected output of that same data. This is a direct test-production synchronization where both edits work on the same message object, making them bi-directional neighbors in the test flow."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 removes the definition and assignment of the 'subtype' variable (line 594: subtype = message['subtype']), while Edit 1 removes a usage of that same 'subtype' variable (line 603: elif subtype == \"file_share\"). After Edit 0 is applied, the 'subtype' variable is no longer defined, making Edit 1's removal of its usage the immediate next step to avoid a NameError. The changed lines reference the exact same symbol 'subtype', creating a direct code dependency where removing the definition naturally prompts removing the usage."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

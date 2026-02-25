@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 uses ServicePrincipal.sns in two places within the changed lines. This creates a direct import-usage relationship where the imported symbol ServicePrincipal is explicitly referenced in the usage edit. After making the import edit, the usage edit becomes the immediate next step to utilize the imported symbol. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 uses ServicePrincipal.sns in two places within the changed lines. This creates a direct import-usage relationship where the imported symbol ServicePrincipal is explicitly referenced in the usage edit. After making the import edit, the usage edit becomes the immediate next step to utilize the imported symbol. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 introduces usage of `ServicePrincipal.firehose` in two locations within the changed lines, while Edit 1 defines this exact same symbol by adding the `firehose` attribute to the `ServicePrincipal` class. The changed lines in Edit 0 directly reference the symbol being defined in Edit 1. After making Edit 1, the usage in Edit 0 becomes immediately valid, and after making Edit 0, the need for the `firehose` attribute becomes immediately apparent. This is a classic definition-usage relationship where both edits reference the exact same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 introduces usage of `ServicePrincipal.firehose` in two locations within the changed lines, while Edit 1 defines this exact same symbol by adding the `firehose` attribute to the `ServicePrincipal` class. The changed lines in Edit 0 directly reference the symbol being defined in Edit 1. After making Edit 1, the usage in Edit 0 becomes immediately valid, and after making Edit 0, the need for the `firehose` attribute becomes immediately apparent. This is a classic definition-usage relationship where both edits reference the exact same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the ServicePrincipal symbol, and Edit 1 uses that exact same ServicePrincipal symbol in multiple locations within the changed lines (lines 724 and 729). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the ServicePrincipal symbol available for use in Edit 1. The changed lines in Edit 1 explicitly reference the same symbol that is imported in Edit 0. This is a classic import-usage relationship within the same file, and in Python, usage before import only causes runtime errors, not parse errors, so either edit can be staged first."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the ServicePrincipal symbol, and Edit 1 uses that exact same ServicePrincipal symbol in multiple locations within the changed lines (lines 724 and 729). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the ServicePrincipal symbol available for use in Edit 1. The changed lines in Edit 1 explicitly reference the same symbol that is imported in Edit 0. This is a classic import-usage relationship within the same file, and in Python, usage before import only causes runtime errors, not parse errors, so either edit can be staged first."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits add the exact same import statement 'from localstack.utils.aws.client_types import ServicePrincipal' to different files. This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single refactoring task. The edits perform an identical textual addition (same import statement) and target the same type of syntactic construct (import lines). This fits the criteria for bulk-edit synchronization where both edits are part of a contiguous refactor to add the same import across multiple files."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits add the exact same import statement 'from localstack.utils.aws.client_types import ServicePrincipal' to different files. This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single refactoring task. The edits perform an identical textual addition (same import statement) and target the same type of syntactic construct (import lines). This fits the criteria for bulk-edit synchronization where both edits are part of a contiguous refactor to add the same import across multiple files."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 adds a 'firehose' attribute to the ServicePrincipal class. These edits reference the exact same symbol (ServicePrincipal class) and appear to be part of the same development session where the import is added to use the newly added firehose attribute. The import creates an immediate code-driven prompt to add the firehose attribute that will be used, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 adds a 'firehose' attribute to the ServicePrincipal class. These edits reference the exact same symbol (ServicePrincipal class) and appear to be part of the same development session where the import is added to use the newly added firehose attribute. The import creates an immediate code-driven prompt to add the firehose attribute that will be used, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds the 'SubscriptionRoleArn' field to the SnsSubscription TypedDict class definition. Edit 1 uses this exact same field by accessing subscriber.get('SubscriptionRoleArn') in the FirehoseTopicPublisher class. The changed lines reference the exact same symbol - the 'SubscriptionRoleArn' field of the SnsSubscription type. After adding the field definition in edit 0, edit 1 becomes the natural next step to actually use this new field. Conversely, edit 1's usage of the field creates an immediate prompt to ensure the field is properly defined in the type definition. Both edits can be staged in either order since Python allows accessing dictionary keys that may not exist (handled by .get() method), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds the 'SubscriptionRoleArn' field to the SnsSubscription TypedDict class definition. Edit 1 uses this exact same field by accessing subscriber.get('SubscriptionRoleArn') in the FirehoseTopicPublisher class. The changed lines reference the exact same symbol - the 'SubscriptionRoleArn' field of the SnsSubscription type. After adding the field definition in edit 0, edit 1 becomes the natural next step to actually use this new field. Conversely, edit 1's usage of the field creates an immediate prompt to ensure the field is properly defined in the type definition. Both edits can be staged in either order since Python allows accessing dictionary keys that may not exist (handled by .get() method), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 uses ServicePrincipal.sns in two locations within the changed lines. This is a classic import-usage relationship where the imported symbol is directly referenced in the usage edit. After making the import edit, the usage edit becomes the immediate next step to utilize the imported symbol. Both edits reference the exact same symbol (ServicePrincipal) and either edit can be staged first since Python allows referencing undefined symbols at parse time (they only fail at runtime)."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports ServicePrincipal from localstack.utils.aws.client_types, and Edit 1 uses ServicePrincipal.sns in two locations within the changed lines. This is a classic import-usage relationship where the imported symbol is directly referenced in the usage edit. After making the import edit, the usage edit becomes the immediate next step to utilize the imported symbol. Both edits reference the exact same symbol (ServicePrincipal) and either edit can be staged first since Python allows referencing undefined symbols at parse time (they only fail at runtime)."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

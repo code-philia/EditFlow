@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the function 'make_group_other_inaccessible' and edit 1 uses that exact same function. This creates a direct definition-usage relationship where the import makes the function available for use in the same file. In Python, both edits can be staged in either order since the usage will only fail at runtime if the import is missing, not at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the function 'make_group_other_inaccessible' and edit 1 uses that exact same function. This creates a direct definition-usage relationship where the import makes the function available for use in the same file. In Python, both edits can be staged in either order since the usage will only fail at runtime if the import is missing, not at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add identical function calls to `make_group_other_inaccessible()` immediately after `file.write()` operations. This represents a bulk-edit pattern where the same security enhancement (making files group/other inaccessible) is being applied uniformly across multiple file write locations. The edits perform identical textual substitution (adding the same function call) and target the same type of syntactic construct (post-file-write security operations). This is a synchronized refactoring operation that would naturally occur as part of a single, contiguous security hardening task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add identical function calls to `make_group_other_inaccessible()` immediately after `file.write()` operations. This represents a bulk-edit pattern where the same security enhancement (making files group/other inaccessible) is being applied uniformly across multiple file write locations. The edits perform identical textual substitution (adding the same function call) and target the same type of syntactic construct (post-file-write security operations). This is a synchronized refactoring operation that would naturally occur as part of a single, contiguous security hardening task."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports the function `make_group_other_inaccessible` from `airflow.configuration`, and Edit 1 defines/uses this exact same function in the configuration module. The changed lines reference the exact same symbol - `make_group_other_inaccessible`. After making either edit, the other becomes the immediate next step: if you import the function first, you need to define it; if you define it first, you need to import it where it's used. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports the function `make_group_other_inaccessible` from `airflow.configuration`, and Edit 1 defines/uses this exact same function in the configuration module. The changed lines reference the exact same symbol - `make_group_other_inaccessible`. After making either edit, the other becomes the immediate next step: if you import the function first, you need to define it; if you define it first, you need to import it where it's used. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function 'make_group_other_inaccessible' from airflow.configuration, and Edit 1 defines/uses that exact same function in the airflow.configuration module. This creates a direct definition-usage relationship where the imported symbol in Edit 0 is the same symbol being used in Edit 1. However, since Edit 0 is importing a function that is being called in Edit 1, and Python allows imports to reference functions that are defined and used elsewhere in the same module, both edits can be staged in either order without causing parse errors. The import in Edit 0 and the usage in Edit 1 reference the exact same symbol, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 imports the function 'make_group_other_inaccessible' from airflow.configuration, and Edit 1 defines/uses that exact same function in the airflow.configuration module. This creates a direct definition-usage relationship where the imported symbol in Edit 0 is the same symbol being used in Edit 1. However, since Edit 0 is importing a function that is being called in Edit 1, and Python allows imports to reference functions that are defined and used elsewhere in the same module, both edits can be staged in either order without causing parse errors. The import in Edit 0 and the usage in Edit 1 reference the exact same symbol, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 1 defines the function `make_group_other_inaccessible` in airflow/configuration.py, while Edit 0 imports that exact same function in airflow/cli/commands/standalone_command.py. The changed lines reference the exact same symbol - the function `make_group_other_inaccessible`. After defining the function in Edit 1, importing it in Edit 0 becomes the natural next step to use it. Conversely, after adding the import in Edit 0, defining the function in Edit 1 becomes necessary to satisfy the import. Both edits can be staged in either order without parser errors (Python allows importing undefined symbols, causing only runtime NameError), making this a bi-directional relationship where either edit naturally prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 defines the function `make_group_other_inaccessible` in airflow/configuration.py, while Edit 0 imports that exact same function in airflow/cli/commands/standalone_command.py. The changed lines reference the exact same symbol - the function `make_group_other_inaccessible`. After defining the function in Edit 1, importing it in Edit 0 becomes the natural next step to use it. Conversely, after adding the import in Edit 0, defining the function in Edit 1 becomes necessary to satisfy the import. Both edits can be staged in either order without parser errors (Python allows importing undefined symbols, causing only runtime NameError), making this a bi-directional relationship where either edit naturally prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 1 defines a new function `make_group_other_inaccessible` and Edit 0 calls that exact same function. The changed line in Edit 0 explicitly references the function being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, function calls can be written before the function definition (they would only fail at runtime, not at parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 1 defines a new function `make_group_other_inaccessible` and Edit 0 calls that exact same function. The changed line in Edit 0 explicitly references the function being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, function calls can be written before the function definition (they would only fail at runtime, not at parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 'stat' module, and Edit 1 uses that exact same 'stat' module in the newly added function 'make_group_other_inaccessible' where it references 'stat.S_IRUSR' and 'stat.S_IWUSR'. This is a classic import-usage relationship where the changed lines reference the exact same symbol. After importing 'stat' in Edit 0, Edit 1 becomes the immediate next step to use that imported module. Both edits can be staged in either order since Python allows usage of undefined imports (resulting in a NameError at runtime, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'stat' module, and Edit 1 uses that exact same 'stat' module in the newly added function 'make_group_other_inaccessible' where it references 'stat.S_IRUSR' and 'stat.S_IWUSR'. This is a classic import-usage relationship where the changed lines reference the exact same symbol. After importing 'stat' in Edit 0, Edit 1 becomes the immediate next step to use that imported module. Both edits can be staged in either order since Python allows usage of undefined imports (resulting in a NameError at runtime, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 calls the function `make_group_other_inaccessible` in line 1502, while Edit 1 defines this exact same function starting at line 1545. The changed lines reference the exact same symbol - the function `make_group_other_inaccessible`. After defining the function in Edit 1, calling it in Edit 0 becomes the immediate next step, or vice versa - after adding the call in Edit 0, defining the function becomes immediately necessary. Both edits can be written and parsed in either order (the call before definition would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 calls the function `make_group_other_inaccessible` in line 1502, while Edit 1 defines this exact same function starting at line 1545. The changed lines reference the exact same symbol - the function `make_group_other_inaccessible`. After defining the function in Edit 1, calling it in Edit 0 becomes the immediate next step, or vice versa - after adding the call in Edit 0, defining the function becomes immediately necessary. Both edits can be written and parsed in either order (the call before definition would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits add identical function calls to `make_group_other_inaccessible()` with different file path arguments (`TEST_CONFIG_FILE` vs `AIRFLOW_CONFIG`) in the same function `initialize_config()`. This represents a bulk-edit pattern where the same structural change (adding the same function call) is being applied to multiple similar code locations within the same context. The edits perform identical textual/structural substitution (adding the same function call pattern) and target the same type of syntactic construct (function calls after file.write operations). This appears to be part of a single, contiguous refactor to add file permission changes in multiple places. Either edit can be made first, and both are part of the same mechanical task of adding security-related function calls."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits add identical function calls to `make_group_other_inaccessible()` with different file path arguments (`TEST_CONFIG_FILE` vs `AIRFLOW_CONFIG`) in the same function `initialize_config()`. This represents a bulk-edit pattern where the same structural change (adding the same function call) is being applied to multiple similar code locations within the same context. The edits perform identical textual/structural substitution (adding the same function call pattern) and target the same type of syntactic construct (function calls after file.write operations). This appears to be part of a single, contiguous refactor to add file permission changes in multiple places. Either edit can be made first, and both are part of the same mechanical task of adding security-related function calls."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 1 defines a new function `make_group_other_inaccessible` and Edit 0 calls that exact same function. The changed line in Edit 0 explicitly references the function being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the same symbol. In Python, function calls can be written before the function definition (they would only fail at runtime, not at parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new function `make_group_other_inaccessible` and Edit 0 calls that exact same function. The changed line in Edit 0 explicitly references the function being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the same symbol. In Python, function calls can be written before the function definition (they would only fail at runtime, not at parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

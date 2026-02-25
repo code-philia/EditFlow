@@ -1,0 +1,108 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "This is a cut-and-paste move operation where identical code (optimizer initialization block) is being removed from one location (DDP2Backend.ddp_train) and added to another location (DDPBackend.ddp_train). The exact same lines of code with identical functionality are being relocated. For such moves, the removal must occur before the addition to avoid code duplication, making this an ordered relationship where edit 0 (removal) must happen before edit 1 (addition)."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "This is a cut-and-paste move operation where identical code (optimizer initialization block) is being removed from one location (lines 172-176) and added to another location (lines 192-197) within the same function. The removal must occur before the relocation to avoid code duplication. The exact same lines of code with identical content and structure are being moved, making this an ordered dependency where edit 0 (removal) must happen before edit 1 (addition)."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "These edits involve moving identical code blocks between two different classes (DDP2Backend and DDPSpawnBackend). Edit 0 adds optimizer initialization code to DDP2Backend.ddp_train(), while Edit 1 removes the exact same code block from DDPSpawnBackend.ddp_train(). This appears to be a cut-and-paste move operation where the code is being relocated from one class to another. The code blocks are structurally identical, referencing the same trainer methods and attributes. Since this is a move operation, the removal (Edit 1) should logically occur before the addition (Edit 0) to avoid duplication, though both edits could technically be staged in either order without parser errors."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "These edits involve moving identical code blocks between two different classes (DDP2Backend and DDPSpawnBackend). Edit 0 adds optimizer initialization code to DDP2Backend.ddp_train(), while Edit 1 removes the exact same code block from DDPSpawnBackend.ddp_train(). This appears to be a cut-and-paste move operation where the code is being relocated from one class to another. The code blocks are structurally identical, referencing the same trainer methods and attributes. Since this is a move operation, the removal (Edit 1) should logically occur before the addition (Edit 0) to avoid duplication, though both edits could technically be staged in either order without parser errors."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits add identical code blocks (lines 124-130) to different backend classes' ddp_train methods. The added code is structurally and textually identical - same comments, same variable assignments, same method calls, and same attribute assignments. This represents a bulk-edit pattern where the same functionality is being synchronized across multiple similar classes. Both edits involve adding the same optimizer initialization logic to parallel backend implementations, making this a clear case of mirrored additions within the same codebase refactor."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits add identical code blocks (lines 124-130) to different backend classes' ddp_train methods. The added code is structurally and textually identical - same comments, same variable assignments, same method calls, and same attribute assignments. This represents a bulk-edit pattern where the same functionality is being synchronized across multiple similar classes. Both edits involve adding the same optimizer initialization logic to parallel backend implementations, making this a clear case of mirrored additions within the same codebase refactor."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits involve moving identical code blocks between two different classes (DDP2Backend and DDPBackend). Edit 0 adds optimizer initialization code to DDP2Backend.ddp_train(), while Edit 1 removes the exact same code block from DDPBackend.ddp_train(). This appears to be a cut-and-paste move operation where the code is being relocated from one class to another. The removal must occur before the addition to avoid code duplication, making this an ordered relationship where Edit 1 (removal) should happen before Edit 0 (addition)."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "This is a cut-and-paste move operation where the exact same block of code (optimizer initialization lines) is being removed from one location (lines 109-113) and added to another location (lines 125-130) within the same function. The code block is identical, including comments and variable assignments. This represents a single atomic refactoring operation where the removal must occur before the relocation to avoid code duplication. Edit 0 removes the code block and edit 1 adds it back in a different position."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add identical code blocks (lines 125-130 in edit 0 and lines 192-197 in edit 1) to different classes (DDP2Backend and DDPBackend) within their respective ddp_train methods. This represents a bulk-edit pattern where the exact same code structure is being added to similar contexts. The additions are structurally identical - same comments, same method calls (self.trainer.init_optimizers), same variable assignments (optimizers, lr_schedulers, optimizer_frequencies), and same attribute assignments to self.trainer. This appears to be part of a single refactoring operation to add optimizer initialization logic to both DDP backend classes simultaneously. Since both edits perform identical textual substitution on the same type of syntactic construct (method bodies in similar classes), and either edit could be made first with the other being the natural next step in the same refactoring task, this qualifies as bi-directional neighbours."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add identical code blocks (lines 125-130 in edit 0 and lines 192-197 in edit 1) to different classes (DDP2Backend and DDPBackend) within their respective ddp_train methods. This represents a bulk-edit pattern where the exact same code structure is being added to similar contexts. The additions are structurally identical - same comments, same method calls (self.trainer.init_optimizers), same variable assignments (optimizers, lr_schedulers, optimizer_frequencies), and same attribute assignments to self.trainer. This appears to be part of a single refactoring operation to add optimizer initialization logic to both DDP backend classes simultaneously. Since both edits perform identical textual substitution on the same type of syntactic construct (method bodies in similar classes), and either edit could be made first with the other being the natural next step in the same refactoring task, this qualifies as bi-directional neighbours."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits remove identical blocks of code (lines 171-176 in edit 1 and lines 109-114 in edit 0) that handle optimizer initialization. The removed code is structurally and textually identical - both remove the same comment lines and the same sequence of calls to self.trainer.init_optimizers() and assignments to self.trainer attributes. This represents a bulk-edit pattern where the same code block is being removed from two different but related backend classes (DDP2Backend and DDPBackend) as part of what appears to be a single refactoring operation to eliminate duplicate optimizer initialization logic. The edits perform identical textual substitution (removal of the same code pattern) on the same type of syntactic construct (method bodies in similar backend classes)."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits remove identical blocks of code (lines 171-176 in edit 1 and lines 109-114 in edit 0) that handle optimizer initialization. The removed code is structurally and textually identical - both remove the same comment lines and the same sequence of calls to self.trainer.init_optimizers() and assignments to self.trainer attributes. This represents a bulk-edit pattern where the same code block is being removed from two different but related backend classes (DDP2Backend and DDPBackend) as part of what appears to be a single refactoring operation to eliminate duplicate optimizer initialization logic. The edits perform identical textual substitution (removal of the same code pattern) on the same type of syntactic construct (method bodies in similar backend classes)."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits remove identical blocks of code (lines 109-113 in edit 0 and lines 112-117 in edit 1) that handle optimizer initialization. The removed code is structurally and textually identical - both remove the same comment '# CHOOSE OPTIMIZER', the same comment '# allow for lr schedulers as well', and the exact same sequence of four assignment statements involving self.trainer.init_optimizers(), self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. This represents a bulk uniform substitution pattern where identical code blocks are being removed from similar contexts (both are ddp_train methods in related backend classes). Since both edits perform the same textual substitution (removing identical code blocks) and target the same type of syntactic construct (method body code blocks), this qualifies as a bi-directional relationship under the bulk-edit pattern synchronization criteria."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits remove identical blocks of code (lines 109-113 in edit 0 and lines 112-117 in edit 1) that handle optimizer initialization. The removed code is structurally and textually identical - both remove the same comment '# CHOOSE OPTIMIZER', the same comment '# allow for lr schedulers as well', and the exact same sequence of four assignment statements involving self.trainer.init_optimizers(), self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. This represents a bulk uniform substitution pattern where identical code blocks are being removed from similar contexts (both are ddp_train methods in related backend classes). Since both edits perform the same textual substitution (removing identical code blocks) and target the same type of syntactic construct (method body code blocks), this qualifies as a bi-directional relationship under the bulk-edit pattern synchronization criteria."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits remove identical blocks of code that perform the same operations: calling self.trainer.init_optimizers(model) and assigning the results to self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. This represents a bulk-edit pattern where the exact same code block (same before\u2192after pattern of removal) is being applied to the same type of syntactic construct (method bodies) in related classes (DDPBackend and DDPSpawnBackend). Both edits are part of a single, contiguous refactor to remove optimizer initialization code from these backend classes. Either edit can be made first, and after making either, the other becomes the natural next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits remove identical blocks of code that perform the same operations: calling self.trainer.init_optimizers(model) and assigning the results to self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. This represents a bulk-edit pattern where the exact same code block (same before\u2192after pattern of removal) is being applied to the same type of syntactic construct (method bodies) in related classes (DDPBackend and DDPSpawnBackend). Both edits are part of a single, contiguous refactor to remove optimizer initialization code from these backend classes. Either edit can be made first, and after making either, the other becomes the natural next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These edits involve moving identical code blocks between two different classes (DDPBackend and DDPSpawnBackend) in different files. Edit 0 adds optimizer initialization code to DDPBackend.ddp_train(), while Edit 1 removes the exact same code block from DDPSpawnBackend.ddp_train(). This appears to be a cut-and-paste refactoring operation where code is being relocated from one location to another. The code blocks are structurally identical, including the comments and the sequence of operations. Since this is a move operation where the code must be removed from one location before being added to another (or vice versa), there is an ordering dependency - you cannot have the same code in both locations simultaneously during the refactoring process."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "This is a cut-and-paste move operation where the exact same block of code (6 lines including comments) is being removed from one location (lines 112-118) and added to another location (lines 124-130) within the same method. The code block handles optimizer initialization and assignment. For this to work correctly, the removal must happen before the addition to avoid duplication. If the addition were staged first, there would be duplicate code until the removal is completed. This represents a single atomic refactoring operation where the order matters - the old location must be cleared before establishing the new location."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits add identical code blocks (lines 192-197 in edit 0 and lines 124-129 in edit 1) that perform the exact same operations: calling self.trainer.init_optimizers(model) and assigning the results to self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. The code is structurally identical and appears to be part of a bulk synchronization operation where the same optimizer initialization logic is being added to both DDPBackend and DDPSpawnBackend classes. This represents a uniform substitution pattern where identical functionality is being added to related backend classes in the same codebase, likely as part of a single refactoring task to ensure consistent optimizer handling across different DDP implementations."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits add identical code blocks (lines 192-197 in edit 0 and lines 124-129 in edit 1) that perform the exact same operations: calling self.trainer.init_optimizers(model) and assigning the results to self.trainer.optimizers, self.trainer.lr_schedulers, and self.trainer.optimizer_frequencies. The code is structurally identical and appears to be part of a bulk synchronization operation where the same optimizer initialization logic is being added to both DDPBackend and DDPSpawnBackend classes. This represents a uniform substitution pattern where identical functionality is being added to related backend classes in the same codebase, likely as part of a single refactoring task to ensure consistent optimizer handling across different DDP implementations."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        2
+    ]
+}

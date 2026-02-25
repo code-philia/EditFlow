@@ -1,0 +1,193 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines the symbol KAFKA_EVENTS_PLUGIN_INGESTION in ee/kafka_client/topics.py, and Edit 1 imports that exact same symbol in ee/settings.py. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, imports can be written before their corresponding definitions are present (resulting in only a runtime ImportError, not a parse error), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-import pair."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines the symbol KAFKA_EVENTS_PLUGIN_INGESTION in ee/kafka_client/topics.py, and Edit 1 imports that exact same symbol in ee/settings.py. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, imports can be written before their corresponding definitions are present (resulting in only a runtime ImportError, not a parse error), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-import pair."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "This is a cut-and-paste move operation where the same line 'KAFKA_EVENTS_PLUGIN_INGESTION = f\"events_plugin_ingestion{suffix}\"' is being removed from line 8 in edit 1 and added at line 4 in edit 0. This represents moving the definition to a different location in the same file. For such moves, the removal must occur before the addition to avoid having duplicate definitions, making this an ordered relationship where edit 1 (removal) must happen before edit 0 (addition)."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from ee/kafka_client/topics.py, while Edit 1 removes the import of that same symbol from posthog/api/capture.py and replaces it with an import from a different module. Both edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION) in their changed lines. However, Edit 1 cannot be successfully parsed/imported if Edit 0 is applied first, because it would create an ImportError when trying to import the now-undefined symbol. Edit 0 must be applied after Edit 1 to avoid breaking the import. Therefore, Edit 1 should be applied before Edit 0."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from ee/kafka_client/topics.py, while Edit 1 adds an import of that same symbol in ee/settings.py. After Edit 0 is applied, the symbol KAFKA_EVENTS_PLUGIN_INGESTION no longer exists, so Edit 1 would fail with an ImportError when trying to import it. Edit 0 must be applied before Edit 1 would cause a runtime import error, but both edits can be written and parsed independently - the import statement is syntactically valid even if the symbol doesn't exist. Since this is a runtime error rather than a parse-time error, and both edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION), this creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from ee/kafka_client/topics.py, while Edit 1 adds an import of that same symbol in ee/settings.py. After Edit 0 is applied, the symbol KAFKA_EVENTS_PLUGIN_INGESTION no longer exists, so Edit 1 would fail with an ImportError when trying to import it. Edit 0 must be applied before Edit 1 would cause a runtime import error, but both edits can be written and parsed independently - the import statement is syntactically valid even if the symbol doesn't exist. Since this is a runtime error rather than a parse-time error, and both edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION), this creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds the definition of KAFKA_EVENTS_PLUGIN_INGESTION constant in topics.py, while Edit 1 removes the usage of this same constant as a default parameter in the log_event function in capture.py. The changed lines reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION). However, since Edit 1 removes the usage of the symbol that Edit 0 defines, making Edit 0 first would create the symbol that Edit 1 then removes the reference to. Making Edit 1 first would remove the reference to a symbol that doesn't exist yet (which is fine in Python at parse time), then Edit 0 would add the unused symbol. Either order is syntactically valid, and after making either edit, the other becomes a natural next step in what appears to be a refactoring to remove the dependency on this constant."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds the definition of KAFKA_EVENTS_PLUGIN_INGESTION constant in topics.py, while Edit 1 removes the usage of this same constant as a default parameter in the log_event function in capture.py. The changed lines reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION). However, since Edit 1 removes the usage of the symbol that Edit 0 defines, making Edit 0 first would create the symbol that Edit 1 then removes the reference to. Making Edit 1 first would remove the reference to a symbol that doesn't exist yet (which is fine in Python at parse time), then Edit 0 would add the unused symbol. Either order is syntactically valid, and after making either edit, the other becomes a natural next step in what appears to be a refactoring to remove the dependency on this constant."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports DEFAULT_KAFKA_EVENTS_PLUGIN_INGESTION and Edit 1 uses that exact same imported symbol in line 91. This creates a direct definition-usage relationship where the import in Edit 0 makes the symbol available for use in Edit 1. Both edits reference the exact same symbol, and after making either edit, the other becomes the immediate next step to complete the functionality. In Python, the usage can be written before the import (causing only a runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports DEFAULT_KAFKA_EVENTS_PLUGIN_INGESTION and Edit 1 uses that exact same imported symbol in line 91. This creates a direct definition-usage relationship where the import in Edit 0 makes the symbol available for use in Edit 1. Both edits reference the exact same symbol, and after making either edit, the other becomes the immediate next step to complete the functionality. In Python, the usage can be written before the import (causing only a runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from the topics.py file, while Edit 1 changes a usage of KAFKA_EVENTS_PLUGIN_INGESTION to KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in capture.py. These edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION) - one removes its definition and the other changes its usage. However, since Edit 1 changes the usage to a different symbol name (KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC), this appears to be part of a refactoring where the symbol is being renamed/replaced. The removal of the definition and the change of usage to a new symbol name would naturally occur together in a single refactoring task. Both edits can be staged in either order without causing parse errors (the usage would just reference an undefined symbol at runtime), making this bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from the topics.py file, while Edit 1 changes a usage of KAFKA_EVENTS_PLUGIN_INGESTION to KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in capture.py. These edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION) - one removes its definition and the other changes its usage. However, since Edit 1 changes the usage to a different symbol name (KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC), this appears to be part of a refactoring where the symbol is being renamed/replaced. The removal of the definition and the change of usage to a new symbol name would naturally occur together in a single refactoring task. Both edits can be staged in either order without causing parse errors (the usage would just reference an undefined symbol at runtime), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from the topics.py file, while Edit 1 removes the usage of this same symbol as a default parameter in the log_event function. These edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION) and appear to be part of removing this constant entirely from the codebase. After removing the definition in Edit 0, the usage in Edit 1 would cause a NameError at import time when the capture.py module tries to import and use the undefined symbol. However, since both edits can be written and parsed independently (the usage removal doesn't depend on the definition removal being done first), and they represent a coordinated cleanup of the same symbol, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of KAFKA_EVENTS_PLUGIN_INGESTION from the topics.py file, while Edit 1 removes the usage of this same symbol as a default parameter in the log_event function. These edits reference the exact same symbol (KAFKA_EVENTS_PLUGIN_INGESTION) and appear to be part of removing this constant entirely from the codebase. After removing the definition in Edit 0, the usage in Edit 1 would cause a NameError at import time when the capture.py module tries to import and use the undefined symbol. However, since both edits can be written and parsed independently (the usage removal doesn't depend on the definition removal being done first), and they represent a coordinated cleanup of the same symbol, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in ee/settings.py, while Edit 1 imports this exact same symbol from ee.settings in posthog/api/capture.py. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. This creates an immediate code dependency where after defining the symbol in settings, it becomes available for import and use. Both edits can be staged in either order since Python allows importing undefined symbols (resulting in runtime ImportError only, not parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in ee/settings.py, while Edit 1 imports this exact same symbol from ee.settings in posthog/api/capture.py. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. This creates an immediate code dependency where after defining the symbol in settings, it becomes available for import and use. Both edits can be staged in either order since Python allows importing undefined symbols (resulting in runtime ImportError only, not parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in settings.py, while Edit 1 references this exact same symbol in a print statement in posthog/api/capture.py. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After defining this symbol in settings, it becomes available for use in the other file. However, since this is Python and the usage in Edit 1 would only fail at runtime (NameError) if the symbol isn't defined, not at parse time, both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step - defining the symbol prompts its usage, and using an undefined symbol prompts its definition."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in settings.py, while Edit 1 references this exact same symbol in a print statement in posthog/api/capture.py. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After defining this symbol in settings, it becomes available for use in the other file. However, since this is Python and the usage in Edit 1 would only fail at runtime (NameError) if the symbol isn't defined, not at parse time, both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step - defining the symbol prompts its usage, and using an undefined symbol prompts its definition."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import of KAFKA_EVENTS_PLUGIN_INGESTION from ee.kafka_client.topics and adds an import of KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC from ee.settings. Edit 1 removes the usage of KAFKA_EVENTS_PLUGIN_INGESTION as a default parameter in the log_event function signature. Both edits reference the exact same symbol KAFKA_EVENTS_PLUGIN_INGESTION - edit 0 removes its import and edit 1 removes its usage. After making edit 0, the symbol KAFKA_EVENTS_PLUGIN_INGESTION would be undefined, making edit 1 the immediate next step to remove its usage. This creates a direct code dependency where both changed lines reference the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in settings.py, while Edit 1 uses this exact same symbol in a different file (posthog/api/capture.py) by replacing a topic parameter with KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. However, since this appears to be a cross-file definition-usage relationship where the symbol is being defined in one file and used in another, and both edits can be parsed and staged independently (the usage edit would only fail at runtime/import time with a NameError, not at parse time), this represents a bi-directional relationship where either edit could be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new configuration variable KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC in settings.py, while Edit 1 uses this exact same symbol in a different file (posthog/api/capture.py) by replacing a topic parameter with KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. The changed lines reference the exact same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. However, since this appears to be a cross-file definition-usage relationship where the symbol is being defined in one file and used in another, and both edits can be parsed and staged independently (the usage edit would only fail at runtime/import time with a NameError, not at parse time), this represents a bi-directional relationship where either edit could be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC from ee.settings, and Edit 1 uses that exact same symbol in a print statement. The changed lines reference the same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After making the import in Edit 0, using that imported symbol in Edit 1 becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only fails at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical action."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC from ee.settings, and Edit 1 uses that exact same symbol in a print statement. The changed lines reference the same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After making the import in Edit 0, using that imported symbol in Edit 1 becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only fails at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical action."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol being renamed from KAFKA_EVENTS_PLUGIN_INGESTION to KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. Edit 0 changes the import statement to import the new symbol name, while Edit 1 updates the usage of that symbol in a print statement. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step in a rename refactor. The edits can be applied in either order since Python allows referencing undefined symbols at parse time (they only fail at runtime)."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol being renamed from KAFKA_EVENTS_PLUGIN_INGESTION to KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. Edit 0 changes the import statement to import the new symbol name, while Edit 1 updates the usage of that symbol in a print statement. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step in a rename refactor. The edits can be applied in either order since Python allows referencing undefined symbols at parse time (they only fail at runtime)."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 imports KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC from ee.settings, and Edit 1 uses that exact same symbol in a function call. The changed lines reference the same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After making the import in Edit 0, using that symbol in Edit 1 becomes the immediate next step. Conversely, if Edit 1 is made first, the import in Edit 0 would be needed to resolve the undefined symbol. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 imports KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC from ee.settings, and Edit 1 uses that exact same symbol in a function call. The changed lines reference the same symbol - KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC. After making the import in Edit 0, using that symbol in Edit 1 becomes the immediate next step. Conversely, if Edit 1 is made first, the import in Edit 0 would be needed to resolve the undefined symbol. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the 'topic' parameter from the log_event function signature, while Edit 1 changes the usage of that parameter in the function body from the variable 'topic' to a constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. These edits reference the exact same symbol 'topic' - Edit 0 removes it from the parameter list and Edit 1 removes its usage in the print statement. This creates a direct code dependency where removing the parameter necessitates updating its usage, making them part of the same contiguous micro-task of refactoring the function to use a constant instead of a parameter."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes the 'topic' parameter from the log_event function signature, while Edit 1 changes the usage of that parameter in the function body from the variable 'topic' to a constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. These edits reference the exact same symbol 'topic' - Edit 0 removes it from the parameter list and Edit 1 removes its usage in the print statement. This creates a direct code dependency where removing the parameter necessitates updating its usage, making them part of the same contiguous micro-task of refactoring the function to use a constant instead of a parameter."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the 'topic' parameter from the log_event function signature, while Edit 1 changes the usage of that parameter from the variable 'topic' to a constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. These edits reference the exact same symbol 'topic' - Edit 0 removes it from the function signature and Edit 1 removes its usage in the function body. This creates a direct code dependency where removing the parameter (Edit 0) makes the usage change (Edit 1) the immediate next mechanical step to maintain code consistency. Both edits are part of the same micro-task of removing the topic parameter and replacing its usage with a constant."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the 'topic' parameter from the log_event function signature, while Edit 1 changes the usage of that parameter from the variable 'topic' to a constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. These edits reference the exact same symbol 'topic' - Edit 0 removes it from the function signature and Edit 1 removes its usage in the function body. This creates a direct code dependency where removing the parameter (Edit 0) makes the usage change (Edit 1) the immediate next mechanical step to maintain code consistency. Both edits are part of the same micro-task of removing the topic parameter and replacing its usage with a constant."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'KAFKA_EVENTS_PLUGIN_INGESTION' to 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC' in print statements within the same function. This is a bulk uniform substitution where both edits target the same type of syntactic construct (print statements) with the exact same before\u2192after pattern. Both edits are part of a single, contiguous refactor to update the constant name consistently throughout the function. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'KAFKA_EVENTS_PLUGIN_INGESTION' to 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC' in print statements within the same function. This is a bulk uniform substitution where both edits target the same type of syntactic construct (print statements) with the exact same before\u2192after pattern. Both edits are part of a single, contiguous refactor to update the constant name consistently throughout the function. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution within the same function: replacing the variable 'topic' with the constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. This is a uniform pattern substitution where both changed lines reference the same type of syntactic construct (variable usage) and apply the exact same before\u2192after transformation. The edits are part of a single refactoring task to replace parameter usage with a hardcoded constant, and either edit can be made first as both are syntactically valid independently."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution within the same function: replacing the variable 'topic' with the constant 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. This is a uniform pattern substitution where both changed lines reference the same type of syntactic construct (variable usage) and apply the exact same before\u2192after transformation. The edits are part of a single refactoring task to replace parameter usage with a hardcoded constant, and either edit can be made first as both are syntactically valid independently."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'KAFKA_EVENTS_PLUGIN_INGESTION' to 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. This is a uniform find-and-replace operation across the same file, targeting the same type of syntactic construct (variable/constant references). Both changed lines reference what appears to be the exact same symbol being renamed. This represents a bulk edit pattern where either change could be made first, and after making one, the other becomes an immediate, mechanically obvious next step to maintain consistency. The edits are part of a single, contiguous refactoring task with no dependency ordering required."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'KAFKA_EVENTS_PLUGIN_INGESTION' to 'KAFKA_EVENTS_PLUGIN_INGESTION_TOPIC'. This is a uniform find-and-replace operation across the same file, targeting the same type of syntactic construct (variable/constant references). Both changed lines reference what appears to be the exact same symbol being renamed. This represents a bulk edit pattern where either change could be made first, and after making one, the other becomes an immediate, mechanically obvious next step to maintain consistency. The edits are part of a single, contiguous refactoring task with no dependency ordering required."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        2
+    ]
+}

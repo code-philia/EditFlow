@@ -1,0 +1,98 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new function `_set_current_app` in celery/_state.py, and Edit 1 replaces a direct assignment `_tls.current_app = self` with a call to that exact same function `_set_current_app(self)`. The changed lines reference the exact same symbol - the function `_set_current_app`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to refactor the existing direct assignment to use the new function. This is a classic definition-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `_set_current_app` in celery/_state.py, and Edit 1 replaces a direct assignment `_tls.current_app = self` with a call to that exact same function `_set_current_app(self)`. The changed lines reference the exact same symbol - the function `_set_current_app`. After defining the function in Edit 0, Edit 1 becomes the immediate next step to refactor the existing direct assignment to use the new function. This is a classic definition-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol change: replacing '_tls' with '_set_current_app'. Edit 0 changes the import statement to import '_set_current_app' instead of '_tls', and Edit 1 changes the usage from '_tls.current_app = self' to '_set_current_app(self)'. This is a classic definition-usage relationship where the import change and the usage change reference the exact same symbol. After making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors (Python allows importing unused symbols and referencing undefined symbols at parse time)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol change: replacing '_tls' with '_set_current_app'. Edit 0 changes the import statement to import '_set_current_app' instead of '_tls', and Edit 1 changes the usage from '_tls.current_app = self' to '_set_current_app(self)'. This is a classic definition-usage relationship where the import change and the usage change reference the exact same symbol. After making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors (Python allows importing unused symbols and referencing undefined symbols at parse time)."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `_set_current_app` in the `celery/_state.py` module, while Edit 1 imports that exact same function `_set_current_app` into `celery/app/base.py`. The changed lines reference the exact same symbol - the function `_set_current_app`. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to make it available for use. However, in Python, imports can reference symbols that don't exist yet (they only fail at import time, not parse time), so both edits can be staged in either order without causing parser errors. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `_set_current_app` in the `celery/_state.py` module, while Edit 1 imports that exact same function `_set_current_app` into `celery/app/base.py`. The changed lines reference the exact same symbol - the function `_set_current_app`. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to make it available for use. However, in Python, imports can reference symbols that don't exist yet (they only fail at import time, not parse time), so both edits can be staged in either order without causing parser errors. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'mock_collection' within the same test method. Edit 0 modifies how mock_collection is assigned (adding 'self.backend.collections = ' to the assignment), while Edit 1 changes how mock_collection is used in the assertion (from 'assert_called_once_with()' to checking 'self.assertTrue(mock_collection.remove.called)'). These are both modifications to the same mock object within a single test function, and either edit can be made independently without causing parse errors or requiring the other to be present first. The relationship is bi-directional because both edits involve the same symbol and either could prompt the other as part of refactoring this test method."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'mock_collection' within the same test method. Edit 0 modifies how mock_collection is assigned (adding 'self.backend.collections = ' to the assignment), while Edit 1 changes how mock_collection is used in the assertion (from 'assert_called_once_with()' to checking 'self.assertTrue(mock_collection.remove.called)'). These are both modifications to the same mock object within a single test function, and either edit can be made independently without causing parse errors or requiring the other to be present first. The relationship is bi-directional because both edits involve the same symbol and either could prompt the other as part of refactoring this test method."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol `self._prev_tls`. Edit 0 assigns a value to `self._prev_tls` in the setUp method, and edit 1 uses that same attribute in the teardown method to restore the previous state. This is a classic setup-teardown pattern where the setup stores state and the teardown restores it. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where the teardown edit depends on the attribute being set by the setup edit."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol `self._prev_tls`. Edit 0 assigns a value to `self._prev_tls` in the setUp method, and edit 1 uses that same attribute in the teardown method to restore the previous state. This is a classic setup-teardown pattern where the setup stores state and the teardown restores it. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where the teardown edit depends on the attribute being set by the setup edit."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol '_state' from the celery module. Edit 0 adds a line that accesses '_state._tls', while Edit 1 changes the import pattern to import '_state' directly and then uses '_state._set_task_join_will_block(False)'. Both changed lines explicitly reference the same '_state' symbol, creating a direct code dependency where both edits are working with the same imported module object. This represents a synchronized refactoring pattern where the import style is being changed from importing specific functions to importing the module and accessing its attributes directly."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol '_state' from the celery module. Edit 0 adds a line that accesses '_state._tls', while Edit 1 changes the import pattern to import '_state' directly and then uses '_state._set_task_join_will_block(False)'. Both changed lines explicitly reference the same '_state' symbol, creating a direct code dependency where both edits are working with the same imported module object. This represents a synchronized refactoring pattern where the import style is being changed from importing specific functions to importing the module and accessing its attributes directly."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 saves the previous TLS state to self._prev_tls, while Edit 1 replaces the _state._tls object with a new NonTLS instance. These edits work together to modify the TLS handling mechanism - Edit 0 preserves the original state before Edit 1 makes the replacement. The changed lines in both edits directly reference the exact same symbol (_state._tls), and they appear to be part of a single refactoring task to change how TLS is handled in the test setup. Either edit could be applied first since both are syntactically valid independently, but they naturally work together as complementary parts of the same modification."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 saves the previous TLS state to self._prev_tls, while Edit 1 replaces the _state._tls object with a new NonTLS instance. These edits work together to modify the TLS handling mechanism - Edit 0 preserves the original state before Edit 1 makes the replacement. The changed lines in both edits directly reference the exact same symbol (_state._tls), and they appear to be part of a single refactoring task to change how TLS is handled in the test setup. Either edit could be applied first since both are syntactically valid independently, but they naturally work together as complementary parts of the same modification."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol '_state' from the celery module. Edit 0 modifies how _state._tls is accessed by creating a NonTLS class and assigning it to _state._tls. Edit 1 changes the import pattern to import _state directly and then calls _state._set_task_join_will_block(). Both changed lines explicitly reference the same _state symbol, creating a direct code linkage. The edits appear to be part of the same refactoring effort to modify how the _state module is used within the test case class. Either edit could be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol '_state' from the celery module. Edit 0 modifies how _state._tls is accessed by creating a NonTLS class and assigning it to _state._tls. Edit 1 changes the import pattern to import _state directly and then calls _state._set_task_join_will_block(). Both changed lines explicitly reference the same _state symbol, creating a direct code linkage. The edits appear to be part of the same refactoring effort to modify how the _state module is used within the test case class. Either edit could be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits are part of the same refactoring operation that changes how celery._state module symbols are accessed. Edit 0 changes from importing individual symbols (_tls, set_default_app) to importing the entire _state module, while Edit 1 updates the usage of those symbols to use the module prefix (_state.set_default_app, _state._tls). The changed lines in both edits reference the exact same symbols (_state module, set_default_app function, _tls object) and represent a synchronized import-usage refactoring pattern. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the import style, you must update all usages, and vice versa. This is a bi-directional relationship where both edits are part of a single, contiguous micro-task of refactoring symbol access patterns."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits are part of the same refactoring operation that changes how celery._state module symbols are accessed. Edit 0 changes from importing individual symbols (_tls, set_default_app) to importing the entire _state module, while Edit 1 updates the usage of those symbols to use the module prefix (_state.set_default_app, _state._tls). The changed lines in both edits reference the exact same symbols (_state module, set_default_app function, _tls object) and represent a synchronized import-usage refactoring pattern. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the import style, you must update all usages, and vice versa. This is a bi-directional relationship where both edits are part of a single, contiguous micro-task of refactoring symbol access patterns."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4
+    ]
+}

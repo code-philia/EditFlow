@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 1 adds a 'label_smoothing' parameter to the sparse_categorical_crossentropy method signature, and Edit 0 modifies the test to call this exact same method with the new label_smoothing parameter. The changed lines reference the exact same symbol (sparse_categorical_crossentropy method) and the same parameter (label_smoothing). After making either edit, the other becomes the immediate next step - if you add the parameter to the method signature, you need to update the test to use it, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 1 adds a 'label_smoothing' parameter to the sparse_categorical_crossentropy method signature, and Edit 0 modifies the test to call this exact same method with the new label_smoothing parameter. The changed lines reference the exact same symbol (sparse_categorical_crossentropy method) and the same parameter (label_smoothing). After making either edit, the other becomes the immediate next step - if you add the parameter to the method signature, you need to update the test to use it, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line that defines the 'loss' variable, while Edit 1 removes the line that uses this same 'loss' variable in the assertion. Both edits reference the exact same symbol 'loss' in their changed lines. However, Edit 0 removes the definition of 'loss' and Edit 1 removes the usage of 'loss'. If Edit 0 is applied first (removing the definition), then Edit 1's original code would reference an undefined variable, but since Edit 1 also removes that reference and replaces it with a loop that redefines 'loss', both edits can be applied in either order without causing parse errors. The edits are part of refactoring the same test function to use a loop instead of a single assertion, making them bi-directional neighbors in the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the line that defines the 'loss' variable, while Edit 1 removes the line that uses this same 'loss' variable in the assertion. Both edits reference the exact same symbol 'loss' in their changed lines. However, Edit 0 removes the definition of 'loss' and Edit 1 removes the usage of 'loss'. If Edit 0 is applied first (removing the definition), then Edit 1's original code would reference an undefined variable, but since Edit 1 also removes that reference and replaces it with a loop that redefines 'loss', both edits can be applied in either order without causing parse errors. The edits are part of refactoring the same test function to use a loop instead of a single assertion, making them bi-directional neighbors in the same micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 changes the method signature of `sparse_categorical_crossentropy` by adding a new parameter `label_smoothing=0.0`. Edit 0 removes a call to this exact same method `input.sparse_categorical_crossentropy(target)`. However, the call in edit 0 does not pass the new parameter, so it would still work with the default value after edit 1 is applied. Since both edits reference the exact same method symbol and the signature change creates an immediate prompt to review/update call sites, this represents a bi-directional relationship where either edit could be made first and would prompt consideration of the other."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 changes the method signature of `sparse_categorical_crossentropy` by adding a new parameter `label_smoothing=0.0`. Edit 0 removes a call to this exact same method `input.sparse_categorical_crossentropy(target)`. However, the call in edit 0 does not pass the new parameter, so it would still work with the default value after edit 1 is applied. Since both edits reference the exact same method symbol and the signature change creates an immediate prompt to review/update call sites, this represents a bi-directional relationship where either edit could be made first and would prompt consideration of the other."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line that defines `torch_loss`, while Edit 1 references `torch_loss` in the changed lines. However, Edit 1 also redefines `torch_loss` within the new loop structure. The original `torch_loss` definition is being removed in Edit 0, but Edit 1 creates a new definition of `torch_loss` within the loop. Since Edit 1 both references the old `torch_loss` (which Edit 0 removes) and creates a new definition, there is a dependency relationship. Edit 0 must come before Edit 1 because Edit 1 still references the original `torch_loss` variable in its changed lines, even though it also redefines it. If Edit 1 were applied first, it would reference an undefined `torch_loss` variable."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'label_smoothing' within the same function. Edit 0 adds the 'label_smoothing' parameter to the function signature, and Edit 1 uses that same parameter in the function body implementation. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the next natural step is to use it in the implementation. The relationship is bi-directional because both edits can be staged in either order (Python allows referencing parameters in function bodies even if the parameter isn't in the signature yet - it would only cause a runtime NameError, not a parse error)."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'label_smoothing' within the same function. Edit 0 adds the 'label_smoothing' parameter to the function signature, and Edit 1 uses that same parameter in the function body implementation. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the next natural step is to use it in the implementation. The relationship is bi-directional because both edits can be staged in either order (Python allows referencing parameters in function bodies even if the parameter isn't in the signature yet - it would only cause a runtime NameError, not a parse error)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `sparse_categorical_crossentropy` and reference the exact same symbols in their changed lines. Edit 0 adds a `label_smoothing` parameter to the function signature and references `self`, `Y`, and `ignore_index`. Edit 1 modifies the function body and references the exact same symbols: `self`, `Y`, and `ignore_index`. The changed lines in both edits reference the same symbols within the same function scope. After making either edit, the other becomes a natural next step in the same micro-task of modifying this function. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify the same function `sparse_categorical_crossentropy` and reference the exact same symbols in their changed lines. Edit 0 adds a `label_smoothing` parameter to the function signature and references `self`, `Y`, and `ignore_index`. Edit 1 modifies the function body and references the exact same symbols: `self`, `Y`, and `ignore_index`. The changed lines in both edits reference the same symbols within the same function scope. After making either edit, the other becomes a natural next step in the same micro-task of modifying this function. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces the variable `log_probs` by assigning `self.log_softmax()` to it, and edit 1 uses this exact same `log_probs` variable multiple times in the return statement. The changed line in edit 0 defines `log_probs`, and the changed line in edit 1 references `log_probs` twice. This creates an immediate, mechanically obvious code dependency where edit 0 must come before edit 1, as edit 1 cannot be parsed without the `log_probs` variable being defined first. This is a classic definition-before-usage relationship where the second edit would cause a NameError if staged before the first."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

@@ -1,0 +1,137 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports the symbol 'options_for_host' from the config module, and Edit 1 uses that exact same symbol 'options_for_host' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After making the import in Edit 0, the usage in Edit 1 becomes immediately viable, and after adding the usage in Edit 1, the import in Edit 0 becomes immediately necessary. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the import is missing), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'options_for_host' from the config module, and Edit 1 uses that exact same symbol 'options_for_host' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After making the import in Edit 0, the usage in Edit 1 becomes immediately viable, and after adding the usage in Edit 1, the import in Edit 0 becomes immediately necessary. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the import is missing), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds an import statement 'from .config import options_for_host' at the module level (line 28), while Edit 1 removes the exact same import statement from inside the get_ssh_data function (line 117). This is a classic refactoring pattern where an import is moved from local scope to module scope. The changed lines reference the exact same symbol (options_for_host from .config module). After making either edit, the other becomes the immediate next step to complete the import refactoring - either moving the import up to module level or removing the now-redundant local import."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'from .config import options_for_host' at the module level (line 28), while Edit 1 removes the exact same import statement from inside the get_ssh_data function (line 117). This is a classic refactoring pattern where an import is moved from local scope to module scope. The changed lines reference the exact same symbol (options_for_host from .config module). After making either edit, the other becomes the immediate next step to complete the import refactoring - either moving the import up to module level or removing the now-redundant local import."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'interpreter' within the same function. Edit 0 adds 'interpreter' as a parameter to the function signature, and edit 1 uses that same 'interpreter' parameter in the function body by replacing the hardcoded 'sh' with the parameter. This creates a direct code dependency where adding the parameter naturally prompts updating its usage in the body, and either edit can be made first since both are syntactically valid in either order."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'interpreter' within the same function. Edit 0 adds 'interpreter' as a parameter to the function signature, and edit 1 uses that same 'interpreter' parameter in the function body by replacing the hardcoded 'sh' with the parameter. This creates a direct code dependency where adding the parameter naturally prompts updating its usage in the body, and either edit can be made first since both are syntactically valid in either order."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the function signature from 'get_posix_cmd' to 'get_remote_command' and adds new parameters. Edit 1 updates the call site to use the new function name 'get_remote_command' and passes the new required parameters. The changed lines in both edits reference the exact same symbol (the function being renamed), creating an immediate code-driven dependency where after renaming the function definition, the call site must be updated to use the new name and signature."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes the function signature from 'get_posix_cmd' to 'get_remote_command' and adds new parameters. Edit 1 updates the call site to use the new function name 'get_remote_command' and passes the new required parameters. The changed lines in both edits reference the exact same symbol (the function being renamed), creating an immediate code-driven dependency where after renaming the function definition, the call site must be updated to use the new name and signature."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes a hardcoded 'sh' to use a variable 'interpreter' in the get_posix_cmd function, while Edit 1 defines a new 'interpreter' option with default value 'sh'. The changed line in Edit 0 references the 'interpreter' symbol that is being defined in Edit 1. This creates a direct code dependency where Edit 0 uses the exact same symbol that Edit 1 defines. However, since Edit 0 references 'interpreter' without it being defined, this would cause a NameError at runtime if Edit 0 is applied first. In Python, this is a runtime error, not a parse error, so both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step - defining the interpreter option makes using it the obvious next step, and using the interpreter variable makes defining it the obvious next step."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes a hardcoded 'sh' to use a variable 'interpreter' in the get_posix_cmd function, while Edit 1 defines a new 'interpreter' option with default value 'sh'. The changed line in Edit 0 references the 'interpreter' symbol that is being defined in Edit 1. This creates a direct code dependency where Edit 0 uses the exact same symbol that Edit 1 defines. However, since Edit 0 references 'interpreter' without it being defined, this would cause a NameError at runtime if Edit 0 is applied first. In Python, this is a runtime error, not a parse error, so both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step - defining the interpreter option makes using it the obvious next step, and using the interpreter variable makes defining it the obvious next step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes code to use `options_for_host(hostname_for_match, load_ssh_options()).interpreter`, directly referencing the `interpreter` option. Edit 1 defines this exact same `interpreter` option in the configuration. The changed line in edit 0 explicitly calls and uses the `interpreter` symbol that is being defined in edit 1. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step - defining the option enables its usage, and using the option requires its definition. Both edits reference the exact same symbol (`interpreter`) and can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes code to use `options_for_host(hostname_for_match, load_ssh_options()).interpreter`, directly referencing the `interpreter` option. Edit 1 defines this exact same `interpreter` option in the configuration. The changed line in edit 0 explicitly calls and uses the `interpreter` symbol that is being defined in edit 1. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step - defining the option enables its usage, and using the option requires its definition. Both edits reference the exact same symbol (`interpreter`) and can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new option definition 'interpreter' in the options definition file, while Edit 1 adds the corresponding parser method 'interpreter' in the parser class. These edits reference the exact same symbol ('interpreter' option) and create a direct code dependency - the option definition in Edit 0 requires a corresponding parser method in Edit 1 to function properly. This is a classic definition-usage pattern where both edits are part of adding a new configuration option to the system. Either edit can be staged first since both are syntactically valid independently, but after making either edit, the other becomes the immediate next step to complete the feature implementation."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new option definition 'interpreter' in the options definition file, while Edit 1 adds the corresponding parser method 'interpreter' in the parser class. These edits reference the exact same symbol ('interpreter' option) and create a direct code dependency - the option definition in Edit 0 requires a corresponding parser method in Edit 1 to function properly. This is a classic definition-usage pattern where both edits are part of adding a new configuration option to the system. Either edit can be staged first since both are syntactically valid independently, but after making either edit, the other becomes the immediate next step to complete the feature implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 references the 'interpreter' attribute in the changed line (options_for_host(hostname_for_match, load_ssh_options()).interpreter), while Edit 1 defines this exact same 'interpreter' attribute in the Options class. The changed lines reference the exact same symbol - the 'interpreter' attribute of the Options class. After adding the interpreter attribute definition in Edit 1, Edit 0's usage of that attribute becomes valid. Both edits can be parsed and staged in either order (Python allows attribute access that would fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 references the 'interpreter' attribute in the changed line (options_for_host(hostname_for_match, load_ssh_options()).interpreter), while Edit 1 defines this exact same 'interpreter' attribute in the Options class. The changed lines reference the exact same symbol - the 'interpreter' attribute of the Options class. After adding the interpreter attribute definition in Edit 1, Edit 0's usage of that attribute becomes valid. Both edits can be parsed and staged in either order (Python allows attribute access that would fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'interpreter' in a definition-usage relationship. Edit 0 defines the 'interpreter' option with opt() in the options definition file, while Edit 1 adds the corresponding 'interpreter' attribute to the Options class. This creates an immediate, mechanically obvious code-driven prompt where defining an option naturally requires adding the corresponding attribute to the Options class, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'interpreter' in a definition-usage relationship. Edit 0 defines the 'interpreter' option with opt() in the options definition file, while Edit 1 adds the corresponding 'interpreter' attribute to the Options class. This creates an immediate, mechanically obvious code-driven prompt where defining an option naturally requires adding the corresponding attribute to the Options class, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 introduces a new usage of 'interpreter' attribute via 'options_for_host(hostname_for_match, load_ssh_options()).interpreter', while Edit 1 adds 'interpreter' to the option_names tuple that defines valid SSH options. These edits reference the same 'interpreter' option symbol - Edit 0 uses it and Edit 1 defines it as a valid option. However, both edits can be staged independently without parser errors. Edit 0 would result in a runtime AttributeError if 'interpreter' isn't a valid option, but the code itself parses correctly. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new usage of 'interpreter' attribute via 'options_for_host(hostname_for_match, load_ssh_options()).interpreter', while Edit 1 adds 'interpreter' to the option_names tuple that defines valid SSH options. These edits reference the same 'interpreter' option symbol - Edit 0 uses it and Edit 1 defines it as a valid option. However, both edits can be staged independently without parser errors. Edit 0 would result in a runtime AttributeError if 'interpreter' isn't a valid option, but the code itself parses correctly. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 adds a new option definition for 'interpreter' in the options definition file, while Edit 1 adds 'interpreter' to the option_names tuple in the types file. These edits reference the exact same symbol ('interpreter' option) and create a direct code dependency - after adding the option definition, the option name must be added to the tuple for the system to recognize it, or vice versa. Both edits are part of the same micro-task of adding a new configuration option, and either edit naturally prompts the other as the immediate next step. Since both edits can be staged in either order without causing parse errors (the tuple can contain names not yet defined, and definitions can exist without being in the tuple), this is bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new option definition for 'interpreter' in the options definition file, while Edit 1 adds 'interpreter' to the option_names tuple in the types file. These edits reference the exact same symbol ('interpreter' option) and create a direct code dependency - after adding the option definition, the option name must be added to the tuple for the system to recognize it, or vice versa. Both edits are part of the same micro-task of adding a new configuration option, and either edit naturally prompts the other as the immediate next step. Since both edits can be staged in either order without causing parse errors (the tuple can contain names not yet defined, and definitions can exist without being in the tuple), this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 adds a new method 'interpreter' to the Parser class, while Edit 1 adds 'interpreter' to the option_names tuple. These edits reference the exact same symbol ('interpreter') and are part of adding a new option to the SSH configuration system. The Parser class method handles parsing the 'interpreter' option, and the option_names tuple registers it as a valid option. Both edits are mechanically required for the feature to work - adding the parser method without registering the option name, or vice versa, would create an incomplete implementation. Either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new method 'interpreter' to the Parser class, while Edit 1 adds 'interpreter' to the option_names tuple. These edits reference the exact same symbol ('interpreter') and are part of adding a new option to the SSH configuration system. The Parser class method handles parsing the 'interpreter' option, and the option_names tuple registers it as a valid option. Both edits are mechanically required for the feature to work - adding the parser method without registering the option name, or vice versa, would create an incomplete implementation. Either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'interpreter' in the same file and class context. Edit 0 adds 'interpreter' to the option_names tuple, while Edit 1 adds the interpreter attribute definition to the Options class. These edits are part of adding a new configuration option, where the option_names tuple defines valid option names and the class defines the actual attribute. Either edit can be made first without causing parse errors, and after making either edit, the other becomes the natural next step to complete the addition of the new option."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'interpreter' in the same file and class context. Edit 0 adds 'interpreter' to the option_names tuple, while Edit 1 adds the interpreter attribute definition to the Options class. These edits are part of adding a new configuration option, where the option_names tuple defines valid option names and the class defines the actual attribute. Either edit can be made first without causing parse errors, and after making either edit, the other becomes the natural next step to complete the addition of the new option."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

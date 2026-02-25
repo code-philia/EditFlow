@@ -1,0 +1,78 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 imports `wrap_socket` from the `ssl` module, and Edit 1 defines a function `safe_socket_connect` that uses `wrap_socket` on line 390. The changed lines have a direct code dependency: Edit 0 makes `wrap_socket` available, and Edit 1 uses that exact same symbol. This creates an immediate, mechanically obvious prompt - after importing `wrap_socket`, it can be used in the function definition, or after defining a function that uses `wrap_socket`, the import becomes necessary. Both edits reference the exact same symbol and either can prompt the other as the next contiguous action."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 imports `wrap_socket` from the `ssl` module, and Edit 1 defines a function `safe_socket_connect` that uses `wrap_socket` on line 390. The changed lines have a direct code dependency: Edit 0 makes `wrap_socket` available, and Edit 1 uses that exact same symbol. This creates an immediate, mechanically obvious prompt - after importing `wrap_socket`, it can be used in the function definition, or after defining a function that uses `wrap_socket`, the import becomes necessary. Both edits reference the exact same symbol and either can prompt the other as the next contiguous action."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines the function `is_safe_hostname` at line 92, while Edit 1 calls this exact same function at line 383 with `is_safe_hostname(address[0])`. The changed lines reference the exact same symbol - the `is_safe_hostname` function. After defining the function in Edit 0, using it in Edit 1 becomes the natural next step. Since Python allows function calls to be written before the function definition (they would only fail at runtime, not at parse time), either edit can be staged first, making this a bi-directional relationship where each edit creates an immediate code-driven prompt for the other."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines the function `is_safe_hostname` at line 92, while Edit 1 calls this exact same function at line 383 with `is_safe_hostname(address[0])`. The changed lines reference the exact same symbol - the `is_safe_hostname` function. After defining the function in Edit 0, using it in Edit 1 becomes the natural next step. Since Python allows function calls to be written before the function definition (they would only fail at runtime, not at parse time), either edit can be staged first, making this a bi-directional relationship where each edit creates an immediate code-driven prompt for the other."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new function `is_safe_hostname` with parameter `hostname`, and edit 1 references that exact same parameter `hostname` in its changed line. The parameter `hostname` is the same symbol being defined in edit 0's function signature and referenced in edit 1's conditional check. This creates a direct code dependency where both edits reference the exact same symbol, making them bi-directional neighbors in the refactoring flow."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `is_safe_hostname` with parameter `hostname`, and edit 1 references that exact same parameter `hostname` in its changed line. The parameter `hostname` is the same symbol being defined in edit 0's function signature and referenced in edit 1's conditional check. This creates a direct code dependency where both edits reference the exact same symbol, making them bi-directional neighbors in the refactoring flow."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'parsed' in their changed lines. Edit 0 removes the assignment 'parsed = urlparse(url)' and changes 'parsed.hostname' to 'hostname'. Edit 1 changes 'parsed.hostname' to 'hostname' in a different location. This appears to be part of a refactoring where the 'parsed' variable is being eliminated and replaced with direct usage of 'hostname'. The edits reference the same symbol and are part of a synchronized substitution pattern where 'parsed.hostname' is being replaced with 'hostname' throughout the function."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'parsed' in their changed lines. Edit 0 removes the assignment 'parsed = urlparse(url)' and changes 'parsed.hostname' to 'hostname'. Edit 1 changes 'parsed.hostname' to 'hostname' in a different location. This appears to be part of a refactoring where the 'parsed' variable is being eliminated and replaced with direct usage of 'hostname'. The edits reference the same symbol and are part of a synchronized substitution pattern where 'parsed.hostname' is being replaced with 'hostname' throughout the function."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits change references from 'parsed.hostname' to 'hostname' within the same function 'is_valid_url'. This appears to be part of a uniform substitution pattern where the same variable reference is being updated consistently throughout the function. The edits reference the exact same symbol ('hostname') and represent identical textual substitutions (parsed.hostname \u2192 hostname) on the same type of syntactic construct (variable references). Either edit can be made first, and after making either one, the other becomes a natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits change references from 'parsed.hostname' to 'hostname' within the same function 'is_valid_url'. This appears to be part of a uniform substitution pattern where the same variable reference is being updated consistently throughout the function. The edits reference the exact same symbol ('hostname') and represent identical textual substitutions (parsed.hostname \u2192 hostname) on the same type of syntactic construct (variable references). Either edit can be made first, and after making either one, the other becomes a natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are part of a refactoring that replaces references to 'parsed.hostname' with just 'hostname'. Edit 0 removes the line that creates the 'parsed' variable and changes 'parsed.hostname' to 'hostname' in one location. Edit 1 changes another reference from 'parsed.hostname' to 'hostname' in a different location within the same function. These edits reference the exact same symbol ('parsed') and are part of a uniform substitution pattern where 'parsed.hostname' is being replaced with 'hostname' throughout the function. Both edits can be applied in either order since they are independent textual substitutions, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are part of a refactoring that replaces references to 'parsed.hostname' with just 'hostname'. Edit 0 removes the line that creates the 'parsed' variable and changes 'parsed.hostname' to 'hostname' in one location. Edit 1 changes another reference from 'parsed.hostname' to 'hostname' in a different location within the same function. These edits reference the exact same symbol ('parsed') and are part of a uniform substitution pattern where 'parsed.hostname' is being replaced with 'hostname' throughout the function. Both edits can be applied in either order since they are independent textual substitutions, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new function `safe_socket_connect` in the `http` module, and Edit 1 creates a test that directly calls this exact same function (`http.safe_socket_connect`). The changed lines reference the exact same symbol - the `safe_socket_connect` function. After defining the function in Edit 0, the natural next step would be to test it (Edit 1), and conversely, if writing the test first, the function definition would be the immediate next requirement. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit creates an immediate, code-driven prompt for the other."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `safe_socket_connect` in the `http` module, and Edit 1 creates a test that directly calls this exact same function (`http.safe_socket_connect`). The changed lines reference the exact same symbol - the `safe_socket_connect` function. After defining the function in Edit 0, the natural next step would be to test it (Edit 1), and conversely, if writing the test first, the function definition would be the immediate next requirement. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit creates an immediate, code-driven prompt for the other."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        6
+    ]
+}

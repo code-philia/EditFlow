@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'check_output([command], cwd=...)' with 'self._run_command([command], ...)'. This is a uniform refactoring across the same type of syntactic construct (function calls with command arrays). Both edits are part of the same refactoring sweep to replace direct check_output calls with a wrapper method _run_command. The substitution pattern is identical in structure and purpose, making this a clear case of bulk-edit synchronization where either edit could be made first as part of the same contiguous refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'check_output([command], cwd=...)' with 'self._run_command([command], ...)'. This is a uniform refactoring across the same type of syntactic construct (function calls with command arrays). Both edits are part of the same refactoring sweep to replace direct check_output calls with a wrapper method _run_command. The substitution pattern is identical in structure and purpose, making this a clear case of bulk-edit synchronization where either edit could be made first as part of the same contiguous refactoring task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 defines the `_run_command` method (lines 139-148) while Edit 0 calls this same method (lines 120-121). The changed lines in Edit 0 reference the exact same symbol `_run_command` that is being defined in Edit 1. This creates a direct code dependency where Edit 0 cannot execute successfully without the method definition from Edit 1. However, since Python allows referencing undefined methods at parse time (they only fail at runtime), both edits can be written and staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 defines the `_run_command` method (lines 139-148) while Edit 0 calls this same method (lines 120-121). The changed lines in Edit 0 reference the exact same symbol `_run_command` that is being defined in Edit 1. This creates a direct code dependency where Edit 0 cannot execute successfully without the method definition from Edit 1. However, since Python allows referencing undefined methods at parse time (they only fail at runtime), both edits can be written and staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the refactoring."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits are replacing calls to `check_output()` with calls to `self._run_command()` in the same class. This represents a uniform substitution pattern where the same before\u2192after transformation (check_output \u2192 self._run_command) is being applied to the same type of syntactic construct (function calls) within the same class context. Both edits are part of a single refactoring operation to standardize command execution through a class method rather than direct subprocess calls. Either edit could be made first, and after making either one, the other becomes a natural next step to complete the uniform refactoring pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits are replacing calls to `check_output()` with calls to `self._run_command()` in the same class. This represents a uniform substitution pattern where the same before\u2192after transformation (check_output \u2192 self._run_command) is being applied to the same type of syntactic construct (function calls) within the same class context. Both edits are part of a single refactoring operation to standardize command execution through a class method rather than direct subprocess calls. Either edit could be made first, and after making either one, the other becomes a natural next step to complete the uniform refactoring pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 1 defines a new method `_run_command` (lines 139-148), while Edit 0 calls this exact same method `self._run_command` (line 128). This creates a definition-usage relationship where the method must be defined before it can be called. In Python, calling an undefined method would result in an AttributeError at runtime, but both edits can be parsed and staged in either order since method resolution happens at runtime, not parse time. However, the changed lines reference the exact same symbol (_run_command method), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 1 defines a new method `_run_command` (lines 139-148), while Edit 0 calls this exact same method `self._run_command` (line 128). This creates a definition-usage relationship where the method must be defined before it can be called. In Python, calling an undefined method would result in an AttributeError at runtime, but both edits can be parsed and staged in either order since method resolution happens at runtime, not parse time. However, the changed lines reference the exact same symbol (_run_command method), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits replace calls to `check_output()` with calls to `self._run_command()`, which represents an identical textual and structural substitution pattern. This is a uniform refactoring operation where the same before\u2192after pattern (check_output \u2192 self._run_command) is being applied to the same type of syntactic construct (function calls) across related files in the same codebase. Both edits are part of a single, contiguous refactor to standardize command execution methods. Either edit can be made first, and after making either one, the other becomes a natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits replace calls to `check_output()` with calls to `self._run_command()`, which represents an identical textual and structural substitution pattern. This is a uniform refactoring operation where the same before\u2192after pattern (check_output \u2192 self._run_command) is being applied to the same type of syntactic construct (function calls) across related files in the same codebase. Both edits are part of a single, contiguous refactor to standardize command execution methods. Either edit can be made first, and after making either one, the other becomes a natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new method `_run_command` in the `BaseBuildCommand` class, and Edit 1 calls this exact same method `_run_command` in a subclass `BuildAssetsCommand`. The changed lines in both edits reference the exact same symbol - the `_run_command` method. Edit 0 creates the method definition while Edit 1 uses it, establishing a direct definition-usage relationship. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `_run_command` in the `BaseBuildCommand` class, and Edit 1 calls this exact same method `_run_command` in a subclass `BuildAssetsCommand`. The changed lines in both edits reference the exact same symbol - the `_run_command` method. Edit 0 creates the method definition while Edit 1 uses it, establishing a direct definition-usage relationship. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the import of 'check_output' from subprocess, while Edit 1 removes the usage of 'check_output' and replaces it with 'self._run_command'. Both edits reference the exact same symbol 'check_output'. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of 'check_output' from subprocess, while Edit 1 removes the usage of 'check_output' and replaces it with 'self._run_command'. Both edits reference the exact same symbol 'check_output'. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 replaces calls to `check_output` with calls to `self._run_command`, while Edit 1 removes the import of `check_output`. These edits reference the exact same symbol (`check_output`) - Edit 0 removes its usage and Edit 1 removes its import. After making Edit 0, the `check_output` import becomes unused, making Edit 1 the natural next step to clean up the unused import. This creates a direct code dependency where both edits reference the same symbol and one naturally prompts the other."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 replaces calls to `check_output` with calls to `self._run_command`, while Edit 1 removes the import of `check_output`. These edits reference the exact same symbol (`check_output`) - Edit 0 removes its usage and Edit 1 removes its import. After making Edit 0, the `check_output` import becomes unused, making Edit 1 the natural next step to clean up the unused import. This creates a direct code dependency where both edits reference the same symbol and one naturally prompts the other."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5
+    ]
+}

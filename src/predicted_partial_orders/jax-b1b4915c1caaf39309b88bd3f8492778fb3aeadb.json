@@ -1,0 +1,57 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 renames the method `aval_to_ir_types` to `physical_avals` in the BIntRules class. Edit 1 updates the call site to use the new method name `physical_avals` instead of the old `aval_to_ir_types`. The changed lines reference the exact same symbol - the method being renamed. After renaming the method in edit 0, the call site in edit 1 must be updated to use the new name, and vice versa - if the call site is updated first, the method definition must be renamed to match. This creates a bi-directional relationship where either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 renames the method `aval_to_ir_types` to `physical_avals` in the BIntRules class. Edit 1 updates the call site to use the new method name `physical_avals` instead of the old `aval_to_ir_types`. The changed lines reference the exact same symbol - the method being renamed. After renaming the method in edit 0, the call site in edit 1 must be updated to use the new name, and vice versa - if the call site is updated first, the method definition must be renamed to match. This creates a bi-directional relationship where either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 renames a method from 'aval_to_ir_types' to 'physical_avals' in the BIntRules class. Edit 1 calls the method 'physical_avals' on a dtype's _rules object. These edits reference the exact same symbol - the 'physical_avals' method. Edit 0 defines/renames the method, and Edit 1 uses it. After renaming the method in Edit 0, Edit 1's call to 'physical_avals' becomes the immediate next step to utilize the newly renamed method. This creates a direct definition-usage relationship where both changed lines reference the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 renames a method from 'aval_to_ir_types' to 'physical_avals' in the BIntRules class. Edit 1 calls the method 'physical_avals' on a dtype's _rules object. These edits reference the exact same symbol - the 'physical_avals' method. Edit 0 defines/renames the method, and Edit 1 uses it. After renaming the method in Edit 0, Edit 1's call to 'physical_avals' becomes the immediate next step to utilize the newly renamed method. This creates a direct definition-usage relationship where both changed lines reference the exact same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are modifying the same method within the BIntRules class. Edit 0 changes the method name from 'aval_to_ir_types' to 'physical_avals' and adds a return type annotation, while Edit 1 changes the return statement implementation. Both edits reference the exact same 'aval' parameter symbol in their changed lines. The method signature change in Edit 0 creates an immediate prompt to update the method body in Edit 1 to match the new semantic contract (returning physical abstract values instead of IR types). This represents a coordinated refactoring of a single method where both the signature and implementation need to be updated together as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are modifying the same method within the BIntRules class. Edit 0 changes the method name from 'aval_to_ir_types' to 'physical_avals' and adds a return type annotation, while Edit 1 changes the return statement implementation. Both edits reference the exact same 'aval' parameter symbol in their changed lines. The method signature change in Edit 0 creates an immediate prompt to update the method body in Edit 1 to match the new semantic contract (returning physical abstract values instead of IR types). This represents a coordinated refactoring of a single method where both the signature and implementation need to be updated together as part of the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes the `aval_to_ir_types` method from the `KeyTyRules` class, while Edit 1 replaces a call to `aval.dtype._rules.aval_to_ir_types(aval)` with alternative logic using `physical_avals` and `_array_ir_types`. The changed line in Edit 1 directly calls the exact same method that is being removed in Edit 0. After removing the method in Edit 0, the code in Edit 1 would fail with an AttributeError at runtime when trying to call the non-existent method. However, since both edits can be written and parsed in either order (the AttributeError only occurs at runtime, not parse time), and making either edit creates an immediate prompt for the other as the next mechanical step, this is a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 removes the `aval_to_ir_types` method from the `KeyTyRules` class, while Edit 1 replaces a call to `aval.dtype._rules.aval_to_ir_types(aval)` with alternative logic using `physical_avals` and `_array_ir_types`. The changed line in Edit 1 directly calls the exact same method that is being removed in Edit 0. After removing the method in Edit 0, the code in Edit 1 would fail with an AttributeError at runtime when trying to call the non-existent method. However, since both edits can be written and parsed in either order (the AttributeError only occurs at runtime, not parse time), and making either edit creates an immediate prompt for the other as the next mechanical step, this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits remove identical method definitions (`aval_to_ir_types`) with the same structure and implementation pattern from different classes (KeyTyRules and FooTyRules). This represents a bulk cleanup operation where the same method is being removed from multiple classes as part of a single refactoring task. The edits perform identical structural substitutions (removing the same method signature and implementation pattern) on the same type of syntactic construct (static method definitions). This fits the pattern synchronization criteria for bi-directional neighbors."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits remove identical method definitions (`aval_to_ir_types`) with the same structure and implementation pattern from different classes (KeyTyRules and FooTyRules). This represents a bulk cleanup operation where the same method is being removed from multiple classes as part of a single refactoring task. The edits perform identical structural substitutions (removing the same method signature and implementation pattern) on the same type of syntactic construct (static method definitions). This fits the pattern synchronization criteria for bi-directional neighbors."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

@@ -1,0 +1,62 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the float_compare function from openerp.tools, and Edit 1 uses this exact same float_compare function in the changed lines. The import creates an immediate, mechanically obvious prompt for usage - after importing float_compare, it becomes available for use in the code. The changed lines in Edit 1 explicitly reference the same symbol (float_compare) that was imported in Edit 0. This is a classic import-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the float_compare function from openerp.tools, and Edit 1 uses this exact same float_compare function in the changed lines. The import creates an immediate, mechanically obvious prompt for usage - after importing float_compare, it becomes available for use in the code. The changed lines in Edit 1 explicitly reference the same symbol (float_compare) that was imported in Edit 0. This is a classic import-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a variable 'prec' by calling self.pool['decimal.precision'].precision_get(cr, uid, 'Account'). Edit 1 uses this exact same 'prec' variable in two places within float_compare function calls (precision_digits=prec). The changed lines in edit 1 directly reference the symbol 'prec' that is defined in edit 0's changed line. This creates an immediate, mechanically obvious code dependency where defining 'prec' naturally prompts its usage in the float_compare calls, and both edits are part of the same contiguous micro-task of implementing precision-aware amount handling. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'prec' by calling self.pool['decimal.precision'].precision_get(cr, uid, 'Account'). Edit 1 uses this exact same 'prec' variable in two places within float_compare function calls (precision_digits=prec). The changed lines in edit 1 directly reference the symbol 'prec' that is defined in edit 0's changed line. This creates an immediate, mechanically obvious code dependency where defining 'prec' naturally prompts its usage in the float_compare calls, and both edits are part of the same contiguous micro-task of implementing precision-aware amount handling. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a variable 'prec' by calling self.pool['decimal.precision'].precision_get(cr, uid, 'Account'). Edit 1 uses this exact same 'prec' variable in two places within float_compare function calls (precision_digits=prec). The changed lines in edit 1 directly reference the exact same symbol 'prec' that is defined in edit 0. This creates an immediate, mechanically obvious code dependency where defining 'prec' in edit 0 makes it available for use in edit 1. Both edits are within the same function scope and would naturally occur in one contiguous micro-task. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'prec' by calling self.pool['decimal.precision'].precision_get(cr, uid, 'Account'). Edit 1 uses this exact same 'prec' variable in two places within float_compare function calls (precision_digits=prec). The changed lines in edit 1 directly reference the exact same symbol 'prec' that is defined in edit 0. This creates an immediate, mechanically obvious code dependency where defining 'prec' in edit 0 makes it available for use in edit 1. Both edits are within the same function scope and would naturally occur in one contiguous micro-task. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits apply the exact same structural transformation pattern to debit/credit field assignments within the same function. They replace simple static assignments with identical conditional logic using float_compare() with the same precision_digits parameter. This represents a uniform, synchronized refactoring where the same before\u2192after pattern is applied to the same type of syntactic construct (dictionary field assignments for debit/credit pairs). Both edits are part of a single, contiguous micro-task to handle negative amounts consistently across both journal entry creation calls in the create_move method."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits apply the exact same structural transformation pattern to debit/credit field assignments within the same function. They replace simple static assignments with identical conditional logic using float_compare() with the same precision_digits parameter. This represents a uniform, synchronized refactoring where the same before\u2192after pattern is applied to the same type of syntactic construct (dictionary field assignments for debit/credit pairs). Both edits are part of a single, contiguous micro-task to handle negative amounts consistently across both journal entry creation calls in the create_move method."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a variable 'sign' and assigns it a value based on invoice type. Edit 1 uses this exact same 'sign' variable to multiply with line.price_subtotal. The changed lines reference the exact same symbol 'sign', and making edit 0 creates an immediate, mechanically obvious prompt to use the newly defined variable in edit 1. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 imports the `float_compare` function from `openerp.tools`, and Edit 1 uses this exact same `float_compare` function in the changed lines. The import creates an immediate, mechanically obvious prompt for the usage - after importing `float_compare`, it becomes available for use in the conditional expressions. The changed lines in Edit 1 explicitly reference the same symbol that was imported in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 imports the `float_compare` function from `openerp.tools`, and Edit 1 uses this exact same `float_compare` function in the changed lines. The import creates an immediate, mechanically obvious prompt for the usage - after importing `float_compare`, it becomes available for use in the conditional expressions. The changed lines in Edit 1 explicitly reference the same symbol that was imported in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'os.path.commonprefix' to 'os.path.commonpath' in security-related path validation code. This is a uniform refactoring across multiple files targeting the same type of syntactic construct (function calls) with the exact same before\u2192after pattern. Both edits are part of a single, contiguous refactor to fix a security issue where commonprefix was being used incorrectly for path validation. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'os.path.commonprefix' to 'os.path.commonpath' in security-related path validation code. This is a uniform refactoring across multiple files targeting the same type of syntactic construct (function calls) with the exact same before\u2192after pattern. Both edits are part of a single, contiguous refactor to fix a security issue where commonprefix was being used incorrectly for path validation. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the implementation from os.path.commonprefix to os.path.commonpath in the validate_absolute_path method, which fixes a security vulnerability where commonprefix could be bypassed by paths with the same prefix but different directory structure. Edit 1 adds a test case that specifically tests this vulnerability scenario by attempting to access a file outside the static directory using a path with the same prefix as the temporary directory name. The test case directly validates the behavior of the exact method that was changed in edit 0, making this a test-production code synchronization where the test is designed to verify the security fix implemented in the production code."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the implementation from os.path.commonprefix to os.path.commonpath in the validate_absolute_path method, which fixes a security vulnerability where commonprefix could be bypassed by paths with the same prefix but different directory structure. Edit 1 adds a test case that specifically tests this vulnerability scenario by attempting to access a file outside the static directory using a path with the same prefix as the temporary directory name. The test case directly validates the behavior of the exact method that was changed in edit 0, making this a test-production code synchronization where the test is designed to verify the security fix implemented in the production code."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 changes the implementation from using `os.path.commonprefix` to `os.path.commonpath` in the security check logic. Edit 1 adds a new test case specifically designed to test the scenario where a path has the same prefix but is in a different directory - this is exactly the vulnerability that `commonprefix` had (it could be fooled by paths with common string prefixes) and that `commonpath` fixes. The test validates that the new implementation correctly forbids access to paths like 'PATH_really' when the component root is 'PATH'. The test directly exercises the exact code change made in edit 0, making this a clear test-production code synchronization where the test is specifically written to validate the behavior of the modified security check."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 changes the implementation from using `os.path.commonprefix` to `os.path.commonpath` in the security check logic. Edit 1 adds a new test case specifically designed to test the scenario where a path has the same prefix but is in a different directory - this is exactly the vulnerability that `commonprefix` had (it could be fooled by paths with common string prefixes) and that `commonpath` fixes. The test validates that the new implementation correctly forbids access to paths like 'PATH_really' when the component root is 'PATH'. The test directly exercises the exact code change made in edit 0, making this a clear test-production code synchronization where the test is specifically written to validate the behavior of the modified security check."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'PATH' defined at the module level. Edit 0 changes the value of PATH from 'not/a/real/path' to '/not/a/real/path', and Edit 1 adds a new test method that uses this same PATH symbol in two places (lines 87 and 90). The changed lines in both edits explicitly reference the same PATH symbol - Edit 0 modifies its definition and Edit 1 uses it. After making either edit, the other becomes a natural next step in the same development flow of updating the PATH constant and then using it in the new test. This represents a definition-usage relationship for the exact same symbol within the same file."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'PATH' defined at the module level. Edit 0 changes the value of PATH from 'not/a/real/path' to '/not/a/real/path', and Edit 1 adds a new test method that uses this same PATH symbol in two places (lines 87 and 90). The changed lines in both edits explicitly reference the same PATH symbol - Edit 0 modifies its definition and Edit 1 uses it. After making either edit, the other becomes a natural next step in the same development flow of updating the PATH constant and then using it in the new test. This represents a definition-usage relationship for the exact same symbol within the same file."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3
+    ]
+}

@@ -1,0 +1,57 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of the 'warnings' module, while Edit 1 removes code that uses 'warnings.warn()'. These edits reference the exact same symbol - the 'warnings' module. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. The edits are part of a single cleanup task to remove warnings functionality entirely."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of the 'warnings' module, while Edit 1 removes code that uses 'warnings.warn()'. These edits reference the exact same symbol - the 'warnings' module. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. The edits are part of a single cleanup task to remove warnings functionality entirely."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 removes the definition of the variable `bad_docs` (line 78), while Edit 1 removes code that references and uses this same variable `bad_docs` (lines 91-95). The changed lines in both edits reference the exact same symbol `bad_docs`. After removing the definition in Edit 0, the usage in Edit 1 becomes the next mechanically obvious step to remove since the variable no longer exists. This creates an immediate code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of cleaning up the `bad_docs` variable and its associated logic."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the variable `bad_docs` (line 78), while Edit 1 removes code that references and uses this same variable `bad_docs` (lines 91-95). The changed lines in both edits reference the exact same symbol `bad_docs`. After removing the definition in Edit 0, the usage in Edit 1 becomes the next mechanically obvious step to remove since the variable no longer exists. This creates an immediate code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of cleaning up the `bad_docs` variable and its associated logic."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'bad_docs' in their changed lines. Edit 0 removes the initialization of the 'bad_docs' list, while Edit 1 removes the code that appends to and uses this 'bad_docs' list. These edits are part of the same refactoring operation - removing error handling logic that tracks bad documents. After making either edit, the other becomes immediately necessary to maintain code consistency, as leaving one without the other would result in either an unused variable or a reference to an undefined variable. The edits reference the same symbol and are mechanically linked as part of removing the same feature."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'bad_docs' in their changed lines. Edit 0 removes the initialization of the 'bad_docs' list, while Edit 1 removes the code that appends to and uses this 'bad_docs' list. These edits are part of the same refactoring operation - removing error handling logic that tracks bad documents. After making either edit, the other becomes immediately necessary to maintain code consistency, as leaving one without the other would result in either an unused variable or a reference to an undefined variable. The edits reference the same symbol and are mechanically linked as part of removing the same feature."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "These two edits are part of the same refactoring within the same method `get_attributes_with_docs`. Edit 0 simplifies the logic by removing the None check and error handling for `doc.get_attributes(*fields)`, while Edit 1 removes the corresponding warning code that would have been triggered by the `bad_docs` list that was populated in the original logic. The edits are mechanically linked because removing the None check in Edit 0 makes the `bad_docs` variable and its associated warning code in Edit 1 obsolete. However, both edits can be applied independently without causing parse errors - the code will compile and run in either order, though the logic may be incomplete if only one edit is applied."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These two edits are part of the same refactoring within the same method `get_attributes_with_docs`. Edit 0 simplifies the logic by removing the None check and error handling for `doc.get_attributes(*fields)`, while Edit 1 removes the corresponding warning code that would have been triggered by the `bad_docs` list that was populated in the original logic. The edits are mechanically linked because removing the None check in Edit 0 makes the `bad_docs` variable and its associated warning code in Edit 1 obsolete. However, both edits can be applied independently without causing parse errors - the code will compile and run in either order, though the logic may be incomplete if only one edit is applied."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new property method `physical_size` to the DocumentArrayMemmap class, and Edit 1 adds a test function that directly tests this exact same property by calling `da.physical_size`. The test code in Edit 1 explicitly references and calls the same `physical_size` property that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After adding the property definition, the natural next step would be to test it, and after writing the test, the natural next step would be to implement the property being tested. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new property method `physical_size` to the DocumentArrayMemmap class, and Edit 1 adds a test function that directly tests this exact same property by calling `da.physical_size`. The test code in Edit 1 explicitly references and calls the same `physical_size` property that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After adding the property definition, the natural next step would be to test it, and after writing the test, the natural next step would be to implement the property being tested. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

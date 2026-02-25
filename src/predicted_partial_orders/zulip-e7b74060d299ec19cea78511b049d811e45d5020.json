@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds an import statement 'import zephyr.forms' at the top of the file, while Edit 1 uses 'zephyr.forms.LoggingSetPasswordForm' in a URL configuration. The changed lines reference the exact same symbol 'zephyr.forms' - Edit 0 imports it and Edit 1 uses it. This creates a direct import-usage relationship where both edits can be staged in either order (Python allows usage before import, resulting in a runtime NameError only, not a parse error). After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'import zephyr.forms' at the top of the file, while Edit 1 uses 'zephyr.forms.LoggingSetPasswordForm' in a URL configuration. The changed lines reference the exact same symbol 'zephyr.forms' - Edit 0 imports it and Edit 1 uses it. This creates a direct import-usage relationship where both edits can be staged in either order (Python allows usage before import, resulting in a runtime NameError only, not a parse error). After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a reference to 'zephyr.forms.LoggingSetPasswordForm' in the URL configuration, while Edit 1 defines the 'LoggingSetPasswordForm' class in zephyr/forms.py. The changed line in Edit 0 explicitly references the exact same symbol that is being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the same fully qualified symbol. In Python, referencing an undefined class in a dictionary value is allowed at parse time and only fails at runtime/import time, so either edit can be staged first without causing a parser error. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds a reference to 'zephyr.forms.LoggingSetPasswordForm' in the URL configuration, while Edit 1 defines the 'LoggingSetPasswordForm' class in zephyr/forms.py. The changed line in Edit 0 explicitly references the exact same symbol that is being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the same fully qualified symbol. In Python, referencing an undefined class in a dictionary value is allowed at parse time and only fails at runtime/import time, so either edit can be staged first without causing a parser error. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 1 changes the function signature of `do_change_password` by adding a new `commit` parameter, while Edit 0 calls this exact same function with the new `commit` parameter. The changed lines in both edits reference the exact same symbol (`do_change_password`) and the same parameters (`log` and `commit`). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the function signature, you need to update the call site to use it, and vice versa. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 1 changes the function signature of `do_change_password` by adding a new `commit` parameter, while Edit 0 calls this exact same function with the new `commit` parameter. The changed lines in both edits reference the exact same symbol (`do_change_password`) and the same parameters (`log` and `commit`). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the function signature, you need to update the call site to use it, and vice versa. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports the function 'do_change_password' from zephyr.models, while Edit 1 modifies the signature of that exact same function by adding a 'commit=True' parameter. These edits reference the exact same symbol and create a direct code dependency - after importing the function in Edit 0, any signature change in Edit 1 would be the next logical step if the function needs modification. Both edits can be staged in either order without parser errors (the import will work regardless of the function's signature), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function 'do_change_password' from zephyr.models, while Edit 1 modifies the signature of that exact same function by adding a 'commit=True' parameter. These edits reference the exact same symbol and create a direct code dependency - after importing the function in Edit 0, any signature change in Edit 1 would be the next logical step if the function needs modification. Both edits can be staged in either order without parser errors (the import will work regardless of the function's signature), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 imports SetPasswordForm from django.contrib.auth.forms, and Edit 1 defines a class LoggingSetPasswordForm that inherits from SetPasswordForm. The changed lines reference the exact same symbol - SetPasswordForm. After importing SetPasswordForm in Edit 0, it becomes available for use in Edit 1's class definition. Conversely, if Edit 1 were made first, it would create an undefined symbol error since SetPasswordForm wouldn't be imported yet. However, in Python, both edits can be written and parsed in either order - the inheritance reference in Edit 1 would only fail at import/runtime, not at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 imports SetPasswordForm from django.contrib.auth.forms, and Edit 1 defines a class LoggingSetPasswordForm that inherits from SetPasswordForm. The changed lines reference the exact same symbol - SetPasswordForm. After importing SetPasswordForm in Edit 0, it becomes available for use in Edit 1's class definition. Conversely, if Edit 1 were made first, it would create an undefined symbol error since SetPasswordForm wouldn't be imported yet. However, in Python, both edits can be written and parsed in either order - the inheritance reference in Edit 1 would only fail at import/runtime, not at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new LoggingSetPasswordForm class that calls do_change_password with a commit parameter. Edit 1 modifies the do_change_password function to accept and use a commit parameter. The changed lines reference the exact same symbol (do_change_password function) and the same parameter (commit). Edit 0's call to do_change_password(self.user, self.cleaned_data['new_password1'], log=True, commit=commit) directly depends on Edit 1's modification to accept the commit parameter. However, both edits can be staged in either order - Edit 0 would pass an unexpected keyword argument but wouldn't cause a parse error, just a runtime TypeError. This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new LoggingSetPasswordForm class that calls do_change_password with a commit parameter. Edit 1 modifies the do_change_password function to accept and use a commit parameter. The changed lines reference the exact same symbol (do_change_password function) and the same parameter (commit). Edit 0's call to do_change_password(self.user, self.cleaned_data['new_password1'], log=True, commit=commit) directly depends on Edit 1's modification to accept the commit parameter. However, both edits can be staged in either order - Edit 0 would pass an unexpected keyword argument but wouldn't cause a parse error, just a runtime TypeError. This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports the function 'do_change_password' from zephyr.models, and Edit 1 uses that exact same function in the save method of LoggingSetPasswordForm. The changed lines reference the exact same symbol - do_change_password. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function 'do_change_password' from zephyr.models, and Edit 1 uses that exact same function in the save method of LoggingSetPasswordForm. The changed lines reference the exact same symbol - do_change_password. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a 'commit' parameter to the function signature, and Edit 1 uses that exact same 'commit' parameter in a conditional statement to control the user.save() behavior. The changed lines reference the exact same symbol 'commit' - Edit 0 defines it as a parameter, and Edit 1 references it in the conditional. This creates an immediate, mechanically obvious code-driven prompt where adding the parameter naturally leads to using it to control the save operation. Both edits can be staged in either order without parser errors (the parameter can exist without being used, and the conditional would just reference an undefined variable at runtime), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'commit' parameter to the function signature, and Edit 1 uses that exact same 'commit' parameter in a conditional statement to control the user.save() behavior. The changed lines reference the exact same symbol 'commit' - Edit 0 defines it as a parameter, and Edit 1 references it in the conditional. This creates an immediate, mechanically obvious code-driven prompt where adding the parameter naturally leads to using it to control the save operation. Both edits can be staged in either order without parser errors (the parameter can exist without being used, and the conditional would just reference an undefined variable at runtime), making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        2
+    ]
+}

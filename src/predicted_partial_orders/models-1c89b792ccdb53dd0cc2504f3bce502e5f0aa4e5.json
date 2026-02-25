@@ -1,0 +1,131 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new parameter 'num_samples' to the function signature of 'single_file_dataset'. Edit 1 updates a call site to pass this new parameter when calling the same function. Both edits reference the exact same symbol 'single_file_dataset' and the exact same parameter 'num_samples'. After making edit 0 (adding the parameter), edit 1 becomes the immediate next step to update the call site to use the new parameter. This is a classic function signature change followed by call-site update pattern for the same function."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'num_samples' to the function signature of 'single_file_dataset'. Edit 1 updates a call site to pass this new parameter when calling the same function. Both edits reference the exact same symbol 'single_file_dataset' and the exact same parameter 'num_samples'. After making edit 0 (adding the parameter), edit 1 becomes the immediate next step to update the call site to use the new parameter. This is a classic function signature change followed by call-site update pattern for the same function."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new parameter `num_samples` to the `single_file_dataset` function by adding conditional logic that uses this parameter. Edit 1 updates a call site to pass the `num_samples` parameter to the same `single_file_dataset` function. These edits reference the exact same function symbol and create a direct code dependency - after adding the parameter usage in the function definition (edit 0), the call site (edit 1) needs to be updated to pass the parameter, or vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter `num_samples` to the `single_file_dataset` function by adding conditional logic that uses this parameter. Edit 1 updates a call site to pass the `num_samples` parameter to the same `single_file_dataset` function. These edits reference the exact same function symbol and create a direct code dependency - after adding the parameter usage in the function definition (edit 0), the call site (edit 1) needs to be updated to pass the parameter, or vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'num_samples' within the same function. Edit 0 adds 'num_samples' as a parameter to the function signature, and Edit 1 uses that same parameter in the function body with conditional logic and a method call. After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Conversely, if Edit 1 were made first, it would reference an undefined parameter, making Edit 0 the immediate next step to define it. Both edits can be parsed and staged in either order in Python (undefined parameter usage only causes runtime errors, not parse errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'num_samples' within the same function. Edit 0 adds 'num_samples' as a parameter to the function signature, and Edit 1 uses that same parameter in the function body with conditional logic and a method call. After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Conversely, if Edit 1 were made first, it would reference an undefined parameter, making Edit 0 the immediate next step to define it. Both edits can be parsed and staged in either order in Python (undefined parameter usage only causes runtime errors, not parse errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'num_samples'. Edit 0 adds the parameter 'num_samples=None' to the function signature, and Edit 1 uses that exact same parameter by passing 'num_samples=num_samples' to the single_file_dataset call. This creates a direct code dependency where adding the parameter to the signature (Edit 0) creates an immediate prompt to use it in the function body (Edit 1), or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship within the same function scope."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'num_samples'. Edit 0 adds the parameter 'num_samples=None' to the function signature, and Edit 1 uses that exact same parameter by passing 'num_samples=num_samples' to the single_file_dataset call. This creates a direct code dependency where adding the parameter to the signature (Edit 0) creates an immediate prompt to use it in the function body (Edit 1), or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new parameter 'num_samples' to the function signature of create_classifier_dataset. Edit 1 adds the same parameter 'num_samples' to the call site of that exact same function. This creates a direct signature-caller relationship where both edits reference the exact same symbol (the num_samples parameter of create_classifier_dataset). After making either edit, the other becomes the immediate next step to maintain consistency between the function definition and its usage. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'num_samples' to the function signature of create_classifier_dataset. Edit 1 adds the same parameter 'num_samples' to the call site of that exact same function. This creates a direct signature-caller relationship where both edits reference the exact same symbol (the num_samples parameter of create_classifier_dataset). After making either edit, the other becomes the immediate next step to maintain consistency between the function definition and its usage. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Edit 0 adds a new parameter 'num_samples=None' to the function signature of create_classifier_dataset. Edit 1 adds the same parameter 'num_samples=FLAGS.train_data_size' to a call site of that exact same function (via get_dataset_fn which appears to be create_classifier_dataset based on the parameter matching). This is a classic function signature change paired with its corresponding call-site update for the exact same function. The changed lines reference the exact same symbol (the num_samples parameter of create_classifier_dataset), making one edit create an immediate, mechanically obvious prompt for the other as the next contiguous action."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'num_samples=None' to the function signature of create_classifier_dataset. Edit 1 adds the same parameter 'num_samples=FLAGS.train_data_size' to a call site of that exact same function (via get_dataset_fn which appears to be create_classifier_dataset based on the parameter matching). This is a classic function signature change paired with its corresponding call-site update for the exact same function. The changed lines reference the exact same symbol (the num_samples parameter of create_classifier_dataset), making one edit create an immediate, mechanically obvious prompt for the other as the next contiguous action."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new command-line flag 'train_data_size' using flags.DEFINE_integer, while Edit 1 uses that exact same flag as 'FLAGS.train_data_size' in the code logic. The changed lines reference the exact same symbol - the train_data_size flag. After defining the flag in Edit 0, Edit 1 becomes the immediate next step to actually use that flag in the application logic. This is a classic definition-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new command-line flag 'train_data_size' using flags.DEFINE_integer, while Edit 1 uses that exact same flag as 'FLAGS.train_data_size' in the code logic. The changed lines reference the exact same symbol - the train_data_size flag. After defining the flag in Edit 0, Edit 1 becomes the immediate next step to actually use that flag in the application logic. This is a classic definition-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new flag 'train_data_size' and Edit 1 uses that exact same flag (FLAGS.train_data_size) as a parameter. The changed lines reference the exact same symbol - the train_data_size flag. After defining the flag in Edit 0, using it in Edit 1 becomes the immediate next step to actually utilize the newly defined configuration. This creates a direct code dependency where both edits reference the same symbol, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new flag 'train_data_size' and Edit 1 uses that exact same flag (FLAGS.train_data_size) as a parameter. The changed lines reference the exact same symbol - the train_data_size flag. After defining the flag in Edit 0, using it in Edit 1 becomes the immediate next step to actually utilize the newly defined configuration. This creates a direct code dependency where both edits reference the same symbol, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits add the exact same parameter 'num_samples' to the same function context. Edit 0 adds 'num_samples=None' to the function signature of get_dataset_fn, and Edit 1 adds 'num_samples=num_samples' to the function call within that same function's body. The changed lines in both edits reference the exact same symbol 'num_samples' - Edit 0 defines it as a parameter, and Edit 1 passes it through to another function call. This creates an immediate code dependency where adding the parameter to the signature naturally prompts passing it through in the function body, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits add the exact same parameter 'num_samples' to the same function context. Edit 0 adds 'num_samples=None' to the function signature of get_dataset_fn, and Edit 1 adds 'num_samples=num_samples' to the function call within that same function's body. The changed lines in both edits reference the exact same symbol 'num_samples' - Edit 0 defines it as a parameter, and Edit 1 passes it through to another function call. This creates an immediate code dependency where adding the parameter to the signature naturally prompts passing it through in the function body, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Edit 0 adds a new parameter 'num_samples=None' to the function signature of get_dataset_fn. Edit 1 adds the same parameter 'num_samples=FLAGS.train_data_size' to a call site of that exact same function. This creates a direct definition-usage relationship where both edits reference the exact same symbol (the num_samples parameter of get_dataset_fn). After making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its call site. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'num_samples=None' to the function signature of get_dataset_fn. Edit 1 adds the same parameter 'num_samples=FLAGS.train_data_size' to a call site of that exact same function. This creates a direct definition-usage relationship where both edits reference the exact same symbol (the num_samples parameter of get_dataset_fn). After making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its call site. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol FLAGS.train_data_size. Edit 0 adds logic to use FLAGS.train_data_size to limit train_data_size, while Edit 1 passes FLAGS.train_data_size as a parameter to get_dataset_fn. These edits are part of implementing the same feature - using FLAGS.train_data_size to control training data size. However, the changed lines reference the same symbol and either edit could be made first without creating a parse error or making the other edit mechanically required as the immediate next step. The relationship is bi-directional because both edits involve using the same FLAGS.train_data_size symbol in different parts of the code flow."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol FLAGS.train_data_size. Edit 0 adds logic to use FLAGS.train_data_size to limit train_data_size, while Edit 1 passes FLAGS.train_data_size as a parameter to get_dataset_fn. These edits are part of implementing the same feature - using FLAGS.train_data_size to control training data size. However, the changed lines reference the same symbol and either edit could be made first without creating a parse error or making the other edit mechanically required as the immediate next step. The relationship is bi-directional because both edits involve using the same FLAGS.train_data_size symbol in different parts of the code flow."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits add the same parameter 'num_samples' to calls of the same function 'get_dataset_fn'. Edit 0 adds 'num_samples=num_samples' to a call within the _dataset_fn function, while Edit 1 adds 'num_samples=FLAGS.train_data_size' to a call in the custom_main function. However, these are calls to the same function but in different contexts/scopes. The changed lines reference the same function symbol 'get_dataset_fn' but the calls are in different locations. This appears to be part of a synchronized parameter addition pattern where the same parameter is being added to multiple call sites of the same function as part of a single refactoring task. Both edits perform identical structural changes (adding the same parameter) to calls of the exact same function symbol."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits add the same parameter 'num_samples' to calls of the same function 'get_dataset_fn'. Edit 0 adds 'num_samples=num_samples' to a call within the _dataset_fn function, while Edit 1 adds 'num_samples=FLAGS.train_data_size' to a call in the custom_main function. However, these are calls to the same function but in different contexts/scopes. The changed lines reference the same function symbol 'get_dataset_fn' but the calls are in different locations. This appears to be part of a synchronized parameter addition pattern where the same parameter is being added to multiple call sites of the same function as part of a single refactoring task. Both edits perform identical structural changes (adding the same parameter) to calls of the exact same function symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        4,
+        7,
+        5
+    ]
+}

@@ -1,0 +1,108 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `add_cursor_headers` and Edit 1 calls that exact same method. The changed lines in Edit 1 explicitly reference the method defined in Edit 0 via `self.add_cursor_headers(request, response, cursor_result)`. This creates an immediate, mechanically obvious code dependency where defining the method naturally prompts its usage as the next step, or vice versa. Both edits reference the exact same symbol and either can be staged first in Python since method calls to undefined methods only fail at runtime, not at parse time."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `add_cursor_headers` and Edit 1 calls that exact same method. The changed lines in Edit 1 explicitly reference the method defined in Edit 0 via `self.add_cursor_headers(request, response, cursor_result)`. This creates an immediate, mechanically obvious code dependency where defining the method naturally prompts its usage as the next step, or vice versa. Both edits reference the exact same symbol and either can be staged first in Python since method calls to undefined methods only fail at runtime, not at parse time."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `add_cursor_headers` in the `Endpoint` class, while Edit 1 replaces inline cursor header logic with a call to that exact same method. The changed lines reference the exact same symbol - the `add_cursor_headers` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to refactor existing code to use the new method. Conversely, after seeing the usage pattern in Edit 1, creating the helper method in Edit 0 would be the natural extraction step. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in the refactoring process."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `add_cursor_headers` in the `Endpoint` class, while Edit 1 replaces inline cursor header logic with a call to that exact same method. The changed lines reference the exact same symbol - the `add_cursor_headers` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to refactor existing code to use the new method. Conversely, after seeing the usage pattern in Edit 1, creating the helper method in Edit 0 would be the natural extraction step. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in the refactoring process."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits are replacing inline cursor header logic with calls to the same method `self.add_cursor_headers(request, response, cursor_result)`. This appears to be part of a refactoring where duplicate cursor header code is being extracted into a common method. The edits perform identical structural substitutions - removing manual header setting code and replacing it with a method call using the same parameters. Both edits reference the exact same method name and follow the same before\u2192after pattern, making this a synchronized refactoring operation where either edit could be made first as part of the same bulk substitution task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits are replacing inline cursor header logic with calls to the same method `self.add_cursor_headers(request, response, cursor_result)`. This appears to be part of a refactoring where duplicate cursor header code is being extracted into a common method. The edits perform identical structural substitutions - removing manual header setting code and replacing it with a method call using the same parameters. Both edits reference the exact same method name and follow the same before\u2192after pattern, making this a synchronized refactoring operation where either edit could be made first as part of the same bulk substitution task."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'features' to the import statement, and Edit 1 uses the newly imported 'features' module to call 'features.has()'. The changed lines reference the exact same symbol 'features' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code-driven dependency where importing 'features' enables its usage in the same file. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'features' to the import statement, and Edit 1 uses the newly imported 'features' module to call 'features.has()'. The changed lines reference the exact same symbol 'features' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code-driven dependency where importing 'features' enables its usage in the same file. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'cursor_result' in their changed lines. Edit 0 modifies how cursor_result is assigned (adding count_hits parameter to search.query call), and Edit 1 modifies how cursor_result is used (changing from manual Link header construction to calling add_cursor_headers method with cursor_result). The cursor_result variable created in Edit 0 is the same variable being consumed in Edit 1. These edits are part of a single micro-task flow where modifying the cursor_result creation naturally leads to updating its usage pattern. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'cursor_result' in their changed lines. Edit 0 modifies how cursor_result is assigned (adding count_hits parameter to search.query call), and Edit 1 modifies how cursor_result is used (changing from manual Link header construction to calling add_cursor_headers method with cursor_result). The cursor_result variable created in Edit 0 is the same variable being consumed in Edit 1. These edits are part of a single micro-task flow where modifying the cursor_result creation naturally leads to updating its usage pattern. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 uses the feature flag 'projects:stream-hit-counts' via features.has() call, while Edit 1 defines/registers that exact same feature flag in the feature manager. The changed lines reference the exact same symbol ('projects:stream-hit-counts' feature flag). After making either edit, the other becomes the immediate next step - if you add the feature usage without registering it, you need to register it; if you register a feature, you need to use it. This is a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 uses the feature flag 'projects:stream-hit-counts' via features.has() call, while Edit 1 defines/registers that exact same feature flag in the feature manager. The changed lines reference the exact same symbol ('projects:stream-hit-counts' feature flag). After making either edit, the other becomes the immediate next step - if you add the feature usage without registering it, you need to register it; if you register a feature, you need to use it. This is a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds a feature flag check for 'projects:stream-hit-counts' and uses it to set a count_hits parameter. Edit 1 adds the same feature flag 'projects:stream-hit-counts' to the feature configuration. While both edits reference the exact same feature flag string, they are in different files and contexts - one is checking/using the flag, the other is defining/configuring it. This represents a definition-usage relationship where the flag must be defined in the configuration before it can be checked in the code. However, in Python, the string literal 'projects:stream-hit-counts' can be written and parsed in either order - the feature flag system will handle undefined flags at runtime. Both edits can be staged independently without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next step in implementing the feature flag functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds a feature flag check for 'projects:stream-hit-counts' and uses it to set a count_hits parameter. Edit 1 adds the same feature flag 'projects:stream-hit-counts' to the feature configuration. While both edits reference the exact same feature flag string, they are in different files and contexts - one is checking/using the flag, the other is defining/configuring it. This represents a definition-usage relationship where the flag must be defined in the configuration before it can be checked in the code. However, in Python, the string literal 'projects:stream-hit-counts' can be written and parsed in either order - the feature flag system will handle undefined flags at runtime. Both edits can be staged independently without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next step in implementing the feature flag functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'count_hits' parameter to a search.query() call, while Edit 1 adds the same 'count_hits' parameter to the query method signature in the search backend. These edits reference the exact same symbol (the count_hits parameter in the query method) and create a direct code dependency - adding the parameter to the call site requires the method signature to accept it, and vice versa. This is a classic function signature change \u2194 call-site update pattern for the same function. In Python, both edits can be staged in either order without parser errors (the call with an unexpected keyword argument would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'count_hits' parameter to a search.query() call, while Edit 1 adds the same 'count_hits' parameter to the query method signature in the search backend. These edits reference the exact same symbol (the count_hits parameter in the query method) and create a direct code dependency - adding the parameter to the call site requires the method signature to accept it, and vice versa. This is a classic function signature change \u2194 call-site update pattern for the same function. In Python, both edits can be staged in either order without parser errors (the call with an unexpected keyword argument would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'projects:stream-hit-counts'. Edit 0 adds this feature flag to a configuration dictionary setting it to False, while Edit 1 registers this same feature flag with the feature manager. These edits are part of introducing a new feature flag - one edit configures its default value while the other registers it with the system. Either edit can be made first as both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the feature flag setup."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'projects:stream-hit-counts'. Edit 0 adds this feature flag to a configuration dictionary setting it to False, while Edit 1 registers this same feature flag with the feature manager. These edits are part of introducing a new feature flag - one edit configures its default value while the other registers it with the system. Either edit can be made first as both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the feature flag setup."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 adds a 'count_hits' parameter to the query method signature, and Edit 1 uses that exact same parameter by passing it to the paginator.get_result() call within the same method. The changed lines reference the exact same symbol 'count_hits' - it's defined as a parameter in edit 0 and referenced/used in edit 1. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the method body as the next mechanical step. Both edits can be staged in either order without parser errors (the parameter can be added before its usage or vice versa in Python), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'count_hits' parameter to the query method signature, and Edit 1 uses that exact same parameter by passing it to the paginator.get_result() call within the same method. The changed lines reference the exact same symbol 'count_hits' - it's defined as a parameter in edit 0 and referenced/used in edit 1. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the method body as the next mechanical step. Both edits can be staged in either order without parser errors (the parameter can be added before its usage or vice versa in Python), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        8
+    ]
+}

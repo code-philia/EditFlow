@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import of 'ast' module, while Edit 1 removes the usage of 'ast.literal_eval()' in the code. These edits reference the exact same symbol 'ast' - one removes the import declaration and the other removes the usage. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'ast' module, while Edit 1 removes the usage of 'ast.literal_eval()' in the code. These edits reference the exact same symbol 'ast' - one removes the import declaration and the other removes the usage. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution (LOG.info \u2192 LOG.debug) on the same type of syntactic construct (logging statements) within the same method context. This represents a uniform refactoring pattern where the same change is being applied consistently across multiple logging statements. The edits are part of a single, contiguous micro-task to change the logging level from info to debug throughout the method."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution (LOG.info \u2192 LOG.debug) on the same type of syntactic construct (logging statements) within the same method context. This represents a uniform refactoring pattern where the same change is being applied consistently across multiple logging statements. The edits are part of a single, contiguous micro-task to change the logging level from info to debug throughout the method."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 calls a method `_render_as_json` on line 284, while Edit 1 defines that exact same method starting at line 289. This is a classic definition-usage relationship where the changed lines reference the exact same symbol. In Python, method calls can be written before method definitions within the same class without causing parse errors (only runtime AttributeError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 calls a method `_render_as_json` on line 284, while Edit 1 defines that exact same method starting at line 289. This is a classic definition-usage relationship where the changed lines reference the exact same symbol. In Python, method calls can be written before method definitions within the same class without causing parse errors (only runtime AttributeError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes line 285 to assign `response._content = self._render_as_json(template, variables)` and removes the assignment to `rendered_tpl`. Edit 1 removes lines 287-289 which include the usage of `rendered_tpl` in `json.dumps(ast.literal_eval(rendered_tpl.strip()))`. The variable `rendered_tpl` is defined in edit 0's original line and consumed in edit 1's removed lines. Since edit 0 removes the definition of `rendered_tpl` and edit 1 removes the usage of `rendered_tpl`, these edits are part of the same refactoring to eliminate this intermediate variable. However, the changed lines reference the same symbol `rendered_tpl` - edit 0 removes its definition and edit 1 removes its usage. This creates a direct code dependency where both edits are mechanically linked through the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes line 285 to assign `response._content = self._render_as_json(template, variables)` and removes the assignment to `rendered_tpl`. Edit 1 removes lines 287-289 which include the usage of `rendered_tpl` in `json.dumps(ast.literal_eval(rendered_tpl.strip()))`. The variable `rendered_tpl` is defined in edit 0's original line and consumed in edit 1's removed lines. Since edit 0 removes the definition of `rendered_tpl` and edit 1 removes the usage of `rendered_tpl`, these edits are part of the same refactoring to eliminate this intermediate variable. However, the changed lines reference the same symbol `rendered_tpl` - edit 0 removes its definition and edit 1 removes its usage. This creates a direct code dependency where both edits are mechanically linked through the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 changes the implementation to call `self._render_as_json(template, variables)` instead of `self.render_vtl(template, variables=variables)`. Edit 1 adds a test method that specifically tests the `_render_as_json` method by calling `template._render_as_json(tstring, {...})`. Both edits reference the exact same method `_render_as_json` - edit 0 introduces its usage in the production code, and edit 1 tests that exact same method. This creates a direct code linkage where both changed lines reference the same symbol, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 changes the implementation to call `self._render_as_json(template, variables)` instead of `self.render_vtl(template, variables=variables)`. Edit 1 adds a test method that specifically tests the `_render_as_json` method by calling `template._render_as_json(tstring, {...})`. Both edits reference the exact same method `_render_as_json` - edit 0 introduces its usage in the production code, and edit 1 tests that exact same method. This creates a direct code linkage where both changed lines reference the same symbol, making them bi-directional neighbours in mental flow."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new method `_render_as_json` in the `ResponseTemplates` class, while Edit 1 creates a test that calls this exact same method multiple times. The test code directly references and calls the method that was just defined in Edit 0. This creates an immediate code dependency where the test cannot function without the method definition, and the method definition naturally prompts the creation of tests to verify its behavior. Both edits reference the exact same symbol (`_render_as_json`) and would naturally occur in the same development session as part of implementing and testing a new feature."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new method `_render_as_json` in the `ResponseTemplates` class, while Edit 1 creates a test that calls this exact same method multiple times. The test code directly references and calls the method that was just defined in Edit 0. This creates an immediate code dependency where the test cannot function without the method definition, and the method definition naturally prompts the creation of tests to verify its behavior. Both edits reference the exact same symbol (`_render_as_json`) and would naturally occur in the same development session as part of implementing and testing a new feature."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 imports JSONDecodeError from the json module, and Edit 1 uses JSONDecodeError in a pytest.raises() call on line 575. The changed lines reference the exact same symbol - JSONDecodeError. After importing JSONDecodeError in Edit 0, using it in Edit 1 becomes the natural next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 imports JSONDecodeError from the json module, and Edit 1 uses JSONDecodeError in a pytest.raises() call on line 575. The changed lines reference the exact same symbol - JSONDecodeError. After importing JSONDecodeError in Edit 0, using it in Edit 1 becomes the natural next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions (LOG.info \u2192 LOG.debug) on the same type of syntactic construct (logging statements) within the same file and class hierarchy. This represents a uniform refactoring pattern where the logging level is being changed consistently across related template rendering methods. The edits are part of a single, contiguous micro-task to reduce log verbosity from info to debug level for template transformation logging."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions (LOG.info \u2192 LOG.debug) on the same type of syntactic construct (logging statements) within the same file and class hierarchy. This represents a uniform refactoring pattern where the logging level is being changed consistently across related template rendering methods. The edits are part of a single, contiguous micro-task to reduce log verbosity from info to debug level for template transformation logging."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

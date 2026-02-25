@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 removes the 'normalize' parameter from the ManualResult.from_training_step_output method signature, and Edit 1 removes the 'normalize=5' argument from a call to that exact same method. Both edits reference the same symbol (ManualResult.from_training_step_output) and the same parameter (normalize). After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the parameter from the method signature, you must update all call sites, and vice versa. This is a classic signature-caller synchronization pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 removes the 'normalize' parameter from the ManualResult.from_training_step_output method signature, and Edit 1 removes the 'normalize=5' argument from a call to that exact same method. Both edits reference the same symbol (ManualResult.from_training_step_output) and the same parameter (normalize). After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the parameter from the method signature, you must update all call sites, and vice versa. This is a classic signature-caller synchronization pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'normalize' within the same method. Edit 0 removes the 'normalize' parameter from the method signature, and Edit 1 removes the usage of that same 'normalize' parameter in the method body. These edits are part of a single refactoring task to eliminate the normalize parameter entirely. After making either edit, the other becomes the immediate next step - if you remove the parameter from the signature, you must remove its usage in the body, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'normalize' within the same method. Edit 0 removes the 'normalize' parameter from the method signature, and Edit 1 removes the usage of that same 'normalize' parameter in the method body. These edits are part of a single refactoring task to eliminate the normalize parameter entirely. After making either edit, the other becomes the immediate next step - if you remove the parameter from the signature, you must remove its usage in the body, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes the 'normalize' parameter from the method signature of 'from_training_step_output', and Edit 1 removes the second argument (self.trainer.accumulate_grad_batches) from a call to that exact same method. These edits reference the exact same symbol (ManualResult.from_training_step_output) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature, you must update the call site, and vice versa. Both edits can be staged in either order without causing parse errors in Python."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes the 'normalize' parameter from the method signature of 'from_training_step_output', and Edit 1 removes the second argument (self.trainer.accumulate_grad_batches) from a call to that exact same method. These edits reference the exact same symbol (ManualResult.from_training_step_output) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature, you must update the call site, and vice versa. Both edits can be staged in either order without causing parse errors in Python."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These two edits are part of a single, contiguous micro-task within the same method. Edit 0 removes a comment line about accumulating loss, and Edit 1 modifies the very next line that implements the loss processing by removing the `.div(normalize)` operation. The comment removal in Edit 0 directly relates to the code change in Edit 1 - the comment mentioned accumulation behavior that is being altered by removing the division operation. Both edits reference the exact same code context (the loss processing logic) and the comment removal naturally prompts the code modification as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These two edits are part of a single, contiguous micro-task within the same method. Edit 0 removes a comment line about accumulating loss, and Edit 1 modifies the very next line that implements the loss processing by removing the `.div(normalize)` operation. The comment removal in Edit 0 directly relates to the code change in Edit 1 - the comment mentioned accumulation behavior that is being altered by removing the division operation. Both edits reference the exact same code context (the loss processing logic) and the comment removal naturally prompts the code modification as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These edits are bi-directional neighbours because they represent a synchronized refactoring of the ManualResult.from_training_step_output method. Edit 0 removes the division by normalize parameter from the loss processing within the method implementation, while Edit 1 removes the normalize argument (self.trainer.accumulate_grad_batches) from the method call. Both edits reference the exact same method symbol and represent the removal of the normalization functionality - one edit removes the parameter usage in the implementation, the other removes the parameter passing at the call site. Either edit could be made first, and after making either edit, the other becomes the immediate next step to complete the synchronized removal of the normalize parameter functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they represent a synchronized refactoring of the ManualResult.from_training_step_output method. Edit 0 removes the division by normalize parameter from the loss processing within the method implementation, while Edit 1 removes the normalize argument (self.trainer.accumulate_grad_batches) from the method call. Both edits reference the exact same method symbol and represent the removal of the normalization functionality - one edit removes the parameter usage in the implementation, the other removes the parameter passing at the call site. Either edit could be made first, and after making either edit, the other becomes the immediate next step to complete the synchronized removal of the normalize parameter functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 removes a comment about accumulating loss when `accumulate_grad_batches == 1`, while Edit 1 removes the `self.trainer.accumulate_grad_batches` parameter from a call to `ManualResult.from_training_step_output()`. Both edits reference the exact same method `ManualResult.from_training_step_output` and are part of a coordinated change to remove accumulation logic - the parameter removal in Edit 1 makes the comment about accumulation in Edit 0 obsolete, and vice versa. These edits form a single micro-task of removing accumulation functionality from this method."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 removes a comment about accumulating loss when `accumulate_grad_batches == 1`, while Edit 1 removes the `self.trainer.accumulate_grad_batches` parameter from a call to `ManualResult.from_training_step_output()`. Both edits reference the exact same method `ManualResult.from_training_step_output` and are part of a coordinated change to remove accumulation logic - the parameter removal in Edit 1 makes the comment about accumulation in Edit 0 obsolete, and vice versa. These edits form a single micro-task of removing accumulation functionality from this method."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 removes a comment line from the ManualResult.from_training_step_output method implementation, while Edit 1 removes the normalize=5 parameter from a call to the same method in a test. These edits reference the exact same method symbol (ManualResult.from_training_step_output) and appear to be part of a coordinated change where the normalize parameter is being simplified or removed. The test change reflects the implementation change by removing the explicit normalize parameter usage. Either edit could be made first without causing parse errors, making this a bi-directional relationship where both edits are part of the same refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 removes a comment line from the ManualResult.from_training_step_output method implementation, while Edit 1 removes the normalize=5 parameter from a call to the same method in a test. These edits reference the exact same method symbol (ManualResult.from_training_step_output) and appear to be part of a coordinated change where the normalize parameter is being simplified or removed. The test change reflects the implementation change by removing the explicit normalize parameter usage. Either edit could be made first without causing parse errors, making this a bi-directional relationship where both edits are part of the same refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 removes the `.div(normalize)` operation from the loss processing in the `from_training_step_output` method, effectively removing the normalization functionality. Edit 1 removes the `normalize=5` parameter from the test call to the same method. These edits reference the exact same method (`ManualResult.from_training_step_output`) and form a synchronized change where the implementation no longer uses the normalize parameter and the test no longer passes it. This is a bi-directional relationship because either edit can be made first - removing the parameter usage in the implementation or removing the parameter passing in the test - and both reference the same method signature and parameter."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes the `.div(normalize)` operation from the loss processing in the `from_training_step_output` method, effectively removing the normalization functionality. Edit 1 removes the `normalize=5` parameter from the test call to the same method. These edits reference the exact same method (`ManualResult.from_training_step_output`) and form a synchronized change where the implementation no longer uses the normalize parameter and the test no longer passes it. This is a bi-directional relationship because either edit can be made first - removing the parameter usage in the implementation or removing the parameter passing in the test - and both reference the same method signature and parameter."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify calls to the exact same method `ManualResult.from_training_step_output`, removing parameters from the method signature. Edit 0 removes the `self.trainer.accumulate_grad_batches` parameter, while Edit 1 removes the `normalize=5` parameter. This appears to be part of a coordinated refactoring where the method signature was changed to accept fewer parameters, requiring updates to all call sites. Both edits reference the exact same symbol and represent synchronized updates that would naturally occur together in a single refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify calls to the exact same method `ManualResult.from_training_step_output`, removing parameters from the method signature. Edit 0 removes the `self.trainer.accumulate_grad_batches` parameter, while Edit 1 removes the `normalize=5` parameter. This appears to be part of a coordinated refactoring where the method signature was changed to accept fewer parameters, requiring updates to all call sites. Both edits reference the exact same symbol and represent synchronized updates that would naturally occur together in a single refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 removes the `.div(normalize)` operation from the loss processing in the ManualResult class, changing how the loss value is calculated. Edit 1 updates a test assertion that checks the expected loss value from 5 to 25. These edits are directly related because the test is verifying the behavior of the exact same ManualResult.from_training_step_output method that was modified in edit 0. The test assertion change is necessary to match the new expected output after removing the division operation. This represents a bi-directional relationship where either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain code correctness."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 removes the `.div(normalize)` operation from the loss processing in the ManualResult class, changing how the loss value is calculated. Edit 1 updates a test assertion that checks the expected loss value from 5 to 25. These edits are directly related because the test is verifying the behavior of the exact same ManualResult.from_training_step_output method that was modified in edit 0. The test assertion change is necessary to match the new expected output after removing the division operation. This represents a bi-directional relationship where either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain code correctness."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are within the same test function and are directly related to testing the same functionality. Edit 0 removes the 'normalize=5' parameter from the ManualResult.from_training_step_output() call, and Edit 1 updates the corresponding assertion from checking that the loss equals 5 to checking that it equals 25 (the original loss value). These edits reference the exact same test scenario and the changed lines are testing the same result object - the assertion in Edit 1 is directly testing the behavior change made in Edit 0. Either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain test consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are within the same test function and are directly related to testing the same functionality. Edit 0 removes the 'normalize=5' parameter from the ManualResult.from_training_step_output() call, and Edit 1 updates the corresponding assertion from checking that the loss equals 5 to checking that it equals 25 (the original loss value). These edits reference the exact same test scenario and the changed lines are testing the same result object - the assertion in Edit 1 is directly testing the behavior change made in Edit 0. Either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain test consistency."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

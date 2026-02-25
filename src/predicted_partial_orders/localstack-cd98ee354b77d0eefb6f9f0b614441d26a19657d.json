@@ -1,0 +1,93 @@
+{
+    "partial_orders": [
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "This is a cut-and-paste move operation where the exact same function `params_dict_to_list` is being removed from one file (edit 1) and added to another file (edit 0). The function definition, parameters, and implementation are identical. In a cut-and-paste move, the removal must occur before the addition to avoid having duplicate definitions, making this an ordered relationship where edit 1 (removal) must happen before edit 0 (addition)."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines three functions: merge_parameters, params_dict_to_list, and introduces a wrapper parameter. Edit 1 uses these exact same symbols in its changed lines - it calls merge_parameters(), params_dict_to_list(), and references the wrapper parameter. The changed lines in edit 1 directly reference the exact same symbols that are defined in edit 0's changed lines. This creates an immediate, mechanically obvious code-driven prompt where defining these functions in edit 0 makes edit 1 the natural next step to use them, or vice versa. Both edits can be parsed and staged in either order (Python allows referencing undefined symbols at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines three functions: merge_parameters, params_dict_to_list, and introduces a wrapper parameter. Edit 1 uses these exact same symbols in its changed lines - it calls merge_parameters(), params_dict_to_list(), and references the wrapper parameter. The changed lines in edit 1 directly reference the exact same symbols that are defined in edit 0's changed lines. This creates an immediate, mechanically obvious code-driven prompt where defining these functions in edit 0 makes edit 1 the natural next step to use them, or vice versa. Both edits can be parsed and staged in either order (Python allows referencing undefined symbols at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines two new functions `merge_parameters` and `params_dict_to_list` in the deployment_utils.py module. Edit 1 imports these exact same functions from that module. The changed lines in edit 1 explicitly reference the same symbols that are being defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, imports can be written before the corresponding definitions exist (they would only fail at import time, not parse time), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines two new functions `merge_parameters` and `params_dict_to_list` in the deployment_utils.py module. Edit 1 imports these exact same functions from that module. The changed lines in edit 1 explicitly reference the same symbols that are being defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, imports can be written before the corresponding definitions exist (they would only fail at import time, not parse time), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "This is a cut-and-paste move operation where the exact same function `merge_parameters` is being removed from one file (edit 1) and added to another file (edit 0). The function definition is identical in both edits, including the same signature, parameters, and implementation. This represents moving code from one location to another, which requires the removal to happen before the addition to avoid duplication. The changed lines reference the exact same symbol being relocated."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'params_dict_to_list' to the import statement from deployment_utils, while Edit 1 removes the definition of the 'params_dict_to_list' function from template_deployer.py. This appears to be a code move operation where the function is being relocated from template_deployer.py to deployment_utils.py. For this to work correctly, the function must first be removed from its original location (Edit 1) before it can be imported from the new location (Edit 0), otherwise the import would fail since the function wouldn't exist in deployment_utils yet."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 imports three functions (merge_parameters, params_dict_to_list, select_parameters) from deployment_utils module. Edit 1 uses these exact same three functions in the get_deploy_templates method. The changed lines in edit 1 directly reference the same symbols that are being imported in edit 0. This creates an immediate code dependency - after importing these functions in edit 0, they become available for use in edit 1. Either edit can be staged first since Python allows referencing undefined symbols at parse time (they would only fail at runtime/import time), making this a bi-directional relationship where each edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 imports three functions (merge_parameters, params_dict_to_list, select_parameters) from deployment_utils module. Edit 1 uses these exact same three functions in the get_deploy_templates method. The changed lines in edit 1 directly reference the same symbols that are being imported in edit 0. This creates an immediate code dependency - after importing these functions in edit 0, they become available for use in edit 1. Either edit can be staged first since Python allows referencing undefined symbols at parse time (they would only fail at runtime/import time), making this a bi-directional relationship where each edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a call to 'merge_parameters' function in the changed lines, while Edit 1 removes the definition of the 'merge_parameters' function. These edits reference the exact same symbol but create a problematic dependency - Edit 0 introduces a usage of a function that Edit 1 removes. However, since both edits can be written and parsed independently (the usage in Edit 0 would only fail at runtime/import time with a NameError, not at parse time), and there's no parser-level syntax error preventing either edit from being staged first, this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to resolve the code dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a call to 'merge_parameters' function in the changed lines, while Edit 1 removes the definition of the 'merge_parameters' function. These edits reference the exact same symbol but create a problematic dependency - Edit 0 introduces a usage of a function that Edit 1 removes. However, since both edits can be written and parsed independently (the usage in Edit 0 would only fail at runtime/import time with a NameError, not at parse time), and there's no parser-level syntax error preventing either edit from being staged first, this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to resolve the code dependency."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a call to 'params_dict_to_list' function in the changed lines, while Edit 1 removes the definition of that exact same function. After Edit 1 removes the function definition, Edit 0's call to 'params_dict_to_list' would result in a NameError at runtime when the code is executed. However, since both edits can be written and parsed in either order (Python allows references to undefined symbols at parse time), and the failure would only occur at runtime/import time rather than causing a parser-level syntax error, this represents a bi-directional relationship where either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a call to 'params_dict_to_list' function in the changed lines, while Edit 1 removes the definition of that exact same function. After Edit 1 removes the function definition, Edit 0's call to 'params_dict_to_list' would result in a NameError at runtime when the code is executed. However, since both edits can be written and parsed in either order (Python allows references to undefined symbols at parse time), and the failure would only occur at runtime/import time rather than causing a parser-level syntax error, this represents a bi-directional relationship where either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definition of the `merge_parameters` function, while Edit 1 removes code that calls/references this same `merge_parameters` function. The changed lines reference the exact same symbol. After removing the function definition in Edit 0, the usage in Edit 1 would create an undefined symbol, making Edit 1 the immediate next step to avoid referencing a non-existent function. However, since both edits are removals and either can be staged independently without causing parse errors (Python allows references to undefined names at parse time), this is bi-directional - both edits are part of cleaning up the same symbol and either naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 removes the definition of the `merge_parameters` function, while Edit 1 removes code that calls/references this same `merge_parameters` function. The changed lines reference the exact same symbol. After removing the function definition in Edit 0, the usage in Edit 1 would create an undefined symbol, making Edit 1 the immediate next step to avoid referencing a non-existent function. However, since both edits are removals and either can be staged independently without causing parse errors (Python allows references to undefined names at parse time), this is bi-directional - both edits are part of cleaning up the same symbol and either naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definition of the function `params_dict_to_list` and its `wrapper` parameter. Edit 1 removes a usage of this exact same function `params_dict_to_list` with the `wrapper` parameter being called. The changed lines in both edits reference the exact same symbols (`params_dict_to_list` and `wrapper`). After removing the function definition in edit 0, the usage in edit 1 would reference an undefined symbol, making edit 1 the natural next step to clean up the now-invalid usage. However, since both edits are removals and either could be staged first without causing a parse error (the usage would just reference an undefined name at runtime), this is bi-directional - both edits are part of the same cleanup operation removing the function and its usage."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the definition of the function `params_dict_to_list` and its `wrapper` parameter. Edit 1 removes a usage of this exact same function `params_dict_to_list` with the `wrapper` parameter being called. The changed lines in both edits reference the exact same symbols (`params_dict_to_list` and `wrapper`). After removing the function definition in edit 0, the usage in edit 1 would reference an undefined symbol, making edit 1 the natural next step to clean up the now-invalid usage. However, since both edits are removals and either could be staged first without causing a parse error (the usage would just reference an undefined name at runtime), this is bi-directional - both edits are part of the same cleanup operation removing the function and its usage."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3
+    ]
+}

@@ -1,0 +1,97 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform identical structural transformations within the same function. Each edit extracts the currency conversion of `so_line.price_unit` into a new variable `sale_price_unit`, then uses this variable in the revenue calculation with `analytic_account.currency_id.round()`. The pattern is: (1) extract `sale_price_unit = so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)`, (2) replace the inline calculation with `analytic_account.currency_id.round(quantity * sale_price_unit * (1-so_line.discount))`. This is a uniform refactoring pattern applied to two similar code blocks in the same function, making them natural companions in a single micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform identical structural transformations within the same function. Each edit extracts the currency conversion of `so_line.price_unit` into a new variable `sale_price_unit`, then uses this variable in the revenue calculation with `analytic_account.currency_id.round()`. The pattern is: (1) extract `sale_price_unit = so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)`, (2) replace the inline calculation with `analytic_account.currency_id.round(quantity * sale_price_unit * (1-so_line.discount))`. This is a uniform refactoring pattern applied to two similar code blocks in the same function, making them natural companions in a single micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits apply the exact same refactoring pattern to similar revenue calculation expressions within the same method. Edit 0 changes 'unit_amount * so_line.price_unit * (1-so_line.discount)' to use 'sale_price_unit = so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)' and then 'analytic_account.currency_id.round(unit_amount * sale_price_unit * (1-so_line.discount))'. Edit 1 applies the identical transformation pattern to a similar expression, changing 'so_line.currency_id.compute(unit_amount * (so_line.price_unit) * (1-so_line.discount), analytic_account.currency_id)' to 'analytic_account.currency_id.round(unit_amount * so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id) * (1-so_line.discount))'. This is a bulk uniform substitution where both edits perform the same structural transformation (extracting currency conversion and adding rounding) on the same type of revenue calculation construct within the same function. Either edit could be made first, and after making one, the other becomes the natural next step to maintain consistency in the refactoring pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits apply the exact same refactoring pattern to similar revenue calculation expressions within the same method. Edit 0 changes 'unit_amount * so_line.price_unit * (1-so_line.discount)' to use 'sale_price_unit = so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)' and then 'analytic_account.currency_id.round(unit_amount * sale_price_unit * (1-so_line.discount))'. Edit 1 applies the identical transformation pattern to a similar expression, changing 'so_line.currency_id.compute(unit_amount * (so_line.price_unit) * (1-so_line.discount), analytic_account.currency_id)' to 'analytic_account.currency_id.round(unit_amount * so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id) * (1-so_line.discount))'. This is a bulk uniform substitution where both edits perform the same structural transformation (extracting currency conversion and adding rounding) on the same type of revenue calculation construct within the same function. Either edit could be made first, and after making one, the other becomes the natural next step to maintain consistency in the refactoring pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform the same structural transformation on similar code patterns within the same function. Edit 0 introduces the pattern of extracting `so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)` into a `sale_price_unit` variable and using `analytic_account.currency_id.round()`. Edit 1 applies the exact same transformation pattern to a different line in the same function - replacing the inline currency computation with the same extracted pattern and adding the same rounding operation. This is a uniform refactoring pattern being applied consistently across multiple similar code constructs within the same function scope."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform the same structural transformation on similar code patterns within the same function. Edit 0 introduces the pattern of extracting `so_line.currency_id.compute(so_line.price_unit, analytic_account.currency_id)` into a `sale_price_unit` variable and using `analytic_account.currency_id.round()`. Edit 1 applies the exact same transformation pattern to a different line in the same function - replacing the inline currency computation with the same extracted pattern and adding the same rounding operation. This is a uniform refactoring pattern being applied consistently across multiple similar code constructs within the same function scope."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits modify the same function `_compute_timesheet_revenue` and work with the same variable `line_revenue`. Edit 0 changes how `line_revenue` is calculated by adding currency conversion, and Edit 1 changes how that same `line_revenue` variable is used in the rounding operation. The variable `line_revenue` calculated in Edit 0 is directly consumed in Edit 1. This creates a direct code dependency where both edits reference the exact same symbol (`line_revenue`) and are part of a single micro-task of updating currency handling in timesheet revenue computation."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits modify the same function `_compute_timesheet_revenue` and work with the same variable `line_revenue`. Edit 0 changes how `line_revenue` is calculated by adding currency conversion, and Edit 1 changes how that same `line_revenue` variable is used in the rounding operation. The variable `line_revenue` calculated in Edit 0 is directly consumed in Edit 1. This creates a direct code dependency where both edits reference the exact same symbol (`line_revenue`) and are part of a single micro-task of updating currency handling in timesheet revenue computation."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits modify the same variable 'line_revenue' within the same method '_compute_timesheet_revenue'. Edit 0 changes how line_revenue is calculated by adding currency conversion, and Edit 1 changes how line_revenue is used in the timesheet_revenue field by replacing float_round with currency rounding. The variable line_revenue calculated in Edit 0 is directly used in Edit 1, creating an explicit code dependency. Both edits reference the exact same symbol (line_revenue) and appear to be part of a coordinated currency handling refactor within the same function scope."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits modify the same variable 'line_revenue' within the same method '_compute_timesheet_revenue'. Edit 0 changes how line_revenue is calculated by adding currency conversion, and Edit 1 changes how line_revenue is used in the timesheet_revenue field by replacing float_round with currency rounding. The variable line_revenue calculated in Edit 0 is directly used in Edit 1, creating an explicit code dependency. Both edits reference the exact same symbol (line_revenue) and appear to be part of a coordinated currency handling refactor within the same function scope."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'float_round(line_revenue, precision)' with 'timesheet_line.company_currency_id.round(line_revenue)' in the same type of syntactic construct (dictionary value assignments within timesheet_line.write() calls). This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same method. Either edit can be made first, and after making one, the other becomes the natural next step to complete the uniform refactoring pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'float_round(line_revenue, precision)' with 'timesheet_line.company_currency_id.round(line_revenue)' in the same type of syntactic construct (dictionary value assignments within timesheet_line.write() calls). This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same method. Either edit can be made first, and after making one, the other becomes the natural next step to complete the uniform refactoring pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are applying the same structural transformation pattern within the same method: wrapping existing price/amount calculations with `invoice_line.currency_id.compute(original_value, timesheet_line.company_currency_id)` to handle currency conversion. Edit 0 wraps `invoiced_price_per_hour` and edit 1 wraps `invoice_line.price_subtotal`. This represents a uniform, synchronized substitution pattern where both edits implement the same currency conversion logic on similar price calculation constructs within the same function. The edits are part of a single refactoring task to add currency conversion throughout the revenue calculation logic."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are applying the same structural transformation pattern within the same method: wrapping existing price/amount calculations with `invoice_line.currency_id.compute(original_value, timesheet_line.company_currency_id)` to handle currency conversion. Edit 0 wraps `invoiced_price_per_hour` and edit 1 wraps `invoice_line.price_subtotal`. This represents a uniform, synchronized substitution pattern where both edits implement the same currency conversion logic on similar price calculation constructs within the same function. The edits are part of a single refactoring task to add currency conversion throughout the revenue calculation logic."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits modify how currency conversion and rounding are handled for the same `line_revenue` variable within the same method `_compute_timesheet_revenue`. Edit 0 changes how `line_revenue` is calculated by adding currency conversion using `invoice_line.currency_id.compute()`, while Edit 1 changes how that same `line_revenue` is rounded when written to `timesheet_revenue` using `timesheet_line.company_currency_id.round()`. These edits are part of a coordinated currency handling refactor where the calculation method change in Edit 0 naturally prompts the corresponding rounding method change in Edit 1, as both deal with the same variable and currency conversion logic. The edits reference the same `line_revenue` symbol and represent a unified change to currency handling that would naturally be done together in one micro-task."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits modify how currency conversion and rounding are handled for the same `line_revenue` variable within the same method `_compute_timesheet_revenue`. Edit 0 changes how `line_revenue` is calculated by adding currency conversion using `invoice_line.currency_id.compute()`, while Edit 1 changes how that same `line_revenue` is rounded when written to `timesheet_revenue` using `timesheet_line.company_currency_id.round()`. These edits are part of a coordinated currency handling refactor where the calculation method change in Edit 0 naturally prompts the corresponding rounding method change in Edit 1, as both deal with the same variable and currency conversion logic. The edits reference the same `line_revenue` symbol and represent a unified change to currency handling that would naturally be done together in one micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits modify code within the same method (_compute_timesheet_revenue) and both reference the same variable 'line_revenue' that is computed in edit 0 and used in edit 1. Edit 0 changes how line_revenue is calculated by adding currency conversion, while edit 1 changes how that same line_revenue value is rounded when written to the timesheet record. The variable line_revenue computed in edit 0 is directly used in edit 1, creating an explicit code dependency where both edits reference the exact same symbol within the same function scope."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits modify code within the same method (_compute_timesheet_revenue) and both reference the same variable 'line_revenue' that is computed in edit 0 and used in edit 1. Edit 0 changes how line_revenue is calculated by adding currency conversion, while edit 1 changes how that same line_revenue value is rounded when written to the timesheet record. The variable line_revenue computed in edit 0 is directly used in edit 1, creating an explicit code dependency where both edits reference the exact same symbol within the same function scope."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

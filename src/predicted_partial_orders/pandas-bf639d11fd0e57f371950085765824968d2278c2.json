@@ -1,0 +1,47 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits involve moving the same line of code `target = _ensure_index(target)` from one location to another within the same function. Edit 0 adds this line at line 407, while Edit 1 removes the exact same line from line 411. This is a classic cut-and-paste move operation where the removal must occur before the relocation to avoid duplication. The edits reference the exact same symbol and code line, making them part of a single atomic refactoring operation."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform identical textual substitution (removing the line 'target = _ensure_index(target)') within the same method (get_indexer) and target the same type of syntactic construct (assignment statements in conditional branches). This represents a bulk-edit pattern where the same refactoring operation is being applied to structurally similar code locations within the same function. The edits are part of a single, contiguous refactor removing redundant _ensure_index calls from different conditional branches."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitution (removing the line 'target = _ensure_index(target)') within the same method (get_indexer) and target the same type of syntactic construct (assignment statements in conditional branches). This represents a bulk-edit pattern where the same refactoring operation is being applied to structurally similar code locations within the same function. The edits are part of a single, contiguous refactor removing redundant _ensure_index calls from different conditional branches."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "These edits involve moving the same line of code `target = _ensure_index(target)` from one location to another within the same function. Edit 0 adds this line at line 407, while Edit 1 removes the exact same line from line 415. This is a classic cut-and-paste move operation where the removal must occur before the addition to avoid duplication, or the addition must occur before removal to maintain functionality. Since this involves the exact same symbol assignment being relocated, and one edit cannot be properly completed without the other in the context of a move operation, this represents an ordered relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "These edits are within the same method (get_indexer) and both operate on the 'target' parameter. Edit 0 adds a line that ensures 'target' is converted to an index object using _ensure_index(target). Edit 1 removes the conditional logic that handled 'target' differently based on whether it was a list or not, simplifying it to always use lib.merge_indexer_object(target, self.indexMap). The _ensure_index() call in edit 0 would convert a list target to an index object, making the list-specific handling in edit 1 unnecessary. These edits reference the exact same symbol 'target' and appear to be part of a single refactoring where ensuring target is an index object allows for simplified handling downstream."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "These edits are within the same method (get_indexer) and both operate on the 'target' parameter. Edit 0 adds a line that ensures 'target' is converted to an index object using _ensure_index(target). Edit 1 removes the conditional logic that handled 'target' differently based on whether it was a list or not, simplifying it to always use lib.merge_indexer_object(target, self.indexMap). The _ensure_index() call in edit 0 would convert a list target to an index object, making the list-specific handling in edit 1 unnecessary. These edits reference the exact same symbol 'target' and appear to be part of a single refactoring where ensuring target is an index object allows for simplified handling downstream."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution pattern: removing an if-else block that checks isinstance(target, list) and consolidating to use only lib.merge_indexer_object. The changes are syntactically identical (removing the same conditional logic and keeping the same function call), target the same type of construct (conditional blocks in get_indexer methods), and appear to be part of a single refactoring operation to simplify the indexer logic across related classes. This represents a bulk uniform substitution where both edits can be applied in either order as part of the same contiguous refactor."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: removing an if-else block that checks isinstance(target, list) and consolidating to use only lib.merge_indexer_object. The changes are syntactically identical (removing the same conditional logic and keeping the same function call), target the same type of construct (conditional blocks in get_indexer methods), and appear to be part of a single refactoring operation to simplify the indexer logic across related classes. This represents a bulk uniform substitution where both edits can be applied in either order as part of the same contiguous refactor."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

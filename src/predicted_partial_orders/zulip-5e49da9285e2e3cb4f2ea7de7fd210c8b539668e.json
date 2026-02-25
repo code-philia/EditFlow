@@ -1,0 +1,74 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable 'time_increment' based on stat.frequency, and edit 1 uses that exact same variable 'time_increment' to replace a hardcoded timedelta(hours=1). The changed line in edit 1 directly references the symbol defined in edit 0. This creates an immediate code dependency where defining time_increment naturally prompts its usage as the next step, and both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the variable 'time_increment' based on stat.frequency, and edit 1 uses that exact same variable 'time_increment' to replace a hardcoded timedelta(hours=1). The changed line in edit 1 directly references the symbol defined in edit 0. This creates an immediate code dependency where defining time_increment naturally prompts its usage as the next step, and both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform identical textual substitution within the same function, replacing 'timedelta(hours = 1)' with 'time_increment' in two different locations. This is a uniform refactoring pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (timedelta expressions). Both changed lines reference the exact same symbol 'time_increment' and represent a synchronized bulk edit operation that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform identical textual substitution within the same function, replacing 'timedelta(hours = 1)' with 'time_increment' in two different locations. This is a uniform refactoring pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (timedelta expressions). Both changed lines reference the exact same symbol 'time_increment' and represent a synchronized bulk edit operation that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions within the same function, replacing 'timedelta(hours = 1)' with 'time_increment'. This is a uniform refactoring pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (variable assignment expressions) in the same scope. Both changed lines reference the same variable 'time_increment' and perform structurally identical replacements. This creates a bi-directional relationship where either edit naturally prompts the other as part of the same contiguous refactoring micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform identical textual substitutions within the same function, replacing 'timedelta(hours = 1)' with 'time_increment'. This is a uniform refactoring pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (variable assignment expressions) in the same scope. Both changed lines reference the same variable 'time_increment' and perform structurally identical replacements. This creates a bi-directional relationship where either edit naturally prompts the other as part of the same contiguous refactoring micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines the variable 'time_increment' based on stat.frequency, and Edit 1 uses that exact same variable 'time_increment' to replace a hardcoded timedelta(hours=1). The changed lines reference the exact same symbol - 'time_increment'. After making Edit 0, the next immediate, mechanically obvious step would be to use the newly defined time_increment variable instead of the hardcoded value, making Edit 1 the natural next action. This creates a direct code dependency where Edit 1 references the symbol defined in Edit 0."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 adds logic to the process_count_stat function to handle different frequency types (HOUR and DAY) by setting appropriate time_increment values. Edit 1 adds test code that calls process_count_stat with different stat objects including stat4 which has CountStat.DAY frequency. The test code directly calls the exact same function that was modified in edit 0, and the modification in edit 0 (adding frequency handling logic) would be immediately exercised by the test calls in edit 1. Both edits reference the same symbol (process_count_stat function) and the test naturally validates the new frequency handling logic added in the implementation."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 adds logic to the process_count_stat function to handle different frequency types (HOUR and DAY) by setting appropriate time_increment values. Edit 1 adds test code that calls process_count_stat with different stat objects including stat4 which has CountStat.DAY frequency. The test code directly calls the exact same function that was modified in edit 0, and the modification in edit 0 (adding frequency handling logic) would be immediately exercised by the test calls in edit 1. Both edits reference the same symbol (process_count_stat function) and the test naturally validates the new frequency handling logic added in the implementation."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines the variable `time_increment` based on the stat frequency, and edit 1 uses this exact same variable `time_increment` to replace the hardcoded `timedelta(hours=1)`. The changed lines reference the exact same symbol - `time_increment`. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable, and vice versa - if edit 1 is made first, it would reference an undefined variable that needs to be defined in edit 0. Both edits can be parsed and staged in either order (Python allows referencing undefined variables at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines the variable `time_increment` based on the stat frequency, and edit 1 uses this exact same variable `time_increment` to replace the hardcoded `timedelta(hours=1)`. The changed lines reference the exact same symbol - `time_increment`. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable, and vice versa - if edit 1 is made first, it would reference an undefined variable that needs to be defined in edit 0. Both edits can be parsed and staged in either order (Python allows referencing undefined variables at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution within the same function: replacing 'timedelta(hours = 1)' with 'time_increment' in two different locations. This is a bulk-edit pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (variable assignment expressions). Both changed lines reference the exact same symbol 'time_increment' and represent a uniform refactoring operation that would naturally occur in a single, contiguous micro-task. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the consistent substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution within the same function: replacing 'timedelta(hours = 1)' with 'time_increment' in two different locations. This is a bulk-edit pattern where the same before\u2192after substitution is applied to the same type of syntactic construct (variable assignment expressions). Both changed lines reference the exact same symbol 'time_increment' and represent a uniform refactoring operation that would naturally occur in a single, contiguous micro-task. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the consistent substitution pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        5,
+        6
+    ]
+}

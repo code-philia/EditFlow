@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits add identical import statements for 'from fastapi import params' to different files. This represents a bulk/pattern synchronization where the same textual substitution (adding the same import line) is being applied to multiple files as part of what appears to be a single refactoring operation. Both changed lines reference the exact same symbol (the params module from fastapi) and represent identical structural additions to import sections."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits add identical import statements for 'from fastapi import params' to different files. This represents a bulk/pattern synchronization where the same textual substitution (adding the same import line) is being applied to multiple files as part of what appears to be a single refactoring operation. Both changed lines reference the exact same symbol (the params module from fastapi) and represent identical structural additions to import sections."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "This is a cut-and-paste move operation where the exact same import statements are being removed from one location (lines 5-8) and added to another location (lines 14-17) within the same file. The imports being moved are identical: 'from fastapi import params', 'from fastapi.dependencies.models import Dependant, SecurityRequirement', 'from fastapi.security.base import SecurityBase', and 'from fastapi.utils import get_path_param_names'. This creates a direct dependency where the removal must occur before the relocation to avoid duplication. The second edit cannot be properly staged until the first edit removes the imports from their original location."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'body_bytes' within the same function scope. Edit 0 introduces the variable 'body_bytes' by assigning it a value (body_bytes = await request.body()), and Edit 1 uses that same variable in a conditional check (elif body_bytes:). This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined variable, and vice versa - both edits are part of the same micro-task of handling request body processing."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'body_bytes' within the same function scope. Edit 0 introduces the variable 'body_bytes' by assigning it a value (body_bytes = await request.body()), and Edit 1 uses that same variable in a conditional check (elif body_bytes:). This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined variable, and vice versa - both edits are part of the same micro-task of handling request body processing."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "This is a cut-and-paste move operation where the exact same import lines are being removed from one location (lines 5-8) and added to another location (lines 18-21) within the same file. The imports being moved are identical: 'from fastapi import params', 'from fastapi.dependencies.models import Dependant', 'from fastapi.dependencies.utils import get_body_field, get_dependant, solve_dependencies', and 'from fastapi.encoders import jsonable_encoder'. For a move operation to work correctly, the removal must occur before the addition to avoid duplicate imports, making this an ordered relationship where edit 0 (removal) must happen before edit 1 (addition)."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        2
+    ]
+}

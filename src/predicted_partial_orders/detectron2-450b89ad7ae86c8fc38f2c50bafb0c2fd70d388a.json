@@ -1,0 +1,113 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a configuration parameter WEIGHT = 0.025 to the SHAPE_TO_SHAPE_CYCLE_LOSS config section. Edit 1 uses this exact same configuration parameter in line 40 with cfg.MODEL.ROI_DENSEPOSE_HEAD.CSE.SHAPE_TO_SHAPE_CYCLE_LOSS.WEIGHT to set self.w_shape2shape. The changed lines reference the exact same configuration symbol, creating a direct definition-usage relationship where the config definition enables the usage in the loss class constructor."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a configuration parameter WEIGHT = 0.025 to the SHAPE_TO_SHAPE_CYCLE_LOSS config section. Edit 1 uses this exact same configuration parameter in line 40 with cfg.MODEL.ROI_DENSEPOSE_HEAD.CSE.SHAPE_TO_SHAPE_CYCLE_LOSS.WEIGHT to set self.w_shape2shape. The changed lines reference the exact same configuration symbol, creating a direct definition-usage relationship where the config definition enables the usage in the loss class constructor."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a configuration parameter `_C.MODEL.ROI_DENSEPOSE_HEAD.CSE.PIX_TO_SHAPE_CYCLE_LOSS.WEIGHT = 0.0001` to the config file. Edit 1 uses this exact same configuration parameter in line 44: `self.w_pix2shape = cfg.MODEL.ROI_DENSEPOSE_HEAD.CSE.PIX_TO_SHAPE_CYCLE_LOSS.WEIGHT`. This creates a direct code dependency where the configuration parameter defined in edit 0 is immediately referenced in edit 1. Both edits reference the exact same symbol (the configuration path), making one edit create an immediate, mechanically obvious prompt for the other. Either edit can be staged first since Python allows referencing undefined configuration keys at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds a configuration parameter `_C.MODEL.ROI_DENSEPOSE_HEAD.CSE.PIX_TO_SHAPE_CYCLE_LOSS.WEIGHT = 0.0001` to the config file. Edit 1 uses this exact same configuration parameter in line 44: `self.w_pix2shape = cfg.MODEL.ROI_DENSEPOSE_HEAD.CSE.PIX_TO_SHAPE_CYCLE_LOSS.WEIGHT`. This creates a direct code dependency where the configuration parameter defined in edit 0 is immediately referenced in edit 1. Both edits reference the exact same symbol (the configuration path), making one edit create an immediate, mechanically obvious prompt for the other. Either edit can be staged first since Python allows referencing undefined configuration keys at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are adding identical configuration patterns within the same function - they both add a WEIGHT parameter with a comment to different cycle loss configurations (SHAPE_TO_SHAPE_CYCLE_LOSS and PIX_TO_SHAPE_CYCLE_LOSS). This represents a uniform structural substitution where the same pattern (adding .WEIGHT = <value> with a descriptive comment) is being applied to similar configuration objects. Both edits follow the exact same template and are part of a single configuration setup task. Either edit could be made first without affecting the ability to make the other, as they modify different configuration paths."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are adding identical configuration patterns within the same function - they both add a WEIGHT parameter with a comment to different cycle loss configurations (SHAPE_TO_SHAPE_CYCLE_LOSS and PIX_TO_SHAPE_CYCLE_LOSS). This represents a uniform structural substitution where the same pattern (adding .WEIGHT = <value> with a descriptive comment) is being applied to similar configuration objects. Both edits follow the exact same template and are part of a single configuration setup task. Either edit could be made first without affecting the ability to make the other, as they modify different configuration paths."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 defines instance attributes (do_shape2shape, w_shape2shape, shape2shape_loss, do_pix2shape, w_pix2shape, pix2shape_loss) in the __init__ method, while Edit 1 uses these exact same attributes in the __call__ method. The changed lines in Edit 1 directly reference the attributes created in Edit 0. This creates a definition-usage relationship where both edits reference the same symbols. Since Python allows referencing undefined attributes at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 defines instance attributes (do_shape2shape, w_shape2shape, shape2shape_loss, do_pix2shape, w_pix2shape, pix2shape_loss) in the __init__ method, while Edit 1 uses these exact same attributes in the __call__ method. The changed lines in Edit 1 directly reference the attributes created in Edit 0. This creates a definition-usage relationship where both edits reference the same symbols. Since Python allows referencing undefined attributes at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports PixToShapeCycleLoss and ShapeToShapeCycleLoss classes, while Edit 1 instantiates these exact same classes (PixToShapeCycleLoss and ShapeToShapeCycleLoss) in the constructor. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where the imports must be available for the instantiation to work. However, in Python, both edits can be written and parsed in either order - the usage before import would only cause a runtime NameError, not a parse-time syntax error. Therefore, this is a bi-directional import-usage relationship within the same file."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports PixToShapeCycleLoss and ShapeToShapeCycleLoss classes, while Edit 1 instantiates these exact same classes (PixToShapeCycleLoss and ShapeToShapeCycleLoss) in the constructor. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where the imports must be available for the instantiation to work. However, in Python, both edits can be written and parsed in either order - the usage before import would only cause a runtime NameError, not a parse-time syntax error. Therefore, this is a bi-directional import-usage relationship within the same file."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbols: `do_shape2shape`, `shape2shape_loss`, `do_pix2shape`, and `pix2shape_loss`. Edit 0 defines these attributes in the `__init__` method, while Edit 1 uses these same attributes in the `produce_fake_losses` method. The changed lines in Edit 1 directly reference the attributes that are defined in Edit 0's changed lines. This creates an immediate code dependency where the attributes must be defined before they can be used. However, in Python, both edits can be written and parsed in either order since attribute access doesn't cause parse-time errors - it would only cause a runtime AttributeError if the attributes weren't defined. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbols: `do_shape2shape`, `shape2shape_loss`, `do_pix2shape`, and `pix2shape_loss`. Edit 0 defines these attributes in the `__init__` method, while Edit 1 uses these same attributes in the `produce_fake_losses` method. The changed lines in Edit 1 directly reference the attributes that are defined in Edit 0's changed lines. This creates an immediate code dependency where the attributes must be defined before they can be used. However, in Python, both edits can be written and parsed in either order since attribute access doesn't cause parse-time errors - it would only cause a runtime AttributeError if the attributes weren't defined. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 creates a variable 'all_loss_dict' by changing a direct return statement to an assignment. Edit 1 then uses this exact same variable 'all_loss_dict' to add conditional loss entries and returns it. The changed lines in both edits reference the exact same symbol 'all_loss_dict'. After making edit 0, edit 1 becomes the immediate next step to complete the refactoring from direct return to conditional loss accumulation. This is a clear definition-usage relationship within the same function where both edits reference the identical symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 creates a variable 'all_loss_dict' by changing a direct return statement to an assignment. Edit 1 then uses this exact same variable 'all_loss_dict' to add conditional loss entries and returns it. The changed lines in both edits reference the exact same symbol 'all_loss_dict'. After making edit 0, edit 1 becomes the immediate next step to complete the refactoring from direct return to conditional loss accumulation. This is a clear definition-usage relationship within the same function where both edits reference the identical symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 creates a variable `all_loss_dict` by changing a direct return statement to an assignment. Edit 1 then uses this exact same variable `all_loss_dict` to add conditional entries and return it. The changed lines in both edits reference the exact same symbol `all_loss_dict`. After making edit 0, edit 1 becomes the immediate next step to complete the refactoring from direct return to building up the dictionary before returning it. This is a clear definition-usage relationship within the same function where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'return {' to 'all_loss_dict = {' in the same type of syntactic construct (dictionary assignment statements). This represents a uniform refactoring operation where the same variable name change is being applied consistently across multiple methods within the same class. The edits are part of a single, contiguous refactor to rename the return dictionary variable from an anonymous return to a named variable 'all_loss_dict'. Both changed lines involve the exact same substitution pattern and target the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'return {' to 'all_loss_dict = {' in the same type of syntactic construct (dictionary assignment statements). This represents a uniform refactoring operation where the same variable name change is being applied consistently across multiple methods within the same class. The edits are part of a single, contiguous refactor to rename the return dictionary variable from an anonymous return to a named variable 'all_loss_dict'. Both changed lines involve the exact same substitution pattern and target the same construct type."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits add identical conditional blocks checking `self.do_shape2shape` and `self.do_pix2shape` flags, then adding corresponding loss entries to `all_loss_dict`. The structure and logic are mirrored - both check the same instance attributes and add entries with the same keys ('loss_shape2shape' and 'loss_pix2shape') to their respective loss dictionaries. This represents a synchronized pattern addition where the same conditional logic and dictionary key assignments are being added to two related methods in the same class. The edits reference the same instance attributes (`self.do_shape2shape`, `self.do_pix2shape`) and follow identical structural patterns, making this a clear case of mirrored additions within the same context."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits add identical conditional blocks checking `self.do_shape2shape` and `self.do_pix2shape` flags, then adding corresponding loss entries to `all_loss_dict`. The structure and logic are mirrored - both check the same instance attributes and add entries with the same keys ('loss_shape2shape' and 'loss_pix2shape') to their respective loss dictionaries. This represents a synchronized pattern addition where the same conditional logic and dictionary key assignments are being added to two related methods in the same class. The edits reference the same instance attributes (`self.do_shape2shape`, `self.do_pix2shape`) and follow identical structural patterns, making this a clear case of mirrored additions within the same context."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits modify the same method's return statement structure by changing from 'return {' to 'all_loss_dict = {' and then 'return all_loss_dict'. Edit 0 introduces the 'all_loss_dict' variable that Edit 1 then uses in its return statement. The changed lines in both edits reference the exact same symbol 'all_loss_dict' - Edit 0 creates it and Edit 1 uses it. This creates a direct code dependency where making Edit 0 creates an immediate prompt for Edit 1 as the next contiguous action in refactoring the return pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits modify the same method's return statement structure by changing from 'return {' to 'all_loss_dict = {' and then 'return all_loss_dict'. Edit 0 introduces the 'all_loss_dict' variable that Edit 1 then uses in its return statement. The changed lines in both edits reference the exact same symbol 'all_loss_dict' - Edit 0 creates it and Edit 1 uses it. This creates a direct code dependency where making Edit 0 creates an immediate prompt for Edit 1 as the next contiguous action in refactoring the return pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        6
+    ]
+}

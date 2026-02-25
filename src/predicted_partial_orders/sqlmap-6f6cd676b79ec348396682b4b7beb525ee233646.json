@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. These edits reference the exact same symbol (the cleanup method) and create a direct code dependency - after adding the parameter to the method signature, the call site needs to be updated to match. This is a classic function signature change paired with its corresponding call-site update."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. These edits reference the exact same symbol (the cleanup method) and create a direct code dependency - after adding the parameter to the method signature, the call site needs to be updated to match. This is a classic function signature change paired with its corresponding call-site update."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature in the Miscellaneous class. Edit 1 updates a call to the cleanup method to pass the 'web' parameter. The Takeover class inherits from Miscellaneous, so self.cleanup() refers to the exact same method being modified in edit 0. This creates a direct definition-usage relationship where the signature change in edit 0 creates an immediate code-driven prompt to update the call site in edit 1. Both edits reference the exact same symbol (the cleanup method) and either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature in the Miscellaneous class. Edit 1 updates a call to the cleanup method to pass the 'web' parameter. The Takeover class inherits from Miscellaneous, so self.cleanup() refers to the exact same method being modified in edit 0. This creates a direct definition-usage relationship where the signature change in edit 0 creates an immediate code-driven prompt to update the call site in edit 1. Both edits reference the exact same symbol (the cleanup method) and either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. These edits reference the exact same symbol (the cleanup method) and create a direct code dependency - after adding the parameter to the method signature, the call site needs to be updated to match. This is a classic definition-usage relationship where both edits can be staged in either order (the call with web=web parameter will work whether the method signature has the parameter or not in Python, as extra keyword arguments don't cause parse errors), making it bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. These edits reference the exact same symbol (the cleanup method) and create a direct code dependency - after adding the parameter to the method signature, the call site needs to be updated to match. This is a classic definition-usage relationship where both edits can be staged in either order (the call with web=web parameter will work whether the method signature has the parameter or not in Python, as extra keyword arguments don't cause parse errors), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method implementation in the Miscellaneous class, adding conditional logic that uses this parameter. Edit 1 updates a call to the cleanup method to pass the 'web' parameter. These edits reference the exact same method symbol (cleanup) and create a direct code dependency - after adding the web parameter to the method signature in edit 0, the call site in edit 1 needs to be updated to pass the parameter. This is a classic definition-usage relationship where both edits can be staged in either order (the method call with the parameter will work once the method accepts it, and the method can accept the parameter before any calls use it)."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method implementation in the Miscellaneous class, adding conditional logic that uses this parameter. Edit 1 updates a call to the cleanup method to pass the 'web' parameter. These edits reference the exact same method symbol (cleanup) and create a direct code dependency - after adding the web parameter to the method signature in edit 0, the call site in edit 1 needs to be updated to pass the parameter. This is a classic definition-usage relationship where both edits can be staged in either order (the method call with the parameter will work once the method accepts it, and the method can accept the parameter before any calls use it)."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 adds code that uses this exact same 'web' parameter in the method body. The changed lines in both edits reference the exact same symbol 'web' - Edit 0 defines it as a parameter, and Edit 1 references it in a conditional statement. This creates an immediate, mechanically obvious code dependency where adding the parameter naturally prompts adding the usage code as the next contiguous action within the same function. Both edits can be staged in either order without parser errors (the parameter can exist without being used, and the usage would only cause a runtime NameError if the parameter doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method signature, and Edit 1 adds code that uses this exact same 'web' parameter in the method body. The changed lines in both edits reference the exact same symbol 'web' - Edit 0 defines it as a parameter, and Edit 1 references it in a conditional statement. This creates an immediate, mechanically obvious code dependency where adding the parameter naturally prompts adding the usage code as the next contiguous action within the same function. Both edits can be staged in either order without parser errors (the parameter can exist without being used, and the usage would only cause a runtime NameError if the parameter doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method implementation in the Miscellaneous class, adding conditional logic that uses this parameter. Edit 1 modifies a call to the cleanup method in the Takeover class (which inherits from Miscellaneous) to pass the 'web' parameter. These edits reference the exact same method symbol - the cleanup method of the Miscellaneous class. Edit 0 changes the method signature/implementation to accept the web parameter, and Edit 1 updates the call site to provide that parameter. This creates a direct code dependency where either edit prompts the other as the immediate next step - if you add the parameter to the method, you need to update the call sites, and vice versa. Both edits can be staged in either order without causing parse errors (the method call with extra parameter would cause a runtime TypeError, not a parse error)."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'web' parameter to the cleanup method implementation in the Miscellaneous class, adding conditional logic that uses this parameter. Edit 1 modifies a call to the cleanup method in the Takeover class (which inherits from Miscellaneous) to pass the 'web' parameter. These edits reference the exact same method symbol - the cleanup method of the Miscellaneous class. Edit 0 changes the method signature/implementation to accept the web parameter, and Edit 1 updates the call site to provide that parameter. This creates a direct code dependency where either edit prompts the other as the immediate next step - if you add the parameter to the method, you need to update the call sites, and vice versa. Both edits can be staged in either order without causing parse errors (the method call with extra parameter would cause a runtime TypeError, not a parse error)."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'web' to the cleanup method in the Miscellaneous class, while Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. This is a classic function signature change paired with a call-site update for the exact same method. The changed lines reference the exact same symbol (the cleanup method), and making either edit creates an immediate code-driven prompt for the other - if you add the parameter to the method signature, you need to update the call site, and vice versa. Both edits can be staged in either order without causing parse errors in Python."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'web' to the cleanup method in the Miscellaneous class, while Edit 1 updates a call to that same cleanup method to pass the 'web' parameter. This is a classic function signature change paired with a call-site update for the exact same method. The changed lines reference the exact same symbol (the cleanup method), and making either edit creates an immediate code-driven prompt for the other - if you add the parameter to the method signature, you need to update the call site, and vice versa. Both edits can be staged in either order without causing parse errors in Python."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.cleanup()' to 'self.cleanup(web=web)' in the same class (Takeover). This is a bulk-edit pattern where the same structural change is being applied to multiple call sites of the same method within the same class. Both changed lines reference the exact same method 'cleanup' and apply the identical before\u2192after transformation. This represents a single, contiguous refactoring task where the same parameter is being added to all calls of the cleanup method."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.cleanup()' to 'self.cleanup(web=web)' in the same class (Takeover). This is a bulk-edit pattern where the same structural change is being applied to multiple call sites of the same method within the same class. Both changed lines reference the exact same method 'cleanup' and apply the identical before\u2192after transformation. This represents a single, contiguous refactoring task where the same parameter is being added to all calls of the cleanup method."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both change 'self.cleanup()' to 'self.cleanup(web=web)' in method calls within the same class. This represents a bulk-edit pattern where the same parameter is being added to multiple calls of the same method (cleanup) as part of a single, contiguous refactor. The edits reference the exact same method symbol (self.cleanup) and apply the identical before\u2192after pattern. Either edit can be made first, and after making either, the other becomes an immediate, mechanically obvious next step to maintain consistency in the parameter passing pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both change 'self.cleanup()' to 'self.cleanup(web=web)' in method calls within the same class. This represents a bulk-edit pattern where the same parameter is being added to multiple calls of the same method (cleanup) as part of a single, contiguous refactor. The edits reference the exact same method symbol (self.cleanup) and apply the identical before\u2192after pattern. Either edit can be made first, and after making either, the other becomes an immediate, mechanically obvious next step to maintain consistency in the parameter passing pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.cleanup()' to 'self.cleanup(web=web)' in the same class (Takeover). This is a bulk-edit pattern where the same structural change is being applied to multiple call sites of the same method within the same class. Both changed lines reference the exact same method 'cleanup' and apply the identical parameter addition pattern. This represents a synchronized refactoring operation that would naturally occur as part of a single, contiguous micro-task to update all call sites when the cleanup method signature was modified to accept a 'web' parameter."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.cleanup()' to 'self.cleanup(web=web)' in the same class (Takeover). This is a bulk-edit pattern where the same structural change is being applied to multiple call sites of the same method within the same class. Both changed lines reference the exact same method 'cleanup' and apply the identical parameter addition pattern. This represents a synchronized refactoring operation that would naturally occur as part of a single, contiguous micro-task to update all call sites when the cleanup method signature was modified to accept a 'web' parameter."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

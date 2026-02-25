@@ -1,0 +1,102 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'actions = frozenset(defaults.keymap.values())' at line 184, while Edit 1 removes the same line from within the load_config function (line 203) and references 'actions' in the remaining code at line 207. The variable 'actions' defined in Edit 0 is the exact same symbol being used in Edit 1's remaining code. Edit 0 creates the definition that Edit 1's remaining code depends on, making them directly linked through the same symbol reference."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function 'merge_configs' and edit 1 calls that exact same function 'merge_configs' in the changed lines. This creates a direct definition-usage relationship where the exact same symbol is referenced in both edits. After defining merge_configs in edit 0, edit 1 becomes the immediate next step to use that newly defined function. Both edits can be staged in either order since Python allows function calls to be written before the function definition (runtime error only, not parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function 'merge_configs' and edit 1 calls that exact same function 'merge_configs' in the changed lines. This creates a direct definition-usage relationship where the exact same symbol is referenced in both edits. After defining merge_configs in edit 0, edit 1 becomes the immediate next step to use that newly defined function. Both edits can be staged in either order since Python allows function calls to be written before the function definition (runtime error only, not parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 creates a variable 'actions' from defaults.keymap.values(), and Edit 1 uses this same 'actions' variable in a conditional expression 'if v in actions'. The changed line in Edit 0 defines the 'actions' symbol, and the changed line in Edit 1 references this exact same 'actions' symbol. This creates an immediate code dependency where Edit 1 cannot function correctly without the 'actions' variable defined in Edit 0. However, since this is Python, Edit 1 can be parsed and staged before Edit 0 (it would just result in a NameError at runtime), so the relationship is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 creates a variable 'actions' from defaults.keymap.values(), and Edit 1 uses this same 'actions' variable in a conditional expression 'if v in actions'. The changed line in Edit 0 defines the 'actions' symbol, and the changed line in Edit 1 references this exact same 'actions' symbol. This creates an immediate code dependency where Edit 1 cannot function correctly without the 'actions' variable defined in Edit 0. However, since this is Python, Edit 1 can be parsed and staged before Edit 0 (it would just result in a NameError at runtime), so the relationship is bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'vals' in their changed lines. Edit 0 introduces 'vals' as a parameter in the new merge_configs function definition, and edit 1 uses that same 'vals' parameter in the function body. After making edit 0 (defining the function with vals parameter), edit 1 becomes the immediate next step to implement the function body that uses vals. Conversely, edit 1 references vals which needs to be defined as a parameter first in edit 0. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same micro-task of refactoring the load_config function."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'vals' in their changed lines. Edit 0 introduces 'vals' as a parameter in the new merge_configs function definition, and edit 1 uses that same 'vals' parameter in the function body. After making edit 0 (defining the function with vals parameter), edit 1 becomes the immediate next step to implement the function body that uses vals. Conversely, edit 1 references vals which needs to be defined as a parameter first in edit 0. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same micro-task of refactoring the load_config function."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 changes the function signature of load_config from taking a single 'path: str' parameter to taking '*paths' (variable arguments). Edit 1 updates the call site to use the new signature by passing '*config' instead of 'args.config'. Both edits reference the exact same symbol 'load_config' - one modifies its definition and the other updates its usage to match the new signature. This creates an immediate code-driven dependency where after changing the function signature, the call site must be updated to match, making this a bi-directional relationship since either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 changes the function signature of load_config from taking a single 'path: str' parameter to taking '*paths' (variable arguments). Edit 1 updates the call site to use the new signature by passing '*config' instead of 'args.config'. Both edits reference the exact same symbol 'load_config' - one modifies its definition and the other updates its usage to match the new signature. This creates an immediate code-driven dependency where after changing the function signature, the call site must be updated to match, making this a bi-directional relationship since either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "This is a cut-and-paste move operation where the exact same line 'defconf = os.path.join(config_dir, 'kitty.conf')' is being moved from inside the option_parser() function (edit 1 removes it) to the module level (edit 0 adds it). The removal must occur before the addition to avoid having duplicate definitions, making this an ordered relationship where edit 1 must happen before edit 0."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 defines a variable 'defconf' at the module level, and Edit 1 references this exact same variable 'defconf' in its changed lines. The changed line in Edit 1 explicitly uses the symbol 'defconf' that was created in Edit 0. This creates a direct code dependency where Edit 1 cannot function correctly without the definition from Edit 0, making this a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'defconf'. Edit 0 defines the variable 'defconf' at line 32, and Edit 1 uses this same variable 'defconf' in the .format() call at line 54. After defining 'defconf' in Edit 0, using it in Edit 1 becomes a natural next step. Since Python allows referencing undefined variables at parse time (they only fail at runtime), either edit can be staged first without causing a syntax error, making this a bi-directional relationship where both edits reference the same symbol and either naturally prompts the other."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'defconf'. Edit 0 defines the variable 'defconf' at line 32, and Edit 1 uses this same variable 'defconf' in the .format() call at line 54. After defining 'defconf' in Edit 0, using it in Edit 1 becomes a natural next step. Since Python allows referencing undefined variables at parse time (they only fail at runtime), either edit can be staged first without causing a syntax error, making this a bi-directional relationship where both edits reference the same symbol and either naturally prompts the other."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definition of the variable 'defconf' from the option_parser() function, while Edit 1 references 'defconf' in the main() function. After Edit 0 is applied, 'defconf' becomes undefined, making Edit 1's reference to 'defconf' cause a NameError at runtime. However, both edits can be written and parsed in either order since Python allows references to undefined variables at parse time - the error only occurs at runtime. The changed lines reference the exact same symbol 'defconf', creating a direct code dependency where removing the definition naturally prompts updating the usage."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the definition of the variable 'defconf' from the option_parser() function, while Edit 1 references 'defconf' in the main() function. After Edit 0 is applied, 'defconf' becomes undefined, making Edit 1's reference to 'defconf' cause a NameError at runtime. However, both edits can be written and parsed in either order since Python allows references to undefined variables at parse time - the error only occurs at runtime. The changed lines reference the exact same symbol 'defconf', creating a direct code dependency where removing the definition naturally prompts updating the usage."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'defconf' within the same function scope. Edit 0 removes the definition/assignment of the 'defconf' variable, while Edit 1 removes two usages of that same 'defconf' variable (in the default parameter and format call). After removing the definition in Edit 0, the usages in Edit 1 would become undefined references, creating an immediate code-driven prompt to also remove those usages. The relationship is bi-directional because both edits are part of removing references to the same symbol, and either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'defconf' within the same function scope. Edit 0 removes the definition/assignment of the 'defconf' variable, while Edit 1 removes two usages of that same 'defconf' variable (in the default parameter and format call). After removing the definition in Edit 0, the usages in Edit 1 would become undefined references, creating an immediate code-driven prompt to also remove those usages. The relationship is bi-directional because both edits are part of removing references to the same symbol, and either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 changes the '--config' argument parser to use 'action=append' which allows multiple config files to be specified. Edit 1 modifies how args.config is used, changing from passing it directly to load_config() to first processing it into a tuple and then unpacking it with *config. Both edits reference the exact same symbol (args.config) and are part of implementing the same feature - allowing multiple config files. After making edit 0, the args.config behavior changes (it becomes a list when action='append'), which creates an immediate code-driven need to update how it's used in edit 1. The relationship is bi-directional because either edit could be made first and would prompt the other as the next mechanical step to complete the feature implementation."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 changes the '--config' argument parser to use 'action=append' which allows multiple config files to be specified. Edit 1 modifies how args.config is used, changing from passing it directly to load_config() to first processing it into a tuple and then unpacking it with *config. Both edits reference the exact same symbol (args.config) and are part of implementing the same feature - allowing multiple config files. After making edit 0, the args.config behavior changes (it becomes a list when action='append'), which creates an immediate code-driven need to update how it's used in edit 1. The relationship is bi-directional because either edit could be made first and would prompt the other as the next mechanical step to complete the feature implementation."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

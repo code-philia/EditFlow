@@ -1,0 +1,38 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the function `_MockVimWindowEval` and edit 1 calls that exact same function. The changed lines reference the same symbol - `_MockVimWindowEval`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it within the `_MockVimEval` function. Since this is Python, the usage can be written before the definition (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the function `_MockVimWindowEval` and edit 1 calls that exact same function. The changed lines reference the same symbol - `_MockVimWindowEval`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it within the `_MockVimEval` function. Since this is Python, the usage can be written before the definition (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'previous_window' within the same function. Edit 0 defines/assigns the variable 'previous_window', and edit 1 uses that same variable. This creates a direct code dependency where the variable must be defined before it can be used. However, in Python, both edits can be written and parsed in either order since the usage is within a function body and won't cause a parse-time error - it would only cause a runtime NameError if executed before definition. Since both edits can be staged in either order and both reference the same symbol with one naturally prompting the other as the next mechanical step, this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'previous_window' within the same function. Edit 0 defines/assigns the variable 'previous_window', and edit 1 uses that same variable. This creates a direct code dependency where the variable must be defined before it can be used. However, in Python, both edits can be written and parsed in either order since the usage is within a function body and won't cause a parse-time error - it would only cause a runtime NameError if executed before definition. Since both edits can be staged in either order and both reference the same symbol with one naturally prompting the other as the next mechanical step, this is bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `GetPreviousWindowNumber()` and edit 1 uses that exact same function by calling it in the line `previous_window = vim.windows[ GetPreviousWindowNumber() ]`. The changed lines reference the exact same symbol - the function `GetPreviousWindowNumber`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it, and vice versa - if you see the usage in edit 1, you'd need the definition from edit 0. Both edits can be staged in either order since Python allows referencing undefined functions at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new function `GetPreviousWindowNumber()` and edit 1 uses that exact same function by calling it in the line `previous_window = vim.windows[ GetPreviousWindowNumber() ]`. The changed lines reference the exact same symbol - the function `GetPreviousWindowNumber`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it, and vice versa - if you see the usage in edit 1, you'd need the definition from edit 0. Both edits can be staged in either order since Python allows referencing undefined functions at parse time (would only fail at runtime), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3
+    ]
+}

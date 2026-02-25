@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' and Edit 1 uses that exact same symbol CONF_MANUAL in a schema definition. The changed lines reference the exact same symbol - CONF_MANUAL. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use that constant in the configuration schema. This is a classic definition-usage pattern where both edits reference the same symbol and either can be staged first (the usage would just reference an undefined name until the definition is added, which is allowed in Python at parse time)."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' and Edit 1 uses that exact same symbol CONF_MANUAL in a schema definition. The changed lines reference the exact same symbol - CONF_MANUAL. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use that constant in the configuration schema. This is a classic definition-usage pattern where both edits reference the same symbol and either can be staged first (the usage would just reference an undefined name until the definition is added, which is allowed in Python at parse time)."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' at the module level, and Edit 1 uses this exact same symbol CONF_MANUAL in a conditional check config.get(CONF_MANUAL). The changed lines reference the exact same symbol - CONF_MANUAL. After defining CONF_MANUAL in Edit 0, using it in Edit 1 becomes the immediate next step. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' at the module level, and Edit 1 uses this exact same symbol CONF_MANUAL in a conditional check config.get(CONF_MANUAL). The changed lines reference the exact same symbol - CONF_MANUAL. After defining CONF_MANUAL in Edit 0, using it in Edit 1 becomes the immediate next step. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit can be staged first, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution - adding the exact same line 'vol.Optional(CONF_MANUAL, default=False): cv.boolean,' to PLATFORM_SCHEMA.extend() dictionaries in different files. This represents a bulk-edit pattern where the same configuration option is being added to multiple similar platform schemas with identical syntax and structure. The edits target the same type of syntactic construct (platform schema configuration dictionaries) and apply the same before\u2192after pattern. Either edit can be made first, and after making one, the other becomes a natural next step in the same refactoring sweep to maintain consistency across similar components."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution - adding the exact same line 'vol.Optional(CONF_MANUAL, default=False): cv.boolean,' to PLATFORM_SCHEMA.extend() dictionaries in different files. This represents a bulk-edit pattern where the same configuration option is being added to multiple similar platform schemas with identical syntax and structure. The edits target the same type of syntactic construct (platform schema configuration dictionaries) and apply the same before\u2192after pattern. Either edit can be made first, and after making one, the other becomes a natural next step in the same refactoring sweep to maintain consistency across similar components."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new configuration option CONF_MANUAL to the PLATFORM_SCHEMA with a default value of False and boolean validation. Edit 1 uses this exact same CONF_MANUAL symbol in a conditional check to determine whether to call track_time_change. The changed lines in both edits reference the exact same symbol (CONF_MANUAL), creating a direct definition-usage relationship. After adding the schema definition in edit 0, using it in the conditional logic in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new configuration option CONF_MANUAL to the PLATFORM_SCHEMA with a default value of False and boolean validation. Edit 1 uses this exact same CONF_MANUAL symbol in a conditional check to determine whether to call track_time_change. The changed lines in both edits reference the exact same symbol (CONF_MANUAL), creating a direct definition-usage relationship. After adding the schema definition in edit 0, using it in the conditional logic in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural transformation: wrapping the same `track_time_change` function call with the same conditional check `if not config.get(CONF_MANUAL):`. The before\u2192after pattern is identical in both edits, and both target the same type of syntactic construct (function call with identical parameters). This represents a bulk uniform substitution pattern where the same refactoring logic is being applied consistently across multiple similar code locations. Either edit could be made first, and after making one, the other would be the natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural transformation: wrapping the same `track_time_change` function call with the same conditional check `if not config.get(CONF_MANUAL):`. The before\u2192after pattern is identical in both edits, and both target the same type of syntactic construct (function call with identical parameters). This represents a bulk uniform substitution pattern where the same refactoring logic is being applied consistently across multiple similar code locations. Either edit could be made first, and after making one, the other would be the natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new configuration parameter CONF_MANUAL to the PLATFORM_SCHEMA, and Edit 1 uses that exact same CONF_MANUAL parameter in a conditional check within the SpeedtestData.__init__ method. The changed lines in both edits reference the exact same symbol (CONF_MANUAL). After adding the schema definition in Edit 0, the natural next step would be to use that configuration parameter in the implementation code, which is exactly what Edit 1 does. Both edits are part of the same micro-task of adding manual control functionality to the speedtest component."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new configuration parameter CONF_MANUAL to the PLATFORM_SCHEMA, and Edit 1 uses that exact same CONF_MANUAL parameter in a conditional check within the SpeedtestData.__init__ method. The changed lines in both edits reference the exact same symbol (CONF_MANUAL). After adding the schema definition in Edit 0, the natural next step would be to use that configuration parameter in the implementation code, which is exactly what Edit 1 does. Both edits are part of the same micro-task of adding manual control functionality to the speedtest component."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' at the module level, and Edit 1 uses this exact same symbol CONF_MANUAL in a conditional check config.get(CONF_MANUAL). This is a classic definition-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the definition is present (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' at the module level, and Edit 1 uses this exact same symbol CONF_MANUAL in a conditional check config.get(CONF_MANUAL). This is a classic definition-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the definition is present (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' and Edit 1 uses that exact same symbol CONF_MANUAL in a schema definition. The changed lines reference the exact same symbol - CONF_MANUAL. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use that constant in the configuration schema. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines the constant CONF_MANUAL = 'manual' and Edit 1 uses that exact same symbol CONF_MANUAL in a schema definition. The changed lines reference the exact same symbol - CONF_MANUAL. After defining the constant in Edit 0, Edit 1 becomes the immediate next step to use that constant in the configuration schema. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3
+    ]
+}

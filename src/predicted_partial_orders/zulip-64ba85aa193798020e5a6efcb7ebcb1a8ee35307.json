@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` and Edit 1 calls that exact same function, replacing inline code with a call to the newly defined function. This is a classic definition-usage relationship where both edits reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python, both edits can be parsed and staged in either order (the function call in Edit 1 would only fail at runtime if Edit 0 hasn't been applied), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` and Edit 1 calls that exact same function, replacing inline code with a call to the newly defined function. This is a classic definition-usage relationship where both edits reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python, both edits can be parsed and staged in either order (the function call in Edit 1 would only fail at runtime if Edit 0 hasn't been applied), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` that encapsulates API key regeneration logic. Edit 1 replaces inline API key regeneration code with a call to this exact same function. The changed lines reference the exact same symbol - the `do_regenerate_api_key` function. This is a classic definition-usage pattern where defining the function creates an immediate prompt to refactor existing inline code to use the new function. Both edits can be staged in either order (the function call in edit 1 would cause a runtime NameError if staged before edit 0, but this is not a parse-time error in Python), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` that encapsulates API key regeneration logic. Edit 1 replaces inline API key regeneration code with a call to this exact same function. The changed lines reference the exact same symbol - the `do_regenerate_api_key` function. This is a classic definition-usage pattern where defining the function creates an immediate prompt to refactor existing inline code to use the new function. Both edits can be staged in either order (the function call in edit 1 would cause a runtime NameError if staged before edit 0, but this is not a parse-time error in Python), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the symbol 'random_api_key' from zerver.lib.create_user, and Edit 1 uses that exact same symbol 'random_api_key' in the newly defined function do_regenerate_api_key. This creates an import-usage relationship where both edits reference the exact same symbol. After making the import (Edit 0), using the imported function (Edit 1) becomes a natural next step. Conversely, if the usage is written first, adding the import becomes immediately necessary. Since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order, making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'random_api_key' from zerver.lib.create_user, and Edit 1 uses that exact same symbol 'random_api_key' in the newly defined function do_regenerate_api_key. This creates an import-usage relationship where both edits reference the exact same symbol. After making the import (Edit 0), using the imported function (Edit 1) becomes a natural next step. Conversely, if the usage is written first, adding the import becomes immediately necessary. Since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order, making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` in zerver/lib/actions.py, while Edit 1 imports that exact same function in zerver/views/__init__.py by adding it to the import statement. This is a classic definition-usage relationship where both edits reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to make it available for use. Since this is Python, the import can be added before the function is defined (it would only fail at runtime/import time, not at parse time), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `do_regenerate_api_key` in zerver/lib/actions.py, while Edit 1 imports that exact same function in zerver/views/__init__.py by adding it to the import statement. This is a classic definition-usage relationship where both edits reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to make it available for use. Since this is Python, the import can be added before the function is defined (it would only fail at runtime/import time, not at parse time), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'do_regenerate_api_key' to the import statement, while Edit 1 replaces inline API key regeneration code with a call to 'do_regenerate_api_key'. Both edits reference the exact same symbol 'do_regenerate_api_key'. Edit 0 imports the function and Edit 1 uses it. This creates a direct code dependency where importing the function enables its usage. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'do_regenerate_api_key' to the import statement, while Edit 1 replaces inline API key regeneration code with a call to 'do_regenerate_api_key'. Both edits reference the exact same symbol 'do_regenerate_api_key'. Edit 0 imports the function and Edit 1 uses it. This creates a direct code dependency where importing the function enables its usage. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing direct API key regeneration code (setting api_key to random_api_key() and calling save()) with a call to do_regenerate_api_key(). This is a uniform refactoring pattern applied to the same type of syntactic construct (API key regeneration logic) in two different functions. The substitution pattern is identical in both cases, and both edits are clearly part of the same refactoring sweep to extract common functionality into a helper function."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing direct API key regeneration code (setting api_key to random_api_key() and calling save()) with a call to do_regenerate_api_key(). This is a uniform refactoring pattern applied to the same type of syntactic construct (API key regeneration logic) in two different functions. The substitution pattern is identical in both cases, and both edits are clearly part of the same refactoring sweep to extract common functionality into a helper function."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'do_regenerate_api_key' to the import statement, while Edit 1 replaces inline API key regeneration logic with a call to 'do_regenerate_api_key(user_profile)'. These edits reference the exact same symbol 'do_regenerate_api_key' - one imports it and the other uses it. This creates an immediate code dependency where importing the function enables its usage in the same file. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'do_regenerate_api_key' to the import statement, while Edit 1 replaces inline API key regeneration logic with a call to 'do_regenerate_api_key(user_profile)'. These edits reference the exact same symbol 'do_regenerate_api_key' - one imports it and the other uses it. This creates an immediate code dependency where importing the function enables its usage in the same file. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

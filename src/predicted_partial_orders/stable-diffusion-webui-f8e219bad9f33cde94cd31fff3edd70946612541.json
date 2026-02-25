@@ -1,0 +1,98 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'send_images' and edit 1 uses that exact same variable in a conditional expression. The changed lines reference the same symbol - 'send_images' is assigned in edit 0 and referenced in edit 1. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'send_images' and edit 1 uses that exact same variable in a conditional expression. The changed lines reference the same symbol - 'send_images' is assigned in edit 0 and referenced in edit 1. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingTxt2Img model definition, while Edit 0 adds code to handle this same parameter in the img2imgapi method by checking for its presence in args and popping it. The changed lines reference the exact same symbol 'do_not_send_images' - Edit 1 defines it as a model parameter and Edit 0 uses it in the API processing logic. This creates a direct code dependency where defining the parameter in the model enables its usage in the API method, making them part of the same contiguous micro-task of adding this feature."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingTxt2Img model definition, while Edit 0 adds code to handle this same parameter in the img2imgapi method by checking for its presence in args and popping it. The changed lines reference the exact same symbol 'do_not_send_images' - Edit 1 defines it as a model parameter and Edit 0 uses it in the API processing logic. This creates a direct code dependency where defining the parameter in the model enables its usage in the API method, making them part of the same contiguous micro-task of adding this feature."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits add identical code lines that handle the 'do_not_send_images' parameter in the exact same way: checking if the key exists in args, setting send_images accordingly, and removing the key from args. This represents a bulk-edit pattern where the same before\u2192after substitution (adding the same 2-line block) is applied to the same type of syntactic construct (both are API method implementations in the same class). The edits are clearly part of a single, contiguous refactor to add consistent parameter handling across multiple API endpoints."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits add identical code lines that handle the 'do_not_send_images' parameter in the exact same way: checking if the key exists in args, setting send_images accordingly, and removing the key from args. This represents a bulk-edit pattern where the same before\u2192after substitution (adding the same 2-line block) is applied to the same type of syntactic construct (both are API method implementations in the same class). The edits are clearly part of a single, contiguous refactor to add consistent parameter handling across multiple API endpoints."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. They both change the exact same line structure from 'b64images = list(map(encode_pil_to_base64, processed.images))' to 'b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []'. This is a uniform refactoring pattern applied to two similar API methods within the same class, adding the same conditional logic to both image encoding operations. This represents a bulk edit with identical before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. They both change the exact same line structure from 'b64images = list(map(encode_pil_to_base64, processed.images))' to 'b64images = list(map(encode_pil_to_base64, processed.images)) if send_images else []'. This is a uniform refactoring pattern applied to two similar API methods within the same class, adding the same conditional logic to both image encoding operations. This represents a bulk edit with identical before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds code that checks for and processes a 'do_not_send_images' parameter from args in the API handler. Edit 1 adds the 'do_not_send_images' parameter definition to the StableDiffusionProcessingImg2Img model schema. These edits reference the exact same symbol ('do_not_send_images') and create a direct code dependency - the API code in edit 0 expects this parameter to exist in the model schema defined in edit 1. Either edit can be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other to complete the feature implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds code that checks for and processes a 'do_not_send_images' parameter from args in the API handler. Edit 1 adds the 'do_not_send_images' parameter definition to the StableDiffusionProcessingImg2Img model schema. These edits reference the exact same symbol ('do_not_send_images') and create a direct code dependency - the API code in edit 0 expects this parameter to exist in the model schema defined in edit 1. Either edit can be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other to complete the feature implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingImg2Img model definition, while Edit 0 adds code to handle this exact same parameter in the img2imgapi method by checking for its presence in args and popping it. The changed lines in both edits reference the exact same symbol 'do_not_send_images' - Edit 1 defines it as a model parameter and Edit 0 uses it in the API processing logic. This creates a direct code dependency where adding the parameter definition naturally prompts the need to handle it in the API method, making them part of the same contiguous micro-task of implementing this new parameter feature."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingImg2Img model definition, while Edit 0 adds code to handle this exact same parameter in the img2imgapi method by checking for its presence in args and popping it. The changed lines in both edits reference the exact same symbol 'do_not_send_images' - Edit 1 defines it as a model parameter and Edit 0 uses it in the API processing logic. This creates a direct code dependency where adding the parameter definition naturally prompts the need to handle it in the API method, making them part of the same contiguous micro-task of implementing this new parameter feature."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural transformation: they take a single-line list of dictionary parameters and reformat it into a multi-line format while adding the exact same new parameter {'key': 'do_not_send_images', 'type': bool, 'default': False} to both PydanticModelGenerator calls. This represents a bulk-edit pattern where the same before\u2192after transformation (single-line to multi-line + add parameter) is applied to the same type of syntactic construct (parameter lists in PydanticModelGenerator calls). Both edits would naturally occur in one contiguous refactoring session as part of adding the same parameter to related model generators."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural transformation: they take a single-line list of dictionary parameters and reformat it into a multi-line format while adding the exact same new parameter {'key': 'do_not_send_images', 'type': bool, 'default': False} to both PydanticModelGenerator calls. This represents a bulk-edit pattern where the same before\u2192after transformation (single-line to multi-line + add parameter) is applied to the same type of syntactic construct (parameter lists in PydanticModelGenerator calls). Both edits would naturally occur in one contiguous refactoring session as part of adding the same parameter to related model generators."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a variable 'send_images' and edit 1 uses that exact same variable in a conditional expression. The changed lines reference the same symbol - 'send_images' is assigned in edit 0 and referenced in edit 1. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a variable 'send_images' and edit 1 uses that exact same variable in a conditional expression. The changed lines reference the same symbol - 'send_images' is assigned in edit 0 and referenced in edit 1. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingTxt2Img model definition, while Edit 0 adds code to handle this exact same parameter in the API processing logic. The changed lines in Edit 0 explicitly reference 'do_not_send_images' (checking for its presence in args and popping it), which is the exact same parameter being defined in Edit 1. This creates a direct code dependency where defining the parameter in the model (Edit 1) and using it in the API logic (Edit 0) are mechanically linked - both edits reference the same symbol 'do_not_send_images'. Either edit can be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other as the next logical step in implementing this feature."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 1 adds a 'do_not_send_images' parameter to the StableDiffusionProcessingTxt2Img model definition, while Edit 0 adds code to handle this exact same parameter in the API processing logic. The changed lines in Edit 0 explicitly reference 'do_not_send_images' (checking for its presence in args and popping it), which is the exact same parameter being defined in Edit 1. This creates a direct code dependency where defining the parameter in the model (Edit 1) and using it in the API logic (Edit 0) are mechanically linked - both edits reference the same symbol 'do_not_send_images'. Either edit can be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other as the next logical step in implementing this feature."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        3
+    ]
+}

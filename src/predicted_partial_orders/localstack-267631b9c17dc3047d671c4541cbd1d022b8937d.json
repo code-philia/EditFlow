@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses that exact same 're' module to create a compiled regex pattern with 're.compile()'. The changed lines reference the exact same symbol 're' - Edit 0 makes it available via import, and Edit 1 uses it directly. This creates an immediate code dependency where importing 're' naturally prompts its usage, and using 're' requires the import to be present. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses that exact same 're' module to create a compiled regex pattern with 're.compile()'. The changed lines reference the exact same symbol 're' - Edit 0 makes it available via import, and Edit 1 uses it directly. This creates an immediate code dependency where importing 're' naturally prompts its usage, and using 're' requires the import to be present. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a function `is_valid_domain_name` and edit 1 calls that exact same function. The changed lines reference the same symbol - `is_valid_domain_name`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it for domain name validation. This is a classic definition-usage pattern where both edits reference the exact same symbol and either can be staged first (the function call would just result in a runtime NameError if staged before the definition, but both are syntactically valid)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a function `is_valid_domain_name` and edit 1 calls that exact same function. The changed lines reference the same symbol - `is_valid_domain_name`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it for domain name validation. This is a classic definition-usage pattern where both edits reference the exact same symbol and either can be staged first (the function call would just result in a runtime NameError if staged before the definition, but both are syntactically valid)."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds domain name validation logic to the create_domain method in the OpensearchProvider class, raising a ValidationException for invalid domain names. Edit 1 adds a test method that specifically tests this validation behavior by calling create_domain with invalid domain names and asserting that ValidationException is raised. The test directly exercises the exact validation code added in edit 0 - both edits reference the same create_domain method and the same ValidationException behavior. This creates a bi-directional relationship where implementing the validation naturally prompts adding tests for it, and adding tests for domain name validation naturally prompts implementing the validation logic."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds domain name validation logic to the create_domain method in the OpensearchProvider class, raising a ValidationException for invalid domain names. Edit 1 adds a test method that specifically tests this validation behavior by calling create_domain with invalid domain names and asserting that ValidationException is raised. The test directly exercises the exact validation code added in edit 0 - both edits reference the same create_domain method and the same ValidationException behavior. This creates a bi-directional relationship where implementing the validation naturally prompts adding tests for it, and adding tests for domain name validation naturally prompts implementing the validation logic."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same variable symbol within the same function scope. Edit 0 renames the variable from 'exc_info' to 'e' in the pytest.raises context manager assignment, and Edit 1 updates the usage of that same variable from 'exc_info' to 'e' in the assertion statement. The changed lines in both edits reference the same symbol - the exception context variable - making this a clear definition-usage relationship where renaming the variable in one location immediately creates a code-driven prompt to update its usage in the other location."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same variable symbol within the same function scope. Edit 0 renames the variable from 'exc_info' to 'e' in the pytest.raises context manager assignment, and Edit 1 updates the usage of that same variable from 'exc_info' to 'e' in the assertion statement. The changed lines in both edits reference the same symbol - the exception context variable - making this a clear definition-usage relationship where renaming the variable in one location immediately creates a code-driven prompt to update its usage in the other location."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits involve changes to exception handling in pytest test methods within the same test class. Edit 0 adds a new test method that uses 'e' as the variable name for capturing ClientError exceptions with pytest.raises(). Edit 1 changes an existing test method to use 'e' instead of 'exc_info' for the same purpose. This represents a pattern synchronization where both edits standardize on using 'e' as the variable name for exception handling in pytest.raises() contexts. The edits perform identical structural substitutions (using 'e' for exception variable naming) and target the same type of syntactic construct (pytest.raises() context managers). This appears to be part of a single refactoring effort to standardize exception variable naming across the test class."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits involve changes to exception handling in pytest test methods within the same test class. Edit 0 adds a new test method that uses 'e' as the variable name for capturing ClientError exceptions with pytest.raises(). Edit 1 changes an existing test method to use 'e' instead of 'exc_info' for the same purpose. This represents a pattern synchronization where both edits standardize on using 'e' as the variable name for exception handling in pytest.raises() contexts. The edits perform identical structural substitutions (using 'e' for exception variable naming) and target the same type of syntactic construct (pytest.raises() context managers). This appears to be part of a single refactoring effort to standardize exception variable naming across the test class."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        5
+    ]
+}

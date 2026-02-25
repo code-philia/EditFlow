@@ -1,0 +1,69 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces two new variables 'finite' and 'cond' that are defined and assigned values. Edit 1 then uses these exact same variables ('cond' and 'finite') in its changed line, replacing the old 'mask' variable with 'finite' and using the 'cond' array that was created in edit 0. The changed line in edit 1 directly references the symbols defined in edit 0, creating an immediate code dependency where edit 0 must come first to define these variables before edit 1 can use them."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines the variables 'finite' and 'cond' within the isclose function, while Edit 1 uses these exact same variables in its changed line. The changed line in Edit 1 references both 'cond' and 'finite' that were just defined in Edit 0. This creates an immediate code dependency where Edit 0 must come before Edit 1, as Edit 1 cannot be parsed or executed without the variable definitions from Edit 0. This is a clear definition-usage relationship for the exact same symbols within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are part of a synchronized refactoring that replaces the variable names 'mask' with 'finite' and 'cond' remains the same across both edits. Edit 0 removes the definition of 'mask' and changes its usage to 'finite', while Edit 1 changes the usage of 'mask' to 'finite' in a different line. Both edits reference the exact same symbols ('cond' and the mask/finite variable) and perform identical substitution patterns (mask \u2192 finite) within the same function. This is a uniform textual substitution where both edits are part of the same contiguous refactoring task, making either edit naturally prompt the other as the next mechanical step to complete the variable rename."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are part of a synchronized refactoring that replaces the variable names 'mask' with 'finite' and 'cond' remains the same across both edits. Edit 0 removes the definition of 'mask' and changes its usage to 'finite', while Edit 1 changes the usage of 'mask' to 'finite' in a different line. Both edits reference the exact same symbols ('cond' and the mask/finite variable) and perform identical substitution patterns (mask \u2192 finite) within the same function. This is a uniform textual substitution where both edits are part of the same contiguous refactoring task, making either edit naturally prompt the other as the next mechanical step to complete the variable rename."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbols 'x' and 'y' within the same function 'isclose'. Edit 0 modifies the definition/assignment of variables x and y by adding the 'subok=True' parameter. Edit 1 uses these same variables x and y in subsequent operations (broadcast, indexing, and function calls). After making edit 0, the variables x and y are available with their new properties for use in edit 1. After making edit 1, the usage of x and y creates an immediate prompt to ensure their definitions are correct, making edit 0 the natural next step. Both edits reference the exact same symbols and either can prompt the other as the next mechanical step within the same function context."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbols 'x' and 'y' within the same function 'isclose'. Edit 0 modifies the definition/assignment of variables x and y by adding the 'subok=True' parameter. Edit 1 uses these same variables x and y in subsequent operations (broadcast, indexing, and function calls). After making edit 0, the variables x and y are available with their new properties for use in edit 1. After making edit 1, the usage of x and y creates an immediate prompt to ensure their definitions are correct, making edit 0 the natural next step. Both edits reference the exact same symbols and either can prompt the other as the next mechanical step within the same function context."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are within the same function `isclose` and both involve adding the `subok=True` parameter to array creation functions. Edit 0 adds `subok=True` to the `array()` calls for variables `x` and `y`, while Edit 1 adds `subok=True` to the `zeros_like()` call for variable `cond`. This represents a uniform substitution pattern where the same parameter is being added to similar array creation functions within the same function context. The edits are part of a single refactoring task to consistently add subclass preservation behavior across array operations in the function. Both edits can be applied in either order without creating parsing or syntactic issues."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are within the same function `isclose` and both involve adding the `subok=True` parameter to array creation functions. Edit 0 adds `subok=True` to the `array()` calls for variables `x` and `y`, while Edit 1 adds `subok=True` to the `zeros_like()` call for variable `cond`. This represents a uniform substitution pattern where the same parameter is being added to similar array creation functions within the same function context. The edits are part of a single refactoring task to consistently add subclass preservation behavior across array operations in the function. Both edits can be applied in either order without creating parsing or syntactic issues."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbols 'x' and 'y' within the same function 'isclose'. Edit 0 modifies the assignment/definition of variables x and y by adding the 'subok=True' parameter. Edit 1 uses these same variables x and y in a comparison operation. After making edit 0, the variables x and y are still available for use in edit 1, and after making edit 1, the usage of x and y doesn't create any immediate prompt to modify their definition. Both edits can be staged in either order without causing parse errors or syntax issues - the variables x and y will still be defined and usable regardless of the order. This represents a definition-usage relationship for the same symbols within the same function scope, making it bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbols 'x' and 'y' within the same function 'isclose'. Edit 0 modifies the assignment/definition of variables x and y by adding the 'subok=True' parameter. Edit 1 uses these same variables x and y in a comparison operation. After making edit 0, the variables x and y are still available for use in edit 1, and after making edit 1, the usage of x and y doesn't create any immediate prompt to modify their definition. Both edits can be staged in either order without causing parse errors or syntax issues - the variables x and y will still be defined and usable regardless of the order. This represents a definition-usage relationship for the same symbols within the same function scope, making it bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are adding test cases to the same test method `test_ip_isclose`. Edit 0 adds input test cases (the data to be tested) while edit 1 adds the corresponding expected output values. The structure shows these are parallel arrays where each input case in edit 0 corresponds to an expected result in edit 1. The additions are synchronized - edit 0 adds 2 new input cases and edit 1 adds 2 corresponding expected result arrays. This creates a direct structural dependency where both edits reference the same test data structure and must be kept in sync for the test to function correctly."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are adding test cases to the same test method `test_ip_isclose`. Edit 0 adds input test cases (the data to be tested) while edit 1 adds the corresponding expected output values. The structure shows these are parallel arrays where each input case in edit 0 corresponds to an expected result in edit 1. The additions are synchronized - edit 0 adds 2 new input cases and edit 1 adds 2 corresponding expected result arrays. This creates a direct structural dependency where both edits reference the same test data structure and must be kept in sync for the test to function correctly."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        4,
+        5
+    ]
+}

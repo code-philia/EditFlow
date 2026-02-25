@@ -1,0 +1,147 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 imports urlparse module and makes it available, while Edit 1 uses that exact same urlparse module by calling urlparse.urlunsplit(). The changed line in Edit 1 references the exact same symbol (urlparse) that was imported in Edit 0. This creates a direct import-usage relationship where Edit 0 provides the symbol that Edit 1 uses. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 imports urlparse module and makes it available, while Edit 1 uses that exact same urlparse module by calling urlparse.urlunsplit(). The changed line in Edit 1 references the exact same symbol (urlparse) that was imported in Edit 0. This creates a direct import-usage relationship where Edit 0 provides the symbol that Edit 1 uses. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a compatibility import for urlparse that handles both Python 2 and 3 versions, while Edit 1 removes a direct import of urlparse. The removed import in Edit 1 is now redundant because Edit 0 provides the same functionality through a compatibility layer. Both edits reference the exact same symbol (urlparse module), and removing the redundant import after adding the compatibility import is the natural next step in a single refactoring task. This creates a bi-directional relationship where either edit prompts the other as the immediate next action."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a compatibility import for urlparse that handles both Python 2 and 3 versions, while Edit 1 removes a direct import of urlparse. The removed import in Edit 1 is now redundant because Edit 0 provides the same functionality through a compatibility layer. Both edits reference the exact same symbol (urlparse module), and removing the redundant import after adding the compatibility import is the natural next step in a single refactoring task. This creates a bi-directional relationship where either edit prompts the other as the immediate next action."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 removes the import of 'urlparse' module, while Edit 1 changes the usage from 'urlparse(value)' to 'urlparse.urlparse(value)'. These edits reference the exact same symbol 'urlparse' but in opposite ways - one removes the import that makes the direct function call possible, while the other changes to use the module-qualified form. After removing the import in Edit 0, the usage in Edit 1 would need to be updated to avoid a NameError. However, both edits can be staged in either order without parser errors - the change is about runtime behavior, not syntax. This represents a bi-directional refactoring where either edit naturally prompts the other as the next mechanical step to maintain code consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of 'urlparse' module, while Edit 1 changes the usage from 'urlparse(value)' to 'urlparse.urlparse(value)'. These edits reference the exact same symbol 'urlparse' but in opposite ways - one removes the import that makes the direct function call possible, while the other changes to use the module-qualified form. After removing the import in Edit 0, the usage in Edit 1 would need to be updated to avoid a NameError. However, both edits can be staged in either order without parser errors - the change is about runtime behavior, not syntax. This represents a bi-directional refactoring where either edit naturally prompts the other as the next mechanical step to maintain code consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of urlparse from rest_framework/compat.py, while Edit 1 changes the import source of urlparse in rest_framework/relations.py from 'urlparse' to 'rest_framework.compat'. These edits reference the exact same symbol (urlparse) and appear to be part of a refactoring where urlparse is being moved or consolidated. However, Edit 0 must occur before Edit 1 because if Edit 1 is applied first, it would try to import urlparse from rest_framework.compat, but that import would not exist until Edit 0 removes the direct import (presumably because urlparse is being handled differently in compat.py). This creates a dependency where the removal/modification in compat.py must happen before the import change in relations.py can work correctly."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import for urlparse in the compat module, while Edit 1 removes a direct urlparse import and replaces it with importing urlparse from the compat module. The changed lines reference the exact same symbol (urlparse) - Edit 0 defines/provides urlparse in the compat module, and Edit 1 uses that exact same urlparse symbol by importing it from compat. This creates a direct definition-usage relationship where Edit 0 must come before Edit 1, as Edit 1 cannot successfully import urlparse from compat until Edit 0 has added it there. This is a parser-level dependency since the import in Edit 1 would fail if Edit 0 hasn't been applied first."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds an import for urlparse module with compatibility handling for Python 2/3 differences. Edit 1 changes the usage of urlparse from a direct function call to accessing it as an attribute of the urlparse module (urlparse.urlparse). These edits reference the exact same symbol 'urlparse' - edit 0 imports it and edit 1 uses it. The import in edit 0 creates the module reference that edit 1 depends on. However, since Python allows referencing undefined names at parse time (they only fail at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for urlparse module with compatibility handling for Python 2/3 differences. Edit 1 changes the usage of urlparse from a direct function call to accessing it as an attribute of the urlparse module (urlparse.urlparse). These edits reference the exact same symbol 'urlparse' - edit 0 imports it and edit 1 uses it. The import in edit 0 creates the module reference that edit 1 depends on. However, since Python allows referencing undefined names at parse time (they only fail at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a compatibility import for urlparse in rest_framework/compat.py, making it available as 'urlparse'. Edit 1 changes the import in rest_framework/relations.py from 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse'. This is a classic definition-usage pattern where edit 0 defines/makes available the urlparse symbol in the compat module, and edit 1 uses that exact same symbol. The changed lines reference the exact same symbol (urlparse from rest_framework.compat). After making edit 0, edit 1 becomes the immediate next step to update the usage, and vice versa - both edits can be staged in either order since Python allows importing from modules that define symbols at parse time."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a compatibility import for urlparse in rest_framework/compat.py, making it available as 'urlparse'. Edit 1 changes the import in rest_framework/relations.py from 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse'. This is a classic definition-usage pattern where edit 0 defines/makes available the urlparse symbol in the compat module, and edit 1 uses that exact same symbol. The changed lines reference the exact same symbol (urlparse from rest_framework.compat). After making edit 0, edit 1 becomes the immediate next step to update the usage, and vice versa - both edits can be staged in either order since Python allows importing from modules that define symbols at parse time."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the import statement from 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse', which changes how the urlparse symbol is accessed. Edit 1 then updates the usage of urlparse from 'urlparse(value)' to 'urlparse.urlparse(value)' to match the new import structure. The changed lines reference the exact same symbol (urlparse) and there is a direct code dependency - after making edit 0, the usage in edit 1 must be updated to match the new import pattern, making this a mechanically obvious next step in the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the import statement from 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse', which changes how the urlparse symbol is accessed. Edit 1 then updates the usage of urlparse from 'urlparse(value)' to 'urlparse.urlparse(value)' to match the new import structure. The changed lines reference the exact same symbol (urlparse) and there is a direct code dependency - after making edit 0, the usage in edit 1 must be updated to match the new import pattern, making this a mechanically obvious next step in the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing direct imports of urlparse-related functionality with imports from 'rest_framework.compat'. Edit 0 changes 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse', while Edit 1 replaces a try/except block importing urlparse functions with the same 'from rest_framework.compat import urlparse' pattern. This represents a uniform refactoring across multiple files to centralize URL parsing imports through a compatibility module. Both edits target the same type of syntactic construct (import statements) and apply the same before\u2192after pattern of consolidating urlparse imports through the compat module."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing direct imports of urlparse-related functionality with imports from 'rest_framework.compat'. Edit 0 changes 'from urlparse import urlparse' to 'from rest_framework.compat import urlparse', while Edit 1 replaces a try/except block importing urlparse functions with the same 'from rest_framework.compat import urlparse' pattern. This represents a uniform refactoring across multiple files to centralize URL parsing imports through a compatibility module. Both edits target the same type of syntactic construct (import statements) and apply the same before\u2192after pattern of consolidating urlparse imports through the compat module."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct. Edit 0 changes 'urlparse(value)' to 'urlparse.urlparse(value)' and Edit 1 changes 'urlsplit(url)' to 'urlparse.urlsplit(url)'. Both are adding the 'urlparse.' module prefix to function calls from the urlparse module, indicating a uniform refactoring pattern to use fully qualified names instead of imported function names. This represents a synchronized bulk edit with identical before\u2192after patterns (adding module prefix) on the same construct type (function calls from urlparse module)."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct. Edit 0 changes 'urlparse(value)' to 'urlparse.urlparse(value)' and Edit 1 changes 'urlsplit(url)' to 'urlparse.urlsplit(url)'. Both are adding the 'urlparse.' module prefix to function calls from the urlparse module, indicating a uniform refactoring pattern to use fully qualified names instead of imported function names. This represents a synchronized bulk edit with identical before\u2192after patterns (adding module prefix) on the same construct type (function calls from urlparse module)."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits perform the identical textual substitution pattern: changing bare function calls to module-prefixed calls (urlparse -> urlparse.urlparse and urlunsplit -> urlparse.urlunsplit). This represents a uniform refactoring pattern applied to the same type of syntactic construct (function calls from the urlparse module). Both edits are part of the same systematic change to use explicit module prefixing for urlparse functions, making them part of a single, contiguous refactor sweep. Either edit could be made first, and after making either one, the other would be the natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits perform the identical textual substitution pattern: changing bare function calls to module-prefixed calls (urlparse -> urlparse.urlparse and urlunsplit -> urlparse.urlunsplit). This represents a uniform refactoring pattern applied to the same type of syntactic construct (function calls from the urlparse module). Both edits are part of the same systematic change to use explicit module prefixing for urlparse functions, making them part of a single, contiguous refactor sweep. Either edit could be made first, and after making either one, the other would be the natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the import from 'from urllib.parse import urlsplit, urlunsplit' to 'from rest_framework.compat import urlparse'. Edit 1 changes the usage from 'urlsplit(url)' to 'urlparse.urlsplit(url)'. Both edits reference the exact same symbol (urlsplit) but in different ways - the import change affects how urlsplit is accessed, and the usage change adapts to the new import structure. After making edit 0, the old usage in edit 1 would cause a NameError since 'urlsplit' is no longer directly imported. This creates an immediate, mechanically obvious prompt to update the usage. The relationship is bi-directional because either edit can be made first and would prompt the other as the next necessary step to maintain code functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the import from 'from urllib.parse import urlsplit, urlunsplit' to 'from rest_framework.compat import urlparse'. Edit 1 changes the usage from 'urlsplit(url)' to 'urlparse.urlsplit(url)'. Both edits reference the exact same symbol (urlsplit) but in different ways - the import change affects how urlsplit is accessed, and the usage change adapts to the new import structure. After making edit 0, the old usage in edit 1 would cause a NameError since 'urlsplit' is no longer directly imported. This creates an immediate, mechanically obvious prompt to update the usage. The relationship is bi-directional because either edit can be made first and would prompt the other as the next necessary step to maintain code functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds 'absolute_import' to the __future__ imports at the top of the file, while Edit 1 changes a call from 'urlunsplit' to 'urlparse.urlunsplit'. These edits are related because adding 'absolute_import' changes how Python resolves imports - without it, 'urlunsplit' might resolve to a local name, but with absolute_import, it forces explicit module qualification. The 'urlunsplit' function being called in Edit 1 is from the urlparse module, so Edit 1 is making the module reference explicit to work correctly with the absolute_import behavior introduced in Edit 0. Edit 0 must come first because it changes the import resolution behavior that Edit 1 depends on."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds 'absolute_import' to the __future__ imports at the top of the file, while Edit 1 changes a call from 'urlsplit(url)' to 'urlparse.urlsplit(url)'. These edits are related because adding 'absolute_import' changes how Python resolves imports - without it, 'urlsplit' might resolve to a local function, but with absolute_import, it forces explicit module qualification. The 'urlparse.urlsplit' change in Edit 1 makes the code compatible with absolute imports by explicitly qualifying the function call. Edit 0 must come before Edit 1 because without absolute_import, the qualified call 'urlparse.urlsplit' might not work as expected, but with absolute_import in place, the qualified call becomes the correct approach."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform identical textual substitutions within the same function, changing bare function calls to module-prefixed calls. Edit 0 changes 'urlsplit(url)' to 'urlparse.urlsplit(url)' and edit 1 changes 'urlunsplit(...)' to 'urlparse.urlunsplit(...)'. This represents a uniform refactoring pattern where the same module prefix 'urlparse.' is being added to related function calls of the same type (URL parsing functions). Both edits target the same syntactic construct type (function calls) with the same before\u2192after pattern (bare function name \u2192 module.function name), and they appear to be part of a single, contiguous refactoring operation to properly namespace URL parsing functions."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions within the same function, changing bare function calls to module-prefixed calls. Edit 0 changes 'urlsplit(url)' to 'urlparse.urlsplit(url)' and edit 1 changes 'urlunsplit(...)' to 'urlparse.urlunsplit(...)'. This represents a uniform refactoring pattern where the same module prefix 'urlparse.' is being added to related function calls of the same type (URL parsing functions). Both edits target the same syntactic construct type (function calls) with the same before\u2192after pattern (bare function name \u2192 module.function name), and they appear to be part of a single, contiguous refactoring operation to properly namespace URL parsing functions."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 changes the import from 'from urllib.parse import urlsplit, urlunsplit' to 'from rest_framework.compat import urlparse', while Edit 1 changes the usage from 'urlunsplit(...)' to 'urlparse.urlunsplit(...)'. Both edits reference the exact same symbol (urlunsplit function) - Edit 0 changes how it's imported and Edit 1 changes how it's accessed. After making Edit 0, the direct reference to 'urlunsplit' in Edit 1's original code would be undefined, making Edit 1 the immediate next step to fix the usage. This is a classic import-usage refactoring where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 changes the import from 'from urllib.parse import urlsplit, urlunsplit' to 'from rest_framework.compat import urlparse', while Edit 1 changes the usage from 'urlunsplit(...)' to 'urlparse.urlunsplit(...)'. Both edits reference the exact same symbol (urlunsplit function) - Edit 0 changes how it's imported and Edit 1 changes how it's accessed. After making Edit 0, the direct reference to 'urlunsplit' in Edit 1's original code would be undefined, making Edit 1 the immediate next step to fix the usage. This is a classic import-usage refactoring where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

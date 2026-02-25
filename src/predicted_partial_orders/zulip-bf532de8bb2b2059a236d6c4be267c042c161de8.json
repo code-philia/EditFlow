@@ -1,0 +1,43 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import statement for the 'ssl' module, and Edit 1 uses that exact same 'ssl' module in the changed lines (ssl.create_default_context()). The changed lines reference the exact same symbol - the 'ssl' module. After adding the import in Edit 0, Edit 1 becomes the immediate next step to use the imported module. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement for the 'ssl' module, and Edit 1 uses that exact same 'ssl' module in the changed lines (ssl.create_default_context()). The changed lines reference the exact same symbol - the 'ssl' module. After adding the import in Edit 0, Edit 1 becomes the immediate next step to use the imported module. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'Type' and 'Union' to the import statement from typing module. Edit 1 uses these exact same imported symbols ('Union' and 'Type') in a type annotation for the ssl_options variable. The changed lines in edit 1 directly reference the symbols that were added to the import in edit 0. This creates an immediate code dependency where edit 0 must occur before edit 1 can be parsed successfully, as the symbols would be undefined without the import."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a local variable `ssl_options` within the `_get_parameters` method, and Edit 1 uses that exact same variable `ssl_options` as a parameter in the `pika.ConnectionParameters` constructor call within the same method. After making Edit 0, the variable `ssl_options` is available for use, making Edit 1 the immediate next step to actually utilize the newly defined variable. Conversely, Edit 1 references `ssl_options` which is defined in Edit 0, creating a direct code dependency between the changed lines that reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a local variable `ssl_options` within the `_get_parameters` method, and Edit 1 uses that exact same variable `ssl_options` as a parameter in the `pika.ConnectionParameters` constructor call within the same method. After making Edit 0, the variable `ssl_options` is available for use, making Edit 1 the immediate next step to actually utilize the newly defined variable. Conversely, Edit 1 references `ssl_options` which is defined in Edit 0, creating a direct code dependency between the changed lines that reference the exact same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 references `settings.RABBITMQ_USE_TLS` in the changed lines (line 83), while Edit 1 defines `RABBITMQ_USE_TLS = False` in the settings file. These edits reference the exact same symbol - the `RABBITMQ_USE_TLS` setting. Edit 0 adds code that conditionally uses this setting to configure SSL options, and Edit 1 defines the setting itself. This creates a direct code dependency where both edits reference the same symbol, making them bi-directional neighbors in mental flow - either edit could be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 references `settings.RABBITMQ_USE_TLS` in the changed lines (line 83), while Edit 1 defines `RABBITMQ_USE_TLS = False` in the settings file. These edits reference the exact same symbol - the `RABBITMQ_USE_TLS` setting. Edit 0 adds code that conditionally uses this setting to configure SSL options, and Edit 1 defines the setting itself. This creates a direct code dependency where both edits reference the same symbol, making them bi-directional neighbors in mental flow - either edit could be made first and would prompt the other as the next logical step."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5
+    ]
+}

@@ -1,0 +1,43 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes the definition of the 'parameters' variable (line 95), while Edit 1 removes the usage of that same 'parameters' variable in the for loop (line 100). The changed lines reference the exact same symbol 'parameters'. After removing the definition in Edit 0, the usage in Edit 1 becomes undefined, creating an immediate code-driven prompt to also remove or replace the usage. This is a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the 'parameters' variable (line 95), while Edit 1 removes the usage of that same 'parameters' variable in the for loop (line 100). The changed lines reference the exact same symbol 'parameters'. After removing the definition in Edit 0, the usage in Edit 1 becomes undefined, creating an immediate code-driven prompt to also remove or replace the usage. This is a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes the structure of what gets appended to querylist from [k, s, v] to ksv (which appears to be a string). Edit 1 then changes how querylist is processed - removing the ''.join(ksv) operation and directly using querylist elements. These edits reference the exact same symbol 'querylist' and the second edit is mechanically required after the first because the data structure change in edit 0 necessitates the processing change in edit 1. The changed lines in both edits directly reference and manipulate the same querylist variable."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are part of the same refactoring within the same function, changing from unpacking three variables (k, s, v) to using a single variable (ksv). Edit 0 changes the for loop to iterate over ksv instead of unpacking k, s, v, and Edit 1 changes the querylist.append to use ksv instead of [k, s, v]. These edits reference the exact same symbols and variables within the same function scope. The change from unpacking to using the whole string requires both the loop variable change and the append statement change to work together. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the consistent refactoring pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are part of the same refactoring within the same function, changing from unpacking three variables (k, s, v) to using a single variable (ksv). Edit 0 changes the for loop to iterate over ksv instead of unpacking k, s, v, and Edit 1 changes the querylist.append to use ksv instead of [k, s, v]. These edits reference the exact same symbols and variables within the same function scope. The change from unpacking to using the whole string requires both the loop variable change and the append statement change to work together. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the consistent refactoring pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "These edits are part of a single refactoring operation within the same function `url_query_cleaner`. Edit 0 changes how the query parameters are parsed (from iterating over `parameters` to splitting `query` and using `ksv.partition(kvsep)`), while Edit 1 changes how the final query string is constructed (from joining `''.join(ksv) for ksv in querylist` to simply joining `querylist`). The variable `ksv` is referenced in both edits - Edit 0 introduces it as the loop variable, and Edit 1 removes its usage in the string construction. However, these are different references to `ksv` - one is the loop variable definition and the other is its usage in a list comprehension. More importantly, these edits represent a coordinated change to the algorithm's data structure: Edit 0 changes from storing tuples to storing strings, and Edit 1 adapts the output construction to work with strings instead of tuples. This is a synchronized refactoring where both changes must work together, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "These edits are part of a single refactoring operation within the same function `url_query_cleaner`. Edit 0 changes how the query parameters are parsed (from iterating over `parameters` to splitting `query` and using `ksv.partition(kvsep)`), while Edit 1 changes how the final query string is constructed (from joining `''.join(ksv) for ksv in querylist` to simply joining `querylist`). The variable `ksv` is referenced in both edits - Edit 0 introduces it as the loop variable, and Edit 1 removes its usage in the string construction. However, these are different references to `ksv` - one is the loop variable definition and the other is its usage in a list comprehension. More importantly, these edits represent a coordinated change to the algorithm's data structure: Edit 0 changes from storing tuples to storing strings, and Edit 1 adapts the output construction to work with strings instead of tuples. This is a synchronized refactoring where both changes must work together, making either edit prompt the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

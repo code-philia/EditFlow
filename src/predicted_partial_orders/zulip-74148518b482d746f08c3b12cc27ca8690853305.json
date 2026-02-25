@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits modify the exact same function signature by adding the same 'user_client' parameter in the same position. Edit 0 changes the function signature of 'do_events_register' and updates its call to 'request_event_queue' to pass the new parameter. Edit 1 changes the function signature of 'request_event_queue' to accept the new parameter. The changed lines reference the exact same symbol 'request_event_queue' - edit 0 calls it and edit 1 defines it. This creates a direct code dependency where either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain consistency between the function definition and its call site."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits modify the exact same function signature by adding the same 'user_client' parameter in the same position. Edit 0 changes the function signature of 'do_events_register' and updates its call to 'request_event_queue' to pass the new parameter. Edit 1 changes the function signature of 'request_event_queue' to accept the new parameter. The changed lines reference the exact same symbol 'request_event_queue' - edit 0 calls it and edit 1 defines it. This creates a direct code dependency where either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain consistency between the function definition and its call site."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'user_client' within the same function. Edit 0 adds 'user_client' as a parameter to the function signature, and Edit 1 uses that same parameter by accessing its 'name' attribute in the function body. This creates a direct code dependency where adding the parameter naturally prompts its usage, and using the parameter requires it to be defined in the signature. Either edit can be made first since Python allows referencing parameters in function bodies regardless of order, but both reference the same symbol and form a natural parameter-threading pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'user_client' within the same function. Edit 0 adds 'user_client' as a parameter to the function signature, and Edit 1 uses that same parameter by accessing its 'name' attribute in the function body. This creates a direct code dependency where adding the parameter naturally prompts its usage, and using the parameter requires it to be defined in the signature. Either edit can be made first since Python allows referencing parameters in function bodies regardless of order, but both reference the same symbol and form a natural parameter-threading pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 8,
+            "reason": "Edit 0 changes the function signature of `do_events_register` by adding a `user_client` parameter, and Edit 1 updates the call site to pass `request.client` as the new parameter. Both edits reference the exact same function symbol `do_events_register`. After making the signature change in Edit 0, the call site in Edit 1 becomes immediately necessary to match the new signature. Conversely, if the call site is updated first in Edit 1, the function definition in Edit 0 must be updated to accept the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows mismatched signatures at parse time, failing only at runtime), making it bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `do_events_register` by adding a `user_client` parameter, and Edit 1 updates the call site to pass `request.client` as the new parameter. Both edits reference the exact same function symbol `do_events_register`. After making the signature change in Edit 0, the call site in Edit 1 becomes immediately necessary to match the new signature. Conversely, if the call site is updated first in Edit 1, the function definition in Edit 0 must be updated to accept the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows mismatched signatures at parse time, failing only at runtime), making it bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 changes the function signature of `do_events_register` by adding a new `user_client` parameter. Edit 1 updates a call site of the exact same function `do_events_register` to include the new `user_client` parameter. Both edits reference the exact same symbol (the `do_events_register` function) and the changed lines show a direct function signature change paired with its corresponding call-site update. After making either edit, the other becomes the immediate, mechanically obvious next step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call with extra parameter won't cause a parse error, just a runtime TypeError)."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `do_events_register` by adding a new `user_client` parameter. Edit 1 updates a call site of the exact same function `do_events_register` to include the new `user_client` parameter. Both edits reference the exact same symbol (the `do_events_register` function) and the changed lines show a direct function signature change paired with its corresponding call-site update. After making either edit, the other becomes the immediate, mechanically obvious next step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call with extra parameter won't cause a parse error, just a runtime TypeError)."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 1 adds a 'user_client' parameter to the function signature of get_events_backend, and Edit 0 adds 'user_client.name' to a dictionary being passed to request_event_queue. The changed lines reference the exact same symbol 'user_client' - Edit 1 defines the parameter and Edit 0 uses it by accessing its 'name' attribute. This creates an immediate code dependency where defining the parameter in Edit 1 enables its usage in Edit 0. Since Python allows referencing parameters before they're defined in the signature (no parse-time error), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 1 adds a 'user_client' parameter to the function signature of get_events_backend, and Edit 0 adds 'user_client.name' to a dictionary being passed to request_event_queue. The changed lines reference the exact same symbol 'user_client' - Edit 1 defines the parameter and Edit 0 uses it by accessing its 'name' attribute. This creates an immediate code dependency where defining the parameter in Edit 1 enables its usage in Edit 0. Since Python allows referencing parameters before they're defined in the signature (no parse-time error), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports the symbol 'get_client' from zephyr.models, and Edit 1 uses that exact same symbol 'get_client' as a converter in a function parameter. After importing get_client in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. The changed lines reference the exact same symbol, creating a direct import-usage dependency within the same file."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports the symbol 'get_client' from zephyr.models, and Edit 1 uses that exact same symbol 'get_client' as a converter in a function parameter. After importing get_client in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. The changed lines reference the exact same symbol, creating a direct import-usage dependency within the same file."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'user_client' to the function signature, and Edit 1 adds code in the function body that references and uses this exact same 'user_client' parameter. The changed lines in both edits reference the exact same symbol - the 'user_client' parameter. After adding the parameter in the signature (Edit 0), the next immediate, mechanically obvious step would be to handle/use that parameter in the function body (Edit 1). This is a classic definition-usage pattern within the same function where both edits reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'user_client' to the function signature, and Edit 1 adds code in the function body that references and uses this exact same 'user_client' parameter. The changed lines in both edits reference the exact same symbol - the 'user_client' parameter. After adding the parameter in the signature (Edit 0), the next immediate, mechanically obvious step would be to handle/use that parameter in the function body (Edit 1). This is a classic definition-usage pattern within the same function where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new parameter 'user_client' to the function signature, and Edit 1 changes a function call within the same function to use 'user_client' instead of 'request.client'. The changed lines reference the exact same symbol 'user_client' - Edit 0 defines it as a parameter and Edit 1 uses it in the function call. This creates an immediate code dependency where adding the parameter naturally prompts updating its usage, and either edit can be made first since both are syntactically valid in Python regardless of order."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'user_client' to the function signature, and Edit 1 changes a function call within the same function to use 'user_client' instead of 'request.client'. The changed lines reference the exact same symbol 'user_client' - Edit 0 defines it as a parameter and Edit 1 uses it in the function call. This creates an immediate code dependency where adding the parameter naturally prompts updating its usage, and either edit can be made first since both are syntactically valid in Python regardless of order."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable 'user_client' that is conditionally assigned the value of 'request.client'. Edit 1 then uses this newly introduced 'user_client' variable in place of 'request.client' in the allocate_client_descriptor call. The changed lines reference the exact same symbol 'user_client' - edit 0 defines/assigns it and edit 1 uses it. This creates an immediate, mechanically obvious code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly introduced variable. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new variable 'user_client' that is conditionally assigned the value of 'request.client'. Edit 1 then uses this newly introduced 'user_client' variable in place of 'request.client' in the allocate_client_descriptor call. The changed lines reference the exact same symbol 'user_client' - edit 0 defines/assigns it and edit 1 uses it. This creates an immediate, mechanically obvious code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly introduced variable. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits modify calls to the same function `do_events_register` by adding a client parameter in the same position (second parameter). Edit 0 adds `get_client(\"website\")` as the second parameter, while Edit 1 adds `request.client` as the second parameter. Both edits reference the exact same function symbol and perform structurally identical modifications (adding a client parameter to the function call). This represents a synchronized parameter addition pattern where both call sites are being updated to match a new function signature. Either edit can be made first since both are valid function calls that can be parsed and staged independently - the relationship is bi-directional as both edits naturally prompt each other as part of the same refactoring task."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits modify calls to the same function `do_events_register` by adding a client parameter in the same position (second parameter). Edit 0 adds `get_client(\"website\")` as the second parameter, while Edit 1 adds `request.client` as the second parameter. Both edits reference the exact same function symbol and perform structurally identical modifications (adding a client parameter to the function call). This represents a synchronized parameter addition pattern where both call sites are being updated to match a new function signature. Either edit can be made first since both are valid function calls that can be parsed and staged independently - the relationship is bi-directional as both edits naturally prompt each other as part of the same refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

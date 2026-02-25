@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform identical structural transformations within the same method: removing conditional branches that check `self.fir` and simplifying to always use the FIR-based functions (`upsample_2d` and `downsample_2d` respectively). This represents a uniform refactoring pattern applied to two parallel code blocks (up-sampling and down-sampling) within the same function. The edits are part of the same logical change - removing the FIR conditional logic - and either could be made first as they operate on independent conditional branches."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform identical structural transformations within the same method: removing conditional branches that check `self.fir` and simplifying to always use the FIR-based functions (`upsample_2d` and `downsample_2d` respectively). This represents a uniform refactoring pattern applied to two parallel code blocks (up-sampling and down-sampling) within the same function. The edits are part of the same logical change - removing the FIR conditional logic - and either could be made first as they operate on independent conditional branches."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same class (Upsample) and both reference the exact same symbol 'Conv_0' in their changed lines. Edit 0 removes the assignment 'self.Conv_0 = conv3x3(in_ch, out_ch)' from the __init__ method, while Edit 1 removes the usage 'self.Conv_0(h)' from the forward method. These edits reference the exact same attribute symbol and removing the definition naturally prompts removing its usage as the next mechanical step, or vice versa. This creates an immediate, code-driven linkage where either edit can be made first and the other becomes the obvious next step to maintain code consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same class (Upsample) and both reference the exact same symbol 'Conv_0' in their changed lines. Edit 0 removes the assignment 'self.Conv_0 = conv3x3(in_ch, out_ch)' from the __init__ method, while Edit 1 removes the usage 'self.Conv_0(h)' from the forward method. These edits reference the exact same attribute symbol and removing the definition naturally prompts removing its usage as the next mechanical step, or vice versa. This creates an immediate, code-driven linkage where either edit can be made first and the other becomes the obvious next step to maintain code consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural transformation on similar classes (Upsample and Downsample). They both remove the conditional logic that checked 'not fir' vs 'fir' and simplify to always use Conv2d_0 when with_conv is True. The pattern is: remove nested if-else structure, keep only the Conv2d_0 assignment with identical parameters (except up=True vs down=True). This represents a uniform refactoring pattern applied to the same type of syntactic construct (conditional initialization logic in similar classes), making it a bulk-edit synchronization where both edits would naturally occur in the same contiguous refactoring session."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural transformation on similar classes (Upsample and Downsample). They both remove the conditional logic that checked 'not fir' vs 'fir' and simplify to always use Conv2d_0 when with_conv is True. The pattern is: remove nested if-else structure, keep only the Conv2d_0 assignment with identical parameters (except up=True vs down=True). This represents a uniform refactoring pattern applied to the same type of syntactic construct (conditional initialization logic in similar classes), making it a bulk-edit synchronization where both edits would naturally occur in the same contiguous refactoring session."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural transformation: they replace a conditional check 'if not self.fir:' with 'if not self.with_conv:' and substitute the corresponding implementation with calls to specialized 2D functions (upsample_2d and downsample_2d respectively). This represents a uniform refactoring pattern where the same logical change is being applied to two different but structurally similar classes (Upsample and Downsample). The edits follow the same before\u2192after substitution pattern on the same type of syntactic construct (conditional blocks in forward methods), making them part of a single, contiguous refactoring operation."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical structural transformation: they replace a conditional check 'if not self.fir:' with 'if not self.with_conv:' and substitute the corresponding implementation with calls to specialized 2D functions (upsample_2d and downsample_2d respectively). This represents a uniform refactoring pattern where the same logical change is being applied to two different but structurally similar classes (Upsample and Downsample). The edits follow the same before\u2192after substitution pattern on the same type of syntactic construct (conditional blocks in forward methods), making them part of a single, contiguous refactoring operation."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform an identical structural substitution pattern: removing a conditional check for 'self.with_conv' and simplifying the code to always use 'self.Conv2d_0(x)'. The edits target the same type of syntactic construct (conditional blocks in forward methods) and apply the exact same before\u2192after transformation pattern. This appears to be part of a single, contiguous refactoring operation to simplify the logic in both Upsample and Downsample classes by removing the conditional branching."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: removing a conditional check for 'self.with_conv' and simplifying the code to always use 'self.Conv2d_0(x)'. The edits target the same type of syntactic construct (conditional blocks in forward methods) and apply the exact same before\u2192after transformation pattern. This appears to be part of a single, contiguous refactoring operation to simplify the logic in both Upsample and Downsample classes by removing the conditional branching."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'Conv_0' in their changed lines. Edit 0 removes the definition of 'self.Conv_0' from the __init__ method, while Edit 1 removes the usage of 'self.Conv_0' in the forward method. These edits are part of a refactoring that removes the Conv_0 attribute entirely. Since both changed lines reference the same symbol and removing either the definition or usage would create an immediate code-driven prompt to remove the other (to avoid undefined attribute errors or unused attribute warnings), this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'Conv_0' in their changed lines. Edit 0 removes the definition of 'self.Conv_0' from the __init__ method, while Edit 1 removes the usage of 'self.Conv_0' in the forward method. These edits are part of a refactoring that removes the Conv_0 attribute entirely. Since both changed lines reference the same symbol and removing either the definition or usage would create an immediate code-driven prompt to remove the other (to avoid undefined attribute errors or unused attribute warnings), this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'Conv2d_0' as an attribute of 'self'. Edit 0 modifies the initialization/assignment of self.Conv2d_0 in the __init__ method, while Edit 1 modifies the usage of self.Conv2d_0 in the forward method. The changed lines in both edits explicitly reference the same symbol (self.Conv2d_0), creating a direct code dependency where modifying the initialization naturally prompts updating the usage, and vice versa. This is a classic definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'Conv2d_0' as an attribute of 'self'. Edit 0 modifies the initialization/assignment of self.Conv2d_0 in the __init__ method, while Edit 1 modifies the usage of self.Conv2d_0 in the forward method. The changed lines in both edits explicitly reference the same symbol (self.Conv2d_0), creating a direct code dependency where modifying the initialization naturally prompts updating the usage, and vice versa. This is a classic definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'Conv2d_0' as an attribute of 'self'. Edit 0 modifies the initialization/assignment of self.Conv2d_0 in the __init__ method, while Edit 1 modifies the usage of self.Conv2d_0 in the forward method. The changed lines in both edits explicitly reference the same symbol (self.Conv2d_0), creating a direct code dependency. After making either edit, the other becomes a mechanically obvious next step to maintain consistency between the definition and usage of this attribute. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'Conv2d_0' as an attribute of 'self'. Edit 0 modifies the initialization/assignment of self.Conv2d_0 in the __init__ method, while Edit 1 modifies the usage of self.Conv2d_0 in the forward method. The changed lines in both edits explicitly reference the same symbol (self.Conv2d_0), creating a direct code dependency. After making either edit, the other becomes a mechanically obvious next step to maintain consistency between the definition and usage of this attribute. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

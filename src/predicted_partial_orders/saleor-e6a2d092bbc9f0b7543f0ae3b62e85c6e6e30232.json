@@ -1,0 +1,109 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports the Payment type from ..payment.types, and Edit 1 uses that exact same Payment type in a field definition within the Checkout class. The changed lines reference the exact same symbol - the Payment class. After importing Payment in edit 0, it becomes available for use in edit 1's field definition. This creates an immediate, mechanically obvious code-driven prompt where importing the symbol enables its usage in the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports the Payment type from ..payment.types, and Edit 1 uses that exact same Payment type in a field definition within the Checkout class. The changed lines reference the exact same symbol - the Payment class. After importing Payment in edit 0, it becomes available for use in edit 1's field definition. This creates an immediate, mechanically obvious code-driven prompt where importing the symbol enables its usage in the same file."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports 'graphene_django_optimizer' as 'gql_optimizer', and Edit 1 uses this exact imported symbol 'gql_optimizer' in line 45 with 'gql_optimizer.field()'. The changed lines reference the exact same symbol - the import creates the symbol and the usage references it. After making the import edit, using the imported symbol becomes the immediate next step, and vice versa - if you use the symbol, you need the import. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'graphene_django_optimizer' as 'gql_optimizer', and Edit 1 uses this exact imported symbol 'gql_optimizer' in line 45 with 'gql_optimizer.field()'. The changed lines reference the exact same symbol - the import creates the symbol and the usage references it. After making the import edit, using the imported symbol becomes the immediate next step, and vice versa - if you use the symbol, you need the import. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These edits are part of a single refactoring operation within the same class where edit 0 removes the 'total_price' field and adds multiple new fields including 'shipping_price', while edit 1 updates the description of what appears to be the same 'shipping_price' field that was just added. The edits reference the same TaxedMoney field and description structure, with edit 1 modifying the description that was established in edit 0. This creates a direct code dependency where edit 1 is updating the exact field definition that edit 0 created."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "These edits are performing a cut-and-paste move operation within the same class. Edit 0 removes the 'total_price' field definition from line 34 and adds multiple new fields including 'shipping_price'. Edit 1 removes the 'shipping_price' field definition and adds back the 'total_price' field definition. This appears to be reordering field definitions within the same GraphQL type class. The removal must occur before the relocation for this to be a coherent move operation, as both edits reference overlapping field definitions that need to be repositioned."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Edit 0 adds a 'payments' field to the Checkout GraphQL type definition, while Edit 1 adds a test assertion that checks the 'payments' field in the received checkout data. The test assertion directly validates the functionality of the newly added GraphQL field. Both edits reference the exact same 'payments' symbol - one defines it in the GraphQL schema and the other tests its behavior. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in implementing and validating the payments field functionality."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'payments' field to the Checkout GraphQL type definition, while Edit 1 adds a test assertion that checks the 'payments' field in the received checkout data. The test assertion directly validates the functionality of the newly added GraphQL field. Both edits reference the exact same 'payments' symbol - one defines it in the GraphQL schema and the other tests its behavior. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in implementing and validating the payments field functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 defines a field called 'payments' in the GraphQL schema (line 45-48), and Edit 1 creates a resolver method 'resolve_payments' that references 'self.payments' (line 69). In GraphQL with graphene, when you define a field in a schema class, you typically need a corresponding resolver method to specify how that field's data should be retrieved. The resolver method directly references the same 'payments' attribute that was defined in the schema. This creates an immediate code dependency where defining the field prompts the need for its resolver, and both edits reference the exact same 'payments' symbol within the same class context."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 defines a field called 'payments' in the GraphQL schema (line 45-48), and Edit 1 creates a resolver method 'resolve_payments' that references 'self.payments' (line 69). In GraphQL with graphene, when you define a field in a schema class, you typically need a corresponding resolver method to specify how that field's data should be retrieved. The resolver method directly references the same 'payments' attribute that was defined in the schema. This creates an immediate code dependency where defining the field prompts the need for its resolver, and both edits reference the exact same 'payments' symbol within the same class context."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'payments' field to the Checkout GraphQL type definition, while Edit 1 adds a 'payments' query to a test that queries checkout data. These edits reference the exact same GraphQL field symbol 'payments' - one defines it in the schema and the other uses it in a test query. After adding the payments field to the schema, it becomes immediately available for querying in tests, making the test query update a natural next step. Both edits can be staged in either order since GraphQL schema changes don't cause parse errors, but they form a definition-usage pair for the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'payments' field to the Checkout GraphQL type definition, while Edit 1 adds a 'payments' query to a test that queries checkout data. These edits reference the exact same GraphQL field symbol 'payments' - one defines it in the schema and the other uses it in a test query. After adding the payments field to the schema, it becomes immediately available for querying in tests, making the test query update a natural next step. Both edits can be staged in either order since GraphQL schema changes don't cause parse errors, but they form a definition-usage pair for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "These edits are part of a single refactoring operation that reorganizes field definitions within the same Checkout class. Edit 0 adds multiple field definitions (available_shipping_methods, is_shipping_required, lines, payments, shipping_price) and removes the total_price field definition. Edit 1 removes the duplicate field definitions that were added in edit 0 and updates the description for what appears to be the total_price field. The edits reference the exact same symbols (the field definitions like lines, available_shipping_methods, is_shipping_required) and represent a coordinated restructuring where the fields are being moved and consolidated. This is a mirrored structural substitution within the same class context, making either edit a natural prompt for the other as part of the same uninterrupted micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "These edits are part of a single refactoring operation that reorganizes field definitions within the same Checkout class. Edit 0 adds multiple field definitions (available_shipping_methods, is_shipping_required, lines, payments, shipping_price) and removes the total_price field definition. Edit 1 removes the duplicate field definitions that were added in edit 0 and updates the description for what appears to be the total_price field. The edits reference the exact same symbols (the field definitions like lines, available_shipping_methods, is_shipping_required) and represent a coordinated restructuring where the fields are being moved and consolidated. This is a mirrored structural substitution within the same class context, making either edit a natural prompt for the other as part of the same uninterrupted micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "These edits are swapping description strings between two different GraphQL fields in the same class. Edit 0 changes one field's description from 'The sum of the the checkout line prices...' to 'The price of the shipping...', while Edit 1 changes another field's description from 'The price of the shipping...' to 'The sum of the the checkout line prices...'. This is a mirrored substitution pattern where the same textual content is being exchanged between two locations in a synchronized manner. Both edits involve identical before\u2192after patterns (swapping the same description strings) and target the same type of syntactic construct (GraphQL field descriptions). This appears to be a single, contiguous refactoring operation to correct mismatched field descriptions."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "These edits are swapping description strings between two different GraphQL fields in the same class. Edit 0 changes one field's description from 'The sum of the the checkout line prices...' to 'The price of the shipping...', while Edit 1 changes another field's description from 'The price of the shipping...' to 'The sum of the the checkout line prices...'. This is a mirrored substitution pattern where the same textual content is being exchanged between two locations in a synchronized manner. Both edits involve identical before\u2192after patterns (swapping the same description strings) and target the same type of syntactic construct (GraphQL field descriptions). This appears to be a single, contiguous refactoring operation to correct mismatched field descriptions."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "These edits are part of a single refactoring operation where a field is being renamed from 'shipping_price' to 'total_price' and its description is being updated accordingly. Edit 0 changes the field name from 'shipping_price' to 'total_price', while Edit 1 removes the old description about shipping price and replaces it with a new description about total price. Both edits reference the exact same field definition in the GraphQL schema - they are modifying different parts (name vs description) of the same field declaration. This creates a direct code dependency where both changes are part of the same atomic refactoring task and would naturally be done together in one uninterrupted micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "These edits are part of a single refactoring operation where a field is being renamed from 'shipping_price' to 'total_price' and its description is being updated accordingly. Edit 0 changes the field name from 'shipping_price' to 'total_price', while Edit 1 removes the old description about shipping price and replaces it with a new description about total price. Both edits reference the exact same field definition in the GraphQL schema - they are modifying different parts (name vs description) of the same field declaration. This creates a direct code dependency where both changes are part of the same atomic refactoring task and would naturally be done together in one uninterrupted micro-task."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 adds a 'payments' field to a GraphQL query structure, and Edit 1 adds an assertion that validates the length of the 'payments' field in the response. The assertion in Edit 1 directly references the same 'payments' field that was added to the query in Edit 0. This creates a direct code dependency where adding the field to the query (Edit 0) enables the assertion to access that field (Edit 1), and vice versa - the assertion validates the field that was queried. Both edits reference the exact same 'payments' field within the same test function context, making either edit prompt the other as the next logical step in a single micro-task of adding query field and its corresponding validation."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'payments' field to a GraphQL query structure, and Edit 1 adds an assertion that validates the length of the 'payments' field in the response. The assertion in Edit 1 directly references the same 'payments' field that was added to the query in Edit 0. This creates a direct code dependency where adding the field to the query (Edit 0) enables the assertion to access that field (Edit 1), and vice versa - the assertion validates the field that was queried. Both edits reference the exact same 'payments' field within the same test function context, making either edit prompt the other as the next logical step in a single micro-task of adding query field and its corresponding validation."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        0,
+        6
+    ]
+}

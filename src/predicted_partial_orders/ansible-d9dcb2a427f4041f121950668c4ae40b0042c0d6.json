@@ -1,0 +1,91 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of the 'signal' module from line 29, while Edit 1 removes code that uses the 'signal' module (signal.signal() and signal.SIGTERM). Both edits reference the exact same symbol - the 'signal' module. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the signal functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of the 'signal' module from line 29, while Edit 1 removes code that uses the 'signal' module (signal.signal() and signal.SIGTERM). Both edits reference the exact same symbol - the 'signal' module. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the signal functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the `_terminate` method from the CLI class, while Edit 1 removes a line that references `self._terminate` in a signal handler setup. These edits reference the exact same symbol (`_terminate` method of the same class). After removing the method definition in Edit 0, the reference in Edit 1 would cause a runtime AttributeError when the signal handler is set up. However, since both edits can be written and parsed in either order (Python allows referencing undefined methods at parse time), and both appear to be part of the same cleanup operation to remove the terminate functionality, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of the `_terminate` method from the CLI class, while Edit 1 removes a line that references `self._terminate` in a signal handler setup. These edits reference the exact same symbol (`_terminate` method of the same class). After removing the method definition in Edit 0, the reference in Edit 1 would cause a runtime AttributeError when the signal handler is set up. However, since both edits can be written and parsed in either order (Python allows referencing undefined methods at parse time), and both appear to be part of the same cleanup operation to remove the terminate functionality, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 removes the signal handling code from the base CLI class's run method, while Edit 1 adds the exact same signal handling code to the AdHocCLI subclass's run method. This appears to be a code movement operation where the signal handling is being relocated from the parent class to a specific subclass. The changed lines reference the exact same symbols (signal.signal, signal.SIGTERM, self._terminate) and the same comment. This is a cut-and-paste move operation where the code must first be removed from one location before it can be added to another location to avoid duplication."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "These edits involve the same line of code 'signal.signal(signal.SIGTERM, self._terminate)' but they are in different files and different classes. Edit 0 removes this line from CLI.run() method while edit 1 adds the same line to PlaybookExecutor.run() method. This appears to be a cut-and-paste move operation where the signal handling code is being relocated from one class to another. The removal must occur before the addition to avoid duplication, making this an ordered relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 removes the _terminate method definition from the CLI class, while Edit 1 adds a signal handler that calls self._terminate. After Edit 0 is applied, the _terminate method no longer exists, so Edit 1's call to self._terminate would result in an AttributeError at runtime. However, both edits can be written and parsed independently - Edit 1 doesn't cause a syntax error without Edit 0. The relationship is that Edit 1 references a method that Edit 0 removes, but since both can be staged in either order (with only runtime consequences), this is bi-directional. The edits reference the exact same symbol (_terminate method) and create an immediate code-driven prompt for each other."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 removes the _terminate method definition from the CLI class, while Edit 1 adds a signal handler that calls self._terminate. After Edit 0 is applied, the _terminate method no longer exists, so Edit 1's call to self._terminate would result in an AttributeError at runtime. However, both edits can be written and parsed independently - Edit 1 doesn't cause a syntax error without Edit 0. The relationship is that Edit 1 references a method that Edit 0 removes, but since both can be staged in either order (with only runtime consequences), this is bi-directional. The edits reference the exact same symbol (_terminate method) and create an immediate code-driven prompt for each other."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 'signal' module at the top of the file, and Edit 1 uses that exact same 'signal' module in the changed lines by calling signal.signal() and signal.SIGTERM. This creates a direct import-usage relationship where both edits reference the exact same symbol. After importing signal in Edit 0, Edit 1 becomes the immediate next step to use that imported module. Since Python allows usage before import (resulting in only a runtime NameError), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports the 'signal' module at the top of the file, and Edit 1 uses that exact same 'signal' module in the changed lines by calling signal.signal() and signal.SIGTERM. This creates a direct import-usage relationship where both edits reference the exact same symbol. After importing signal in Edit 0, Edit 1 becomes the immediate next step to use that imported module. Since Python allows usage before import (resulting in only a runtime NameError), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a method `_terminate` in the AdHocCLI class, and Edit 1 uses that exact same method by referencing `self._terminate` in a signal.signal() call. The changed lines reference the exact same symbol - the `_terminate` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. However, in Python, method calls can be written before the method definition without causing parse errors (only runtime AttributeError), so either edit can be staged first."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a method `_terminate` in the AdHocCLI class, and Edit 1 uses that exact same method by referencing `self._terminate` in a signal.signal() call. The changed lines reference the exact same symbol - the `_terminate` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. However, in Python, method calls can be written before the method definition without causing parse errors (only runtime AttributeError), so either edit can be staged first."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 imports the 'signal' module, and Edit 1 uses that exact same 'signal' module in the changed lines. The import creates an immediate code dependency - after importing 'signal', using 'signal.signal()' becomes the natural next step. Both edits reference the exact same symbol ('signal' module), and the usage edit would cause a NameError at runtime without the import. However, in Python, both edits can be written and parsed in either order since the usage is only checked at runtime, making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 imports the 'signal' module, and Edit 1 uses that exact same 'signal' module in the changed lines. The import creates an immediate code dependency - after importing 'signal', using 'signal.signal()' becomes the natural next step. Both edits reference the exact same symbol ('signal' module), and the usage edit would cause a NameError at runtime without the import. However, in Python, both edits can be written and parsed in either order since the usage is only checked at runtime, making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 1 defines the method `_terminate` in the PlaybookExecutor class, while Edit 0 references this exact same method in a signal handler assignment (`signal.signal(signal.SIGTERM, self._terminate)`). The changed lines reference the exact same symbol - the `_terminate` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use it in the signal handler. Conversely, after setting up the signal handler in Edit 0, defining the actual handler method in Edit 1 is the natural next step. Both edits can be written and parsed in either order (Python allows referencing undefined methods at parse time), so this is a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 1 defines the method `_terminate` in the PlaybookExecutor class, while Edit 0 references this exact same method in a signal handler assignment (`signal.signal(signal.SIGTERM, self._terminate)`). The changed lines reference the exact same symbol - the `_terminate` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use it in the signal handler. Conversely, after setting up the signal handler in Edit 0, defining the actual handler method in Edit 1 is the natural next step. Both edits can be written and parsed in either order (Python allows referencing undefined methods at parse time), so this is a bi-directional definition-usage relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        4,
+        6,
+        8
+    ]
+}

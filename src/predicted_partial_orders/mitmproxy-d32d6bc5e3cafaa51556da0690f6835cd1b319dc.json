@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "These edits are bi-directional neighbours because they implement the same feature - adding duplicate flow functionality. Edit 0 adds the help text entry ('p', 'duplicate flow') and Edit 1 adds the corresponding key handler for 'p' that calls self.master.duplicate_flow(). Both edits reference the same feature implementation through the 'p' key binding, creating a direct code linkage where adding either edit creates an immediate prompt for the other to complete the feature. The help text and key handler form a synchronized pair that would naturally be implemented together in a single micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "These edits are bi-directional neighbours because they implement the same feature - adding duplicate flow functionality. Edit 0 adds the help text entry ('p', 'duplicate flow') and Edit 1 adds the corresponding key handler for 'p' that calls self.master.duplicate_flow(). Both edits reference the same feature implementation through the 'p' key binding, creating a direct code linkage where adding either edit creates an immediate prompt for the other to complete the feature. The help text and key handler form a synchronized pair that would naturally be implemented together in a single micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds code that calls `self.state.index(f)` on line 115, while Edit 1 defines the `index` method in the State class. The changed line in Edit 0 directly calls the exact same method that Edit 1 defines. This creates an immediate code dependency where Edit 0 references a method that Edit 1 provides. However, in Python, method calls can be written before the method definition exists (they only fail at runtime), so both edits can be staged in either order without parser errors. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds code that calls `self.state.index(f)` on line 115, while Edit 1 defines the `index` method in the State class. The changed line in Edit 0 directly calls the exact same method that Edit 1 defines. This creates an immediate code dependency where Edit 0 references a method that Edit 1 provides. However, in Python, method calls can be written before the method definition exists (they only fail at runtime), so both edits can be staged in either order without parser errors. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits follow an identical pattern within the same method: they add the same assignment 'f.{attribute}.request = rc' immediately after copying an attribute. Edit 0 adds 'f.response.request = rc' after copying the response, and Edit 1 adds 'f.error.request = rc' after copying the error. This represents a synchronized structural modification where the same operation is being applied to parallel code paths within the same function. Both edits reference the same variable 'rc' and follow the exact same before\u2192after pattern on the same type of syntactic construct (attribute assignment after copying). This is a clear case of bulk-edit pattern synchronization within a single method."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits follow an identical pattern within the same method: they add the same assignment 'f.{attribute}.request = rc' immediately after copying an attribute. Edit 0 adds 'f.response.request = rc' after copying the response, and Edit 1 adds 'f.error.request = rc' after copying the error. This represents a synchronized structural modification where the same operation is being applied to parallel code paths within the same function. Both edits reference the same variable 'rc' and follow the exact same before\u2192after pattern on the same type of syntactic construct (attribute assignment after copying). This is a clear case of bulk-edit pattern synchronization within a single method."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new method 'index' in the State class, and Edit 1 calls this exact same method 's.index(f2)' in a test. The changed lines reference the exact same symbol - the 'index' method of the State class. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step to test the new functionality. Both edits can be staged in either order since Python allows calling undefined methods (it would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method 'index' in the State class, and Edit 1 calls this exact same method 's.index(f2)' in a test. The changed lines reference the exact same symbol - the 'index' method of the State class. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step to test the new functionality. Both edits can be staged in either order since Python allows calling undefined methods (it would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6
+    ]
+}

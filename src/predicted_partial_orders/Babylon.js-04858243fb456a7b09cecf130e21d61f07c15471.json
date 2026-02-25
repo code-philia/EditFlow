@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a write_float call for 'self.shadowDarkness' in the to_scene_file method, while Edit 1 defines the shadowDarkness property on the Lamp type. The changed line in Edit 0 references 'self.shadowDarkness' and the changed lines in Edit 1 define 'shadowDarkness' as a property. These reference the exact same symbol - the shadowDarkness attribute that gets accessed as self.shadowDarkness in the class method. Edit 0 creates an immediate code-driven prompt for Edit 1 because using self.shadowDarkness without the property definition would cause an AttributeError at runtime, and Edit 1 creates the prompt for Edit 0 because defining a property naturally leads to using it. Both edits can be written and parsed in either order (Python allows attribute access even if the attribute doesn't exist until runtime), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a write_float call for 'self.shadowDarkness' in the to_scene_file method, while Edit 1 defines the shadowDarkness property on the Lamp type. The changed line in Edit 0 references 'self.shadowDarkness' and the changed lines in Edit 1 define 'shadowDarkness' as a property. These reference the exact same symbol - the shadowDarkness attribute that gets accessed as self.shadowDarkness in the class method. Edit 0 creates an immediate code-driven prompt for Edit 1 because using self.shadowDarkness without the property definition would cause an AttributeError at runtime, and Edit 1 creates the prompt for Edit 0 because defining a property naturally leads to using it. Both edits can be written and parsed in either order (Python allows attribute access even if the attribute doesn't exist until runtime), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new property 'shadowDarkness' on bpy.types.Lamp, and Edit 1 adds a UI row that references this exact same property via 'ob.data.shadowDarkness'. The changed lines reference the exact same symbol - the shadowDarkness property. After defining the property in Edit 0, adding the UI element in Edit 1 becomes the immediate next step to expose this property to users. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new property 'shadowDarkness' on bpy.types.Lamp, and Edit 1 adds a UI row that references this exact same property via 'ob.data.shadowDarkness'. The changed lines reference the exact same symbol - the shadowDarkness property. After defining the property in Edit 0, adding the UI element in Edit 1 becomes the immediate next step to expose this property to users. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 renames the constant MAX_FLOAT_PRECISION_INT to FLOAT_PRECISION_DEFAULT. Edit 1 adds a parameter to the write_float function that uses this exact same renamed constant as its default value. The changed lines in both edits reference the exact same symbol (FLOAT_PRECISION_DEFAULT). After making edit 0, the renamed constant becomes available for use in edit 1. After making edit 1, the function signature references the constant that was renamed in edit 0. This creates a direct, explicit code dependency where both edits reference the same symbol, making either edit prompt the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 renames the constant MAX_FLOAT_PRECISION_INT to FLOAT_PRECISION_DEFAULT. Edit 1 adds a parameter to the write_float function that uses this exact same renamed constant as its default value. The changed lines in both edits reference the exact same symbol (FLOAT_PRECISION_DEFAULT). After making edit 0, the renamed constant becomes available for use in edit 1. After making edit 1, the function signature references the constant that was renamed in edit 0. This creates a direct, explicit code dependency where both edits reference the same symbol, making either edit prompt the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a 'precision' parameter to the format_f function signature, and Edit 1 updates a call to format_f to pass the precision parameter. The changed lines reference the exact same symbol (format_f function) and the same parameter name (precision). After adding the precision parameter to format_f in Edit 0, the call site in Edit 1 becomes the immediate next step to utilize this new parameter. This is a classic function signature change followed by call-site update pattern for the same function."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'precision' parameter to the format_f function signature, and Edit 1 updates a call to format_f to pass the precision parameter. The changed lines reference the exact same symbol (format_f function) and the same parameter name (precision). After adding the precision parameter to format_f in Edit 0, the call site in Edit 1 becomes the immediate next step to utilize this new parameter. This is a classic function signature change followed by call-site update pattern for the same function."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 renames MAX_FLOAT_PRECISION_INT to FLOAT_PRECISION_DEFAULT and comments out the MAX_FLOAT_PRECISION variable that was derived from it. Edit 1 removes the usage of MAX_FLOAT_PRECISION and instead adds a precision parameter that defaults to FLOAT_PRECISION_DEFAULT, then creates the format string inline. The changed lines in both edits reference the exact same symbol (FLOAT_PRECISION_DEFAULT in edit 0's new definition, and FLOAT_PRECISION_DEFAULT in edit 1's parameter default). This creates a direct code dependency where edit 0 defines the symbol that edit 1 uses. However, since this is Python and the usage in edit 1 is a default parameter value (which is evaluated at function definition time, not call time), both edits can be staged in either order without causing parse errors - the worst case would be a NameError at import time. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 renames MAX_FLOAT_PRECISION_INT to FLOAT_PRECISION_DEFAULT and comments out the MAX_FLOAT_PRECISION variable that was derived from it. Edit 1 removes the usage of MAX_FLOAT_PRECISION and instead adds a precision parameter that defaults to FLOAT_PRECISION_DEFAULT, then creates the format string inline. The changed lines in both edits reference the exact same symbol (FLOAT_PRECISION_DEFAULT in edit 0's new definition, and FLOAT_PRECISION_DEFAULT in edit 1's parameter default). This creates a direct code dependency where edit 0 defines the symbol that edit 1 uses. However, since this is Python and the usage in edit 1 is a default parameter value (which is evaluated at function definition time, not call time), both edits can be staged in either order without causing parse errors - the worst case would be a NameError at import time. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 1 changes the signature of the write_float function by adding a precision parameter with a default value. Edit 0 calls this same write_float function and adds the precision parameter to the call. The changed lines in both edits reference the exact same symbol (write_float function) and the exact same parameter (precision). After making the signature change in edit 1, the call-site update in edit 0 becomes the immediate next step to utilize the new parameter. This is a classic function signature change \u2194 call-site update pattern for the same function, making it bi-directional since either edit can be staged first without causing parse errors."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 1 changes the signature of the write_float function by adding a precision parameter with a default value. Edit 0 calls this same write_float function and adds the precision parameter to the call. The changed lines in both edits reference the exact same symbol (write_float function) and the exact same parameter (precision). After making the signature change in edit 1, the call-site update in edit 0 becomes the immediate next step to utilize the new parameter. This is a classic function signature change \u2194 call-site update pattern for the same function, making it bi-directional since either edit can be staged first without causing parse errors."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

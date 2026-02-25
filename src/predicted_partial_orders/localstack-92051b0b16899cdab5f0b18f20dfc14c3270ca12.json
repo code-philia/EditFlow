@@ -1,0 +1,127 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'workdir' parameter to the abstract method signature in ContainerClient, while Edit 1 adds the same 'workdir' parameter to the exec_run call in the SdkDockerClient implementation. These edits reference the exact same symbol (the workdir parameter) and create a direct code dependency - adding the parameter to the abstract method signature makes it available for use in the implementation. This is a classic definition-usage pattern where both edits must be made together to maintain the interface contract between the abstract base class and its concrete implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'workdir' parameter to the abstract method signature in ContainerClient, while Edit 1 adds the same 'workdir' parameter to the exec_run call in the SdkDockerClient implementation. These edits reference the exact same symbol (the workdir parameter) and create a direct code dependency - adding the parameter to the abstract method signature makes it available for use in the implementation. This is a classic definition-usage pattern where both edits must be made together to maintain the interface contract between the abstract base class and its concrete implementation."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'workdir' within the same function. Edit 0 adds the 'workdir' parameter to the function signature, and Edit 1 uses that same parameter in the function body with conditional logic and command construction. After adding the parameter in the signature, the natural next step is to implement its usage in the function body. This creates an immediate, mechanically obvious code-driven prompt where both edits reference the same symbol and form a definition-usage pair within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'workdir' within the same function. Edit 0 adds the 'workdir' parameter to the function signature, and Edit 1 uses that same parameter in the function body with conditional logic and command construction. After adding the parameter in the signature, the natural next step is to implement its usage in the function body. This creates an immediate, mechanically obvious code-driven prompt where both edits reference the same symbol and form a definition-usage pair within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits add the exact same parameter 'workdir' to the same method 'exec_in_container' in two different implementations of the same interface (ContainerClient). Edit 0 adds workdir handling to the command-line Docker client implementation, while Edit 1 adds workdir parameter to the SDK Docker client implementation. This is a synchronized parameter addition across multiple implementations of the same interface method, creating a uniform API contract. Both changed lines reference the same 'workdir' symbol and represent identical structural additions to maintain interface consistency. Either edit could be made first, and after making one, the other becomes the immediate next step to maintain synchronized implementations."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits add the exact same parameter 'workdir' to the same method 'exec_in_container' in two different implementations of the same interface (ContainerClient). Edit 0 adds workdir handling to the command-line Docker client implementation, while Edit 1 adds workdir parameter to the SDK Docker client implementation. This is a synchronized parameter addition across multiple implementations of the same interface method, creating a uniform API contract. Both changed lines reference the same 'workdir' symbol and represent identical structural additions to maintain interface consistency. Either edit could be made first, and after making one, the other becomes the immediate next step to maintain synchronized implementations."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature in the ContainerClient class. Edit 1 adds a test method that calls exec_in_container with the workdir parameter. Both edits reference the exact same symbol 'workdir' - edit 0 defines it as a parameter in the method signature, and edit 1 uses it as a keyword argument when calling that same method. This creates a direct code dependency where adding the parameter enables its usage in the test. Either edit can be staged first since Python allows calling methods with undefined parameters (runtime error only), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature in the ContainerClient class. Edit 1 adds a test method that calls exec_in_container with the workdir parameter. Both edits reference the exact same symbol 'workdir' - edit 0 defines it as a parameter in the method signature, and edit 1 uses it as a keyword argument when calling that same method. This creates a direct code dependency where adding the parameter enables its usage in the test. Either edit can be staged first since Python allows calling methods with undefined parameters (runtime error only), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in related classes. Edit 0 adds it to the abstract base class ContainerClient, and Edit 1 adds it to the concrete implementation CmdDockerClient that inherits from ContainerClient. This is a synchronized parameter addition where both changed lines reference the same parameter name and structure, and both are part of maintaining API consistency between the abstract interface and its implementation. This represents a uniform substitution pattern (adding the same parameter) applied to the same type of syntactic construct (method signatures) in a parent-child class relationship. Either edit could be made first, and after making either, the other becomes the immediate next step to maintain signature consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in related classes. Edit 0 adds it to the abstract base class ContainerClient, and Edit 1 adds it to the concrete implementation CmdDockerClient that inherits from ContainerClient. This is a synchronized parameter addition where both changed lines reference the same parameter name and structure, and both are part of maintaining API consistency between the abstract interface and its implementation. This represents a uniform substitution pattern (adding the same parameter) applied to the same type of syntactic construct (method signatures) in a parent-child class relationship. Either edit could be made first, and after making either, the other becomes the immediate next step to maintain signature consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in two different classes (CmdDockerClient and SdkDockerClient) that both implement the ContainerClient interface. This is a synchronized parameter addition across related implementation classes that maintain the same API contract. The edits perform identical structural substitutions (adding the same parameter with the same type annotation and default value) to the same type of syntactic construct (method signatures). This represents a bulk-edit pattern where both classes need to maintain API compatibility, making either edit naturally prompt the other as the next mechanical step in maintaining synchronized interfaces."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in two different classes (CmdDockerClient and SdkDockerClient) that both implement the ContainerClient interface. This is a synchronized parameter addition across related implementation classes that maintain the same API contract. The edits perform identical structural substitutions (adding the same parameter with the same type annotation and default value) to the same type of syntactic construct (method signatures). This represents a bulk-edit pattern where both classes need to maintain API compatibility, making either edit naturally prompt the other as the next mechanical step in maintaining synchronized interfaces."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in related classes. Edit 0 adds it to the abstract base class ContainerClient, and Edit 1 adds it to the concrete implementation SdkDockerClient that inherits from ContainerClient. This is a synchronized parameter addition where both changed lines reference the same parameter name and structure, and both are part of maintaining API consistency between the abstract interface and its implementation. This represents a uniform substitution pattern (adding the same parameter) applied to the same type of syntactic construct (method signatures) in a parent-child class relationship. Either edit can be made first, and after making either, the other becomes the immediate next step to maintain signature consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in related classes. Edit 0 adds it to the abstract base class ContainerClient, and Edit 1 adds it to the concrete implementation SdkDockerClient that inherits from ContainerClient. This is a synchronized parameter addition where both changed lines reference the same parameter name and structure, and both are part of maintaining API consistency between the abstract interface and its implementation. This represents a uniform substitution pattern (adding the same parameter) applied to the same type of syntactic construct (method signatures) in a parent-child class relationship. Either edit can be made first, and after making either, the other becomes the immediate next step to maintain signature consistency."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'workdir' parameter to the abstract base class method signature, while Edit 1 adds the implementation logic to use that same 'workdir' parameter in the concrete subclass. However, Edit 1's implementation references the 'workdir' parameter that doesn't exist in its own method signature - it only exists in the base class signature after Edit 0. For Edit 1 to be syntactically valid and not cause a NameError when the method is called, Edit 0 must be applied first to add the parameter to the base class, and then the subclass signature would also need to be updated to include the workdir parameter. Since Edit 1 references a parameter that doesn't exist in its current method signature, this creates an ordered dependency."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in different implementations of the same interface (ContainerClient). Edit 0 adds it to the method signature in CmdDockerClient, and Edit 1 adds it as a parameter to the exec_run call within SdkDockerClient's implementation. This represents a synchronized parameter addition across different implementations of the same interface method, where both edits reference the same parameter symbol 'workdir' and are part of adding consistent API support across implementations. Either edit could be made first, and after making either, the other becomes the natural next step to maintain API consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits add the exact same parameter 'workdir: Optional[str] = None' to the same method signature 'exec_in_container' in different implementations of the same interface (ContainerClient). Edit 0 adds it to the method signature in CmdDockerClient, and Edit 1 adds it as a parameter to the exec_run call within SdkDockerClient's implementation. This represents a synchronized parameter addition across different implementations of the same interface method, where both edits reference the same parameter symbol 'workdir' and are part of adding consistent API support across implementations. Either edit could be made first, and after making either, the other becomes the natural next step to maintain API consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature, and Edit 1 adds a test that calls exec_in_container with the workdir parameter. The test directly uses the exact same parameter that was added to the method signature. This creates a bi-directional relationship where either edit can be made first - the method signature can be updated before the test is written, or the test can be written before the parameter is added (it would cause a runtime TypeError but not a parse error in Python). Both edits reference the same symbol (the workdir parameter of the exec_in_container method) and making either edit creates an immediate prompt for the other as part of implementing and testing the new workdir functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature, and Edit 1 adds a test that calls exec_in_container with the workdir parameter. The test directly uses the exact same parameter that was added to the method signature. This creates a bi-directional relationship where either edit can be made first - the method signature can be updated before the test is written, or the test can be written before the parameter is added (it would cause a runtime TypeError but not a parse error in Python). Both edits reference the same symbol (the workdir parameter of the exec_in_container method) and making either edit creates an immediate prompt for the other as part of implementing and testing the new workdir functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature, while Edit 1 adds a test that calls exec_in_container with the workdir parameter. The test directly uses the exact same parameter that was added to the method signature. This creates a bi-directional relationship where either edit can be made first - the method signature can be updated before the test is written, or the test can be written before the parameter is added (it would cause a runtime TypeError but not a parse error in Python). Both edits reference the same symbol (the workdir parameter of the exec_in_container method) and represent a natural development flow where adding a parameter and testing it are immediate, mechanically connected steps."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'workdir' parameter to the exec_in_container method signature, while Edit 1 adds a test that calls exec_in_container with the workdir parameter. The test directly uses the exact same parameter that was added to the method signature. This creates a bi-directional relationship where either edit can be made first - the method signature can be updated before the test is written, or the test can be written before the parameter is added (it would cause a runtime TypeError but not a parse error in Python). Both edits reference the same symbol (the workdir parameter of the exec_in_container method) and represent a natural development flow where adding a parameter and testing it are immediate, mechanically connected steps."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds support for a 'workdir' parameter in the exec_in_container method implementation, while Edit 1 adds a test that calls exec_in_container with the workdir parameter. However, looking at the method signature in Edit 0's structural path, there is no 'workdir' parameter defined in the function signature - only the implementation references it. This means Edit 1's test would fail with a TypeError when trying to pass the workdir parameter to a method that doesn't accept it. For the test to work, the method signature must first be updated to include the workdir parameter. Since Edit 0 only shows the implementation but not the signature change, and Edit 1 calls the method with workdir, there's an implicit dependency where the signature must be updated before the test can work."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'workdir' within the same function. Edit 0 adds 'workdir' as a parameter to the function signature, and Edit 1 uses that same 'workdir' parameter in the function body by passing it to the exec_run call. This creates an immediate, mechanically obvious code-driven linkage where adding the parameter naturally prompts its usage in the function body as the next contiguous action. Both edits can be staged in either order without causing parser errors (the parameter can be added before its usage or vice versa), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'workdir' within the same function. Edit 0 adds 'workdir' as a parameter to the function signature, and Edit 1 uses that same 'workdir' parameter in the function body by passing it to the exec_run call. This creates an immediate, mechanically obvious code-driven linkage where adding the parameter naturally prompts its usage in the function body as the next contiguous action. Both edits can be staged in either order without causing parser errors (the parameter can be added before its usage or vice versa), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

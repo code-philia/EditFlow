@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines the constant ATTR_CHANGED_BY = 'changed_by' at module level, and Edit 1 uses this exact same symbol ATTR_CHANGED_BY as a dictionary key in the state_attributes method. The changed lines reference the exact same symbol - the constant ATTR_CHANGED_BY. After defining the constant in Edit 0, using it in Edit 1 becomes the natural next step. Since Python allows referencing undefined names at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ATTR_CHANGED_BY = 'changed_by' at module level, and Edit 1 uses this exact same symbol ATTR_CHANGED_BY as a dictionary key in the state_attributes method. The changed lines reference the exact same symbol - the constant ATTR_CHANGED_BY. After defining the constant in Edit 0, using it in Edit 1 becomes the natural next step. Since Python allows referencing undefined names at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new property method 'changed_by' in the AlarmControlPanel class, and Edit 1 uses that exact same property by calling 'self.changed_by' in the state_attributes method. The changed lines reference the exact same symbol - the 'changed_by' property. After defining the property in Edit 0, using it in Edit 1 becomes the immediate next step to expose it in the state attributes. This is a classic definition-usage pattern where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new property method 'changed_by' in the AlarmControlPanel class, and Edit 1 uses that exact same property by calling 'self.changed_by' in the state_attributes method. The changed lines reference the exact same symbol - the 'changed_by' property. After defining the property in Edit 0, using it in Edit 1 becomes the immediate next step to expose it in the state attributes. This is a classic definition-usage pattern where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a base `changed_by` property method to the `AlarmControlPanel` class that returns `None`. Edit 1 adds an overriding implementation of the same `changed_by` property method in the `VerisureAlarm` class (which inherits from `alarm.AlarmControlPanel`). Both edits reference the exact same method symbol `changed_by` - one defines the base implementation and the other provides a concrete override. This creates a direct inheritance-based code relationship where the base class method naturally prompts the need for subclass implementations, making either edit a logical next step after the other in a single development task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds a base `changed_by` property method to the `AlarmControlPanel` class that returns `None`. Edit 1 adds an overriding implementation of the same `changed_by` property method in the `VerisureAlarm` class (which inherits from `alarm.AlarmControlPanel`). Both edits reference the exact same method symbol `changed_by` - one defines the base implementation and the other provides a concrete override. This creates a direct inheritance-based code relationship where the base class method naturally prompts the need for subclass implementations, making either edit a logical next step after the other in a single development task."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds a reference to `self.changed_by` in the `state_attributes` method of the base `AlarmControlPanel` class, while Edit 1 defines the `changed_by` property in the `VerisureAlarm` subclass. These edits reference the exact same symbol (`changed_by` property) where the base class now calls a method that the subclass implements. This creates a direct definition-usage relationship where both edits reference the same symbol, making either edit prompt the other as the next mechanical step. Since Python allows referencing undefined attributes at parse time (only failing at runtime), either edit can be staged first."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds a reference to `self.changed_by` in the `state_attributes` method of the base `AlarmControlPanel` class, while Edit 1 defines the `changed_by` property in the `VerisureAlarm` subclass. These edits reference the exact same symbol (`changed_by` property) where the base class now calls a method that the subclass implements. This creates a direct definition-usage relationship where both edits reference the same symbol, making either edit prompt the other as the next mechanical step. Since Python allows referencing undefined attributes at parse time (only failing at runtime), either edit can be staged first."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a property getter `changed_by` that returns `self._changed_by`, while Edit 1 assigns a value to `self._changed_by` in the update method. These edits reference the exact same instance variable `_changed_by` - one defines how to access it via a property, and the other sets its value. This creates a direct code dependency where the property getter relies on the instance variable being set, making them part of the same micro-task of implementing the `changed_by` functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a property getter `changed_by` that returns `self._changed_by`, while Edit 1 assigns a value to `self._changed_by` in the update method. These edits reference the exact same instance variable `_changed_by` - one defines how to access it via a property, and the other sets its value. This creates a direct code dependency where the property getter relies on the instance variable being set, making them part of the same micro-task of implementing the `changed_by` functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 initializes the instance variable `self._changed_by = None` in the constructor, and Edit 1 creates a property method `changed_by` that returns `self._changed_by`. These edits reference the exact same symbol (`self._changed_by`) and form a definition-usage relationship within the same class. After adding the instance variable initialization, creating the property getter becomes the natural next step to expose this attribute. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the instance variable `self._changed_by = None` in the constructor, and Edit 1 creates a property method `changed_by` that returns `self._changed_by`. These edits reference the exact same symbol (`self._changed_by`) and form a definition-usage relationship within the same class. After adding the instance variable initialization, creating the property getter becomes the natural next step to expose this attribute. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 initializes the instance variable `self._changed_by = None` in the constructor, and Edit 1 assigns a value to that same instance variable `self._changed_by = hub.alarm_status[self._id].name` in the update method. Both edits reference the exact same symbol (the instance variable `self._changed_by`) within the same class. This creates a direct code linkage where initializing the variable in the constructor naturally prompts its usage/assignment elsewhere in the class, making them part of the same micro-task of adding this new attribute to the class."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the instance variable `self._changed_by = None` in the constructor, and Edit 1 assigns a value to that same instance variable `self._changed_by = hub.alarm_status[self._id].name` in the update method. Both edits reference the exact same symbol (the instance variable `self._changed_by`) within the same class. This creates a direct code linkage where initializing the variable in the constructor naturally prompts its usage/assignment elsewhere in the class, making them part of the same micro-task of adding this new attribute to the class."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

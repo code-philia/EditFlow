@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform an identical structural substitution pattern within the same file and class. They both replace the same conditional logic (`if name in eval_kwargs_lists:`) with the same new logic (`if multi_kwargs:` followed by the same ternary expression). The changes are syntactically identical and target the same type of construct (conditional blocks in similar evaluation methods). This represents a uniform refactoring pattern applied consistently across related methods in the same class, making either edit naturally prompt the other as part of the same contiguous micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern within the same file and class. They both replace the same conditional logic (`if name in eval_kwargs_lists:`) with the same new logic (`if multi_kwargs:` followed by the same ternary expression). The changes are syntactically identical and target the same type of construct (conditional blocks in similar evaluation methods). This represents a uniform refactoring pattern applied consistently across related methods in the same class, making either edit naturally prompt the other as part of the same contiguous micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits add identical lines of code that perform the exact same operation: creating a boolean variable `multi_kwargs` using the same expression `isinstance(next(iter(eval_kwargs_lists.values())), dict)`. The additions are structurally identical and appear to be part of a bulk refactoring operation where the same logic is being added to multiple similar methods within the same class. This represents a uniform substitution pattern where identical code is being added to similar contexts as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits add identical lines of code that perform the exact same operation: creating a boolean variable `multi_kwargs` using the same expression `isinstance(next(iter(eval_kwargs_lists.values())), dict)`. The additions are structurally identical and appear to be part of a bulk refactoring operation where the same logic is being added to multiple similar methods within the same class. This represents a uniform substitution pattern where identical code is being added to similar contexts as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 1 defines the variable `multi_kwargs` by checking if the first value in `eval_kwargs_lists` is a dictionary. Edit 0 then uses this exact same variable `multi_kwargs` in a conditional statement to determine evaluation behavior. The changed lines reference the exact same symbol `multi_kwargs`, and making edit 1 creates an immediate, mechanically obvious prompt for edit 0 as the next step since edit 0 depends on the variable defined in edit 1. However, since this is Python, edit 0 could be written and parsed before edit 1 (it would just result in a NameError at runtime), so the relationship is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 1 defines the variable `multi_kwargs` by checking if the first value in `eval_kwargs_lists` is a dictionary. Edit 0 then uses this exact same variable `multi_kwargs` in a conditional statement to determine evaluation behavior. The changed lines reference the exact same symbol `multi_kwargs`, and making edit 1 creates an immediate, mechanically obvious prompt for edit 0 as the next step since edit 0 depends on the variable defined in edit 1. However, since this is Python, edit 0 could be written and parsed before edit 1 (it would just result in a NameError at runtime), so the relationship is bi-directional rather than ordered."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'multi_kwargs' by assigning it a boolean value based on checking the structure of eval_kwargs_lists. Edit 1 then uses this exact same variable 'multi_kwargs' in a conditional statement to determine the control flow. The changed lines reference the exact same symbol - the variable 'multi_kwargs' defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code dependency where defining the variable in edit 0 makes it available for use in edit 1. Both edits are within the same function scope and would naturally occur as part of the same micro-task of refactoring the conditional logic. Either edit can be staged first since Python allows referencing undefined variables at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'multi_kwargs' by assigning it a boolean value based on checking the structure of eval_kwargs_lists. Edit 1 then uses this exact same variable 'multi_kwargs' in a conditional statement to determine the control flow. The changed lines reference the exact same symbol - the variable 'multi_kwargs' defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code dependency where defining the variable in edit 0 makes it available for use in edit 1. Both edits are within the same function scope and would naturally occur as part of the same micro-task of refactoring the conditional logic. Either edit can be staged first since Python allows referencing undefined variables at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a variable 'multi_kwargs' by assigning it a boolean value based on checking the structure of eval_kwargs_lists. Edit 1 then uses this exact same variable 'multi_kwargs' in a conditional statement to determine the control flow. The changed lines reference the exact same symbol - the variable 'multi_kwargs' that is defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code dependency where defining the variable in edit 0 makes it available for use in edit 1. Both edits are within the same function scope, making this a clear definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a variable 'multi_kwargs' by assigning it a boolean value based on checking the structure of eval_kwargs_lists. Edit 1 then uses this exact same variable 'multi_kwargs' in a conditional statement to determine the control flow. The changed lines reference the exact same symbol - the variable 'multi_kwargs' that is defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code dependency where defining the variable in edit 0 makes it available for use in edit 1. Both edits are within the same function scope, making this a clear definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits add the exact same evaluator entry 'no_kwarg_evaluator': MockEvaluator() to different evaluator dictionaries within the same test function. This appears to be part of a synchronized test setup where the same evaluator is being added to multiple test scenarios within the same test method. The edits reference the same evaluator name and type, and both are part of setting up test fixtures that would naturally be done together in a single micro-task of expanding test coverage."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits add the exact same evaluator entry 'no_kwarg_evaluator': MockEvaluator() to different evaluator dictionaries within the same test function. This appears to be part of a synchronized test setup where the same evaluator is being added to multiple test scenarios within the same test method. The edits reference the same evaluator name and type, and both are part of setting up test fixtures that would naturally be done together in a single micro-task of expanding test coverage."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

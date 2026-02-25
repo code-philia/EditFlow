@@ -1,0 +1,73 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `user_profile_cache_key_id` and Edit 1 modifies the existing `user_profile_cache_key` function to call the newly defined function. The changed line in Edit 1 explicitly references the exact same symbol (`user_profile_cache_key_id`) that is being defined in Edit 0. This creates a direct definition-usage relationship where Edit 0 must come before Edit 1, as Edit 1 cannot be parsed/executed without the function definition from Edit 0 being present first. This is a clear case where the second edit cannot exist without the first edit being applied first."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new function 'user_profile_cache_key_id' in zerver/lib/cache.py, and Edit 1 imports that exact same function in zerver/lib/users.py. The changed lines reference the exact same symbol - the function 'user_profile_cache_key_id'. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to use it. However, in Python, imports can be written before the actual definition exists (they only fail at runtime/import time, not at parse time), so both edits can be staged in either order without causing parser errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function 'user_profile_cache_key_id' in zerver/lib/cache.py, and Edit 1 imports that exact same function in zerver/lib/users.py. The changed lines reference the exact same symbol - the function 'user_profile_cache_key_id'. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to use it. However, in Python, imports can be written before the actual definition exists (they only fail at runtime/import time, not at parse time), so both edits can be staged in either order without causing parser errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes the implementation of user_profile_cache_key to call user_profile_cache_key_id, while Edit 1 imports user_profile_cache_key_id. The changed line in Edit 0 calls the exact same symbol (user_profile_cache_key_id) that is being imported in Edit 1's changed line. This creates a direct code dependency where Edit 0 cannot function without the import in Edit 1, but Edit 1 can be staged independently. However, since this is Python and imports can be added before or after usage (the usage will only fail at runtime/import time, not at parse time), both edits can be written and parsed in either order. After making either edit, the other becomes the immediate next step to complete the refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes the implementation of user_profile_cache_key to call user_profile_cache_key_id, while Edit 1 imports user_profile_cache_key_id. The changed line in Edit 0 calls the exact same symbol (user_profile_cache_key_id) that is being imported in Edit 1's changed line. This creates a direct code dependency where Edit 0 cannot function without the import in Edit 1, but Edit 1 can be staged independently. However, since this is Python and imports can be added before or after usage (the usage will only fail at runtime/import time, not at parse time), both edits can be written and parsed in either order. After making either edit, the other becomes the immediate next step to complete the refactoring."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `user_profile_cache_key_id` in zerver/lib/cache.py, and Edit 1 uses that exact same function by calling it in zerver/lib/users.py. The changed line in Edit 1 references the exact same symbol that is being defined in Edit 0. This creates a direct definition-usage relationship where defining the function enables its immediate use. Since this is Python, the usage can be written before the definition is present (it would only fail at runtime/import time, not at parse time), making this a bi-directional relationship where either edit can be staged first, but after making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `user_profile_cache_key_id` in zerver/lib/cache.py, and Edit 1 uses that exact same function by calling it in zerver/lib/users.py. The changed line in Edit 1 references the exact same symbol that is being defined in Edit 0. This creates a direct definition-usage relationship where defining the function enables its immediate use. Since this is Python, the usage can be written before the definition is present (it would only fail at runtime/import time, not at parse time), making this a bi-directional relationship where either edit can be staged first, but after making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces the variable `realm_id` by assigning it a value based on whether `realm` exists or not. Edit 1 then uses this exact same `realm_id` variable in the lambda function call to `user_profile_cache_key_id`. The changed line in edit 1 explicitly references the `realm_id` symbol that was defined in edit 0. This creates a direct code dependency where edit 0 defines the variable and edit 1 uses it. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit could be staged first, but making edit 0 creates an immediate prompt to use the newly defined `realm_id` variable, and making edit 1 first would create a prompt to define the undefined `realm_id` variable."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 introduces the variable `realm_id` by assigning it a value based on whether `realm` exists or not. Edit 1 then uses this exact same `realm_id` variable in the lambda function call to `user_profile_cache_key_id`. The changed line in edit 1 explicitly references the `realm_id` symbol that was defined in edit 0. This creates a direct code dependency where edit 0 defines the variable and edit 1 uses it. Since Python allows referencing undefined variables at parse time (only failing at runtime), either edit could be staged first, but making edit 0 creates an immediate prompt to use the newly defined `realm_id` variable, and making edit 1 first would create a prompt to define the undefined `realm_id` variable."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import of 'user_profile_by_email_cache_key' from the import statement, while Edit 1 changes the usage of that same function to 'user_profile_cache_key_id'. Both edits reference the exact same symbol 'user_profile_by_email_cache_key' - one removes its import and the other replaces its usage. After removing the import (Edit 0), the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined symbols at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in refactoring this function reference."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 removes the import of 'user_profile_by_email_cache_key' from the import statement, while Edit 1 changes the usage of that same function to 'user_profile_cache_key_id'. Both edits reference the exact same symbol 'user_profile_by_email_cache_key' - one removes its import and the other replaces its usage. After removing the import (Edit 0), the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined symbols at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in refactoring this function reference."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the symbol 'user_profile_cache_key_id' and Edit 1 uses that exact same symbol in a function call. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to actually use the imported function. Conversely, if Edit 1 were made first without the import, it would cause a NameError at runtime when the function is called, but since Python allows referencing undefined names at parse time, both edits can be staged in either order. The changed lines reference the exact same symbol, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the symbol 'user_profile_cache_key_id' and Edit 1 uses that exact same symbol in a function call. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to actually use the imported function. Conversely, if Edit 1 were made first without the import, it would cause a NameError at runtime when the function is called, but since Python allows referencing undefined names at parse time, both edits can be staged in either order. The changed lines reference the exact same symbol, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        3
+    ]
+}

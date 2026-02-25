@@ -1,0 +1,100 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls this exact same method (`self.DL.expect_warning`). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined functionality. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls this exact same method (`self.DL.expect_warning`). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined functionality. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `expect_warning` in the `FakeYDL` class in `test/helper.py`. Edit 1 calls this exact same method `expect_warning` on a `FakeYDL` instance (`self.DL`) in `test/test_dailymotion_subtitles.py`. The changed lines reference the exact same symbol - the `expect_warning` method. This creates a definition-usage relationship where defining the method enables its immediate use in the test. Both edits can be staged in either order since Python allows calling undefined methods (resulting in a runtime AttributeError rather than a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `expect_warning` in the `FakeYDL` class in `test/helper.py`. Edit 1 calls this exact same method `expect_warning` on a `FakeYDL` instance (`self.DL`) in `test/test_dailymotion_subtitles.py`. The changed lines reference the exact same symbol - the `expect_warning` method. This creates a definition-usage relationship where defining the method enables its immediate use in the test. Both edits can be staged in either order since Python allows calling undefined methods (resulting in a runtime AttributeError rather than a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds imports for 're' and 'types' modules at the top of the file. Edit 1 adds a method that uses both 're.match()' and 'types.MethodType()' - the exact same symbols that were imported in edit 0. The changed lines in edit 1 explicitly reference the same symbols ('re' and 'types') that were imported in edit 0's changed lines. This creates a direct definition-usage relationship where the imports enable the usage in the method implementation. Either edit could be staged first (imports before usage would work, and usage before imports would only cause runtime NameError, not parse errors in Python), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds imports for 're' and 'types' modules at the top of the file. Edit 1 adds a method that uses both 're.match()' and 'types.MethodType()' - the exact same symbols that were imported in edit 0. The changed lines in edit 1 explicitly reference the same symbols ('re' and 'types') that were imported in edit 0's changed lines. This creates a direct definition-usage relationship where the imports enable the usage in the method implementation. Either edit could be staged first (imports before usage would work, and usage before imports would only cause runtime NameError, not parse errors in Python), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls this exact same method on a FakeYDL instance (self.DL). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python, both edits can be parsed and staged in either order (calling an undefined method only causes a runtime AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls this exact same method on a FakeYDL instance (self.DL). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python, both edits can be parsed and staged in either order (calling an undefined method only causes a runtime AttributeError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls that exact same method `expect_warning` on a FakeYDL instance (self.DL). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Both edits can be staged in either order since Python allows method calls to be written before the method is defined (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `expect_warning` in the FakeYDL class, and Edit 1 calls that exact same method `expect_warning` on a FakeYDL instance (self.DL). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Both edits can be staged in either order since Python allows method calls to be written before the method is defined (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions - removing the same two import lines ('import json' and 'import io') from the same positions in similar test files. This represents a bulk cleanup operation where the same unused imports are being removed across multiple test files using the exact same before\u2192after pattern on the same type of syntactic construct (import statements). This is a synchronized multi-file substitution that would naturally occur as part of a single, contiguous cleanup task."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions - removing the same two import lines ('import json' and 'import io') from the same positions in similar test files. This represents a bulk cleanup operation where the same unused imports are being removed across multiple test files using the exact same before\u2192after pattern on the same type of syntactic construct (import statements). This is a synchronized multi-file substitution that would naturally occur as part of a single, contiguous cleanup task."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new method `expect_warning` in the `FakeYDL` class, and Edit 1 calls this exact same method on `self.DL` (which is presumably an instance of `FakeYDL`). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. However, since this is Python, the call in Edit 1 could be written before the definition in Edit 0 (it would only fail at runtime, not at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `expect_warning` in the `FakeYDL` class, and Edit 1 calls this exact same method on `self.DL` (which is presumably an instance of `FakeYDL`). The changed lines reference the exact same symbol - the `expect_warning` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it. However, since this is Python, the call in Edit 1 could be written before the definition in Edit 0 (it would only fail at runtime, not at parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits add the exact same line of code 'self.DL.expect_warning(u'Automatic Captions not supported by this server')' to different test methods within the same test class. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits involve the same syntactic construct (method call with identical parameters) and appear to be part of a coordinated change to add the same warning expectation to related test methods. Either edit could be made first, and after making one, the other would be the natural next step to maintain consistency across the test methods."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits add the exact same line of code 'self.DL.expect_warning(u'Automatic Captions not supported by this server')' to different test methods within the same test class. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits involve the same syntactic construct (method call with identical parameters) and appear to be part of a coordinated change to add the same warning expectation to related test methods. Either edit could be made first, and after making one, the other would be the natural next step to maintain consistency across the test methods."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Both edits add the exact same line of code `self.DL.expect_warning(u'video doesn\\'t have subtitles')` to different test methods in different files. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits perform an identical structural substitution (adding the same warning expectation) to the same type of syntactic construct (test methods for subtitle functionality). This appears to be part of a contiguous micro-task to add consistent warning expectations across related test cases."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Both edits add the exact same line of code `self.DL.expect_warning(u'video doesn\\'t have subtitles')` to different test methods in different files. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits perform an identical structural substitution (adding the same warning expectation) to the same type of syntactic construct (test methods for subtitle functionality). This appears to be part of a contiguous micro-task to add consistent warning expectations across related test cases."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        7,
+        2,
+        6
+    ]
+}

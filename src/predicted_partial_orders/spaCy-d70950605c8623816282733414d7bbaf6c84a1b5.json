@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new warning constant W108 in the Warnings class, and Edit 1 imports the Warnings class (along with the existing Errors import) from the errors module. The changed line in Edit 1 explicitly imports the Warnings symbol that contains the W108 constant defined in Edit 0. This creates a direct code dependency where the import in Edit 1 references the exact same Warnings class that was modified in Edit 0. Either edit can be staged first - if Edit 0 is done first, the Warnings class gains the new W108 constant; if Edit 1 is done first, it imports the existing Warnings class. Both edits reference the same Warnings symbol and appear to be part of the same development session where a new warning is being added and the module is being prepared to use it."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new warning constant W108 in the Warnings class, and Edit 1 imports the Warnings class (along with the existing Errors import) from the errors module. The changed line in Edit 1 explicitly imports the Warnings symbol that contains the W108 constant defined in Edit 0. This creates a direct code dependency where the import in Edit 1 references the exact same Warnings class that was modified in Edit 0. Either edit can be staged first - if Edit 0 is done first, the Warnings class gains the new W108 constant; if Edit 1 is done first, it imports the existing Warnings class. Both edits reference the same Warnings symbol and appear to be part of the same development session where a new warning is being added and the module is being prepared to use it."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new warning constant W108 in the Warnings class, and Edit 1 uses that exact same warning constant (Warnings.W108) in a logger.warn call. The changed lines reference the exact same symbol - W108 is defined in edit 0 and referenced in edit 1. This creates an immediate code dependency where defining the warning enables its usage in the lemmatizer. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new warning constant W108 in the Warnings class, and Edit 1 uses that exact same warning constant (Warnings.W108) in a logger.warn call. The changed lines reference the exact same symbol - W108 is defined in edit 0 and referenced in edit 1. This creates an immediate code dependency where defining the warning enables its usage in the lemmatizer. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'Warnings' to the import statement from '..errors', and Edit 1 uses that exact same 'Warnings' symbol in the changed line 'logger.warn(Warnings.W108.format(text=string))'. This is a classic import-usage relationship where the imported symbol is immediately referenced. In Python, both edits can be staged in either order since referencing an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'Warnings' to the import statement from '..errors', and Edit 1 uses that exact same 'Warnings' symbol in the changed line 'logger.warn(Warnings.W108.format(text=string))'. This is a classic import-usage relationship where the imported symbol is immediately referenced. In Python, both edits can be staged in either order since referencing an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports the modules 'logging' and 'mock' at the top of the file. Edit 1 uses these exact same imported modules in the test function - 'logging.getLogger()' and 'mock.patch.object()'. The changed lines in edit 1 directly reference the same symbols that were imported in edit 0. This creates an immediate code dependency where the imports must be available for the usage to work, making this a classic import-usage relationship within the same file. In Python, both edits can be staged in either order since referencing undefined imports only causes runtime errors, not parse errors."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports the modules 'logging' and 'mock' at the top of the file. Edit 1 uses these exact same imported modules in the test function - 'logging.getLogger()' and 'mock.patch.object()'. The changed lines in edit 1 directly reference the same symbols that were imported in edit 0. This creates an immediate code dependency where the imports must be available for the usage to work, making this a classic import-usage relationship within the same file. In Python, both edits can be staged in either order since referencing undefined imports only causes runtime errors, not parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds a logger.warn() call in the lemmatizer implementation when univ_pos is empty. Edit 1 adds a test that specifically verifies this warning behavior by mocking the logger and asserting that warn() is called once. The test directly validates the exact logging functionality introduced in edit 0. Both edits reference the same logger.warn mechanism - edit 0 implements it and edit 1 tests it. This creates a bi-directional relationship where implementing the warning naturally prompts adding a test for it, and adding the test validates the warning implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds a logger.warn() call in the lemmatizer implementation when univ_pos is empty. Edit 1 adds a test that specifically verifies this warning behavior by mocking the logger and asserting that warn() is called once. The test directly validates the exact logging functionality introduced in edit 0. Both edits reference the same logger.warn mechanism - edit 0 implements it and edit 1 tests it. This creates a bi-directional relationship where implementing the warning naturally prompts adding a test for it, and adding the test validates the warning implementation."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6
+    ]
+}

@@ -1,0 +1,92 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new class 'NovelReadonlyChapter' in models.py, and Edit 0 imports that exact same class in admin.py. This is a classic definition-usage relationship where both edits reference the exact same symbol. In Python, imports can be written before the class is defined (resulting in a runtime ImportError rather than a parse error), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-import pair."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new class 'NovelReadonlyChapter' in models.py, and Edit 0 imports that exact same class in admin.py. This is a classic definition-usage relationship where both edits reference the exact same symbol. In Python, imports can be written before the class is defined (resulting in a runtime ImportError rather than a parse error), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-import pair."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'NovelReadonlyChapter'. Edit 0 adds it to the import statement, while Edit 1 uses it in a site.register() call. This creates a direct definition-usage relationship where the import makes the symbol available for use in the registration. In Python, using an undefined symbol in a function call would cause a NameError at runtime, but both edits can be written and parsed in either order since the usage is not evaluated until the code runs. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'NovelReadonlyChapter'. Edit 0 adds it to the import statement, while Edit 1 uses it in a site.register() call. This creates a direct definition-usage relationship where the import makes the symbol available for use in the registration. In Python, using an undefined symbol in a function call would cause a NameError at runtime, but both edits can be written and parsed in either order since the usage is not evaluated until the code runs. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines the class 'NovelReadonlyChapterAdmin' and edit 1 uses that exact same class as the second argument to site.register(). The changed lines reference the exact same symbol - NovelReadonlyChapterAdmin. After defining the class in edit 0, using it in the site.register() call in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows referencing undefined names at parse time (would only fail at runtime/import time), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines the class 'NovelReadonlyChapterAdmin' and edit 1 uses that exact same class as the second argument to site.register(). The changed lines reference the exact same symbol - NovelReadonlyChapterAdmin. After defining the class in edit 0, using it in the site.register() call in edit 1 becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows referencing undefined names at parse time (would only fail at runtime/import time), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'NovelReadonlyChapter' to the import list, while Edit 1 defines the 'NovelReadonlyChapterAdmin' class. The changed lines reference the exact same symbol - 'NovelReadonlyChapter' is imported in edit 0 and then used as the class name in edit 1. This creates a direct definition-usage relationship where the import enables the class definition. However, in Python, both edits can be written and parsed in either order since the import statement and class definition don't create parser-level dependencies - the import error would only occur at runtime/import time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'NovelReadonlyChapter' to the import list, while Edit 1 defines the 'NovelReadonlyChapterAdmin' class. The changed lines reference the exact same symbol - 'NovelReadonlyChapter' is imported in edit 0 and then used as the class name in edit 1. This creates a direct definition-usage relationship where the import enables the class definition. However, in Python, both edits can be written and parsed in either order since the import statement and class definition don't create parser-level dependencies - the import error would only occur at runtime/import time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'NovelReadonlyChapter' to an import statement in tests/admin_inlines/admin.py, while Edit 1 adds a test method that references 'admin:admin_inlines_novelreadonlychapter_add' in a URL reverse call. The changed lines reference the same symbol (NovelReadonlyChapter) - Edit 0 imports it and Edit 1 uses it in the test. This creates a direct code dependency where importing the symbol enables its usage in the test, making them bi-directional neighbours in the same development session."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'NovelReadonlyChapter' to an import statement in tests/admin_inlines/admin.py, while Edit 1 adds a test method that references 'admin:admin_inlines_novelreadonlychapter_add' in a URL reverse call. The changed lines reference the same symbol (NovelReadonlyChapter) - Edit 0 imports it and Edit 1 uses it in the test. This creates a direct code dependency where importing the symbol enables its usage in the test, making them bi-directional neighbours in the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 1 defines the class NovelReadonlyChapter, while Edit 0 registers that exact same class with the admin site. The changed lines reference the exact same symbol - NovelReadonlyChapter. After defining the class in Edit 1, Edit 0 becomes the immediate next step to register it with the admin. However, Edit 0 cannot be parsed/staged before Edit 1 because it references a class that doesn't exist yet, which would cause a NameError at import time when the admin module is loaded. This creates a parse-time dependency where Edit 1 must come before Edit 0."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 registers the NovelReadonlyChapter model with NovelReadonlyChapterAdmin in the admin site, while Edit 1 adds a test that accesses the admin URL for NovelReadonlyChapter ('admin:admin_inlines_novelreadonlychapter_add'). The test in Edit 1 directly depends on the admin registration from Edit 0 - without the registration, the URL reverse lookup would fail at runtime. However, both edits can be written and parsed independently, and the failure would only occur at runtime when the test is executed. Since this is a runtime dependency rather than a parse-time dependency, and both edits reference the same model (NovelReadonlyChapter) in their respective contexts, this represents a bi-directional relationship where either edit naturally prompts the other as part of the same development task."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 registers the NovelReadonlyChapter model with NovelReadonlyChapterAdmin in the admin site, while Edit 1 adds a test that accesses the admin URL for NovelReadonlyChapter ('admin:admin_inlines_novelreadonlychapter_add'). The test in Edit 1 directly depends on the admin registration from Edit 0 - without the registration, the URL reverse lookup would fail at runtime. However, both edits can be written and parsed independently, and the failure would only occur at runtime when the test is executed. Since this is a runtime dependency rather than a parse-time dependency, and both edits reference the same model (NovelReadonlyChapter) in their respective contexts, this represents a bi-directional relationship where either edit naturally prompts the other as part of the same development task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new model class 'NovelReadonlyChapter' in the models.py file, while Edit 1 creates a test that references this exact same class via the URL pattern 'admin:admin_inlines_novelreadonlychapter_add'. The test in Edit 1 directly depends on the model defined in Edit 0 - without the model definition, the URL reverse lookup would fail. However, in Python, both edits can be written and parsed independently since the URL reverse happens at runtime, not parse time. The test references the exact same symbol (NovelReadonlyChapter) that is defined in Edit 0, creating a direct code dependency where either edit naturally prompts the other as the next step in the development flow."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new model class 'NovelReadonlyChapter' in the models.py file, while Edit 1 creates a test that references this exact same class via the URL pattern 'admin:admin_inlines_novelreadonlychapter_add'. The test in Edit 1 directly depends on the model defined in Edit 0 - without the model definition, the URL reverse lookup would fail. However, in Python, both edits can be written and parsed independently since the URL reverse happens at runtime, not parse time. The test references the exact same symbol (NovelReadonlyChapter) that is defined in Edit 0, creating a direct code dependency where either edit naturally prompts the other as the next step in the development flow."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new admin class `NovelReadonlyChapterAdmin` with its inline `ReadOnlyChapterInline`. Edit 1 creates a test method that directly references this exact admin class via the URL pattern 'admin:admin_inlines_novelreadonlychapter_add', which corresponds to the `NovelReadonlyChapterAdmin` class defined in edit 0. The test is specifically testing the behavior of the admin class created in edit 0. This creates an immediate code dependency where the test in edit 1 cannot function without the admin class definition from edit 0, but both edits can be written and parsed in either order (the test would just fail at runtime if the admin class doesn't exist). This is a definition-usage relationship for the same symbol across files within what appears to be the same development session."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new admin class `NovelReadonlyChapterAdmin` with its inline `ReadOnlyChapterInline`. Edit 1 creates a test method that directly references this exact admin class via the URL pattern 'admin:admin_inlines_novelreadonlychapter_add', which corresponds to the `NovelReadonlyChapterAdmin` class defined in edit 0. The test is specifically testing the behavior of the admin class created in edit 0. This creates an immediate code dependency where the test in edit 1 cannot function without the admin class definition from edit 0, but both edits can be written and parsed in either order (the test would just fail at runtime if the admin class doesn't exist). This is a definition-usage relationship for the same symbol across files within what appears to be the same development session."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

@@ -1,0 +1,21 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a local variable 'host' by extracting 'self._connection_info.remote_addr' and adds a comment about making a function. Edit 1 removes both the comment and the 'host' variable assignment that were added in Edit 0. These edits reference the exact same lines of code - Edit 1 is directly undoing the changes made in Edit 0. This creates a direct code dependency where Edit 1 cannot exist without Edit 0 having been applied first, since Edit 1 is removing the specific lines that Edit 0 added."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "These edits represent a cut-and-paste move operation where the exact same lines of code are being removed from one location (edit 0) and added to another location (edit 1) within the same method. The only difference is that 'self._connection_info.remote_addr' is changed to 'host' in the moved line. This is a classic ordered relationship because the removal must occur before the relocation - you cannot add the lines to the new location while they still exist in the original location without creating duplication. The structural dependency requires edit 0 (removal) to happen before edit 1 (addition)."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        4,
+        0,
+        1,
+        6
+    ]
+}

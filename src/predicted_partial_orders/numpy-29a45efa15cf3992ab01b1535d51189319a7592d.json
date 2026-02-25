@@ -1,0 +1,47 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports `assert_warns` from `.utils` and Edit 1 uses that exact same `assert_warns` symbol in the changed line. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately used in Edit 1. Both edits reference the exact same symbol and either edit naturally prompts the other as the next mechanical step - importing a function and then using it, or using a function and then importing it. In Python, both orders are valid at parse time (usage before import only causes runtime NameError), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports `assert_warns` from `.utils` and Edit 1 uses that exact same `assert_warns` symbol in the changed line. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately used in Edit 1. Both edits reference the exact same symbol and either edit naturally prompts the other as the next mechanical step - importing a function and then using it, or using a function and then importing it. In Python, both orders are valid at parse time (usage before import only causes runtime NameError), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of the 'warnings' module, while Edit 1 removes usage of that same 'warnings' module (replacing warnings.catch_warnings and warnings.simplefilter with assert_warns). Both edits reference the exact same symbol 'warnings' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit naturally prompts the other as the next mechanical step in cleaning up the warnings module usage."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of the 'warnings' module, while Edit 1 removes usage of that same 'warnings' module (replacing warnings.catch_warnings and warnings.simplefilter with assert_warns). Both edits reference the exact same symbol 'warnings' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit naturally prompts the other as the next mechanical step in cleaning up the warnings module usage."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import statement for the 'warnings' module at the top of the file. Edit 1 uses the 'warnings' module in the test_deprecated function by calling warnings.catch_warnings() and warnings.simplefilter(). The changed lines in edit 1 explicitly reference the exact same 'warnings' symbol that is imported in edit 0. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import statement for the 'warnings' module at the top of the file. Edit 1 uses the 'warnings' module in the test_deprecated function by calling warnings.catch_warnings() and warnings.simplefilter(). The changed lines in edit 1 explicitly reference the exact same 'warnings' symbol that is imported in edit 0. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same function and work together to replace a manual warning capture mechanism with a simpler assert_warns() call. Edit 0 replaces the 'with warnings.catch_warnings(record=True) as l:' line with 'with assert_warns(DeprecationWarning):', while Edit 1 removes all the subsequent code that used the captured warnings list 'l'. The variable 'l' that is removed in Edit 0 is the exact same variable referenced multiple times in the code being removed in Edit 1. This creates a direct code dependency - after making Edit 0, the code in Edit 1 would reference an undefined variable 'l', making Edit 1 the immediate next step to complete the refactoring. Both edits are part of a single, contiguous micro-task to replace the manual warning handling with the assert_warns utility."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same function and work together to replace a manual warning capture mechanism with a simpler assert_warns() call. Edit 0 replaces the 'with warnings.catch_warnings(record=True) as l:' line with 'with assert_warns(DeprecationWarning):', while Edit 1 removes all the subsequent code that used the captured warnings list 'l'. The variable 'l' that is removed in Edit 0 is the exact same variable referenced multiple times in the code being removed in Edit 1. This creates a direct code dependency - after making Edit 0, the code in Edit 1 would reference an undefined variable 'l', making Edit 1 the immediate next step to complete the refactoring. Both edits are part of a single, contiguous micro-task to replace the manual warning handling with the assert_warns utility."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

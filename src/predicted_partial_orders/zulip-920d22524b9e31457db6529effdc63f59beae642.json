@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 imports 'timezone_now' from django.utils.timezone, and Edit 1 uses that exact same imported symbol 'timezone_now' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 imports 'timezone_now' from django.utils.timezone, and Edit 1 uses that exact same imported symbol 'timezone_now' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 adds 'do_update_user_presence' to an import statement, while Edit 1 uses that same function in a function call. This creates a direct definition-usage relationship where the imported symbol in Edit 0 is the exact same symbol being called in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the import-usage pair."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'do_update_user_presence' to an import statement, while Edit 1 uses that same function in a function call. This creates a direct definition-usage relationship where the imported symbol in Edit 0 is the exact same symbol being called in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the import-usage pair."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'UserPresence' - edit 0 adds it to an import list and edit 1 uses it in a function call. In Python, imports can be added after usage since undefined names only cause runtime errors, not parse errors. Both edits can be staged in either order, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'UserPresence' - edit 0 adds it to an import list and edit 1 uses it in a function call. In Python, imports can be added after usage since undefined names only cause runtime errors, not parse errors. Both edits can be staged in either order, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'UserPresence'. Edit 0 adds UserPresence to an import list, while Edit 1 uses UserPresence in a function definition. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'UserPresence'. Edit 0 adds UserPresence to an import list, while Edit 1 uses UserPresence in a function definition. This creates a direct definition-usage relationship where the import makes the symbol available for use in the same file. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds 'get_client' to the import list at the top of the file, while Edit 1 uses 'get_client(\"website\")' in a function call. This is a classic import-usage relationship where the exact same symbol 'get_client' is being imported in one edit and used in another edit within the same file. In Python, both edits can be staged in either order since referencing an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'get_client' to the import list at the top of the file, while Edit 1 uses 'get_client(\"website\")' in a function call. This is a classic import-usage relationship where the exact same symbol 'get_client' is being imported in one edit and used in another edit within the same file. In Python, both edits can be staged in either order since referencing an undefined symbol only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "These edits involve moving the same comment line from one location to another within the same function. Edit 0 removes the comment '# data to test import of hotspots' from line 716, and edit 1 adds the exact same comment at line 722. This is a cut-and-paste move operation where the removal must occur before the relocation to avoid duplication. The second edit cannot be properly staged until the first edit removes the original comment."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits are within the same test method and involve the same variable 'sample_user'. Edit 0 defines/assigns the variable 'sample_user = self.example_user('hamlet')', and edit 1 uses that exact same variable in a function call 'do_update_user_presence(sample_user, ...)'. The changed lines reference the exact same symbol - the variable 'sample_user' defined in edit 0 and used in edit 1. This creates a direct code dependency where edit 1 cannot execute successfully without the variable definition from edit 0, making this a definition-usage relationship within the same function scope."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        0
+    ]
+}

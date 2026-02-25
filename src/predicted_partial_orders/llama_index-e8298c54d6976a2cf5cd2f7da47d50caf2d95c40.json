@@ -1,0 +1,50 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits add identical lines of code (the comment and the ChatMessage put operation) in the same structural location within similar classes. Both are adding the exact same pattern: a comment '# inject new input into memory' followed by 'new_memory.put(ChatMessage(content=task.input, role=MessageRole.USER))'. This represents a bulk-edit pattern where the same code change is being applied to multiple similar classes as part of a single refactoring operation. The changes are structurally identical and target the same type of syntactic construct (method bodies in similar agent worker classes), making this a synchronized pattern substitution."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits add identical lines of code (the comment and the ChatMessage put operation) in the same structural location within similar classes. Both are adding the exact same pattern: a comment '# inject new input into memory' followed by 'new_memory.put(ChatMessage(content=task.input, role=MessageRole.USER))'. This represents a bulk-edit pattern where the same code change is being applied to multiple similar classes as part of a single refactoring operation. The changes are structurally identical and target the same type of syntactic construct (method bodies in similar agent worker classes), making this a synchronized pattern substitution."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new ChatMessage to memory in the SelfReflectionAgentWorker.initialize_step method, which increases the chat history length by 1. Edit 1 updates a test assertion to expect the chat history length to be 8 instead of 7, and updates the comment to reflect the additional 'user' message. The test is directly verifying the behavior modified in edit 0 - the addition of the user input message to chat history. These edits reference the same chat_history mechanism and the test assertion directly depends on the implementation change."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new ChatMessage to memory in the SelfReflectionAgentWorker.initialize_step method, which increases the chat history length by 1. Edit 1 updates a test assertion to expect the chat history length to be 8 instead of 7, and updates the comment to reflect the additional 'user' message. The test is directly verifying the behavior modified in edit 0 - the addition of the user input message to chat history. These edits reference the same chat_history mechanism and the test assertion directly depends on the implementation change."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new ChatMessage to memory in the ToolInteractiveReflectionAgentWorker.initialize_step method, which increases the chat history length by 1. Edit 1 updates a test assertion that checks the length of agent.chat_history from 7 to 8, and updates the comment to reflect the additional 'user' message. The test is directly verifying the behavior modified in Edit 0 - the addition of the user input message to memory affects the chat history length that the test is asserting. Both edits reference the same underlying chat_history mechanism, where Edit 0 modifies the implementation that affects chat history length, and Edit 1 updates the test expectation for that exact same chat history length."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new ChatMessage to memory in the ToolInteractiveReflectionAgentWorker.initialize_step method, which increases the chat history length by 1. Edit 1 updates a test assertion that checks the length of agent.chat_history from 7 to 8, and updates the comment to reflect the additional 'user' message. The test is directly verifying the behavior modified in Edit 0 - the addition of the user input message to memory affects the chat history length that the test is asserting. Both edits reference the same underlying chat_history mechanism, where Edit 0 modifies the implementation that affects chat history length, and Edit 1 updates the test expectation for that exact same chat history length."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution on the same type of syntactic construct (test assertions). They change the expected chat_history length from 7 to 8 and update the comment to reflect the same sequence pattern. The before\u2192after pattern is identical in both cases: single-line assertion becomes multi-line assertion with updated value and comment. This represents a bulk edit pattern where the same fix is being applied to multiple test files as part of a single, contiguous refactor to correct the expected chat history length."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution on the same type of syntactic construct (test assertions). They change the expected chat_history length from 7 to 8 and update the comment to reflect the same sequence pattern. The before\u2192after pattern is identical in both cases: single-line assertion becomes multi-line assertion with updated value and comment. This represents a bulk edit pattern where the same fix is being applied to multiple test files as part of a single, contiguous refactor to correct the expected chat history length."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        3,
+        4,
+        7
+    ]
+}

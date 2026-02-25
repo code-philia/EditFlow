@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits modify timestamp calculations by removing the '* 1000' multiplication from .timestamp() calls. Edit 0 changes 'creation_time.timestamp() * 1000' to 'creation_time.timestamp()' in the DynamoDB listener, while Edit 1 changes 'record_payload[\"approximateArrivalTimestamp\"].timestamp() * 1000' to just '.timestamp()' in the Kinesis listener. This represents an identical structural substitution pattern (removing '* 1000' from timestamp calculations) applied to the same type of syntactic construct (timestamp method calls) across related event source listeners. Both edits appear to be part of a single refactoring effort to correct timestamp precision handling across AWS Lambda event source listeners."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits modify timestamp calculations by removing the '* 1000' multiplication from .timestamp() calls. Edit 0 changes 'creation_time.timestamp() * 1000' to 'creation_time.timestamp()' in the DynamoDB listener, while Edit 1 changes 'record_payload[\"approximateArrivalTimestamp\"].timestamp() * 1000' to just '.timestamp()' in the Kinesis listener. This represents an identical structural substitution pattern (removing '* 1000' from timestamp calculations) applied to the same type of syntactic construct (timestamp method calls) across related event source listeners. Both edits appear to be part of a single refactoring effort to correct timestamp precision handling across AWS Lambda event source listeners."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 changes how the approximateArrivalTimestamp is calculated in the KinesisEventSourceListener, removing the multiplication by 1000 and changing from milliseconds to seconds with fractional precision. Edit 1 adds a test that validates the timestamp format by checking that the timestamp has 9 digits before the decimal point (corresponding to seconds since epoch). The test directly validates the behavior change made in edit 0 - both edits reference the exact same field 'approximateArrivalTimestamp' and the test is specifically designed to verify the timestamp format change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step in the same development task."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 changes how the approximateArrivalTimestamp is calculated in the KinesisEventSourceListener, removing the multiplication by 1000 and changing from milliseconds to seconds with fractional precision. Edit 1 adds a test that validates the timestamp format by checking that the timestamp has 9 digits before the decimal point (corresponding to seconds since epoch). The test directly validates the behavior change made in edit 0 - both edits reference the exact same field 'approximateArrivalTimestamp' and the test is specifically designed to verify the timestamp format change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step in the same development task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 changes the calculation of ApproximateCreationDateTime from `creation_time.timestamp() * 1000` to `creation_time.timestamp()` in the DynamoDB event source listener. Edit 1 adds a test assertion that checks the timestamp format by verifying it has 9 digits before the decimal point (using `int(math.log10(timestamp)) == 9`). Both edits reference the exact same field 'ApproximateCreationDateTime' in DynamoDB records. The production code change modifies how this timestamp is calculated, and the test code validates the format of this same timestamp field. This creates a direct code linkage where the test is specifically validating the behavior of the exact same field that was modified in the production code. Either edit could be made first and would naturally prompt the other as the next step - changing the timestamp calculation would prompt adding a test to verify the new format, or adding the test would reveal the need to fix the timestamp calculation."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 changes the calculation of ApproximateCreationDateTime from `creation_time.timestamp() * 1000` to `creation_time.timestamp()` in the DynamoDB event source listener. Edit 1 adds a test assertion that checks the timestamp format by verifying it has 9 digits before the decimal point (using `int(math.log10(timestamp)) == 9`). Both edits reference the exact same field 'ApproximateCreationDateTime' in DynamoDB records. The production code change modifies how this timestamp is calculated, and the test code validates the format of this same timestamp field. This creates a direct code linkage where the test is specifically validating the behavior of the exact same field that was modified in the production code. Either edit could be made first and would naturally prompt the other as the next step - changing the timestamp calculation would prompt adding a test to verify the new format, or adding the test would reveal the need to fix the timestamp calculation."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 removes the 'encryptionType' field from the record payload in the Kinesis event source listener implementation, while Edit 1 removes the corresponding test snapshot verification path for that same field. Both edits reference the exact same 'encryptionType' field - one removes it from the actual payload generation, and the other removes it from the test verification paths. This creates a direct code dependency where removing the field from the implementation naturally prompts removing its verification from tests, or vice versa, as part of the same coherent change to eliminate the encryptionType field."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 removes the 'encryptionType' field from the record payload in the Kinesis event source listener implementation, while Edit 1 removes the corresponding test snapshot verification path for that same field. Both edits reference the exact same 'encryptionType' field - one removes it from the actual payload generation, and the other removes it from the test verification paths. This creates a direct code dependency where removing the field from the implementation naturally prompts removing its verification from tests, or vice versa, as part of the same coherent change to eliminate the encryptionType field."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import of the 'math' module, and Edit 1 uses 'math.log10()' in the changed lines. The changed line in Edit 1 explicitly references the exact same symbol (math module) that is imported in Edit 0. This creates a direct code dependency where importing math enables the usage of math.log10(). However, in Python, the usage can be written before the import is present (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import of the 'math' module, and Edit 1 uses 'math.log10()' in the changed lines. The changed line in Edit 1 explicitly references the exact same symbol (math module) that is imported in Edit 0. This creates a direct code dependency where importing math enables the usage of math.log10(). However, in Python, the usage can be written before the import is present (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports the 'math' module, and Edit 1 uses 'math.log10()' in the changed lines. This is a classic import-usage relationship where the exact same symbol 'math' is being imported in one edit and referenced in another edit within the same file. After importing math in Edit 0, the usage in Edit 1 becomes immediately available and mechanically prompted. In Python, using an undefined module would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is syntactically valid even without the import. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'math' module, and Edit 1 uses 'math.log10()' in the changed lines. This is a classic import-usage relationship where the exact same symbol 'math' is being imported in one edit and referenced in another edit within the same file. After importing math in Edit 0, the usage in Edit 1 becomes immediately available and mechanically prompted. In Python, using an undefined module would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is syntactically valid even without the import. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits add the exact same import statement 'import math' in the same position (after 'import json') in different test files. This represents a bulk/pattern synchronization where identical textual substitution is being applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor adding the math import to multiple test files. Since both edits involve the exact same before\u2192after pattern on the same construct type, either edit can be made first and both reference the same symbol (math module)."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits add the exact same import statement 'import math' in the same position (after 'import json') in different test files. This represents a bulk/pattern synchronization where identical textual substitution is being applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor adding the math import to multiple test files. Since both edits involve the exact same before\u2192after pattern on the same construct type, either edit can be made first and both reference the same symbol (math module)."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import for the 'math' module at the top of the file, and Edit 1 uses that exact same 'math' module in a function call 'math.log10(timestamp)'. This creates a direct definition-usage relationship where the import in Edit 0 makes the 'math' symbol available for use in Edit 1. Both edits reference the exact same symbol 'math'. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import for the 'math' module at the top of the file, and Edit 1 uses that exact same 'math' module in a function call 'math.log10(timestamp)'. This creates a direct definition-usage relationship where the import in Edit 0 makes the 'math' symbol available for use in Edit 1. Both edits reference the exact same symbol 'math'. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

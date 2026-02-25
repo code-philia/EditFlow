@@ -1,0 +1,73 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 appends a group to the 'children' list, and Edit 1 uses that same 'children' list to create a result dictionary with child group IDs. The 'children' variable referenced in both edits is the exact same symbol within the same function scope. Edit 0 populates the list that Edit 1 then consumes to build the response. This creates a direct code dependency where the changed lines reference the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 appends a group to the 'children' list, and Edit 1 uses that same 'children' list to create a result dictionary with child group IDs. The 'children' variable referenced in both edits is the exact same symbol within the same function scope. Edit 0 populates the list that Edit 1 then consumes to build the response. This creates a direct code dependency where the changed lines reference the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'result' within the same function scope. Edit 0 wraps serializer.object with dict() and assigns it to result, while Edit 1 removes the dict() wrapper from the Response call since result is now already a dict. These changes are mechanically linked - after making edit 0 (converting result to a dict), edit 1 becomes the immediate next step to avoid double-wrapping with dict(). Either edit can be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'result' within the same function scope. Edit 0 wraps serializer.object with dict() and assigns it to result, while Edit 1 removes the dict() wrapper from the Response call since result is now already a dict. These changes are mechanically linked - after making edit 0 (converting result to a dict), edit 1 becomes the immediate next step to avoid double-wrapping with dict(). Either edit can be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'result' within the same function scope. Edit 0 modifies the assignment to 'result' by wrapping it in dict(), and Edit 1 adds a new key-value pair to the same 'result' dictionary. The changed lines in both edits explicitly reference the same variable symbol 'result', creating a direct code dependency where modifying the result variable in one edit creates an immediate prompt for the other edit as part of the same micro-task of building the response dictionary."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'result' within the same function scope. Edit 0 modifies the assignment to 'result' by wrapping it in dict(), and Edit 1 adds a new key-value pair to the same 'result' dictionary. The changed lines in both edits explicitly reference the same variable symbol 'result', creating a direct code dependency where modifying the result variable in one edit creates an immediate prompt for the other edit as part of the same micro-task of building the response dictionary."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 initializes a variable 'children' as an empty list, and Edit 1 appends to that same 'children' variable. The changed lines reference the exact same symbol 'children'. After making Edit 0 (initializing the list), Edit 1 becomes the immediate next step to use that list. However, Edit 1 could also be written first since Python allows referencing undefined variables at parse time (would only fail at runtime with NameError). Since both edits can be parsed and staged in either order, and they reference the exact same symbol with one defining and the other using it, this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 initializes a variable 'children' as an empty list, and Edit 1 appends to that same 'children' variable. The changed lines reference the exact same symbol 'children'. After making Edit 0 (initializing the list), Edit 1 becomes the immediate next step to use that list. However, Edit 1 could also be written first since Python allows referencing undefined variables at parse time (would only fail at runtime with NameError). Since both edits can be parsed and staged in either order, and they reference the exact same symbol with one defining and the other using it, this is a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 initializes a variable 'children' as an empty list, and Edit 1 references this exact same variable 'children' in a list comprehension. The changed lines reference the exact same symbol - the variable 'children' defined in Edit 0 and used in Edit 1. After making Edit 0, Edit 1 becomes the immediate next step to actually use the initialized variable. This creates a direct code dependency where the usage in Edit 1 depends on the definition in Edit 0."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits modify the structure of the 'merge' field in the response data for the same API endpoint. Edit 0 changes the implementation in the actual endpoint to return a dictionary with 'parent' and 'children' keys instead of a boolean, while Edit 1 updates the corresponding test assertion to expect this new dictionary structure. The changed lines reference the exact same response field structure ('merge' with 'parent' and 'children' keys), making this a test-production code synchronization where the test directly asserts on the exact same data structure being modified in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits modify the structure of the 'merge' field in the response data for the same API endpoint. Edit 0 changes the implementation in the actual endpoint to return a dictionary with 'parent' and 'children' keys instead of a boolean, while Edit 1 updates the corresponding test assertion to expect this new dictionary structure. The changed lines reference the exact same response field structure ('merge' with 'parent' and 'children' keys), making this a test-production code synchronization where the test directly asserts on the exact same data structure being modified in the production code."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'merge' key to the 'result' dictionary, while Edit 1 changes the return statement from 'Response(dict(result))' to 'Response(result)'. These edits reference the exact same 'result' symbol and are part of a single micro-task: modifying the result dictionary and then returning it. Edit 0 adds data to result, making it natural to then optimize the return statement in Edit 1 by removing the redundant dict() wrapper. Either edit can be made first without causing parse errors, and both reference the same result variable in their changed lines."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'merge' key to the 'result' dictionary, while Edit 1 changes the return statement from 'Response(dict(result))' to 'Response(result)'. These edits reference the exact same 'result' symbol and are part of a single micro-task: modifying the result dictionary and then returning it. Edit 0 adds data to result, making it natural to then optimize the return statement in Edit 1 by removing the redundant dict() wrapper. Either edit can be made first without causing parse errors, and both reference the same result variable in their changed lines."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5
+    ]
+}

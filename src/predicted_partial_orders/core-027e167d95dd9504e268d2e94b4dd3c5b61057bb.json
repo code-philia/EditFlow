@@ -1,0 +1,132 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds the `from __future__ import annotations` import at the top of the file, while Edit 1 adds a method with a return type annotation `str | None`. The `from __future__ import annotations` import is required in Python versions before 3.10 to use the union syntax `str | None` in type annotations. Without this import, the `str | None` syntax would cause a parse error. Therefore, Edit 0 must be applied before Edit 1 to avoid a syntax error."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports CONF_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same symbol CONF_UNIT_OF_MEASUREMENT in a schema definition. The import in Edit 0 makes the symbol available for use in Edit 1. This creates a direct code dependency where the imported symbol in Edit 0 is immediately used in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports CONF_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same symbol CONF_UNIT_OF_MEASUREMENT in a schema definition. The import in Edit 0 makes the symbol available for use in Edit 1. This creates a direct code dependency where the imported symbol in Edit 0 is immediately used in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 imports CONF_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses this exact same symbol in the unit_of_measurement property method. The changed lines reference the exact same symbol - CONF_UNIT_OF_MEASUREMENT. After importing the symbol in Edit 0, Edit 1 becomes the immediate next step to use it. Since Python allows usage before import (runtime NameError only, not parse error), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 imports CONF_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses this exact same symbol in the unit_of_measurement property method. The changed lines reference the exact same symbol - CONF_UNIT_OF_MEASUREMENT. After importing the symbol in Edit 0, Edit 1 becomes the immediate next step to use it. Since Python allows usage before import (runtime NameError only, not parse error), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds CONF_UNIT_OF_MEASUREMENT as an optional configuration parameter to the schema validation. Edit 1 adds a unit_of_measurement property method that retrieves this same CONF_UNIT_OF_MEASUREMENT configuration value. Both edits reference the exact same symbol (CONF_UNIT_OF_MEASUREMENT) and form a definition-usage pair where the configuration schema defines what can be accepted and the property method uses that configuration. After adding either edit, the other becomes the immediate next step to complete the feature implementation."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds CONF_UNIT_OF_MEASUREMENT as an optional configuration parameter to the schema validation. Edit 1 adds a unit_of_measurement property method that retrieves this same CONF_UNIT_OF_MEASUREMENT configuration value. Both edits reference the exact same symbol (CONF_UNIT_OF_MEASUREMENT) and form a definition-usage pair where the configuration schema defines what can be accepted and the property method uses that configuration. After adding either edit, the other becomes the immediate next step to complete the feature implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After importing ATTR_UNIT_OF_MEASUREMENT in Edit 0, using it in Edit 1 becomes the immediate next step. In Python, both edits can be staged in either order since using an undefined symbol only causes a runtime NameError, not a parse error, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After importing ATTR_UNIT_OF_MEASUREMENT in Edit 0, using it in Edit 1 becomes the immediate next step. In Python, both edits can be staged in either order since using an undefined symbol only causes a runtime NameError, not a parse error, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This is a classic import-usage pattern where the import creates the symbol availability that enables its usage. Both edits reference the exact same symbol (ATTR_UNIT_OF_MEASUREMENT), and after making either edit, the other becomes the immediate next step to complete the functionality. In Python, the usage can be written before the import (it would only fail at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports ATTR_UNIT_OF_MEASUREMENT from homeassistant.const, and Edit 1 uses that exact same imported symbol in a test assertion. This is a classic import-usage pattern where the import creates the symbol availability that enables its usage. Both edits reference the exact same symbol (ATTR_UNIT_OF_MEASUREMENT), and after making either edit, the other becomes the immediate next step to complete the functionality. In Python, the usage can be written before the import (it would only fail at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds the 'unit_of_measurement': 'my unit' parameter to the MQTT number configuration, and Edit 1 adds an assertion to verify that this unit of measurement is correctly set in the state attributes. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration parameter, the natural next step is to add the corresponding assertion to verify the functionality works correctly."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds the 'unit_of_measurement': 'my unit' parameter to the MQTT number configuration, and Edit 1 adds an assertion to verify that this unit of measurement is correctly set in the state attributes. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration parameter, the natural next step is to add the corresponding assertion to verify the functionality works correctly."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds 'unit_of_measurement': 'my unit' to the test configuration, and Edit 1 adds an assertion to verify that the unit of measurement attribute is correctly set to 'my unit'. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration in Edit 0, the natural next step would be to add the corresponding assertion in Edit 1 to verify the functionality works correctly. This is a bi-directional relationship because either edit could be written first, and both reference the same test value."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds 'unit_of_measurement': 'my unit' to the test configuration, and Edit 1 adds an assertion to verify that the unit of measurement attribute is correctly set to 'my unit'. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration in Edit 0, the natural next step would be to add the corresponding assertion in Edit 1 to verify the functionality works correctly. This is a bi-directional relationship because either edit could be written first, and both reference the same test value."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds the 'unit_of_measurement': 'my unit' parameter to the MQTT number component configuration, and Edit 1 adds an assertion to verify that this unit of measurement is correctly set in the component's attributes. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration parameter, the natural next step is to assert that it works correctly, making this a bi-directional relationship where either edit prompts the other as the immediate next action in the same micro-task."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Both edits are part of the same test function and work together to test the unit_of_measurement functionality. Edit 0 adds the 'unit_of_measurement': 'my unit' parameter to the MQTT number component configuration, and Edit 1 adds an assertion to verify that this unit of measurement is correctly set in the component's attributes. The changed lines reference the exact same value ('my unit') and form a direct test setup-assertion pair within the same test method. After adding the configuration parameter, the natural next step is to assert that it works correctly, making this a bi-directional relationship where either edit prompts the other as the immediate next action in the same micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple locations within the same test context. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). Either edit can be made first, and both are part of the same contiguous refactoring task to add unit of measurement assertions throughout the test."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple locations within the same test context. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). Either edit can be made first, and both are part of the same contiguous refactoring task to add unit of measurement assertions throughout the test."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple locations within the same test context. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (assertion statements). Either edit can be made first, and both are part of the same contiguous refactoring task to add unit of measurement assertions throughout the test."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple locations within the same test context. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (assertion statements). Either edit can be made first, and both are part of the same contiguous refactoring task to add unit of measurement assertions throughout the test."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple similar test assertions. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions within the same function). Either edit can be made first, and after making either, the other becomes a natural next step to maintain consistency in the test pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits add identical assertion lines testing the same attribute (ATTR_UNIT_OF_MEASUREMENT) with the same expected value ('my unit') within the same test function. This represents a bulk-edit pattern where the same structural change is being applied to multiple similar test assertions. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions within the same function). Either edit can be made first, and after making either, the other becomes a natural next step to maintain consistency in the test pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

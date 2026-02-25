@@ -1,0 +1,100 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the logging module, and Edit 1 uses that exact same logging module by calling logging.getLogger(). This creates a direct import-usage relationship where the changed lines reference the exact same symbol 'logging'. After importing logging in Edit 0, using logging.getLogger() in Edit 1 becomes the natural next step. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the logging module, and Edit 1 uses that exact same logging module by calling logging.getLogger(). This creates a direct import-usage relationship where the changed lines reference the exact same symbol 'logging'. After importing logging in Edit 0, using logging.getLogger() in Edit 1 becomes the natural next step. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 imports the function `cache_url` from `utils.io`, and Edit 1 uses that exact same function `cache_url` in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing `cache_url` in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage before import (resulting in a runtime NameError only, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 imports the function `cache_url` from `utils.io`, and Edit 1 uses that exact same function `cache_url` in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing `cache_url` in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage before import (resulting in a runtime NameError only, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Both edits perform an identical import addition ('from utils.io import cache_url') in similar contexts (both files are importing from core.config and other modules). This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single refactoring operation. The edits involve the same syntactic construct (import statements) with identical before\u2192after patterns, making them part of a synchronized multi-file substitution."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Both edits perform an identical import addition ('from utils.io import cache_url') in similar contexts (both files are importing from core.config and other modules). This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single refactoring operation. The edits involve the same syntactic construct (import statements) with identical before\u2192after patterns, making them part of a synchronized multi-file substitution."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 imports the `cache_url` function from `utils.io`, and Edit 1 uses that exact same `cache_url` function in the changed lines. This creates a direct definition-usage relationship where the import makes the function available for use. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional. The changed lines reference the exact same symbol `cache_url`."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 imports the `cache_url` function from `utils.io`, and Edit 1 uses that exact same `cache_url` function in the changed lines. This creates a direct definition-usage relationship where the import makes the function available for use. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional. The changed lines reference the exact same symbol `cache_url`."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 imports the cache_url function from utils.io, and Edit 1 uses that exact same cache_url function by calling it with args.weights and cfg.DOWNLOAD_CACHE as parameters. This creates a direct import-usage relationship where the imported symbol in Edit 0 is the exact same symbol being called in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse-time syntax error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 imports the cache_url function from utils.io, and Edit 1 uses that exact same cache_url function by calling it with args.weights and cfg.DOWNLOAD_CACHE as parameters. This creates a direct import-usage relationship where the imported symbol in Edit 0 is the exact same symbol being called in Edit 1. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse-time syntax error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'logger' within the same function 'main'. Edit 0 defines/creates the logger variable, and edit 1 uses that logger variable to log information. After making edit 0, the logger is available for use, making edit 1 a natural next step. After making edit 1, if the logger wasn't already defined, it would create an immediate need to define it (edit 0). Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'logger' within the same function 'main'. Edit 0 defines/creates the logger variable, and edit 1 uses that logger variable to log information. After making edit 0, the logger is available for use, making edit 1 a natural next step. After making edit 1, if the logger wasn't already defined, it would create an immediate need to define it (edit 0). Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable 'i' by changing the for loop from 'for model_file in args.models_to_run:' to 'for i, model_file in enumerate(args.models_to_run):'. Edit 1 then uses this newly introduced variable 'i' in multiple places within the loop body (i % 2 == 0, args.models_to_run[i] = model_file). The changed lines in edit 1 explicitly reference the exact same symbol 'i' that was introduced in edit 0. After making edit 0, the variable 'i' becomes available for use, making edit 1's usage of 'i' the natural next step. However, edit 1 could technically be written and parsed even without edit 0 (it would just cause a NameError at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new variable 'i' by changing the for loop from 'for model_file in args.models_to_run:' to 'for i, model_file in enumerate(args.models_to_run):'. Edit 1 then uses this newly introduced variable 'i' in multiple places within the loop body (i % 2 == 0, args.models_to_run[i] = model_file). The changed lines in edit 1 explicitly reference the exact same symbol 'i' that was introduced in edit 0. After making edit 0, the variable 'i' becomes available for use, making edit 1's usage of 'i' the natural next step. However, edit 1 could technically be written and parsed even without edit 0 (it would just cause a NameError at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 imports the `cache_url` function from `utils.io`, and Edit 1 uses that exact same `cache_url` function by calling it with `args.weights` and `cfg.DOWNLOAD_CACHE` as parameters. This creates a direct import-usage relationship where both edits reference the exact same symbol (`cache_url`). After importing the function in Edit 0, using it in Edit 1 becomes the immediate, mechanically obvious next step. Since this is Python, the usage can be written before the import (it would only fail at runtime), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 imports the `cache_url` function from `utils.io`, and Edit 1 uses that exact same `cache_url` function by calling it with `args.weights` and `cfg.DOWNLOAD_CACHE` as parameters. This creates a direct import-usage relationship where both edits reference the exact same symbol (`cache_url`). After importing the function in Edit 0, using it in Edit 1 becomes the immediate, mechanically obvious next step. Since this is Python, the usage can be written before the import (it would only fail at runtime), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 introduces a call to `cache_url(model_file, cfg.DOWNLOAD_CACHE)` in the function body, while Edit 1 adds the import statement `from utils.io import cache_url` in a different file. These edits reference the exact same symbol `cache_url` - Edit 1 makes the function available for import, and Edit 0 uses that exact function. However, since this is Python, the usage in Edit 0 can be written and parsed even without the import in Edit 1 (it would only fail at runtime with a NameError). Both edits can be staged in either order without causing parser-level syntax errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a call to `cache_url(model_file, cfg.DOWNLOAD_CACHE)` in the function body, while Edit 1 adds the import statement `from utils.io import cache_url` in a different file. These edits reference the exact same symbol `cache_url` - Edit 1 makes the function available for import, and Edit 0 uses that exact function. However, since this is Python, the usage in Edit 0 can be written and parsed even without the import in Edit 1 (it would only fail at runtime with a NameError). Both edits can be staged in either order without causing parser-level syntax errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        3,
+        5
+    ]
+}

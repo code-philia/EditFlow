@@ -1,0 +1,145 @@
+{
+  "name": "commit-recovery-simulator",
+  "displayName": "Simulator and Flow-keeper",
+  "description": "Automated Code Editing Assistant Tool",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commit-recovery-simulator.simulateCommitRecoveryFromInput",
+        "title": "Commit Simulation"
+      },
+      {
+        "command": "commit-recovery-simulator.pauseResume",
+        "title": "Resume Simulation",
+        "icon": "/media/pause_and_continue.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.simulateEditSuggestion",
+        "title": "Flow-keeper: Suggest Next Edit"
+      },
+      {
+        "command": "edit-suggestion-simulator.suggestion",
+        "title": "Suggest Next Edit",
+        "icon": "/media/suggestion.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.acceptDiff",
+        "title": "Accept Diff",
+        "icon": "/media/accept.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.rejectDiff",
+        "title": "Reject Diff",
+        "icon": "/media/reject.svg"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "simulator",
+          "title": "Simulator",
+          "icon": "./media/simulation.svg"
+        },
+        {
+          "id": "Flow-keeper",
+          "title": "Flow-keeper",
+          "icon": "./media/flow-keeper.svg"
+        }
+      ]
+    },
+    "views": {
+      "simulator": [
+        {
+          "id": "simulatorView",
+          "name": "Predicted Locations"
+        }
+      ],
+      "Flow-keeper": [
+        {
+          "id": "flowKeeper.Tracking",
+          "name": "Edit Flow Tracking"
+        }
+      ]
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "commit-recovery-simulator.pauseResume",
+          "group": "navigation@3",
+          "when": "!(resourceFilename =~ /^hunk1-/)"
+        },
+        {
+          "command": "edit-suggestion-simulator.suggestion",
+          "group": "navigation@3",
+          "when": "!(resourceFilename =~ /^hunk1-/)"
+        },
+        {
+          "command": "edit-suggestion-simulator.acceptDiff",
+          "group": "navigation@3",
+          "when": "resourceFilename =~ /^hunk1-/"
+        },
+        {
+          "command": "edit-suggestion-simulator.rejectDiff",
+          "group": "navigation@3",
+          "when": "resourceFilename =~ /^hunk1-/"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "Flow-keeper",
+        "properties": {
+          "flow-keeper.serverURL": {
+            "type": "string",
+            "default": "http://localhost:5002",
+            "description": "The backend URL for Flow-keeper optimization server."
+          }
+        }
+      },
+      {
+        "title": "Simulator",
+        "properties": {
+          "simulator.serverURL": {
+            "type": "string",
+            "default": "http://localhost:5001",
+            "description": "The backend URL for Simulator server."
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.36",
+    "axios": "^1.10.0",
+    "diff": "^8.0.2",
+    "ejs": "^3.1.9",
+    "lodash": "^4.17.21",
+    "luxon": "^3.7.1",
+    "openai": "^5.1.1"
+  }
+}

@@ -1,0 +1,73 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the Alert.to_dict() method signature by adding a 'full' parameter with default value True. Edit 1 calls alert.to_dict(full=False) in the notify_webhook function. The changed lines reference the exact same symbol - the to_dict method of the Alert class. Edit 1's call to alert.to_dict(full=False) directly depends on the signature change in Edit 0, making this a clear definition-usage relationship for the same symbol. Either edit can be staged first since Python allows method calls with parameters that don't exist yet (would cause runtime TypeError, not parse error), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the Alert.to_dict() method signature by adding a 'full' parameter with default value True. Edit 1 calls alert.to_dict(full=False) in the notify_webhook function. The changed lines reference the exact same symbol - the to_dict method of the Alert class. Edit 1's call to alert.to_dict(full=False) directly depends on the signature change in Edit 0, making this a clear definition-usage relationship for the same symbol. Either edit can be staged first since Python allows method calls with parameters that don't exist yet (would cause runtime TypeError, not parse error), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are modifying the same method `to_dict` within the same class `Alert`. Edit 0 changes the method signature by adding a `full` parameter and creates a dictionary variable `d`. Edit 1 adds the conditional logic that uses the `full` parameter to determine what to include in the dictionary `d`, and returns `d`. The changed lines in both edits reference the exact same symbols: the `full` parameter, the `d` variable, and `self`. Edit 1 cannot function without the parameter and variable introduced in Edit 0, making this a clear case of immediate code dependency where both edits are part of the same contiguous micro-task of refactoring the `to_dict` method."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are modifying the same method `to_dict` within the same class `Alert`. Edit 0 changes the method signature by adding a `full` parameter and creates a dictionary variable `d`. Edit 1 adds the conditional logic that uses the `full` parameter to determine what to include in the dictionary `d`, and returns `d`. The changed lines in both edits reference the exact same symbols: the `full` parameter, the `d` variable, and `self`. Edit 1 cannot function without the parameter and variable introduced in Edit 0, making this a clear case of immediate code dependency where both edits are part of the same contiguous micro-task of refactoring the `to_dict` method."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a `to_dict(full=False)` method to the Alert class that returns a dictionary representation with conditional inclusion of query and user data based on the `full` parameter. Edit 1 modifies the `notify_webhook` function to call `alert.to_dict(full=False)` instead of manually constructing alert data fields. The changed line in edit 1 directly calls the exact same method signature that was added in edit 0. This creates an immediate code dependency where edit 0 must exist for edit 1 to work properly, as edit 1 references the newly defined `to_dict` method with the `full` parameter."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the json module, and Edit 1 uses that exact same json module in the changed line with json.dumps(). This creates a direct import-usage relationship where the imported symbol 'json' in Edit 0 is explicitly referenced in the changed line of Edit 1. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the json module, and Edit 1 uses that exact same json module in the changed line with json.dumps(). This creates a direct import-usage relationship where the imported symbol 'json' in Edit 0 is explicitly referenced in the changed line of Edit 1. In Python, usage before import would cause a runtime NameError but both edits can be parsed and staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits modify the same `data` dictionary within the same function `notify_webhook`. Edit 0 changes the structure and content of the `data` dictionary, while Edit 1 modifies how this same `data` dictionary is used in the `requests.post` call by adding JSON serialization. The changed lines reference the exact same symbol (`data`) - Edit 0 defines/modifies it and Edit 1 uses it. After making either edit, the other becomes the immediate next step to ensure the webhook functionality works correctly with the new data structure and serialization approach. This represents a direct code dependency where both edits are part of the same micro-task of updating the webhook notification system."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits modify the same `data` dictionary within the same function `notify_webhook`. Edit 0 changes the structure and content of the `data` dictionary, while Edit 1 modifies how this same `data` dictionary is used in the `requests.post` call by adding JSON serialization. The changed lines reference the exact same symbol (`data`) - Edit 0 defines/modifies it and Edit 1 uses it. After making either edit, the other becomes the immediate next step to ensure the webhook functionality works correctly with the new data structure and serialization approach. This represents a direct code dependency where both edits are part of the same micro-task of updating the webhook notification system."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are modifying the same webhook notification function within the same code block. Edit 0 changes the data structure from individual fields to a structured format with an 'event' field and alert object, while Edit 1 changes the Content-Type header from 'application/x-www-form-urlencoded' to 'application/json'. These changes are directly related - when changing the data format to a structured JSON format (edit 0), the corresponding HTTP header must be updated to indicate JSON content type (edit 1). Both edits reference the same webhook implementation and the header change is mechanically required to match the data format change. Either edit can be made first as both are syntactically valid, but together they form a cohesive change to the webhook payload format."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are modifying the same webhook notification function within the same code block. Edit 0 changes the data structure from individual fields to a structured format with an 'event' field and alert object, while Edit 1 changes the Content-Type header from 'application/x-www-form-urlencoded' to 'application/json'. These changes are directly related - when changing the data format to a structured JSON format (edit 0), the corresponding HTTP header must be updated to indicate JSON content type (edit 1). Both edits reference the same webhook implementation and the header change is mechanically required to match the data format change. Either edit can be made first as both are syntactically valid, but together they form a cohesive change to the webhook payload format."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'headers' within the same function 'notify_webhook'. Edit 0 changes the headers dictionary to specify 'Content-Type': 'application/json', while Edit 1 changes the data parameter to use json.dumps() instead of raw data. These changes are mechanically linked - changing the content type to JSON creates an immediate prompt to also change the data format to match JSON encoding. The exact same 'headers' variable is referenced in both changed lines, making this a direct code dependency where either edit naturally prompts the other as the next contiguous action."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'headers' within the same function 'notify_webhook'. Edit 0 changes the headers dictionary to specify 'Content-Type': 'application/json', while Edit 1 changes the data parameter to use json.dumps() instead of raw data. These changes are mechanically linked - changing the content type to JSON creates an immediate prompt to also change the data format to match JSON encoding. The exact same 'headers' variable is referenced in both changed lines, making this a direct code dependency where either edit naturally prompts the other as the next contiguous action."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2
+    ]
+}

@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are part of the same refactoring within the same method (system_listMethods). They replace the remove_duplicates() pattern with set operations using the |= operator, and change the final methods.sort() + return methods to return sorted(methods). The edits reference the same 'methods' variable and are applying identical structural transformations (remove_duplicates + list concatenation \u2192 set union operations). This is a uniform substitution pattern within the same function scope, where both changes work together to refactor the deduplication logic from a custom function to built-in set operations."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring within the same method (system_listMethods). They replace the remove_duplicates() pattern with set operations using the |= operator, and change the final methods.sort() + return methods to return sorted(methods). The edits reference the same 'methods' variable and are applying identical structural transformations (remove_duplicates + list concatenation \u2192 set union operations). This is a uniform substitution pattern within the same function scope, where both changes work together to refactor the deduplication logic from a custom function to built-in set operations."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring within the same method (system_listMethods) to change from list concatenation to set operations. Edit 0 changes 'methods' from a list (self.funcs.keys()) to a set, and Edit 1 changes the operation from list concatenation with remove_duplicates to set union (|=). The variable 'methods' is the exact same symbol being modified in both edits, and this appears to be a coordinated refactoring to use sets instead of lists for duplicate removal. Both edits reference and modify the same 'methods' variable within the same function scope, making them part of a single, contiguous micro-task where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits are part of the same refactoring within the same method (system_listMethods) to change from list concatenation to set operations. Edit 0 changes 'methods' from a list (self.funcs.keys()) to a set, and Edit 1 changes the operation from list concatenation with remove_duplicates to set union (|=). The variable 'methods' is the exact same symbol being modified in both edits, and this appears to be a coordinated refactoring to use sets instead of lists for duplicate removal. Both edits reference and modify the same 'methods' variable within the same function scope, making them part of a single, contiguous micro-task where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes the definition of the `remove_duplicates` function, while Edit 1 removes the usage/call of that same function and replaces it with equivalent set operations. The changed lines reference the exact same symbol - the `remove_duplicates` function. After removing the function definition (Edit 0), the usage in Edit 1 would cause a NameError at runtime, making Edit 1 the immediate next step to eliminate the undefined reference. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime/import time, not parse time), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes the definition of the `remove_duplicates` function, while Edit 1 removes the usage/call of that same function and replaces it with equivalent set operations. The changed lines reference the exact same symbol - the `remove_duplicates` function. After removing the function definition (Edit 0), the usage in Edit 1 would cause a NameError at runtime, making Edit 1 the immediate next step to eliminate the undefined reference. However, since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime/import time, not parse time), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the `remove_duplicates` function, while Edit 1 removes a call to that same function and replaces it with equivalent set operations. The changed lines reference the exact same symbol - the `remove_duplicates` function. After removing the function definition in Edit 0, the call in Edit 1 would result in a NameError at runtime, making Edit 1's change necessary to maintain functionality. However, since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the definition of the `remove_duplicates` function, while Edit 1 removes a call to that same function and replaces it with equivalent set operations. The changed lines reference the exact same symbol - the `remove_duplicates` function. After removing the function definition in Edit 0, the call in Edit 1 would result in a NameError at runtime, making Edit 1's change necessary to maintain functionality. However, since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits are part of a single refactoring operation within the same method (system_listMethods) that converts from a list-based approach to a set-based approach for handling method collections. Edit 0 changes 'methods = self.funcs.keys()' to 'methods = set(self.funcs.keys())', establishing 'methods' as a set. Edit 1 then uses set operations ('methods |= set(...)') and returns 'sorted(methods)' instead of the previous list operations. The changed lines in both edits reference the exact same 'methods' variable, and this represents a coordinated structural transformation where both changes implement the same pattern (converting to set operations). This is a uniform substitution pattern within the same function scope, making either edit naturally prompt the other as part of the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits are part of a single refactoring operation within the same method (system_listMethods) that converts from a list-based approach to a set-based approach for handling method collections. Edit 0 changes 'methods = self.funcs.keys()' to 'methods = set(self.funcs.keys())', establishing 'methods' as a set. Edit 1 then uses set operations ('methods |= set(...)') and returns 'sorted(methods)' instead of the previous list operations. The changed lines in both edits reference the exact same 'methods' variable, and this represents a coordinated structural transformation where both changes implement the same pattern (converting to set operations). This is a uniform substitution pattern within the same function scope, making either edit naturally prompt the other as part of the same micro-task."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        5
+    ]
+}
