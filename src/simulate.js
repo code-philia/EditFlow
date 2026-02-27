@@ -496,7 +496,7 @@ async function sendBackendRequest(commit_url, system_under_test, status, suggest
 let firstSimulationSuccess = true;
 
 function getSimulationServerURL() {
-    const config = vscode.workspace.getConfiguration('simulator');
+    const config = vscode.workspace.getConfiguration('digitalTwinSimulator');
     return config.get('serverURL', 'http://localhost:5001');
 }
 
@@ -526,13 +526,13 @@ async function validateSimulationServerConnection(showMessage = true, retryInter
         });
         if (response.status === 200) {
             if (showMessage || firstSimulationSuccess) {
-                vscode.window.showInformationMessage('✅ Successfully connected to the simulation server! 🎉');
+                vscode.window.showInformationMessage('✅ Successfully connected to Digital twin simulator server! 🎉');
             }
             firstSimulationSuccess = false;
             return true;
         } else {
             firstSimulationSuccess = true;
-            vscode.window.showErrorMessage('❌ Simulation server connection failed: invalid response');
+            vscode.window.showErrorMessage('❌ Digital twin simulator server connection failed: invalid response');
             setTimeout(() => {
                 validateSimulationServerConnection(showMessage, retryInterval);
             }, retryInterval);
@@ -540,7 +540,7 @@ async function validateSimulationServerConnection(showMessage = true, retryInter
         }
     } catch (error) {
         firstSimulationSuccess = true;
-        vscode.window.showErrorMessage(`❌ Simulation server connection failed: ${error.message}`);
+        vscode.window.showErrorMessage(`❌ Digital twin simulator server connection failed: ${error.message}`);
         setTimeout(() => {
             validateSimulationServerConnection(showMessage, retryInterval);
         }, retryInterval);

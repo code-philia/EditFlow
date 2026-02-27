@@ -21,40 +21,62 @@ This repository contains both the [prompt auto-tuning implementation](prompt_tun
 </td>
 </tr></table>
 
+## 📌 Core Modules
+EditFlow extension includes two independent but complementary core modules:
+1. **Digital twin simulator**
+   - **Purpose**: Reconstruct and simulate the entire developer code editing flow based on commit history, visualize edit suggestions at each timestamp, and evaluate the effectiveness of code edit recommendation systems.
+   - **Backend Service**: `simulation_server.py` (default port: 5001)
+   - **Configuration**: VS Code `Settings > Digital Twin Simulator: Server URL`
+
+2. **EditFlow Optimization**
+   - **Purpose**: Optimize existing code editing assistants by maintaining the consistency of developer editing flows, providing context-aware next-edit suggestions, and supporting interactive modification/validation of suggestions.
+   - **Backend Service**: `optimization_server.py` (default port: 5002)
+   - **Configuration**: VS Code `Settings > Edit Flow: Server URL`
+
 
 ## 💡 Usage and Interaction
 
-1. Visualization of simualtion process:
+### Prerequisite
+Start the corresponding backend service before using each module:
+- For Digital twin simulator: Run `python src/simulation_server.py` at project root (Default port 5001)
+- For EditFlow Optimization: Run `python src/optimization_server.py` at project root (Default port 5002)
+- For both modules: Start both backend services
+- If you want to change the port, please refer to `server_config.ini` and remember to update the extension configuration at: `Settings > Digital Twin Simulator: Server URL` or `Settings > Edit Flow: Server URL` as well.
 
-    * Start backend service via `python src/simulation_server.py` at project root directory;
-    * Open VS Code;
-    * User press `cmd` + `shift` + `p` (on MacOS) or `ctrl` + `shift` + `p` (on Windows/Linux) to open command palette;
-    * User type `Commit simulation` and press `enter` to activate the simulation assistant.
-    * Users enter the `commit URL` to be simulated, then select the `System under test` and `Suggestion type`.
-    * User can watch the simulation:
-        * Check edit suggestions (location + content) at each timestamp;
-        * Check the flow keeping status of each suggestion;
-        * Watch the simulation process in real time;
-        * The plugin pauses after each edit suggestion is simulated, waiting for user confirmation to continue;
-        * Click the `Resume Simulation` button to start simulating the next edit.
-        * View the `Evaluation Results` after the simulation completes.
+### 1. Digital twin simulator (Simulation process visualization)
+- Start the Digital twin simulator backend service: Run `python src/simulation_server.py` at project root directory (port 5001);
+- Open VS Code;
+- Press `cmd` + `shift` + `p` (MacOS) or `ctrl` + `shift` + `p` (Windows/Linux) to open the command palette;
+- Type `Commit simulation` and press `enter` to activate the simulation assistant;
+- Enter the `commit URL` to be simulated, then select the `System under test` and `Suggestion type`;
+- Watch the simulation process:
+  - Check edit suggestions (location + content) at each timestamp;
+  - Check the flow keeping status of each suggestion;
+  - View the simulation process in real time;
+  - The plugin pauses after each edit suggestion is simulated (wait for user confirmation to continue);
+  - Click the `Resume Simulation` button to simulate the next edit;
+  - View the `Evaluation Results` after simulation completes.
 
-2. Batch simulation:
-    * Set `Suggestion type`, `System under test` in `src/simulation/main.py: __main__`;
-    * Run `python -m simulation.main` at `src` directory;
 
-3. Optimize existing code editing assistants:
-    * Start backend service via `python src/optimization_server.py` at project root directory;
-    * Open VS Code;
-    * User press `cmd` + `shift` + `p` (on MacOS) or `ctrl` + `shift` + `p` (on Windows/Linux) to open command palette;
-    * User type `Flow-keeper: Suggest Next Edit` and press `enter` to activate the Optimization assistant.
-    * Users select the `Test System`.
-    * User can start editing on the project after initializing the assistant;
-    * Click `Suggest Next Edit` button and enter edit description to get next edit suggestion.
-    * Edit suggestions will appear in left side bar.
-    * User can click each location, VS Code will jump to the corresponding location, with edit suggestion shown in `diff view`.
-    * User can modify suggested content on the right panel, and click `Accept` button to apply, or `Reject` button to reject the suggestion.
-    * Suggestions will not automatically be refreshed, user can continue to browse rest suggestions, until user click `Suggest Next Edit` button again
+### 2. Batch simulation (Digital twin simulator)
+- Set `Suggestion type` and `System under test` in `src/simulation/main.py: __main__`;
+- Run the batch simulation command: `python -m simulation.main` at `src` directory (ensure the Digital twin simulator backend service is running first);
+
+### 3. EditFlow Optimization (Optimize existing code editing assistants)
+- Start the EditFlow Optimization backend service: Run `python src/optimization_server.py` at project root directory (port 5002);
+- Open VS Code;
+- Press `cmd` + `shift` + `p` (MacOS) or `ctrl` + `shift` + `p` (Windows/Linux) to open the command palette;
+- Type `Flow-keeper: Suggest Next Edit` and press `enter` to activate the Optimization assistant;
+- Select the `Test System`;
+- Start editing the project after initializing the assistant;
+- Click the `Suggest Next Edit` button and enter an edit description to get the next edit suggestion;
+- View edit suggestions in the left sidebar:
+  - Click any suggested location to jump to the corresponding code position (edit suggestion shown in `diff view`);
+  - Modify the suggested content in the right panel:
+    - Click `Accept` button to apply the suggestion;
+    - Click `Reject` button to discard the suggestion;
+  - Suggestions do not refresh automatically – continue browsing remaining suggestions until you click `Suggest Next Edit` again.
+
 
 ## 🕹️ Deployments
 
@@ -92,15 +114,11 @@ For end-users, simply follow the instructions:
     python src/optimization_server.py
     ```
 
-    * The default port set for simulation server is `5001`
-    * The default port set for optimization server is `5002`
-    * If you want to change the port, please refer to `server_config.ini` and remember to update the extension configuration at: `Settings > editflow` as well. # TODO: jiaxin please check the exact path
-
 ### Deploy as a developer
 
 For debugging, customization purposes, please follow the instructions
 
-1. Under directory `./extension`, install Node packages:
+1. Install Node.js dependencies in the project root directory (~/EditFlow):
     
     ```bash
     npm install

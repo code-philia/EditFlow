@@ -843,7 +843,7 @@ async function rejectDiff() {
 let firstOptimizationSuccess = true;
 
 function getOptimizationServerURL() {
-    const config = vscode.workspace.getConfiguration('flow-keeper');
+    const config = vscode.workspace.getConfiguration('editflow');
     return config.get('serverURL', 'http://localhost:5002');
 }
 
@@ -871,13 +871,13 @@ async function validateOptimizationServerConnection(showMessage = true, retryInt
         });
         if (response.status === 200) {
             if (showMessage || firstOptimizationSuccess) {
-                vscode.window.showInformationMessage('✅ Successfully connected to the optimization server! 🎉');
+                vscode.window.showInformationMessage('✅ Successfully connected to EditFlow optimization server! 🎉');
             }
             firstOptimizationSuccess = false;
             return true;
         } else {
             firstOptimizationSuccess = true;
-            vscode.window.showErrorMessage('❌ Optimization server connection failed: invalid response');
+            vscode.window.showErrorMessage('❌ EditFlow optimization server connection failed: invalid response');
             setTimeout(() => {
                 validateOptimizationServerConnection(showMessage, retryInterval);
             }, retryInterval);
@@ -885,7 +885,7 @@ async function validateOptimizationServerConnection(showMessage = true, retryInt
         }
     } catch (error) {
         firstOptimizationSuccess = true;
-        vscode.window.showErrorMessage(`❌ Optimization server connection failed: ${error.message}`);
+        vscode.window.showErrorMessage(`❌ EditFlow optimization server connection failed: ${error.message}`);
         setTimeout(() => {
             validateOptimizationServerConnection(showMessage, retryInterval);
         }, retryInterval);
