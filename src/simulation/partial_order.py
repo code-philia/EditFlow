@@ -13,7 +13,7 @@ from itertools import combinations
 current_path = os.path.abspath(os.path.dirname(__file__))
 root_path = os.path.join(current_path, "../..")
 load_dotenv(dotenv_path=os.path.join(root_path, ".config"))
-ANNOTATED_PARTIAL_ORDER_DIR = os.getenv("ANNOTATED_PARTIAL_ORDER_DIR")
+ANNOTATED_PARTIAL_ORDER_DIR = os.getenv("ANNOTATED_PARTIAL_ORDER_DIR", None)
 
 def restore_edit_order(commit_snapshot, commit_url, mock_order=True):
     """
