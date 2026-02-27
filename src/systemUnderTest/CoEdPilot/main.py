@@ -50,12 +50,11 @@ def setup(json_input: dict):
 
 def subsequent_edit_recommendation(json_input):
     selected_files = select_files(json_input["repo_dir"], json_input["prior_edits"])
-    filtered_selected_files = {f: selected_files[f] for f in selected_files.keys() if f in json_input["changed_files"]}
     input = {
         "device": get_device(),
         "model": LOCATOR,
         "tokenizer": LOCATOR_TOKENIZER,
-        "files": filtered_selected_files,
+        "files": selected_files,
         "commitMessage": json_input["edit_description"],
         "prevEdits": json_input["prior_edits"],
     }

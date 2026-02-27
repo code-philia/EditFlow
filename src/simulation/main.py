@@ -131,7 +131,6 @@ def main(json_input: dict):
             "repo_dir": COMMIT.repo_dir,
             "prior_edits": COMMIT.get_prior_edits(),
             "edit_description": COMMIT.commit_message,
-            "changed_files": COMMIT.commit_snapshots.keys(),
         }
         pred_snapshots, costs = SUT.main(json_input)
         pred_snapshots = indexing_edits_within_snapshots(pred_snapshots)
