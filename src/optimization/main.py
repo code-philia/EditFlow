@@ -74,7 +74,11 @@ def main(json_input: dict):
             "prior_edits": prior_edits,
             "edit_description": json_input["edit_description"]
         }
-        pred_snapshots = SUT.main(SUT_json_input)
+        sut_output = SUT.main(SUT_json_input)
+        if isinstance(sut_output, tuple):
+            pred_snapshots = sut_output[0]
+        else:
+            pred_snapshots = sut_output
         pred_snapshots = indexing_edits_within_snapshots(pred_snapshots)
 
         # re-rank edits
