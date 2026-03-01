@@ -11,12 +11,12 @@ This repository contains both the [prompt auto-tuning implementation](prompt_tun
 <table align="center"><tr>
 <td align="center"><b>Optimization</b><br>
    <a href="https://www.youtube.com/watch?v=_6uc_iH4zG0">
-   <img src="media\optimizer_demo.jpg" width="300" />
+   <img src="media/optimizer_demo.jpg" width="300" />
    </a>
 </td>
 <td align="center"><b>Simulation (digital twin)</b><br>
    <a href="https://www.youtube.com/watch?v=3ME_UqBphkI">
-   <img src="media\simulator_demo.png" width="300" />
+   <img src="media/simulator_demo.png" width="300" />
    </a>
 </td>
 </tr></table>
@@ -130,20 +130,19 @@ For debugging, customization purposes, please follow the instructions
 
 4. You may debug or customize the extension via the development host;
 
-5. To pack your customized extension, make sure `yarn` is installed:
+5. To pack your customized extension, install `@vscode/vsce`:
 
     ```bash
-    npm install -g yarn
-    npm install -g vsce
+    npm install -g @vscode/vsce
     ```
 
 6. Under the project root directory:
-    
+
     ```bash
-    yarn package
+    npm run package
     ```
-    
-    The command will generate a `.vsix` file under `./extension`, based on `package.json` file.
+
+    The command will generate a `.vsix` file in the project root, based on `package.json`.
 
 7. For public usage, you may release it to VS Code extension market
     
