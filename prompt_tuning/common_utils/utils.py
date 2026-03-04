@@ -907,8 +907,12 @@ def extract_hunks(commit_url: str):
             if window["before"] == [] and window["after"] != []:
                 line_index -= 1
                     
-            structural_path = find_code_structure(file_content, line_index, language)
-            control_flow = find_control_flow(file_content, line_index, language)
+            if language is not None:
+                structural_path = find_code_structure(file_content, line_index, language)
+                control_flow = find_control_flow(file_content, line_index, language)
+            else:
+                structural_path = []
+                control_flow = []
             window["control_flow"] = control_flow
             window["structural_path"] = structural_path
             window["idx"] = hunk_idx
