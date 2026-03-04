@@ -1,0 +1,1386 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/getsentry/sentry/commit/0be376dbef65dc9897dfa72382ad0ca250167d31",
+    "commit_message": "fix: Skip some double deletions during cleanup (#6143)",
+    "commit_snapshots": {
+        "src/sentry/deletions/base.py": [
+            [
+                "from __future__ import absolute_import, print_function\n",
+                "\n",
+                "import logging\n",
+                "\n",
+                "from sentry.constants import ObjectStatus\n",
+                "from sentry.utils.query import bulk_delete_objects\n",
+                "\n",
+                "\n",
+                "class BaseRelation(object):\n",
+                "    def __init__(self, params, task):\n",
+                "        self.task = task\n",
+                "        self.params = params\n",
+                "\n",
+                "    def __repr__(self):\n",
+                "        return '<%s: task=%s params=%s>' % (type(self), self.task, self.params, )\n",
+                "\n",
+                "\n",
+                "class ModelRelation(BaseRelation):\n",
+                "    def __init__(self, model, query, task=None):\n",
+                "        params = {\n",
+                "            'model': model,\n",
+                "            'query': query,\n",
+                "        }\n",
+                "        super(ModelRelation, self).__init__(params=params, task=task)\n",
+                "\n",
+                "\n",
+                "class BaseDeletionTask(object):\n",
+                "    logger = logging.getLogger('sentry.deletions.async')\n",
+                "\n",
+                "    DEFAULT_CHUNK_SIZE = 100\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def __init__(self, manager, transaction_id=None, actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):\n"
+                ],
+                "after": [
+                    "    def __init__(self, manager, skip_models=None, transaction_id=None,\n",
+                    "                 actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):\n"
+                ],
+                "parent_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "child_version_range": {
+                    "start": 31,
+                    "end": 33
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, manager, transaction_id=None, actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):",
+                        "at_line": 31
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n28 28    \n29 29        DEFAULT_CHUNK_SIZE = 100\n30 30    \n31     -     def __init__(self, manager, transaction_id=None, actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):\n   31  +     def __init__(self, manager, skip_models=None, transaction_id=None,\n   32  +                  actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):\n32 33            self.manager = manager\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [
+                    "DEFAULT_CHUNK_SIZE",
+                    "__init__",
+                    "actor_id",
+                    "chunk_size",
+                    "manager",
+                    "self",
+                    "transaction_id"
+                ],
+                "identifiers_after": [
+                    "DEFAULT_CHUNK_SIZE",
+                    "__init__",
+                    "actor_id",
+                    "chunk_size",
+                    "manager",
+                    "self",
+                    "skip_models",
+                    "transaction_id"
+                ],
+                "prefix": [
+                    "\n",
+                    "    DEFAULT_CHUNK_SIZE = 100\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        self.manager = manager\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        self.manager = manager\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.skip_models = set(skip_models) if skip_models else None\n"
+                ],
+                "parent_version_range": {
+                    "start": 33,
+                    "end": 33
+                },
+                "child_version_range": {
+                    "start": 34,
+                    "end": 35
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, manager, transaction_id=None, actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):",
+                        "at_line": 31
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n             def __init__(self, manager, transaction_id=None, actor_id=None, chunk_size=DEFAULT_CHUNK_SIZE):\n                 ...\n32 33            self.manager = manager\n   34  +         self.skip_models = set(skip_models) if skip_models else None\n33 35            self.transaction_id = transaction_id\n34 36            self.actor_id = actor_id\n35 37            self.chunk_size = chunk_size\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "self",
+                    "set",
+                    "skip_models"
+                ],
+                "prefix": [
+                    "        self.manager = manager\n"
+                ],
+                "suffix": [
+                    "        self.transaction_id = transaction_id\n",
+                    "        self.actor_id = actor_id\n",
+                    "        self.chunk_size = chunk_size\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 58
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        self.transaction_id = transaction_id\n",
+                "        self.actor_id = actor_id\n",
+                "        self.chunk_size = chunk_size\n",
+                "\n",
+                "    def __repr__(self):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return '<%s: transaction_id=%s actor_id=%s>' % (\n",
+                    "            type(self), self.transaction_id, self.actor_id,\n"
+                ],
+                "after": [
+                    "        return '<%s: skip_models=%s transaction_id=%s actor_id=%s>' % (\n",
+                    "            type(self), self.skip_models, self.transaction_id, self.actor_id,\n"
+                ],
+                "parent_version_range": {
+                    "start": 38,
+                    "end": 40
+                },
+                "child_version_range": {
+                    "start": 40,
+                    "end": 42
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "__repr__",
+                        "signature": "def __repr__(self):",
+                        "at_line": 37
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n35 37            self.chunk_size = chunk_size\n36 38    \n37 39        def __repr__(self):\n38     -         return '<%s: transaction_id=%s actor_id=%s>' % (\n39     -             type(self), self.transaction_id, self.actor_id,\n   40  +         return '<%s: skip_models=%s transaction_id=%s actor_id=%s>' % (\n   41  +             type(self), self.skip_models, self.transaction_id, self.actor_id,\n40 42            )\n41 43    \n42 44        def chunk(self):\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [
+                    "actor_id",
+                    "self",
+                    "transaction_id",
+                    "type"
+                ],
+                "identifiers_after": [
+                    "actor_id",
+                    "self",
+                    "skip_models",
+                    "transaction_id",
+                    "type"
+                ],
+                "prefix": [
+                    "        self.chunk_size = chunk_size\n",
+                    "\n",
+                    "    def __repr__(self):\n"
+                ],
+                "suffix": [
+                    "        )\n",
+                    "\n",
+                    "    def chunk(self):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 41,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 41,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        )\n",
+                "\n",
+                "    def chunk(self):\n",
+                "        \"\"\"\n",
+                "        Deletes a chunk of this instance's data. Return ``True`` if there is\n",
+                "        more work, or ``False`` if the entity has been removed.\n",
+                "        \"\"\"\n",
+                "        raise NotImplementedError\n",
+                "\n",
+                "    def get_child_relations(self, instance):\n",
+                "        # TODO(dcramer): it'd be nice if we collected the default relationships\n",
+                "        return [\n",
+                "            # ModelRelation(Model, {'parent_id': instance.id})\n",
+                "        ]\n",
+                "\n",
+                "    def get_child_relations_bulk(self, instance_list):\n",
+                "        return [\n",
+                "            # ModelRelation(Model, {'parent_id__in': [i.id for id in instance_list]})\n",
+                "        ]\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def filter_relations(self, child_relations):\n",
+                    "        if not self.skip_models or not child_relations:\n",
+                    "            return child_relations\n",
+                    "\n",
+                    "        return list(filter(lambda rel: rel.params.get('model')\n",
+                    "                           not in self.skip_models, child_relations))\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 60,
+                    "end": 60
+                },
+                "child_version_range": {
+                    "start": 62,
+                    "end": 69
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n57 59                # ModelRelation(Model, {'parent_id__in': [i.id for id in instance_list]})\n58 60            ]\n59 61    \n   62  +     def filter_relations(self, child_relations):\n   63  +         if not self.skip_models or not child_relations:\n   64  +             return child_relations\n   65  + \n   66  +         return list(filter(lambda rel: rel.params.get('model')\n   67  +                            not in self.skip_models, child_relations))\n   68  + \n60 69        def delete_bulk(self, instance_list):\n61 70            \"\"\"\n62 71            Delete a batch of objects bound to this task.\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "child_relations",
+                    "filter",
+                    "filter_relations",
+                    "get",
+                    "list",
+                    "params",
+                    "rel",
+                    "self",
+                    "skip_models"
+                ],
+                "prefix": [
+                    "            # ModelRelation(Model, {'parent_id__in': [i.id for id in instance_list]})\n",
+                    "        ]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def delete_bulk(self, instance_list):\n",
+                    "        \"\"\"\n",
+                    "        Delete a batch of objects bound to this task.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_models",
+                            "position": {
+                                "start": {
+                                    "line": 67,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 67,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "filter_relations",
+                            "position": {
+                                "start": {
+                                    "line": 62,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 62,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "filter_relations",
+                            "position": {
+                                "start": {
+                                    "line": 62,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 62,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    def delete_bulk(self, instance_list):\n",
+                "        \"\"\"\n",
+                "        Delete a batch of objects bound to this task.\n",
+                "\n",
+                "        This **should** not be called with arbitrary types, but rather should\n",
+                "        be used for only the base type this task was instantiated against.\n",
+                "        \"\"\"\n",
+                "        self.mark_deletion_in_progress(instance_list)\n",
+                "\n",
+                "        child_relations = self.get_child_relations_bulk(instance_list)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        child_relations = self.filter_relations(child_relations)\n"
+                ],
+                "parent_version_range": {
+                    "start": 70,
+                    "end": 70
+                },
+                "child_version_range": {
+                    "start": 79,
+                    "end": 80
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "delete_bulk",
+                        "signature": "def delete_bulk(self, instance_list):",
+                        "at_line": 60
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n             def delete_bulk(self, instance_list):\n                 ...\n67 76            self.mark_deletion_in_progress(instance_list)\n68 77    \n69 78            child_relations = self.get_child_relations_bulk(instance_list)\n   79  +         child_relations = self.filter_relations(child_relations)\n70 80            if child_relations:\n71 81                has_more = self.delete_children(child_relations)\n72 82                if has_more:\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "child_relations",
+                    "filter_relations",
+                    "self"
+                ],
+                "prefix": [
+                    "        self.mark_deletion_in_progress(instance_list)\n",
+                    "\n",
+                    "        child_relations = self.get_child_relations_bulk(instance_list)\n"
+                ],
+                "suffix": [
+                    "        if child_relations:\n",
+                    "            has_more = self.delete_children(child_relations)\n",
+                    "            if has_more:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "filter_relations",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        if child_relations:\n",
+                "            has_more = self.delete_children(child_relations)\n",
+                "            if has_more:\n",
+                "                return has_more\n",
+                "\n",
+                "        for instance in instance_list:\n",
+                "            child_relations = self.get_child_relations(instance)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            child_relations = self.filter_relations(child_relations)\n"
+                ],
+                "parent_version_range": {
+                    "start": 77,
+                    "end": 77
+                },
+                "child_version_range": {
+                    "start": 87,
+                    "end": 88
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for instance in instance_list:",
+                        "start_line": 75,
+                        "end_line": 80
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BaseDeletionTask",
+                        "signature": "class BaseDeletionTask(object):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "delete_bulk",
+                        "signature": "def delete_bulk(self, instance_list):",
+                        "at_line": 60
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: src/sentry/deletions/base.py\nCode:\n         class BaseDeletionTask(object):\n             ...\n             def delete_bulk(self, instance_list):\n                 ...\n74 84    \n75 85            for instance in instance_list:\n76 86                child_relations = self.get_child_relations(instance)\n   87  +             child_relations = self.filter_relations(child_relations)\n77 88                if child_relations:\n78 89                    has_more = self.delete_children(child_relations)\n79 90                    if has_more:\n       ...\n",
+                "file_path": "src/sentry/deletions/base.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "child_relations",
+                    "filter_relations",
+                    "self"
+                ],
+                "prefix": [
+                    "\n",
+                    "        for instance in instance_list:\n",
+                    "            child_relations = self.get_child_relations(instance)\n"
+                ],
+                "suffix": [
+                    "            if child_relations:\n",
+                    "                has_more = self.delete_children(child_relations)\n",
+                    "                if has_more:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "filter_relations",
+                            "position": {
+                                "start": {
+                                    "line": 87,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 87,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/sentry/src/sentry/deletions/base.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "            if child_relations:\n",
+                "                has_more = self.delete_children(child_relations)\n",
+                "                if has_more:\n",
+                "                    return has_more\n",
+                "\n",
+                "        return self.delete_instance_bulk(instance_list)\n",
+                "\n",
+                "    def delete_instance(self, instance):\n",
+                "        raise NotImplementedError\n",
+                "\n",
+                "    def delete_instance_bulk(self, instance_list):\n",
+                "        for instance in instance_list:\n",
+                "            self.delete_instance(instance)\n",
+                "\n",
+                "    def delete_children(self, relations):\n",
+                "        # Ideally this runs through the deletion manager\n",
+                "        has_more = False\n",
+                "        for relation in relations:\n",
+                "            task = self.manager.get(\n",
+                "                transaction_id=self.transaction_id,\n",
+                "                actor_id=self.actor_id,\n",
+                "                chunk_size=self.chunk_size,\n",
+                "                task=relation.task,\n",
+                "                **relation.params\n",
+                "            )\n",
+                "            has_more = task.chunk()\n",
+                "            if has_more:\n",
+                "                return has_more\n",
+                "        return has_more\n",
+                "\n",
+                "    def mark_deletion_in_progress(self, instance_list):\n",
+                "        pass\n",
+                "\n",
+                "\n",
+                "class ModelDeletionTask(BaseDeletionTask):\n",
+                "    DEFAULT_QUERY_LIMIT = None\n",
+                "\n",
+                "    def __init__(self, manager, model, query, query_limit=None, order_by=None, **kwargs):\n",
+                "        super(ModelDeletionTask, self).__init__(manager, **kwargs)\n",
+                "        self.model = model\n",
+                "        self.query = query\n",
+                "        self.query_limit = (query_limit or self.DEFAULT_QUERY_LIMIT or self.chunk_size)\n",
+                "        self.order_by = order_by\n",
+                "\n",
+                "    def __repr__(self):\n",
+                "        return '<%s: model=%s query=%s order_by=%s transaction_id=%s actor_id=%s>' % (\n",
+                "            type(self), self.model, self.query, self.order_by, self.transaction_id, self.actor_id,\n",
+                "        )\n",
+                "\n",
+                "    def chunk(self, num_shards=None, shard_id=None):\n",
+                "        \"\"\"\n",
+                "        Deletes a chunk of this instance's data. Return ``True`` if there is\n",
+                "        more work, or ``False`` if the entity has been removed.\n",
+                "        \"\"\"\n",
+                "        query_limit = self.query_limit\n",
+                "        remaining = self.chunk_size\n",
+                "        while remaining > 0:\n",
+                "            queryset = self.model.objects.filter(**self.query)\n",
+                "            if self.order_by:\n",
+                "                queryset = queryset.order_by(self.order_by)\n",
+                "\n",
+                "            if num_shards:\n",
+                "                assert num_shards > 1\n",
+                "                assert shard_id < num_shards\n",
+                "                queryset = queryset.extra(\n",
+                "                    where=[\n",
+                "                        'id %% {num_shards} = {shard_id}'.format(\n",
+                "                            num_shards=num_shards,\n",
+                "                            shard_id=shard_id,\n",
+                "                        )\n",
+                "                    ]\n",
+                "                )\n",
+                "\n",
+                "            queryset = list(queryset[:query_limit])\n",
+                "            if not queryset:\n",
+                "                return False\n",
+                "\n",
+                "            self.delete_bulk(queryset)\n",
+                "            remaining -= query_limit\n",
+                "        return True\n",
+                "\n",
+                "    def delete_instance_bulk(self, instance_list):\n",
+                "        # slow, but ensures Django cascades are handled\n",
+                "        for instance in instance_list:\n",
+                "            self.delete_instance(instance)\n",
+                "\n",
+                "    def delete_instance(self, instance):\n",
+                "        instance_id = instance.id\n",
+                "        try:\n",
+                "            instance.delete()\n",
+                "        finally:\n",
+                "            self.logger.info(\n",
+                "                'object.delete.executed',\n",
+                "                extra={\n",
+                "                    'object_id': instance_id,\n",
+                "                    'transaction_id': self.transaction_id,\n",
+                "                    'app_label': instance._meta.app_label,\n",
+                "                    'model': type(instance).__name__,\n",
+                "                }\n",
+                "            )\n",
+                "\n",
+                "    def get_actor(self):\n",
+                "        from sentry.models import User\n",
+                "\n",
+                "        if self.actor_id:\n",
+                "            try:\n",
+                "                return User.objects.get_from_cache(id=self.actor_id)\n",
+                "            except User.DoesNotExist:\n",
+                "                pass\n",
+                "        return None\n",
+                "\n",
+                "    def mark_deletion_in_progress(self, instance_list):\n",
+                "        for instance in instance_list:\n",
+                "            status = getattr(instance, 'status', None)\n",
+                "            if status not in (ObjectStatus.DELETION_IN_PROGRESS, None):\n",
+                "                instance.update(status=ObjectStatus.DELETION_IN_PROGRESS)\n",
+                "\n",
+                "\n",
+                "class BulkModelDeletionTask(ModelDeletionTask):\n",
+                "    \"\"\"\n",
+                "    An efficient mechanism for deleting larger volumes of rows in one pass,\n",
+                "    but will hard fail if the relations have resident foreign relations.\n",
+                "\n",
+                "    Note: Does NOT support child relations.\n",
+                "    \"\"\"\n",
+                "    DEFAULT_CHUNK_SIZE = 10000\n",
+                "\n",
+                "    def chunk(self):\n",
+                "        return self.delete_instance_bulk()\n",
+                "\n",
+                "    def delete_instance_bulk(self):\n",
+                "        try:\n",
+                "            return bulk_delete_objects(\n",
+                "                model=self.model,\n",
+                "                limit=self.chunk_size,\n",
+                "                transaction_id=self.transaction_id,\n",
+                "                **self.query\n",
+                "            )\n",
+                "        finally:\n",
+                "            self.logger.info(\n",
+                "                'object.delete.bulk_executed',\n",
+                "                extra=dict(\n",
+                "                    {\n",
+                "                        'transaction_id': self.transaction_id,\n",
+                "                        'app_label': self.model._meta.app_label,\n",
+                "                        'model': self.model.__name__,\n",
+                "                    }, **self.query\n",
+                "                )\n",
+                "            )"
+            ]
+        ],
+        "src/sentry/runner/commands/cleanup.py": [
+            [
+                "\"\"\"\n",
+                "sentry.runner.commands.cleanup\n",
+                "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n",
+                "\n",
+                ":copyright: (c) 2015 by the Sentry Team, see AUTHORS for more details.\n",
+                ":license: BSD, see LICENSE for more details.\n",
+                "\"\"\"\n",
+                "from __future__ import absolute_import, print_function\n",
+                "\n",
+                "from datetime import timedelta\n",
+                "from uuid import uuid4\n",
+                "\n",
+                "import click\n",
+                "from django.utils import timezone\n",
+                "\n",
+                "from sentry.runner.decorators import configuration, log_options\n",
+                "\n",
+                "\n",
+                "def get_project(value):\n",
+                "    from sentry.models import Project\n",
+                "\n",
+                "    try:\n",
+                "        if value.isdigit():\n",
+                "            return int(value)\n",
+                "        if '/' not in value:\n",
+                "            return None\n",
+                "        org, proj = value.split('/', 1)\n",
+                "        return Project.objects.get_from_cache(\n",
+                "            organization__slug=org,\n",
+                "            slug=proj,\n",
+                "        ).id\n",
+                "    except Project.DoesNotExist:\n",
+                "        return None\n",
+                "\n",
+                "\n",
+                "@click.command()\n",
+                "@click.option('--days', default=30, show_default=True, help='Numbers of days to truncate on.')\n",
+                "@click.option('--project', help='Limit truncation to only entries from project.')\n",
+                "@click.option(\n",
+                "    '--concurrency',\n",
+                "    type=int,\n",
+                "    default=1,\n",
+                "    show_default=True,\n",
+                "    help='The number of concurrent workers to run.'\n",
+                ")\n",
+                "@click.option(\n",
+                "    '--silent', '-q', default=False, is_flag=True, help='Run quietly. No output on success.'\n",
+                ")\n",
+                "@click.option('--model', '-m', multiple=True)\n",
+                "@click.option('--router', '-r', default=None, help='Database router')\n",
+                "@click.option(\n",
+                "    '--timed',\n",
+                "    '-t',\n",
+                "    default=False,\n",
+                "    is_flag=True,\n",
+                "    help='Send the duration of this command to internal metrics.'\n",
+                ")\n",
+                "@log_options()\n",
+                "@configuration\n",
+                "def cleanup(days, project, concurrency, silent, model, router, timed):\n",
+                "    \"\"\"Delete a portion of trailing data based on creation date.\n",
+                "\n",
+                "    All data that is older than `--days` will be deleted.  The default for\n",
+                "    this is 30 days.  In the default setting all projects will be truncated\n",
+                "    but if you have a specific project you want to limit this to this can be\n",
+                "    done with the `--project` flag which accepts a project ID or a string\n",
+                "    with the form `org/project` where both are slugs.\n",
+                "    \"\"\"\n",
+                "    if concurrency < 1:\n",
+                "        click.echo('Error: Minimum concurrency is 1', err=True)\n",
+                "        raise click.Abort()\n",
+                "\n",
+                "    from threading import Thread\n",
+                "    from django.db import router as db_router\n",
+                "    from sentry.app import nodestore\n",
+                "    from sentry.db.deletion import BulkDeleteQuery\n",
+                "    from sentry import deletions\n",
+                "    from sentry import models\n",
+                "\n",
+                "    if timed:\n",
+                "        import time\n",
+                "        from sentry.utils import metrics\n",
+                "        start_time = time.time()\n",
+                "\n",
+                "    # list of models which this query is restricted to\n",
+                "    model_list = {m.lower() for m in model}\n",
+                "\n",
+                "    def is_filtered(model):\n",
+                "        if router is not None and db_router.db_for_write(model) != router:\n",
+                "            return True\n",
+                "        if not model_list:\n",
+                "            return False\n",
+                "        return model.__name__.lower() not in model_list\n",
+                "\n",
+                "    # Deletions that use `BulkDeleteQuery` (and don't need to worry about child relations)\n",
+                "    # (model, datetime_field, order_by)\n",
+                "    BULK_QUERY_DELETES = (\n",
+                "        (models.GroupEmailThread, 'date', None),\n",
+                "        (models.GroupRuleStatus, 'date_added', None),\n",
+                "        (models.GroupTagValue, 'last_seen', None),\n",
+                "        (models.TagValue, 'last_seen', None),\n",
+                "        (models.EventTag, 'date_added', 'date_added'),\n",
+                "    )\n",
+                "\n",
+                "    # Deletions that use the `deletions` code path (which handles their child relations)\n",
+                "    # (model, datetime_field, order_by)\n",
+                "    DELETES = (\n",
+                "        (models.Event, 'datetime', 'datetime'),\n",
+                "        (models.Group, 'last_seen', 'last_seen'),\n",
+                "    )\n",
+                "\n",
+                "    if not silent:\n",
+                "        click.echo('Removing expired values for LostPasswordHash')\n",
+                "\n",
+                "    if is_filtered(models.LostPasswordHash):\n",
+                "        if not silent:\n",
+                "            click.echo('>> Skipping LostPasswordHash')\n",
+                "    else:\n",
+                "        models.LostPasswordHash.objects.filter(\n",
+                "            date_added__lte=timezone.now() - timedelta(hours=48)\n",
+                "        ).delete()\n",
+                "\n",
+                "    for model in [models.ApiGrant, models.ApiToken]:\n",
+                "        if not silent:\n",
+                "            click.echo('Removing expired values for {}'.format(model.__name__))\n",
+                "\n",
+                "        if is_filtered(model):\n",
+                "            if not silent:\n",
+                "                click.echo('>> Skipping {}'.format(model.__name__))\n",
+                "        else:\n",
+                "            model.objects.filter(expires_at__lt=timezone.now()).delete()\n",
+                "\n",
+                "    project_id = None\n",
+                "    if project:\n",
+                "        click.echo(\n",
+                "            \"Bulk NodeStore deletion not available for project selection\", err=True)\n",
+                "        project_id = get_project(project)\n",
+                "        if project_id is None:\n",
+                "            click.echo('Error: Project not found', err=True)\n",
+                "            raise click.Abort()\n",
+                "    else:\n",
+                "        if not silent:\n",
+                "            click.echo(\"Removing old NodeStore values\")\n",
+                "        else:\n",
+                "            cutoff = timezone.now() - timedelta(days=days)\n",
+                "            try:\n",
+                "                nodestore.cleanup(cutoff)\n",
+                "            except NotImplementedError:\n",
+                "                click.echo(\n",
+                "                    \"NodeStore backend does not support cleanup operation\", err=True)\n",
+                "\n",
+                "    for model, dtfield, order_by in BULK_QUERY_DELETES:\n",
+                "        if not silent:\n",
+                "            click.echo(\n",
+                "                \"Removing {model} for days={days} project={project}\".format(\n",
+                "                    model=model.__name__,\n",
+                "                    days=days,\n",
+                "                    project=project or '*',\n",
+                "                )\n",
+                "            )\n",
+                "        if is_filtered(model):\n",
+                "            if not silent:\n",
+                "                click.echo('>> Skipping %s' % model.__name__)\n",
+                "        else:\n",
+                "            BulkDeleteQuery(\n",
+                "                model=model,\n",
+                "                dtfield=dtfield,\n",
+                "                days=days,\n",
+                "                project_id=project_id,\n",
+                "                order_by=order_by,\n",
+                "            ).execute()\n",
+                "\n",
+                "    for model, dtfield, order_by in DELETES:\n",
+                "        if not silent:\n",
+                "            click.echo(\n",
+                "                \"Removing {model} for days={days} project={project}\".format(\n",
+                "                    model=model.__name__,\n",
+                "                    days=days,\n",
+                "                    project=project or '*',\n",
+                "                )\n",
+                "            )\n",
+                "\n",
+                "        if is_filtered(model):\n",
+                "            if not silent:\n",
+                "                click.echo('>> Skipping %s' % model.__name__)\n",
+                "        else:\n",
+                "            query = {\n",
+                "                '{}__lte'.format(dtfield): (timezone.now() - timedelta(days=days)),\n",
+                "            }\n",
+                "\n",
+                "            if project_id:\n",
+                "                if 'project' in model._meta.get_all_field_names():\n",
+                "                    query['project'] = project_id\n",
+                "                else:\n",
+                "                    query['project_id'] = project_id\n",
+                "\n",
+                "            task = deletions.get(\n",
+                "                model=model,\n",
+                "                query=query,\n",
+                "                order_by=order_by,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "                skip_models=[\n",
+                    "                    models.Event,\n",
+                    "                    models.EventTag,\n",
+                    "                    models.GroupEmailThread,\n",
+                    "                    models.GroupRuleStatus,\n",
+                    "                    models.GroupTagValue,\n",
+                    "                ],\n"
+                ],
+                "parent_version_range": {
+                    "start": 200,
+                    "end": 200
+                },
+                "child_version_range": {
+                    "start": 200,
+                    "end": 207
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for model, dtfield, order_by in DELETES:",
+                        "start_line": 172,
+                        "end_line": 224
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if is_filtered(model):",
+                        "start_line": 182,
+                        "end_line": 224
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 185,
+                        "end_line": 224
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "cleanup",
+                        "signature": "def cleanup(days, project, concurrency, silent, model, router, timed):",
+                        "at_line": 59
+                    },
+                    {
+                        "type": "call",
+                        "name": "deletions.get",
+                        "signature": "deletions.get(\n                model=model,\n                query=query,\n                order_by=order_by,\n                transaction_id=uuid4().hex,\n            )",
+                        "at_line": 196,
+                        "argument": "order_by=..."
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: src/sentry/runner/commands/cleanup.py\nCode:\n           def cleanup(days, project, concurrency, silent, model, router, timed):\n               ...\n               deletions.get(\n                model=model,\n                query=query,\n                order_by=order_by,\n                transaction_id=uuid4().hex,\n            )\n                   ...\n197 197                    model=model,\n198 198                    query=query,\n199 199                    order_by=order_by,\n    200  +                 skip_models=[\n    201  +                     models.Event,\n    202  +                     models.EventTag,\n    203  +                     models.GroupEmailThread,\n    204  +                     models.GroupRuleStatus,\n    205  +                     models.GroupTagValue,\n    206  +                 ],\n200 207                    transaction_id=uuid4().hex,\n201 208                )\n202 209    \n         ...\n",
+                "file_path": "src/sentry/runner/commands/cleanup.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Event",
+                    "EventTag",
+                    "GroupEmailThread",
+                    "GroupRuleStatus",
+                    "GroupTagValue",
+                    "models",
+                    "skip_models"
+                ],
+                "prefix": [
+                    "                model=model,\n",
+                    "                query=query,\n",
+                    "                order_by=order_by,\n"
+                ],
+                "suffix": [
+                    "                transaction_id=uuid4().hex,\n",
+                    "            )\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                transaction_id=uuid4().hex,\n",
+                "            )\n",
+                "\n",
+                "            def _chunk_until_complete(num_shards=None, shard_id=None):\n",
+                "                has_more = True\n",
+                "                while has_more:\n",
+                "                    has_more = task.chunk(\n",
+                "                        num_shards=num_shards, shard_id=shard_id)\n",
+                "\n",
+                "            if concurrency > 1:\n",
+                "                threads = []\n",
+                "                for shard_id in range(concurrency):\n",
+                "                    t = Thread(\n",
+                "                        target=(\n",
+                "                            lambda shard_id=shard_id: _chunk_until_complete(\n",
+                "                                num_shards=concurrency, shard_id=shard_id)\n",
+                "                        )\n",
+                "                    )\n",
+                "                    t.start()\n",
+                "                    threads.append(t)\n",
+                "\n",
+                "                for t in threads:\n",
+                "                    t.join()\n",
+                "            else:\n",
+                "                _chunk_until_complete()\n",
+                "\n",
+                "    # EventMapping is fairly expensive and is special cased as it's likely you\n",
+                "    # won't need a reference to an event for nearly as long\n",
+                "    if not silent:\n",
+                "        click.echo(\"Removing expired values for EventMapping\")\n",
+                "    if is_filtered(models.EventMapping):\n",
+                "        if not silent:\n",
+                "            click.echo('>> Skipping EventMapping')\n",
+                "    else:\n",
+                "        BulkDeleteQuery(\n",
+                "            model=models.EventMapping,\n",
+                "            dtfield='date_added',\n",
+                "            days=min(days, 7),\n",
+                "            project_id=project_id,\n",
+                "            order_by='-date_added'\n",
+                "        ).execute()\n",
+                "\n",
+                "    # Clean up FileBlob instances which are no longer used and aren't super\n",
+                "    # recent (as there could be a race between blob creation and reference)\n",
+                "    if not silent:\n",
+                "        click.echo(\"Cleaning up unused FileBlob references\")\n",
+                "    if is_filtered(models.FileBlob):\n",
+                "        if not silent:\n",
+                "            click.echo('>> Skipping FileBlob')\n",
+                "    else:\n",
+                "        cleanup_unused_files(silent)\n",
+                "\n",
+                "    if timed:\n",
+                "        duration = int(time.time() - start_time)\n",
+                "        metrics.timing('cleanup.duration', duration, instance=router)\n",
+                "        click.echo(\"Clean up took %s second(s).\" % duration)\n",
+                "\n",
+                "\n",
+                "def cleanup_unused_files(quiet=False):\n",
+                "    \"\"\"\n",
+                "    Remove FileBlob's (and thus the actual files) if they are no longer\n",
+                "    referenced by any File.\n",
+                "\n",
+                "    We set a minimum-age on the query to ensure that we don't try to remove\n",
+                "    any blobs which are brand new and potentially in the process of being\n",
+                "    referenced.\n",
+                "    \"\"\"\n",
+                "    from sentry.models import File, FileBlob, FileBlobIndex\n",
+                "    if quiet:\n",
+                "        from sentry.utils.query import RangeQuerySetWrapper\n",
+                "    else:\n",
+                "        from sentry.utils.query import RangeQuerySetWrapperWithProgressBar as RangeQuerySetWrapper\n",
+                "\n",
+                "    cutoff = timezone.now() - timedelta(days=1)\n",
+                "    queryset = FileBlob.objects.filter(\n",
+                "        timestamp__lte=cutoff,\n",
+                "    )\n",
+                "\n",
+                "    for blob in RangeQuerySetWrapper(queryset):\n",
+                "        if FileBlobIndex.objects.filter(blob=blob).exists():\n",
+                "            continue\n",
+                "        if File.objects.filter(blob=blob).exists():\n",
+                "            continue\n",
+                "        blob.delete()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "assign arg"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "likely to have some realtion, but no direct evidence"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

@@ -1,0 +1,40 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method 'debug' in the PathodHandler class, and Edit 1 replaces a direct logging.debug call with a call to self.debug(v). The changed lines reference the exact same symbol - the 'debug' method. After defining the debug method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined method to replace the existing logging call. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method 'debug' in the PathodHandler class, and Edit 1 replaces a direct logging.debug call with a call to self.debug(v). The changed lines reference the exact same symbol - the 'debug' method. After defining the debug method in Edit 0, Edit 1 becomes the immediate next step to use this newly defined method to replace the existing logging call. This is a classic definition-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits perform the same type of refactoring pattern - replacing direct logging.debug() calls with self.debug() calls within the same class (PathodHandler). However, they reference different logging statements at different locations in the code, with different parameters and contexts. While they follow the same refactoring pattern, the changed lines don't reference the exact same symbol or create a direct code dependency between them. This is a bulk refactoring where similar substitutions are made independently."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits perform the same type of refactoring pattern - replacing direct logging.debug() calls with self.debug() calls within the same class (PathodHandler). However, they reference different logging statements at different locations in the code, with different parameters and contexts. While they follow the same refactoring pattern, the changed lines don't reference the exact same symbol or create a direct code dependency between them. This is a bulk refactoring where similar substitutions are made independently."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new debug method in the PathodHandler class, and Edit 1 replaces a direct logging.debug call with a call to self.debug (the newly defined method). The changed lines reference the exact same symbol - the debug method being defined in Edit 0 and called in Edit 1. This creates an immediate code dependency where defining the debug method naturally prompts its usage as the next step, or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new debug method in the PathodHandler class, and Edit 1 replaces a direct logging.debug call with a call to self.debug (the newly defined method). The changed lines reference the exact same symbol - the debug method being defined in Edit 0 and called in Edit 1. This creates an immediate code dependency where defining the debug method naturally prompts its usage as the next step, or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3,
+        5,
+        6
+    ]
+}

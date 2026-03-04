@@ -1,0 +1,1432 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/FoundationAgents/MetaGPT/commit/ab470e56554740be96cdf36a571cb133bf90d283",
+    "commit_message": "add a switch args and rm redundant recv",
+    "commit_snapshots": {
+        "metagpt/roles/qa_engineer.py": [
+            [
+                "#!/usr/bin/env python\n",
+                "# -*- coding: utf-8 -*-\n",
+                "\"\"\"\n",
+                "@Time    : 2023/5/11 14:43\n",
+                "@Author  : alexanderwu\n",
+                "@File    : qa_engineer.py\n",
+                "\"\"\"\n",
+                "import os\n",
+                "import re\n",
+                "from pathlib import Path\n",
+                "from typing import Type\n",
+                "\n",
+                "from metagpt.actions import WriteTest, WriteCode, WriteDesign, RunCode, DebugError\n",
+                "from metagpt.const import WORKSPACE_ROOT\n",
+                "from metagpt.logs import logger\n",
+                "from metagpt.roles import Role\n",
+                "from metagpt.schema import Message\n",
+                "from metagpt.roles.engineer import Engineer\n",
+                "from metagpt.utils.common import CodeParser, parse_recipient\n",
+                "from metagpt.utils.special_tokens import MSG_SEP, FILENAME_CODE_SEP\n",
+                "\n",
+                "class QaEngineer(Role):\n",
+                "    def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n",
+                "                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):\n"
+                ],
+                "after": [
+                    "                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\",\n",
+                    "                 test_round_allowed=5):\n"
+                ],
+                "parent_version_range": {
+                    "start": 24,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 24,
+                    "end": 26
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "QaEngineer",
+                        "signature": "class QaEngineer(Role):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):",
+                        "at_line": 22
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: metagpt/roles/qa_engineer.py\nCode:\n21 21    class QaEngineer(Role):\n22 22        def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n23 23                     goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n24     -                  constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):\n   24  +                  constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\",\n   25  +                  test_round_allowed=5):\n25 26            super().__init__(name, profile, goal, constraints)\n       ...\n",
+                "file_path": "metagpt/roles/qa_engineer.py",
+                "identifiers_before": [
+                    "constraints"
+                ],
+                "identifiers_after": [
+                    "constraints",
+                    "test_round_allowed"
+                ],
+                "prefix": [
+                    "class QaEngineer(Role):\n",
+                    "    def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n",
+                    "                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n"
+                ],
+                "suffix": [
+                    "        super().__init__(name, profile, goal, constraints)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "test_round_allowed",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/metagpt/roles/qa_engineer.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        super().__init__(name, profile, goal, constraints)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self._init_actions([WriteTest])\n"
+                ],
+                "after": [
+                    "        self._init_actions([WriteTest]) # FIXME: a bit hack here, only init one action to circumvent _think() logic, will overwrite _think() in future updates\n"
+                ],
+                "parent_version_range": {
+                    "start": 26,
+                    "end": 27
+                },
+                "child_version_range": {
+                    "start": 27,
+                    "end": 28
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "QaEngineer",
+                        "signature": "class QaEngineer(Role):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):",
+                        "at_line": 22
+                    },
+                    {
+                        "type": "call",
+                        "name": "self._init_actions",
+                        "signature": "self._init_actions([WriteTest])",
+                        "at_line": 26,
+                        "argument": "[WriteTest]"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: metagpt/roles/qa_engineer.py\nCode:\n         class QaEngineer(Role):\n             ...\n             def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):\n                 ...\n25 26            super().__init__(name, profile, goal, constraints)\n26     -         self._init_actions([WriteTest])\n   27  +         self._init_actions([WriteTest]) # FIXME: a bit hack here, only init one action to circumvent _think() logic, will overwrite _think() in future updates\n27 28            self._watch([WriteCode, WriteTest, RunCode, DebugError])\n28 29            self.test_round = 0\n       ...\n",
+                "file_path": "metagpt/roles/qa_engineer.py",
+                "identifiers_before": [
+                    "WriteTest",
+                    "_init_actions",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "WriteTest",
+                    "_init_actions",
+                    "self"
+                ],
+                "prefix": [
+                    "        super().__init__(name, profile, goal, constraints)\n"
+                ],
+                "suffix": [
+                    "        self._watch([WriteCode, WriteTest, RunCode, DebugError])\n",
+                    "        self.test_round = 0\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        self._watch([WriteCode, WriteTest, RunCode, DebugError])\n",
+                "        self.test_round = 0\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self.test_round_allowed = 5 # hard code for 1 WriteTest round + 2 x (RunCode -> DebugError loop)\n"
+                ],
+                "after": [
+                    "        self.test_round_allowed = test_round_allowed\n"
+                ],
+                "parent_version_range": {
+                    "start": 29,
+                    "end": 30
+                },
+                "child_version_range": {
+                    "start": 30,
+                    "end": 31
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "QaEngineer",
+                        "signature": "class QaEngineer(Role):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):",
+                        "at_line": 22
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: metagpt/roles/qa_engineer.py\nCode:\n         class QaEngineer(Role):\n             ...\n             def __init__(self, name=\"Edward\", profile=\"QaEngineer\",\n                 goal=\"Write comprehensive and robust tests to ensure codes will work as expected without bugs\",\n                 constraints=\"The test code you write should conform to code standard like PEP8, be modular, easy to read and maintain\"):\n                 ...\n27 28            self._watch([WriteCode, WriteTest, RunCode, DebugError])\n28 29            self.test_round = 0\n29     -         self.test_round_allowed = 5 # hard code for 1 WriteTest round + 2 x (RunCode -> DebugError loop)\n   30  +         self.test_round_allowed = test_round_allowed\n30 31        \n31 32        @classmethod\n32 33        def parse_workspace(cls, system_design_msg: Message) -> str:\n       ...\n",
+                "file_path": "metagpt/roles/qa_engineer.py",
+                "identifiers_before": [
+                    "self",
+                    "test_round_allowed"
+                ],
+                "identifiers_after": [
+                    "self",
+                    "test_round_allowed"
+                ],
+                "prefix": [
+                    "        self._watch([WriteCode, WriteTest, RunCode, DebugError])\n",
+                    "        self.test_round = 0\n"
+                ],
+                "suffix": [
+                    "    \n",
+                    "    @classmethod\n",
+                    "    def parse_workspace(cls, system_design_msg: Message) -> str:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "test_round_allowed",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 52
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/metagpt/roles/qa_engineer.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    \n",
+                "    @classmethod\n",
+                "    def parse_workspace(cls, system_design_msg: Message) -> str:\n",
+                "        if not system_design_msg.instruct_content:\n",
+                "            return system_design_msg.instruct_content.dict().get(\"Python package name\")\n",
+                "        return CodeParser.parse_str(block=\"Python package name\", text=system_design_msg.content)\n",
+                "    \n",
+                "    def get_workspace(self, return_proj_dir=True) -> Path:\n",
+                "        msg = self._rc.memory.get_by_action(WriteDesign)[-1]\n",
+                "        if not msg:\n",
+                "            return WORKSPACE_ROOT / 'src'\n",
+                "        workspace = self.parse_workspace(msg)\n",
+                "        # project directory: workspace/{package_name}, which contains package source code folder, tests folder, resources folder, etc.\n",
+                "        if return_proj_dir:\n",
+                "            return WORKSPACE_ROOT / workspace\n",
+                "        # development codes directory: workspace/{package_name}/{package_name}\n",
+                "        return WORKSPACE_ROOT / workspace / workspace\n",
+                "\n",
+                "    def write_file(self, filename: str, code: str):\n",
+                "        workspace = self.get_workspace() / 'tests'\n",
+                "        file = workspace / filename\n",
+                "        file.parent.mkdir(parents=True, exist_ok=True)\n",
+                "        file.write_text(code)\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    def recv(self, message: Message) -> None:\n",
+                    "        self._rc.memory.add(message)\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 54,
+                    "end": 57
+                },
+                "child_version_range": {
+                    "start": 55,
+                    "end": 55
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "QaEngineer",
+                        "signature": "class QaEngineer(Role):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "recv",
+                        "signature": "def recv(self, message: Message)->None:",
+                        "at_line": 54
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: metagpt/roles/qa_engineer.py\nCode:\n         class QaEngineer(Role):\n             ...\n51 52            file.parent.mkdir(parents=True, exist_ok=True)\n52 53            file.write_text(code)\n53 54    \n54     -     def recv(self, message: Message) -> None:\n55     -         self._rc.memory.add(message)\n56     - \n57 55        async def _write_test(self, message: Message) -> None:\n58 56    \n59 57            code_msgs = message.content.split(MSG_SEP)\n       ...\n",
+                "file_path": "metagpt/roles/qa_engineer.py",
+                "identifiers_before": [
+                    "Message",
+                    "_rc",
+                    "add",
+                    "memory",
+                    "message",
+                    "recv",
+                    "self"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        file.parent.mkdir(parents=True, exist_ok=True)\n",
+                    "        file.write_text(code)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    async def _write_test(self, message: Message) -> None:\n",
+                    "\n",
+                    "        code_msgs = message.content.split(MSG_SEP)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    async def _write_test(self, message: Message) -> None:\n",
+                "\n",
+                "        code_msgs = message.content.split(MSG_SEP)\n",
+                "        result_msg_all = []\n",
+                "        for code_msg in code_msgs:\n",
+                "\n",
+                "            # write tests\n",
+                "            file_name, file_path = code_msg.split(FILENAME_CODE_SEP)\n",
+                "            code_to_test = open(file_path, \"r\").read()\n",
+                "            if \"test\" in file_name:\n",
+                "                continue # Engineer might write some test files, skip testing a test file\n",
+                "            test_file_name = \"test_\" + file_name\n",
+                "            test_file_path = self.get_workspace() / \"tests\" / test_file_name\n",
+                "            logger.info(f'Writing {test_file_name}..')\n",
+                "            test_code = await WriteTest().run(\n",
+                "                code_to_test=code_to_test,\n",
+                "                test_file_name=test_file_name,\n",
+                "                # source_file_name=file_name,\n",
+                "                source_file_path=file_path,\n",
+                "                workspace=self.get_workspace()\n",
+                "            )\n",
+                "            self.write_file(test_file_name, test_code)\n",
+                "\n",
+                "            # prepare context for run tests in next round\n",
+                "            command = ['python', f'tests/{test_file_name}']\n",
+                "            file_info = {\n",
+                "                \"file_name\": file_name, \"file_path\": str(file_path),\n",
+                "                \"test_file_name\": test_file_name, \"test_file_path\": str(test_file_path),\n",
+                "                \"command\": command\n",
+                "            }\n",
+                "            msg = Message(\n",
+                "                content=str(file_info), role=self.profile, cause_by=WriteTest,\n",
+                "                sent_from=self.profile, send_to=self.profile\n",
+                "            )\n",
+                "            self._publish_message(msg)\n",
+                "        \n",
+                "        logger.info(f'Done {self.get_workspace()}/tests generating.')\n",
+                "    \n",
+                "    async def _run_code(self, msg):\n",
+                "        file_info = eval(msg.content)\n",
+                "        development_file_path = file_info[\"file_path\"]\n",
+                "        test_file_path = file_info[\"test_file_path\"]\n",
+                "        if not os.path.exists(development_file_path) or not os.path.exists(test_file_path):\n",
+                "            return\n",
+                "\n",
+                "        development_code = open(development_file_path, \"r\").read()\n",
+                "        test_code = open(test_file_path, \"r\").read()\n",
+                "        proj_dir = self.get_workspace()\n",
+                "        development_code_dir = self.get_workspace(return_proj_dir=False)\n",
+                "\n",
+                "        result_msg = await RunCode().run(\n",
+                "            mode=\"script\",\n",
+                "            code=development_code,\n",
+                "            code_file_name=file_info[\"file_name\"],\n",
+                "            test_code=test_code,\n",
+                "            test_file_name=file_info[\"test_file_name\"],\n",
+                "            command=file_info[\"command\"],\n",
+                "            working_directory=proj_dir, # workspace/package_name, will run tests/test_xxx.py here\n",
+                "            additional_python_paths=[development_code_dir], # workspace/package_name/package_name,\n",
+                "                                                            # import statement inside package code needs this\n",
+                "        )\n",
+                "\n",
+                "        recipient = parse_recipient(result_msg) # the recipient might be Engineer or myself\n",
+                "        content = str(file_info) + FILENAME_CODE_SEP + result_msg\n",
+                "        msg = Message(\n",
+                "            content=content, role=self.profile, cause_by=RunCode,\n",
+                "            sent_from=self.profile, send_to=recipient\n",
+                "        )\n",
+                "        self._publish_message(msg)\n",
+                "\n",
+                "    async def _debug_error(self, msg):\n",
+                "        file_info, context = msg.content.split(FILENAME_CODE_SEP)\n",
+                "        file_name, code = await DebugError().run(context)\n",
+                "        if file_name:\n",
+                "            self.write_file(file_name, code)\n",
+                "            recipient = msg.sent_from # send back to the one who ran the code for another run, might be one's self\n",
+                "            msg = Message(content=file_info, role=self.profile, cause_by=DebugError, sent_from=self.profile, send_to=recipient)\n",
+                "            self._publish_message(msg)\n",
+                "    \n",
+                "    async def _observe(self) -> int:\n",
+                "        await super()._observe()\n",
+                "        self._rc.news = [msg for msg in self._rc.news \\\n",
+                "            if msg.send_to == self.profile] # only relevant msgs count as observed news\n",
+                "        return len(self._rc.news)\n",
+                "\n",
+                "    async def _act(self) -> Message:\n",
+                "        if self.test_round > self.test_round_allowed:\n",
+                "            result_msg = Message(\n",
+                "                content=f\"Exceeding {self.test_round_allowed} rounds of tests, skip (writing code counts as a round, too)\",\n",
+                "                role=self.profile, cause_by=WriteTest, sent_from=self.profile, send_to=\"\"\n",
+                "            )\n",
+                "            return result_msg\n",
+                "\n",
+                "        for msg in self._rc.news:\n",
+                "            # Decide what to do based on observed msg type, currently defined by human,\n",
+                "            # might potentially be moved to _think, that is, let the agent decides for itself\n",
+                "            if msg.cause_by == WriteCode:\n",
+                "                # engineer wrote a code, time to write a test for it\n",
+                "                await self._write_test(msg)\n",
+                "            elif msg.cause_by in [WriteTest, DebugError]:\n",
+                "                # I wrote or debugged my test code, time to run it\n",
+                "                await self._run_code(msg)\n",
+                "            elif msg.cause_by == RunCode:\n",
+                "                # I ran my test code, time to fix bugs, if any\n",
+                "                await self._debug_error(msg)\n",
+                "        self.test_round += 1\n",
+                "        result_msg = Message(\n",
+                "            content=f\"Round {self.test_round} of tests done\",\n",
+                "            role=self.profile, cause_by=WriteTest, sent_from=self.profile, send_to=\"\"\n",
+                "        )\n",
+                "        return result_msg"
+            ]
+        ],
+        "startup.py": [
+            [
+                "#!/usr/bin/env python\n",
+                "# -*- coding: utf-8 -*-\n",
+                "import asyncio\n",
+                "\n",
+                "import fire\n",
+                "\n",
+                "from metagpt.roles import Architect, Engineer, ProductManager, ProjectManager, QaEngineer\n",
+                "from metagpt.software_company import SoftwareCompany\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "async def startup(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n"
+                ],
+                "after": [
+                    "async def startup(idea: str, investment: float = 3.0, n_round: int = 5,\n",
+                    "                  code_review: bool = False, run_tests: bool = False):\n"
+                ],
+                "parent_version_range": {
+                    "start": 10,
+                    "end": 11
+                },
+                "child_version_range": {
+                    "start": 10,
+                    "end": 12
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "startup",
+                        "signature": "def startup(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):",
+                        "at_line": 10
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: startup.py\nCode:\n 7  7    from metagpt.software_company import SoftwareCompany\n 8  8    \n 9  9    \n10     - async def startup(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n   10  + async def startup(idea: str, investment: float = 3.0, n_round: int = 5,\n   11  +                   code_review: bool = False, run_tests: bool = False):\n11 12        \"\"\"Run a startup. Be a boss.\"\"\"\n12 13        company = SoftwareCompany()\n13 14        company.hire([ProductManager(),\n       ...\n",
+                "file_path": "startup.py",
+                "identifiers_before": [
+                    "bool",
+                    "code_review",
+                    "float",
+                    "idea",
+                    "int",
+                    "investment",
+                    "n_round",
+                    "startup",
+                    "str"
+                ],
+                "identifiers_after": [
+                    "bool",
+                    "code_review",
+                    "float",
+                    "idea",
+                    "int",
+                    "investment",
+                    "n_round",
+                    "run_tests",
+                    "startup",
+                    "str"
+                ],
+                "prefix": [
+                    "from metagpt.software_company import SoftwareCompany\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\"Run a startup. Be a boss.\"\"\"\n",
+                    "    company = SoftwareCompany()\n",
+                    "    company.hire([ProductManager(),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "startup",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 72
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 83
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "startup",
+                            "position": {
+                                "start": {
+                                    "line": 10,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 10,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "run_tests",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 54
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "    \"\"\"Run a startup. Be a boss.\"\"\"\n",
+                "    company = SoftwareCompany()\n",
+                "    company.hire([ProductManager(),\n",
+                "                  Architect(),\n",
+                "                  ProjectManager(),\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                  Engineer(n_borg=5, use_code_review=code_review),\n",
+                    "                  QaEngineer()])\n"
+                ],
+                "after": [
+                    "                  Engineer(n_borg=5, use_code_review=code_review)])\n",
+                    "    if run_tests:\n",
+                    "        # developing features: run tests on the spot and identify bugs (bug fixing capability comes soon!)\n",
+                    "        company.hire([QaEngineer()])\n"
+                ],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 18
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 21
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "startup",
+                        "signature": "def startup(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):",
+                        "at_line": 10
+                    },
+                    {
+                        "type": "call",
+                        "name": "company.hire",
+                        "signature": "company.hire([ProductManager(),\n                  Architect(),\n                  ProjectManager(),\n                  Engineer(n_borg=5, use_code_review=code_review),\n                  QaEngineer()])",
+                        "at_line": 13,
+                        "argument": "[ProductManager(),\n           ..."
+                    },
+                    {
+                        "type": "call",
+                        "name": "Engineer",
+                        "signature": "Engineer(n_borg=5, use_code_review=code_review)",
+                        "at_line": 16,
+                        "argument": "n_borg=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: startup.py\nCode:\n         def startup(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n             ...\n13 14        company.hire([ProductManager(),\n14 15                      Architect(),\n15 16                      ProjectManager(),\n16     -                   Engineer(n_borg=5, use_code_review=code_review),\n17     -                   QaEngineer()])\n   17  +                   Engineer(n_borg=5, use_code_review=code_review)])\n   18  +     if run_tests:\n   19  +         # developing features: run tests on the spot and identify bugs (bug fixing capability comes soon!)\n   20  +         company.hire([QaEngineer()])\n18 21        company.invest(investment)\n19 22        company.start_project(idea)\n20 23        await company.run(n_round=n_round)\n       ...\n",
+                "file_path": "startup.py",
+                "identifiers_before": [
+                    "Engineer",
+                    "QaEngineer",
+                    "code_review",
+                    "n_borg",
+                    "use_code_review"
+                ],
+                "identifiers_after": [
+                    "Engineer",
+                    "QaEngineer",
+                    "code_review",
+                    "company",
+                    "hire",
+                    "n_borg",
+                    "run_tests",
+                    "use_code_review"
+                ],
+                "prefix": [
+                    "    company.hire([ProductManager(),\n",
+                    "                  Architect(),\n",
+                    "                  ProjectManager(),\n"
+                ],
+                "suffix": [
+                    "    company.invest(investment)\n",
+                    "    company.start_project(idea)\n",
+                    "    await company.run(n_round=n_round)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 53
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 53
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "run_tests",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    company.invest(investment)\n",
+                "    company.start_project(idea)\n",
+                "    await company.run(n_round=n_round)\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n"
+                ],
+                "after": [
+                    "def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False, run_tests: bool = False):\n"
+                ],
+                "parent_version_range": {
+                    "start": 23,
+                    "end": 24
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 27
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):",
+                        "at_line": 23
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: startup.py\nCode:\n20 23        await company.run(n_round=n_round)\n21 24    \n22 25    \n23     - def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n   26  + def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False, run_tests: bool = False):\n24 27        \"\"\"\n25 28        We are a software startup comprised of AI. By investing in us, you are empowering a future filled with limitless possibilities.\n26 29        :param idea: Your innovative idea, such as \"Creating a snake game.\"\n       ...\n",
+                "file_path": "startup.py",
+                "identifiers_before": [
+                    "bool",
+                    "code_review",
+                    "float",
+                    "idea",
+                    "int",
+                    "investment",
+                    "main",
+                    "n_round",
+                    "str"
+                ],
+                "identifiers_after": [
+                    "bool",
+                    "code_review",
+                    "float",
+                    "idea",
+                    "int",
+                    "investment",
+                    "main",
+                    "n_round",
+                    "run_tests",
+                    "str"
+                ],
+                "prefix": [
+                    "    await company.run(n_round=n_round)\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    We are a software startup comprised of AI. By investing in us, you are empowering a future filled with limitless possibilities.\n",
+                    "    :param idea: Your innovative idea, such as \"Creating a snake game.\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "idea",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "investment",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "n_round",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 52
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 63
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "idea",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "investment",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "n_round",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 52
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 63
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "run_tests",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 90
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 99
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "    \"\"\"\n",
+                "    We are a software startup comprised of AI. By investing in us, you are empowering a future filled with limitless possibilities.\n",
+                "    :param idea: Your innovative idea, such as \"Creating a snake game.\"\n",
+                "    :param investment: As an investor, you have the opportunity to contribute a certain dollar amount to this AI company.\n",
+                "    :param n_round:\n",
+                "    :param code_review: Whether to use code review.\n",
+                "    :return:\n",
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    asyncio.run(startup(idea, investment, n_round, code_review))\n"
+                ],
+                "after": [
+                    "    asyncio.run(startup(idea, investment, n_round, code_review, run_tests))\n"
+                ],
+                "parent_version_range": {
+                    "start": 32,
+                    "end": 33
+                },
+                "child_version_range": {
+                    "start": 35,
+                    "end": 36
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "call",
+                        "name": "asyncio.run",
+                        "signature": "asyncio.run(startup(idea, investment, n_round, code_review))",
+                        "at_line": 32,
+                        "argument": "startup(idea, investment, n_ro..."
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: startup.py\nCode:\n         def main(idea: str, investment: float = 3.0, n_round: int = 5, code_review: bool = False):\n             ...\n29 32        :param code_review: Whether to use code review.\n30 33        :return:\n31 34        \"\"\"\n32     -     asyncio.run(startup(idea, investment, n_round, code_review))\n   35  +     asyncio.run(startup(idea, investment, n_round, code_review, run_tests))\n33 36    \n34 37    \n35 38    if __name__ == '__main__':\n       ...\n",
+                "file_path": "startup.py",
+                "identifiers_before": [
+                    "asyncio",
+                    "code_review",
+                    "idea",
+                    "investment",
+                    "n_round",
+                    "run",
+                    "startup"
+                ],
+                "identifiers_after": [
+                    "asyncio",
+                    "code_review",
+                    "idea",
+                    "investment",
+                    "n_round",
+                    "run",
+                    "run_tests",
+                    "startup"
+                ],
+                "prefix": [
+                    "    :param code_review: Whether to use code review.\n",
+                    "    :return:\n",
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "if __name__ == '__main__':\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "startup",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "idea",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "investment",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "n_round",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 51
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 62
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "startup",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "idea",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "investment",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 40
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "n_round",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "code_review",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 51
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 62
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "run_tests",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 64
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 73
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/MetaGPT/startup.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    fire.Fire(main)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

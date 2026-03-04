@@ -1,0 +1,97 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'import sys' at the top of the file, and Edit 1 uses 'sys.argv[0]' in a new line of code. The changed line in Edit 1 explicitly references the exact same symbol 'sys' that is imported in Edit 0. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, using an undefined import like 'sys.argv[0]' before importing sys would cause a NameError at runtime, but both edits can be written and parsed in either order since Python allows referencing undefined names at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'import sys' at the top of the file, and Edit 1 uses 'sys.argv[0]' in a new line of code. The changed line in Edit 1 explicitly references the exact same symbol 'sys' that is imported in Edit 0. This creates a direct import-usage relationship where both edits reference the same symbol. In Python, using an undefined import like 'sys.argv[0]' before importing sys would cause a NameError at runtime, but both edits can be written and parsed in either order since Python allows referencing undefined names at parse time. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `start_worker` in the same file. Edit 0 adds a new parameter `user_source_directory=None` to the function signature, while Edit 1 adds documentation for this exact same parameter in the docstring. The changed lines reference the exact same symbol (the `user_source_directory` parameter) - one defines it in the signature and the other documents it. This creates a direct code linkage where adding a parameter naturally prompts documenting it as the next contiguous action in the same micro-task. Either edit can be made first and both reference the same symbol, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits modify the same function `start_worker` in the same file. Edit 0 adds a new parameter `user_source_directory=None` to the function signature, while Edit 1 adds documentation for this exact same parameter in the docstring. The changed lines reference the exact same symbol (the `user_source_directory` parameter) - one defines it in the signature and the other documents it. This creates a direct code linkage where adding a parameter naturally prompts documenting it as the next contiguous action in the same micro-task. Either edit can be made first and both reference the same symbol, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits modify the same function `start_worker`. Edit 0 adds the parameter `user_source_directory=None` to the function signature, and Edit 1 adds code in the function body that references and uses this exact same parameter symbol. The changed lines in Edit 1 explicitly reference the parameter added in Edit 0 (`if user_source_directory is None:` and subsequent assignment to `user_source_directory`). This creates a direct code dependency where adding the parameter naturally prompts adding the logic to handle it, and vice versa. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of when the parameter was added to the signature."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits modify the same function `start_worker`. Edit 0 adds the parameter `user_source_directory=None` to the function signature, and Edit 1 adds code in the function body that references and uses this exact same parameter symbol. The changed lines in Edit 1 explicitly reference the parameter added in Edit 0 (`if user_source_directory is None:` and subsequent assignment to `user_source_directory`). This creates a direct code dependency where adding the parameter naturally prompts adding the logic to handle it, and vice versa. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of when the parameter was added to the signature."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'user_source_directory=None' to the function signature of start_worker. Edit 1 uses this exact same parameter by adding '--user-source-directory=' + user_source_directory to the subprocess call within the same function body. The changed lines reference the exact same symbol (user_source_directory parameter), and after adding the parameter to the signature, using it in the function body becomes the immediate next mechanical step. Both edits can be staged in either order without parser errors - the parameter can be added to the signature first then used, or the usage can be added first (though it would cause a NameError at runtime until the parameter is defined)."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'user_source_directory=None' to the function signature of start_worker. Edit 1 uses this exact same parameter by adding '--user-source-directory=' + user_source_directory to the subprocess call within the same function body. The changed lines reference the exact same symbol (user_source_directory parameter), and after adding the parameter to the signature, using it in the function body becomes the immediate next mechanical step. Both edits can be staged in either order without parser errors - the parameter can be added to the signature first then used, or the usage can be added first (though it would cause a NameError at runtime until the parameter is defined)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'user_source_directory' with a conditional assignment and comment explaining its purpose. Edit 1 uses this exact same variable 'user_source_directory' in a string concatenation to pass it as a command line argument. The changed lines reference the exact same symbol - the variable 'user_source_directory'. After making edit 0 (defining the variable), edit 1 (using the variable) becomes the immediate next step to actually utilize the newly defined variable. Similarly, after making edit 1 (using the variable), edit 0 becomes necessary to define what is being used. Both edits are part of the same micro-task of adding user source directory functionality to the worker startup process."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable 'user_source_directory' with a conditional assignment and comment explaining its purpose. Edit 1 uses this exact same variable 'user_source_directory' in a string concatenation to pass it as a command line argument. The changed lines reference the exact same symbol - the variable 'user_source_directory'. After making edit 0 (defining the variable), edit 1 (using the variable) becomes the immediate next step to actually utilize the newly defined variable. Similarly, after making edit 1 (using the variable), edit 0 becomes necessary to define what is being used. Both edits are part of the same micro-task of adding user source directory functionality to the worker startup process."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds documentation for a 'user_source_directory' parameter in the docstring, while Edit 1 adds code that references and uses the exact same 'user_source_directory' symbol. The documentation describes the parameter's purpose and default behavior, and the code implements that exact default behavior by setting user_source_directory when it's None. Both edits reference the same symbol and appear to be part of adding this parameter to the function - the documentation and implementation are directly linked through the exact same symbol name."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds documentation for a 'user_source_directory' parameter in the docstring, while Edit 1 adds code that references and uses the exact same 'user_source_directory' symbol. The documentation describes the parameter's purpose and default behavior, and the code implements that exact default behavior by setting user_source_directory when it's None. Both edits reference the same symbol and appear to be part of adding this parameter to the function - the documentation and implementation are directly linked through the exact same symbol name."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds a command line argument '--user-source-directory=' + user_source_directory to the subprocess call that starts a worker. Edit 1 adds code to handle this exact same command line argument by checking args.user_source_directory and adding it to sys.path. The changed lines reference the exact same symbol (the user_source_directory command line argument) - one edit passes it as a parameter and the other edit consumes and processes that parameter. This creates an immediate, mechanically obvious code-driven linkage where adding the argument in the subprocess call naturally prompts the need to handle it in the worker script, and vice versa. Both edits can be staged in either order since they don't create parse errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 adds a command line argument '--user-source-directory=' + user_source_directory to the subprocess call that starts a worker. Edit 1 adds code to handle this exact same command line argument by checking args.user_source_directory and adding it to sys.path. The changed lines reference the exact same symbol (the user_source_directory command line argument) - one edit passes it as a parameter and the other edit consumes and processes that parameter. This creates an immediate, mechanically obvious code-driven linkage where adding the argument in the subprocess call naturally prompts the need to handle it in the worker script, and vice versa. Both edits can be staged in either order since they don't create parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a command line argument '--user-source-directory=' + user_source_directory to the subprocess.Popen call that launches a worker process. Edit 1 adds the corresponding argument parser definition for '--user-source-directory' in the worker script that receives this argument. These edits reference the exact same command line argument symbol '--user-source-directory'. The relationship is bi-directional because either edit can be made first - adding the argument parser without the caller passing it would just result in an unused argument (no parse error), and adding the caller argument without the parser would result in an 'unrecognized arguments' error at runtime (not a parse-time syntax error). Both edits are part of the same micro-task of adding support for the user source directory parameter."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a command line argument '--user-source-directory=' + user_source_directory to the subprocess.Popen call that launches a worker process. Edit 1 adds the corresponding argument parser definition for '--user-source-directory' in the worker script that receives this argument. These edits reference the exact same command line argument symbol '--user-source-directory'. The relationship is bi-directional because either edit can be made first - adding the argument parser without the caller passing it would just result in an unused argument (no parse error), and adding the caller argument without the parser would result in an 'unrecognized arguments' error at runtime (not a parse-time syntax error). Both edits are part of the same micro-task of adding support for the user source directory parameter."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 adds a new command-line argument '--user-source-directory' to the argument parser. Edit 1 then uses this exact same argument by accessing 'args.user_source_directory' in the changed lines. This creates a direct definition-usage relationship where the argument defined in edit 0 is immediately referenced and used in edit 1. Both edits reference the exact same symbol (the user_source_directory argument), and making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action within the same micro-task of adding command-line argument handling."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new command-line argument '--user-source-directory' to the argument parser. Edit 1 then uses this exact same argument by accessing 'args.user_source_directory' in the changed lines. This creates a direct definition-usage relationship where the argument defined in edit 0 is immediately referenced and used in edit 1. Both edits reference the exact same symbol (the user_source_directory argument), and making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action within the same micro-task of adding command-line argument handling."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

@@ -1,0 +1,83 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 initializes the `_delete` attribute to `False` in the `BaseSerializer.__init__` method, while Edit 1 sets `self._delete = True` under certain conditions in the `ModelSerializer.field_from_native` method. Both edits reference the exact same attribute `_delete` on the same object (`self`). Edit 0 establishes the attribute that Edit 1 later modifies, creating a direct code dependency where the attribute must be initialized before it can be used. However, in Python, accessing an undefined attribute would only cause a runtime AttributeError, not a parse-time error, so both edits can be written and parsed in either order."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 initializes the `_delete` attribute to `False` in the `BaseSerializer.__init__` method, while Edit 1 sets `self._delete = True` under certain conditions in the `ModelSerializer.field_from_native` method. Both edits reference the exact same attribute `_delete` on the same object (`self`). Edit 0 establishes the attribute that Edit 1 later modifies, creating a direct code dependency where the attribute must be initialized before it can be used. However, in Python, accessing an undefined attribute would only cause a runtime AttributeError, not a parse-time error, so both edits can be written and parsed in either order."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 renames the variable 'native' to 'value' on line 380. Edit 1 still references the old variable name 'native' on line 389. After making edit 0, the variable 'native' no longer exists in that scope, so edit 1 must be updated to use 'value' instead to maintain code correctness. Both edits reference the exact same variable symbol within the same function scope, creating a direct code dependency where edit 0 creates an immediate prompt for edit 1."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 renames the variable 'native' to 'value' on line 380. Edit 1 still references the old variable name 'native' on line 389. After making edit 0, the variable 'native' no longer exists in that scope, so edit 1 must be updated to use 'value' instead to maintain code correctness. Both edits reference the exact same variable symbol within the same function scope, creating a direct code dependency where edit 0 creates an immediate prompt for edit 1."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'value' within the same function 'field_from_native'. Edit 0 introduces the variable 'value' by changing 'native = data[field_name]' to 'value = data[field_name]'. Edit 1 then uses this same 'value' variable in a conditional check 'if value in (None, '')'. After making edit 0, the next logical step would be to update code that previously used 'native' to now use 'value', which is exactly what edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of renaming the variable."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'value' within the same function 'field_from_native'. Edit 0 introduces the variable 'value' by changing 'native = data[field_name]' to 'value = data[field_name]'. Edit 1 then uses this same 'value' variable in a conditional check 'if value in (None, '')'. After making edit 0, the next logical step would be to update code that previously used 'native' to now use 'value', which is exactly what edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit naturally leads to the other as the next contiguous action within the same micro-task of renaming the variable."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same variable symbol 'native' within the same function 'field_from_native'. Edit 0 renames the variable from 'native' to 'value' on line 380, while Edit 1 removes code that uses the 'native' variable on lines 393 and 395. After making Edit 0, the 'native' variable no longer exists, making the references to 'native' in Edit 1's removed code invalid. However, since Edit 1 is removing these references entirely rather than updating them, both edits can be applied in either order - the variable rename and the code removal are independent operations that both eliminate the 'native' symbol from the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same variable symbol 'native' within the same function 'field_from_native'. Edit 0 renames the variable from 'native' to 'value' on line 380, while Edit 1 removes code that uses the 'native' variable on lines 393 and 395. After making Edit 0, the 'native' variable no longer exists, making the references to 'native' in Edit 1's removed code invalid. However, since Edit 1 is removing these references entirely rather than updating them, both edits can be applied in either order - the variable rename and the code removal are independent operations that both eliminate the 'native' symbol from the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'value' within the same function 'field_from_native'. Edit 0 assigns data[field_name] to the variable 'value', and edit 1 uses that same 'value' variable as an argument to self.from_native(). The changed lines have a direct code dependency where edit 0 defines the variable that edit 1 uses. This creates an immediate, mechanically obvious prompt where defining 'value' in edit 0 makes it available for use in edit 1, and both edits are part of the same contiguous micro-task of refactoring this method."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'value' within the same function 'field_from_native'. Edit 0 assigns data[field_name] to the variable 'value', and edit 1 uses that same 'value' variable as an argument to self.from_native(). The changed lines have a direct code dependency where edit 0 defines the variable that edit 1 uses. This creates an immediate, mechanically obvious prompt where defining 'value' in edit 0 makes it available for use in edit 1, and both edits are part of the same contiguous micro-task of refactoring this method."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 removes the assignment of `pk_val` variable on line 389, while Edit 1 removes code that references this same `pk_val` variable on line 391. The changed lines reference the exact same symbol - the `pk_val` variable. After removing the assignment in Edit 0, the usage in Edit 1 would create an undefined variable reference, making Edit 1 the immediate next step to clean up the dangling reference. However, since both edits can be parsed and staged in either order (Python allows undefined variable references at parse time, only failing at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 removes the assignment of `pk_val` variable on line 389, while Edit 1 removes code that references this same `pk_val` variable on line 391. The changed lines reference the exact same symbol - the `pk_val` variable. After removing the assignment in Edit 0, the usage in Edit 1 would create an undefined variable reference, making Edit 1 the immediate next step to clean up the dangling reference. However, since both edits can be parsed and staged in either order (Python allows undefined variable references at parse time, only failing at runtime), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same attribute symbol '_delete' on the same object (self). Edit 0 sets 'self._delete = True' and edit 1 checks 'if self._delete:'. This creates a direct definition-usage relationship where the attribute being set in edit 0 is the same attribute being checked in edit 1. The changed lines in both edits explicitly reference the identical symbol 'self._delete', making this a clear case of bi-directional neighbors where either edit naturally prompts the other as the next mechanical step in implementing this delete flag functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same attribute symbol '_delete' on the same object (self). Edit 0 sets 'self._delete = True' and edit 1 checks 'if self._delete:'. This creates a direct definition-usage relationship where the attribute being set in edit 0 is the same attribute being checked in edit 1. The changed lines in both edits explicitly reference the identical symbol 'self._delete', making this a clear case of bi-directional neighbors where either edit naturally prompts the other as the next mechanical step in implementing this delete flag functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "These edits are part of a single code restructuring within the same method `field_from_native`. Edit 0 removes lines 391-396 which include `obj = self.from_native(native, files)` and the conditional `if not self._errors: self.object = obj`. Edit 1 adds back very similar code in a different location: `obj = self.from_native(value, files)` and `if not self._errors: self.object = obj` along with additional logic. This appears to be a cut-and-paste refactoring where code is being moved and modified within the same method. The removal in edit 0 must happen before the addition in edit 1 can be properly placed, as this is restructuring the control flow of the method."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        8
+    ]
+}

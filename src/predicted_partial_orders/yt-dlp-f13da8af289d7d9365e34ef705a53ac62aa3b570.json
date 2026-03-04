@@ -1,0 +1,62 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 imports 'urljoin' from utils, and Edit 1 uses 'urljoin' in the code. The changed lines reference the exact same symbol - 'urljoin'. After importing urljoin in Edit 0, it becomes available for use in Edit 1. After using urljoin in Edit 1, there's an immediate need for the import in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 imports 'urljoin' from utils, and Edit 1 uses 'urljoin' in the code. The changed lines reference the exact same symbol - 'urljoin'. After importing urljoin in Edit 0, it becomes available for use in Edit 1. After using urljoin in Edit 1, there's an immediate need for the import in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'get_element_by_class' to 'get_element_by_id'. Edit 0 changes the import statement to import the new function, while Edit 1 changes the usage of that function in the code. The changed lines in both edits reference the exact same symbol - the function being imported and used. This creates a direct code dependency where importing the new function (Edit 0) enables its usage (Edit 1), and both are part of a single refactoring operation. Either edit can be staged first since Python allows importing unused functions and using undefined functions (which would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'get_element_by_class' to 'get_element_by_id'. Edit 0 changes the import statement to import the new function, while Edit 1 changes the usage of that function in the code. The changed lines in both edits reference the exact same symbol - the function being imported and used. This creates a direct code dependency where importing the new function (Edit 0) enables its usage (Edit 1), and both are part of a single refactoring operation. Either edit can be staged first since Python allows importing unused functions and using undefined functions (which would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 renames the class from 'AZMedienShowIE' to 'AZMedienPlaylistIE' in the class definition. Edit 1 updates the import statement to reference the same renamed class 'AZMedienPlaylistIE'. Both edits reference the exact same symbol (the class name) - one defines it and the other imports it. This creates a direct code dependency where after renaming the class definition, the import must be updated to reference the new name, or vice versa. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 renames the class from 'AZMedienShowIE' to 'AZMedienPlaylistIE' in the class definition. Edit 1 updates the import statement to reference the same renamed class 'AZMedienPlaylistIE'. Both edits reference the exact same symbol (the class name) - one defines it and the other imports it. This creates a direct code dependency where after renaming the class definition, the import must be updated to reference the new name, or vice versa. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are part of the same class definition and are making coordinated changes to rename and expand the functionality from 'AZMedienShowIE' to 'AZMedienPlaylistIE'. Edit 0 changes the class name and description, while Edit 1 updates the regex pattern to match the broader scope (adding 'topic' and 'themen' alongside 'show'). These changes reference the same class definition and are part of a single refactoring operation where both changes work together to transform the class from handling just shows to handling playlists. The changes are structurally synchronized - renaming the class and updating its matching pattern to reflect the expanded functionality. Either edit could be made first as both are syntactically valid independently, but they form a cohesive unit of change."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are part of the same class definition and are making coordinated changes to rename and expand the functionality from 'AZMedienShowIE' to 'AZMedienPlaylistIE'. Edit 0 changes the class name and description, while Edit 1 updates the regex pattern to match the broader scope (adding 'topic' and 'themen' alongside 'show'). These changes reference the same class definition and are part of a single refactoring operation where both changes work together to transform the class from handling just shows to handling playlists. The changes are structurally synchronized - renaming the class and updating its matching pattern to reflect the expanded functionality. Either edit could be made first as both are syntactically valid independently, but they form a cohesive unit of change."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 modifies a regex pattern to accept 'show', 'topic', or 'themen' as valid URL patterns. Edit 1 adds test cases that specifically test URLs containing 'themen' and 'topic' patterns. The test cases in edit 1 directly validate the regex pattern changes made in edit 0 - they test the exact same URL matching functionality that was expanded. Both edits reference the same URL pattern matching system within the same class, making this a clear test-implementation synchronization where the test cases validate the specific pattern changes."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 modifies a regex pattern to accept 'show', 'topic', or 'themen' as valid URL patterns. Edit 1 adds test cases that specifically test URLs containing 'themen' and 'topic' patterns. The test cases in edit 1 directly validate the regex pattern changes made in edit 0 - they test the exact same URL matching functionality that was expanded. Both edits reference the same URL pattern matching system within the same class, making this a clear test-implementation synchronization where the test cases validate the specific pattern changes."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5,
+        0,
+        6,
+        7,
+        4
+    ]
+}

@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a parameter 'partner_id=lead.partner_id.id' to a method call, which references the 'lead' variable. Edit 1 removes the line that defines this 'lead' variable via 'self.browse(cr, uid, ids[0], context=context)'. After edit 1 is applied, the 'lead' variable referenced in edit 0's added parameter would be undefined, creating an immediate code dependency. The changed lines reference the exact same symbol 'lead', and edit 1 must occur before edit 0 to avoid a NameError when the code is executed."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "This is a cut-and-paste move operation where the exact same line of code 'lead = self.browse(cr, uid, ids[0], context=context)' is being removed from one location (edit 1) and added to another location (edit 0) within the same function. The variable 'lead' is then used in the subsequent line 'if lead.type == 'lead':' which appears after both edit locations. For this move to work correctly, the removal must happen before the addition to avoid having duplicate variable assignments, making this an ordered relationship where edit 1 (removal) must occur before edit 0 (addition)."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 adds a parameter 'partner_id=lead.partner_id.id' to a call to '_notification_link_helper', while Edit 1 modifies the implementation of '_notification_link_helper' to handle kwargs differently by JSON-encoding them. These edits reference the exact same method '_notification_link_helper' - Edit 0 changes how it's called and Edit 1 changes how it processes parameters. The parameter addition in Edit 0 creates an immediate need for Edit 1's implementation change to properly handle the new parameter structure, making them mechanically linked through the same method symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 adds a parameter 'partner_id=lead.partner_id.id' to a call to '_notification_link_helper', while Edit 1 modifies the implementation of '_notification_link_helper' to handle kwargs differently by JSON-encoding them. These edits reference the exact same method '_notification_link_helper' - Edit 0 changes how it's called and Edit 1 changes how it processes parameters. The parameter addition in Edit 0 creates an immediate need for Edit 1's implementation change to properly handle the new parameter structure, making them mechanically linked through the same method symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'lead' by browsing a record, and Edit 1 uses that exact same 'lead' variable to access its partner_id attribute in the convert_action line. The changed lines reference the exact same symbol 'lead' - Edit 0 creates it and Edit 1 uses it. This creates an immediate, mechanically obvious code dependency where defining the 'lead' variable naturally prompts its usage in the next line, and both edits are part of the same uninterrupted micro-task within the same function. Either edit could be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'lead' by browsing a record, and Edit 1 uses that exact same 'lead' variable to access its partner_id attribute in the convert_action line. The changed lines reference the exact same symbol 'lead' - Edit 0 creates it and Edit 1 uses it. This creates an immediate, mechanically obvious code dependency where defining the 'lead' variable naturally prompts its usage in the next line, and both edits are part of the same uninterrupted micro-task within the same function. Either edit could be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import for the 'json' module at the top of the file, and Edit 1 uses that exact same 'json' module in a function call (json.loads). The changed lines reference the exact same symbol - the 'json' module. After adding the import in Edit 0, Edit 1 becomes the natural next step to use the imported functionality. This is a classic import-usage pattern where both edits reference the same symbol and either could prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds an import for the 'json' module at the top of the file, and Edit 1 uses that exact same 'json' module in a function call (json.loads). The changed lines reference the exact same symbol - the 'json' module. After adding the import in Edit 0, Edit 1 becomes the natural next step to use the imported functionality. This is a classic import-usage pattern where both edits reference the same symbol and either could prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "These edits are bi-directional neighbours because they form a synchronized parameter handling pattern for the same data flow. Edit 0 changes the mail controller to parse JSON parameters using `json.loads(kwargs.get('params', {}))`, while Edit 1 changes the mail thread model to serialize parameters using `json.dumps(kwargs)`. Both edits reference the same 'params' parameter in the same mail system workflow - one serializes the data for transmission, the other deserializes it for consumption. This creates a mirrored substitution pattern where both edits must be made together to maintain the JSON serialization/deserialization contract between the model and controller components."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "These edits are bi-directional neighbours because they form a synchronized parameter handling pattern for the same data flow. Edit 0 changes the mail controller to parse JSON parameters using `json.loads(kwargs.get('params', {}))`, while Edit 1 changes the mail thread model to serialize parameters using `json.dumps(kwargs)`. Both edits reference the same 'params' parameter in the same mail system workflow - one serializes the data for transmission, the other deserializes it for consumption. This creates a mirrored substitution pattern where both edits must be made together to maintain the JSON serialization/deserialization contract between the model and controller components."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import statement for the json module, and Edit 1 uses json.dumps() in the changed line. This is a classic import-usage relationship where the exact same symbol 'json' is being imported in one edit and used in another. After adding the import, using json.dumps() becomes the natural next step, and vice versa - if you're using json.dumps(), you need the import. Both edits reference the exact same symbol and either can prompt the other as the immediate next mechanical action."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import statement for the json module, and Edit 1 uses json.dumps() in the changed line. This is a classic import-usage relationship where the exact same symbol 'json' is being imported in one edit and used in another. After adding the import, using json.dumps() becomes the natural next step, and vice versa - if you're using json.dumps(), you need the import. Both edits reference the exact same symbol and either can prompt the other as the immediate next mechanical action."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

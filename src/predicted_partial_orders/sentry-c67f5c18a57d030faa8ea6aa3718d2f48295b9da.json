@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new class 'SCIMTestCase' with a setUp method, and Edit 1 changes the inheritance of 'SCIMMemberTests' from 'APITestCase' to 'SCIMTestCase'. The changed lines reference the exact same symbol - 'SCIMTestCase'. Edit 1 cannot be parsed successfully without Edit 0 being present first, as it would reference an undefined class 'SCIMTestCase', causing a NameError at import time. This is a classic definition-before-usage dependency where the usage edit requires the definition edit to exist first."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits perform identical structural transformations on the same type of data representation. Edit 0 changes `obj.id` to `str(obj.id)` in the production serializer code, while Edit 1 changes `org_member_id` to `str(org_member_id)` in the corresponding test assertion. Both are converting ID values to strings in SCIM user schema contexts. The test is directly validating the behavior of the serializer - when the serializer changes how it formats the 'id' field, the test expectation must be updated to match. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain test-production synchronization."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits perform identical structural transformations on the same type of data representation. Edit 0 changes `obj.id` to `str(obj.id)` in the production serializer code, while Edit 1 changes `org_member_id` to `str(org_member_id)` in the corresponding test assertion. Both are converting ID values to strings in SCIM user schema contexts. The test is directly validating the behavior of the serializer - when the serializer changes how it formats the 'id' field, the test expectation must be updated to match. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain test-production synchronization."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new class 'SCIMTestCase' with a setUp method, and Edit 1 changes the inheritance of 'SCIMGroupTests' from 'APITestCase' to 'SCIMTestCase'. The changed line in Edit 1 directly references the exact same symbol (SCIMTestCase) that is being defined in Edit 0. This creates an immediate code dependency where defining SCIMTestCase enables its use as a base class. However, in Python, class inheritance references are resolved at class definition time, so SCIMGroupTests(SCIMTestCase) would cause a NameError if SCIMTestCase is not yet defined. This makes Edit 0 (definition) required before Edit 1 (usage) can be successfully parsed and executed."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits perform identical structural substitutions on the same type of syntactic construct - converting an 'id' field from integer to string representation using str(). Edit 0 changes 'obj.id' to 'str(obj.id)' in the production serializer, while Edit 1 changes 'org_member_id' to 'str(org_member_id)' in the test expectation. This represents a synchronized pattern where the test is being updated to match the new string format produced by the serializer. Both edits involve the same before\u2192after pattern (wrapping with str()) on the same construct type (id field assignment), and appear to be part of a single refactor to ensure SCIM API consistency between production code and test expectations."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits perform identical structural substitutions on the same type of syntactic construct - converting an 'id' field from integer to string representation using str(). Edit 0 changes 'obj.id' to 'str(obj.id)' in the production serializer, while Edit 1 changes 'org_member_id' to 'str(org_member_id)' in the test expectation. This represents a synchronized pattern where the test is being updated to match the new string format produced by the serializer. Both edits involve the same before\u2192after pattern (wrapping with str()) on the same construct type (id field assignment), and appear to be part of a single refactor to ensure SCIM API consistency between production code and test expectations."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactoring operation to ensure consistent string conversion of the org_member_id across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactoring operation to ensure consistent string conversion of the org_member_id across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactor to ensure consistent string conversion of the org_member_id variable across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same function context."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactor to ensure consistent string conversion of the org_member_id variable across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same function context."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution pattern: changing the parent class from 'APITestCase' to 'SCIMTestCase' and removing the setUp method. This is a uniform refactoring operation where the same before\u2192after pattern (APITestCase \u2192 SCIMTestCase, remove setUp) is applied to the same type of syntactic construct (class inheritance declarations). Both edits are part of a single, contiguous refactor to consolidate common SCIM test setup into a base class. Either edit can be made first, and after making either, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution pattern: changing the parent class from 'APITestCase' to 'SCIMTestCase' and removing the setUp method. This is a uniform refactoring operation where the same before\u2192after pattern (APITestCase \u2192 SCIMTestCase, remove setUp) is applied to the same type of syntactic construct (class inheritance declarations). Both edits are part of a single, contiguous refactor to consolidate common SCIM test setup into a base class. Either edit can be made first, and after making either, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactoring operation to ensure consistent string conversion of the org_member_id variable across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same function context."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern (wrapping `org_member_id` with `str()`) on the same type of syntactic construct (dictionary value assignment for the 'id' key). They are part of the same test method and represent a uniform refactoring operation to ensure consistent string conversion of the org_member_id variable across multiple assertion dictionaries. This is a clear case of bulk-edit pattern synchronization where both edits apply the same before\u2192after transformation to the same construct type within the same function context."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits perform the exact same textual substitution pattern: wrapping an 'id' field value with str() to convert it to a string. Edit 0 changes 'obj.id' to 'str(obj.id)' in the production serializer code, while Edit 1 changes 'org_member_id' to 'str(org_member_id)' in the test assertion. This represents a synchronized bulk substitution where both edits apply the identical before\u2192after pattern (adding str() wrapper) to the same type of syntactic construct (id field assignments in dictionary literals). Both edits are part of a single refactoring task to ensure consistent string representation of ID values across production and test code. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits perform the exact same textual substitution pattern: wrapping an 'id' field value with str() to convert it to a string. Edit 0 changes 'obj.id' to 'str(obj.id)' in the production serializer code, while Edit 1 changes 'org_member_id' to 'str(org_member_id)' in the test assertion. This represents a synchronized bulk substitution where both edits apply the identical before\u2192after pattern (adding str() wrapper) to the same type of syntactic construct (id field assignments in dictionary literals). Both edits are part of a single refactoring task to ensure consistent string representation of ID values across production and test code. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

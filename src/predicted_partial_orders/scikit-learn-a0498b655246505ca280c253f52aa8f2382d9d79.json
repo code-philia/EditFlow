@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'iris = datasets.load_iris()' to 'X, y = datasets.make_blobs(random_state=0)'. This is a uniform bulk substitution across different test files, replacing the same type of syntactic construct (dataset loading assignment statements) with the exact same before\u2192after pattern. Both edits are part of what appears to be a single refactoring operation to standardize test data generation across multiple test files. Either edit can be made first, and after making one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'iris = datasets.load_iris()' to 'X, y = datasets.make_blobs(random_state=0)'. This is a uniform bulk substitution across different test files, replacing the same type of syntactic construct (dataset loading assignment statements) with the exact same before\u2192after pattern. Both edits are part of what appears to be a single refactoring operation to standardize test data generation across multiple test files. Either edit can be made first, and after making one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbols in their changed lines. Edit 0 changes from 'iris' to 'X, y' variables, and edit 1 uses those exact same 'X, y' variables in the changed lines (lines 117-118). The variables defined in edit 0 are immediately used in edit 1, creating a direct code dependency. After making edit 0, the 'iris' references in edit 1 would become undefined, making edit 1 the immediate next mechanical step. Similarly, if edit 1 were made first, it would reference undefined 'X, y' variables, making edit 0 the necessary companion edit. Both edits are part of the same micro-task of switching the test data source from iris dataset to make_blobs."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbols in their changed lines. Edit 0 changes from 'iris' to 'X, y' variables, and edit 1 uses those exact same 'X, y' variables in the changed lines (lines 117-118). The variables defined in edit 0 are immediately used in edit 1, creating a direct code dependency. After making edit 0, the 'iris' references in edit 1 would become undefined, making edit 1 the immediate next mechanical step. Similarly, if edit 1 were made first, it would reference undefined 'X, y' variables, making edit 0 the necessary companion edit. Both edits are part of the same micro-task of switching the test data source from iris dataset to make_blobs."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits add the exact same line of code 'X = X + 1e-10 * np.random.uniform(size=X.shape)' to different test functions. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits perform an identical textual substitution (adding the same noise perturbation line) and target the same type of syntactic construct (variable assignment to X in test functions). This appears to be part of a contiguous refactor to add small random noise to test data across multiple test cases, making either edit a natural prompt for the other as part of the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits add the exact same line of code 'X = X + 1e-10 * np.random.uniform(size=X.shape)' to different test functions. This represents a bulk-edit pattern where identical code is being added to multiple locations as part of a single refactoring task. The edits perform an identical textual substitution (adding the same noise perturbation line) and target the same type of syntactic construct (variable assignment to X in test functions). This appears to be part of a contiguous refactor to add small random noise to test data across multiple test cases, making either edit a natural prompt for the other as part of the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes the data source from `iris = datasets.load_iris()` to `X, y = datasets.make_blobs(random_state=0)`, introducing new variables X and y. Edit 1 then updates the usage of the data from `iris.data, iris.target` to `X, y` in the same function. The changed lines in edit 1 directly reference the exact same symbols (X and y) that were introduced in edit 0. After making edit 0, the code in edit 1 would reference undefined variables (iris no longer exists), making edit 1 the immediate next step to fix the broken references. This is a clear definition-usage relationship where both edits reference the exact same symbols within the same function scope."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 imports the 'warnings' module at the top of the test function, and Edit 1 uses that exact same 'warnings' module in a with statement to catch warnings. The changed lines reference the exact same symbol - the 'warnings' module. After importing warnings in Edit 0, using it in Edit 1 becomes the immediate next step to utilize the imported module. This is a classic import-usage pattern within the same function scope."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 imports the 'warnings' module at the top of the test function, and Edit 1 uses that exact same 'warnings' module in a with statement to catch warnings. The changed lines reference the exact same symbol - the 'warnings' module. After importing warnings in Edit 0, using it in Edit 1 becomes the immediate next step to utilize the imported module. This is a classic import-usage pattern within the same function scope."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7
+    ]
+}

@@ -1,0 +1,118 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 imports `asynccontextmanager` from contextlib, and Edit 1 uses `@asynccontextmanager` as a decorator for the new `aiohttp_session` function. The changed lines reference the exact same symbol - `asynccontextmanager`. Edit 0 makes the symbol available via import, and Edit 1 uses that imported symbol as a decorator. This creates an immediate, mechanically obvious code-driven prompt where importing the symbol naturally leads to using it, and using it requires the import to be present. Both edits can be staged in either order in Python (the usage would cause a NameError at runtime if imported first, but no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 imports `asynccontextmanager` from contextlib, and Edit 1 uses `@asynccontextmanager` as a decorator for the new `aiohttp_session` function. The changed lines reference the exact same symbol - `asynccontextmanager`. Edit 0 makes the symbol available via import, and Edit 1 uses that imported symbol as a decorator. This creates an immediate, mechanically obvious code-driven prompt where importing the symbol naturally leads to using it, and using it requires the import to be present. Both edits can be staged in either order in Python (the usage would cause a NameError at runtime if imported first, but no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the call to arequest_raw by adding a 'session' parameter (line 300), while Edit 1 modifies the arequest_raw method signature to accept this new 'session' parameter (line 528). These edits reference the exact same method symbol and create a direct code dependency - after making either edit, the other becomes immediately necessary to maintain syntactic consistency. The call-site update and signature change are mechanically linked through the same function symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the call to arequest_raw by adding a 'session' parameter (line 300), while Edit 1 modifies the arequest_raw method signature to accept this new 'session' parameter (line 528). These edits reference the exact same method symbol and create a direct code dependency - after making either edit, the other becomes immediately necessary to maintain syntactic consistency. The call-site update and signature change are mechanically linked through the same function symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 adds AsyncIterator to the import statement, and Edit 1 uses AsyncIterator as a type annotation in the newly added aiohttp_session function. The changed lines reference the exact same symbol (AsyncIterator) - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing AsyncIterator enables its usage in the type annotation. Both edits can be staged in either order since Python allows forward references in type annotations, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 adds AsyncIterator to the import statement, and Edit 1 uses AsyncIterator as a type annotation in the newly added aiohttp_session function. The changed lines reference the exact same symbol (AsyncIterator) - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing AsyncIterator enables its usage in the type annotation. Both edits can be staged in either order since Python allows forward references in type annotations, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 1 defines the function `aiohttp_session()` and Edit 0 calls that exact same function. The changed lines in Edit 0 explicitly reference `aiohttp_session()` (marked with <dep> tags), and Edit 1 defines this function. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, function calls can be written before the function definition without causing parse errors (only runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 1 defines the function `aiohttp_session()` and Edit 0 calls that exact same function. The changed lines in Edit 0 explicitly reference `aiohttp_session()` (marked with <dep> tags), and Edit 1 defines this function. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, function calls can be written before the function definition without causing parse errors (only runtime NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits modify calls to the same method `arequest_raw` by adding a `session` parameter in the same position. Edit 0 changes the call in `APIRequestor.arequest()` to pass `session` as the third parameter, while Edit 1 changes the call in `File.adownload()` to pass `session` as the third parameter to the same method. Both edits also wrap their respective calls with `async with aiohttp_session() as session:` context managers. This represents a synchronized API change where the same method signature is being updated consistently across multiple call sites - a classic bulk refactoring pattern where the same structural change is applied to multiple locations that call the same function."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits modify calls to the same method `arequest_raw` by adding a `session` parameter in the same position. Edit 0 changes the call in `APIRequestor.arequest()` to pass `session` as the third parameter, while Edit 1 changes the call in `File.adownload()` to pass `session` as the third parameter to the same method. Both edits also wrap their respective calls with `async with aiohttp_session() as session:` context managers. This represents a synchronized API change where the same method signature is being updated consistently across multiple call sites - a classic bulk refactoring pattern where the same structural change is applied to multiple locations that call the same function."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a `session` parameter to the call to `arequest_raw` (line 300), while Edit 1 removes the session creation logic from `arequest_raw` and expects to use a `session` parameter that is passed in. The changed lines reference the exact same symbol - the `session` parameter being passed to `arequest_raw`. Edit 0 creates the session context and passes it as a parameter, while Edit 1 modifies the method to use that passed session parameter instead of creating its own. This creates a direct code dependency where Edit 1 expects the session parameter that Edit 0 provides. However, both edits can be parsed and staged independently - Edit 0 would cause a TypeError at runtime due to extra parameter, and Edit 1 would cause a NameError at runtime due to missing session variable. Since both are runtime errors rather than parse-time errors, this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a `session` parameter to the call to `arequest_raw` (line 300), while Edit 1 removes the session creation logic from `arequest_raw` and expects to use a `session` parameter that is passed in. The changed lines reference the exact same symbol - the `session` parameter being passed to `arequest_raw`. Edit 0 creates the session context and passes it as a parameter, while Edit 1 modifies the method to use that passed session parameter instead of creating its own. This creates a direct code dependency where Edit 1 expects the session parameter that Edit 0 provides. However, both edits can be parsed and staged independently - Edit 0 would cause a TypeError at runtime due to extra parameter, and Edit 1 would cause a NameError at runtime due to missing session variable. Since both are runtime errors rather than parse-time errors, this is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'session' parameter to the arequest_raw method signature, and Edit 1 updates a call site to pass the session parameter when calling arequest_raw. The changed lines reference the exact same symbol (the arequest_raw method) - Edit 0 modifies its signature and Edit 1 modifies how it's called. This creates a direct code dependency where after making the signature change, the call site must be updated to match the new signature, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'session' parameter to the arequest_raw method signature, and Edit 1 updates a call site to pass the session parameter when calling arequest_raw. The changed lines reference the exact same symbol (the arequest_raw method) - Edit 0 modifies its signature and Edit 1 modifies how it's called. This creates a direct code dependency where after making the signature change, the call site must be updated to match the new signature, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'session' within the same function `arequest_raw`. Edit 0 adds 'session' as a parameter to the function signature, and Edit 1 uses that same 'session' parameter in the function body by calling `session.request(**request_kwargs)`. This creates an immediate, mechanically obvious code dependency - after adding the session parameter in Edit 0, the next logical step is to use that parameter in the function body as shown in Edit 1. The relationship is bi-directional because either edit can be staged first without causing parse errors, and making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'session' within the same function `arequest_raw`. Edit 0 adds 'session' as a parameter to the function signature, and Edit 1 uses that same 'session' parameter in the function body by calling `session.request(**request_kwargs)`. This creates an immediate, mechanically obvious code dependency - after adding the session parameter in Edit 0, the next logical step is to use that parameter in the function body as shown in Edit 1. The relationship is bi-directional because either edit can be staged first without causing parse errors, and making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes the assignment of `user_set_session` variable, and Edit 1 removes the usage of that same `user_set_session` variable in conditional logic. The changed lines in both edits reference the exact same symbol `user_set_session`. After removing the assignment in Edit 0, the usage in Edit 1 becomes undefined, making Edit 1 the immediate next step to clean up the now-undefined variable references. This creates a direct code dependency where both edits reference the same symbol and form part of a single refactoring task to remove the user session functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes the assignment of `user_set_session` variable, and Edit 1 removes the usage of that same `user_set_session` variable in conditional logic. The changed lines in both edits reference the exact same symbol `user_set_session`. After removing the assignment in Edit 0, the usage in Edit 1 becomes undefined, making Edit 1 the immediate next step to clean up the now-undefined variable references. This creates a direct code dependency where both edits reference the same symbol and form part of a single refactoring task to remove the user session functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the line 'user_set_session = openai.aiosession.get()' from the arequest_raw method, while Edit 1 adds a new aiohttp_session method that includes the exact same line 'user_set_session = openai.aiosession.get()'. This appears to be a refactoring where the functionality is being moved from one location to another. The exact same symbol reference 'openai.aiosession.get()' and variable assignment 'user_set_session' are involved in both edits. However, since both edits can be staged independently without causing parse errors (the removal doesn't break syntax and the addition creates valid new code), this is a bi-directional relationship where either edit naturally prompts the other as part of the same refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes the line 'user_set_session = openai.aiosession.get()' from the arequest_raw method, while Edit 1 adds a new aiohttp_session method that includes the exact same line 'user_set_session = openai.aiosession.get()'. This appears to be a refactoring where the functionality is being moved from one location to another. The exact same symbol reference 'openai.aiosession.get()' and variable assignment 'user_set_session' are involved in both edits. However, since both edits can be staged independently without causing parse errors (the removal doesn't break syntax and the addition creates valid new code), this is a bi-directional relationship where either edit naturally prompts the other as part of the same refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new async context manager function `aiohttp_session` in the `api_requestor.py` file, while Edit 1 uses that exact same function by calling `api_requestor.aiohttp_session()` in the `file.py` file. This is a classic definition-usage relationship where the changed lines reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python and the usage can be written before the definition (it would only fail at runtime/import time, not at parse time), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new async context manager function `aiohttp_session` in the `api_requestor.py` file, while Edit 1 uses that exact same function by calling `api_requestor.aiohttp_session()` in the `file.py` file. This is a classic definition-usage relationship where the changed lines reference the exact same symbol. After defining the function in Edit 0, Edit 1 becomes the immediate next step to use it. Since this is Python and the usage can be written before the definition (it would only fail at runtime/import time, not at parse time), either edit can be staged first, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

@@ -1,0 +1,29 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes 'TemporaryDirectory' from the import statement 'from pipenv.vendor.vistir import TemporaryDirectory, open_file', while Edit 1 adds a new import 'from tempfile import TemporaryDirectory' and then uses TemporaryDirectory in the same line. The changed lines reference the exact same symbol 'TemporaryDirectory' - one edit removes it from one import source and the other adds it from a different import source. This creates a direct code dependency where removing the old import naturally prompts adding the new import as the next mechanical step, and vice versa. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes 'TemporaryDirectory' from the import statement 'from pipenv.vendor.vistir import TemporaryDirectory, open_file', while Edit 1 adds a new import 'from tempfile import TemporaryDirectory' and then uses TemporaryDirectory in the same line. The changed lines reference the exact same symbol 'TemporaryDirectory' - one edit removes it from one import source and the other adds it from a different import source. This creates a direct code dependency where removing the old import naturally prompts adding the new import as the next mechanical step, and vice versa. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new class 'FakePipTempDirdirectory' with an __init__ method that takes a 'path' parameter. Edit 1 uses this exact same class by instantiating it with 'FakePipTempDirdirectory(path=directory)'. The changed lines reference the exact same symbol - the FakePipTempDirdirectory class and its path parameter. After defining the class in edit 0, edit 1 becomes the immediate next step to use it, and vice versa - if you're using the class in edit 1, you need the definition from edit 0. Both edits can be staged in either order (no parse errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new class 'FakePipTempDirdirectory' with an __init__ method that takes a 'path' parameter. Edit 1 uses this exact same class by instantiating it with 'FakePipTempDirdirectory(path=directory)'. The changed lines reference the exact same symbol - the FakePipTempDirdirectory class and its path parameter. After defining the class in edit 0, edit 1 becomes the immediate next step to use it, and vice versa - if you're using the class in edit 1, you need the definition from edit 0. Both edits can be staged in either order (no parse errors), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        5,
+        6
+    ]
+}

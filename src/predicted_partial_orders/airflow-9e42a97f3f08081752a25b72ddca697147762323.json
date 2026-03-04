@@ -1,0 +1,102 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits operate on the same `key` variable within the same loop iteration in the `_process_tasks` method. Edit 0 removes the key from `queued_tasks` and Edit 1 adds an entry to `event_buffer` using the same key. These operations are part of processing the same task result and would naturally occur in sequence within the same micro-task of handling a failed task result. The `key` variable references the exact same symbol in both changed lines, and both edits are part of the same error handling flow for failed Celery tasks."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits operate on the same `key` variable within the same loop iteration in the `_process_tasks` method. Edit 0 removes the key from `queued_tasks` and Edit 1 adds an entry to `event_buffer` using the same key. These operations are part of processing the same task result and would naturally occur in sequence within the same micro-task of handling a failed task result. The `key` variable references the exact same symbol in both changed lines, and both edits are part of the same error handling flow for failed Celery tasks."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the State symbol from airflow.utils.state, and Edit 1 uses that exact same State symbol in the changed line 'self.event_buffer[key] = (State.FAILED, None)'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the State symbol from airflow.utils.state, and Edit 1 uses that exact same State symbol in the changed line 'self.event_buffer[key] = (State.FAILED, None)'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 adds code that removes tasks from `executor.queued_tasks` using `self.queued_tasks.pop(key)`. Edit 1 updates a test assertion to expect 0 queued tasks instead of 1, with a comment indicating 'Task should no longer be queued'. The test is directly verifying the behavior implemented in edit 0 - that tasks are removed from the queue. Both edits reference the exact same `queued_tasks` attribute and the test change directly corresponds to the implementation change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step in the same development session."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 adds code that removes tasks from `executor.queued_tasks` using `self.queued_tasks.pop(key)`. Edit 1 updates a test assertion to expect 0 queued tasks instead of 1, with a comment indicating 'Task should no longer be queued'. The test is directly verifying the behavior implemented in edit 0 - that tasks are removed from the queue. Both edits reference the exact same `queued_tasks` attribute and the test change directly corresponds to the implementation change. This creates a bi-directional relationship where either edit naturally prompts the other as the next step in the same development session."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits modify the same method `_process_tasks` and involve the exact same operation `self.queued_tasks.pop(key)` on the same data structure. Edit 0 adds this operation at line 191, while Edit 1 removes the same operation from lines 196-197. The changed lines reference the exact same symbol (`self.queued_tasks`) and perform the same operation (`pop(key)`). This appears to be a refactoring where the `pop` operation is being moved from one location to another within the same method, creating a direct structural dependency where both edits affect the same code element in a synchronized manner."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits modify the same method `_process_tasks` and involve the exact same operation `self.queued_tasks.pop(key)` on the same data structure. Edit 0 adds this operation at line 191, while Edit 1 removes the same operation from lines 196-197. The changed lines reference the exact same symbol (`self.queued_tasks`) and perform the same operation (`pop(key)`). This appears to be a refactoring where the `pop` operation is being moved from one location to another within the same method, creating a direct structural dependency where both edits affect the same code element in a synchronized manner."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import for 'State' from 'airflow.utils.state', while Edit 1 uses 'State.FAILED' in a test assertion. The changed line in Edit 1 explicitly references the exact same 'State' symbol that is being imported in Edit 0. This creates a direct code dependency where the import in Edit 0 enables the usage in Edit 1. However, in Python, the usage can be written and parsed before the import is present (it would only fail at runtime with a NameError), so both edits can be staged in either order. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for 'State' from 'airflow.utils.state', while Edit 1 uses 'State.FAILED' in a test assertion. The changed line in Edit 1 explicitly references the exact same 'State' symbol that is being imported in Edit 0. This creates a direct code dependency where the import in Edit 0 enables the usage in Edit 1. However, in Python, the usage can be written and parsed before the import is present (it would only fail at runtime with a NameError), so both edits can be staged in either order. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "These edits are directly related through a test-production code synchronization pattern. Edit 0 removes the line that pops tasks from `queued_tasks` when they are successfully enqueued, changing the behavior so that tasks remain in the queue. Edit 1 updates the corresponding test assertion to expect 0 queued tasks instead of 1, and adds a new assertion to check the event buffer. The test is specifically testing the behavior of the `queued_tasks` collection that was modified in edit 0. Both edits reference the exact same `queued_tasks` attribute and the test change directly corresponds to the implementation change."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "These edits are directly related through a test-production code synchronization pattern. Edit 0 removes the line that pops tasks from `queued_tasks` when they are successfully enqueued, changing the behavior so that tasks remain in the queue. Edit 1 updates the corresponding test assertion to expect 0 queued tasks instead of 1, and adds a new assertion to check the event buffer. The test is specifically testing the behavior of the `queued_tasks` collection that was modified in edit 0. Both edits reference the exact same `queued_tasks` attribute and the test change directly corresponds to the implementation change."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable 'when' with the value datetime.datetime.now(), and Edit 1 references this exact same variable 'when' in the assertion line. The changed lines reference the exact same symbol - the variable 'when' that is defined in edit 0 and used in edit 1. This creates an immediate code dependency where edit 1 cannot function properly without the 'when' variable being defined first in edit 0. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds code that sets `self.event_buffer[key] = (State.FAILED, None)` when a task fails to send. Edit 1 modifies a test to assert that `executor.event_buffer[('fail', 'fake_simple_ti', when, 0)][0]` equals `State.FAILED`. Both edits reference the exact same `event_buffer` attribute and the `State.FAILED` value. The production code change creates the behavior that the test is now verifying - when a task fails to send, it gets marked as FAILED in the event_buffer. This is a direct test-production synchronization where the test assertions are updated to verify the exact behavior being implemented in the production code."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds code that sets `self.event_buffer[key] = (State.FAILED, None)` when a task fails to send. Edit 1 modifies a test to assert that `executor.event_buffer[('fail', 'fake_simple_ti', when, 0)][0]` equals `State.FAILED`. Both edits reference the exact same `event_buffer` attribute and the `State.FAILED` value. The production code change creates the behavior that the test is now verifying - when a task fails to send, it gets marked as FAILED in the event_buffer. This is a direct test-production synchronization where the test assertions are updated to verify the exact behavior being implemented in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the variable assignment from `key = ('fail', 'fake_simple_ti', datetime.datetime.now(), 0)` to `key = ('fail', 'fake_simple_ti', when, 0)`. Edit 1 removes the line that references this exact same `key` variable (`self.assertEqual(executor.queued_tasks[key], value_tuple)`) and replaces it with different assertions. The changed lines in both edits reference the exact same symbol `key` - edit 0 defines/assigns it and edit 1 removes its usage. This creates a direct code dependency where the removal of the key usage in edit 1 is mechanically prompted by the change to how key is defined in edit 0, as part of refactoring the test logic. Both edits are part of the same micro-task of updating this test method."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the variable assignment from `key = ('fail', 'fake_simple_ti', datetime.datetime.now(), 0)` to `key = ('fail', 'fake_simple_ti', when, 0)`. Edit 1 removes the line that references this exact same `key` variable (`self.assertEqual(executor.queued_tasks[key], value_tuple)`) and replaces it with different assertions. The changed lines in both edits reference the exact same symbol `key` - edit 0 defines/assigns it and edit 1 removes its usage. This creates a direct code dependency where the removal of the key usage in edit 1 is mechanically prompted by the change to how key is defined in edit 0, as part of refactoring the test logic. Both edits are part of the same micro-task of updating this test method."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new variable 'when' assigned to datetime.datetime.now(), and edit 1 replaces datetime.datetime.now() with the newly defined 'when' variable. The changed lines reference the exact same symbol 'when' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after defining 'when', the natural next step is to use it to replace the duplicate datetime.datetime.now() call. Both edits are part of a single micro-task to eliminate code duplication by extracting a common expression into a variable."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'when' assigned to datetime.datetime.now(), and edit 1 replaces datetime.datetime.now() with the newly defined 'when' variable. The changed lines reference the exact same symbol 'when' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after defining 'when', the natural next step is to use it to replace the duplicate datetime.datetime.now() call. Both edits are part of a single micro-task to eliminate code duplication by extracting a common expression into a variable."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

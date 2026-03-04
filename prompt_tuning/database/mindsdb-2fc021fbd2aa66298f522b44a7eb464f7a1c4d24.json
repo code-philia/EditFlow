@@ -1,0 +1,1275 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/mindsdb/mindsdb/commit/2fc021fbd2aa66298f522b44a7eb464f7a1c4d24",
+    "commit_message": "not update HF model if it is loaded on node.",
+    "commit_snapshots": {
+        "mindsdb/integrations/handlers/huggingface_handler/huggingface_handler.py": [
+            [
+                "import pandas as pd\n",
+                "import transformers\n",
+                "from mindsdb.utilities import log\n",
+                "\n",
+                "from mindsdb.integrations.libs.base import BaseMLEngine\n",
+                "\n",
+                "\n",
+                "class HuggingFaceHandler(BaseMLEngine):\n",
+                "    name = 'huggingface'\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def create_validation(target, args=None, **kwargs):\n",
+                "        if 'using' in args:\n",
+                "            args = args['using']\n",
+                "\n",
+                "        # task, model_name, input_column is essential\n",
+                "        for key in ['task', 'model_name', 'input_column']:\n",
+                "            if key not in args:\n",
+                "                raise Exception(f'Parameter \"{key}\" is required')\n",
+                "\n",
+                "        if args['task'] == 'zero-shot-classification' and not 'candidate_labels' in args:\n",
+                "            raise Exception('\"candidate_labels\" is required for zero-shot-classification')\n",
+                "\n",
+                "        if args['task'] == 'translation':\n",
+                "            if 'lang_input' not in args or 'lang_output' not in args:\n",
+                "                raise Exception('\"lang_input\" and \"lang_output\" is required for translation')\n",
+                "\n",
+                "\n",
+                "    def create(self, target, args=None, **kwargs):\n",
+                "        # TODO change BaseMLEngine api?\n",
+                "        if 'using' in args:\n",
+                "            args = args['using']\n",
+                "\n",
+                "        args['target'] = target\n",
+                "\n",
+                "        model_name = args['model_name']\n",
+                "        hf_model_storage_path = self.engine_storage.folder_get(model_name)  # real\n",
+                "\n",
+                "        if args['task'] == 'translation':\n",
+                "            args['task_proper'] = f\"translation_{args['lang_input']}_to_{args['lang_output']}\"\n",
+                "        else:\n",
+                "            args['task_proper'] = args['task']\n",
+                "\n",
+                "        log.logger.debug(f\"Checking file system for {model_name}...\")\n",
+                "\n",
+                "        ####\n",
+                "        # Check if pipeline has already been downloaded\n",
+                "        try:\n",
+                "            pipeline = transformers.pipeline(task=args['task_proper'], model=hf_model_storage_path,\n",
+                "                                             tokenizer=hf_model_storage_path)\n",
+                "            log.logger.debug(f'Model already downloaded!')\n",
+                "        ####\n",
+                "        # Otherwise download it\n",
+                "        except OSError:\n",
+                "            log.logger.debug(f\"Downloading {model_name}...\")\n",
+                "            pipeline = transformers.pipeline(task=args['task_proper'], model=model_name)\n",
+                "\n",
+                "            pipeline.save_pretrained(hf_model_storage_path)\n",
+                "\n",
+                "            log.logger.debug(f\"Saved to {hf_model_storage_path}\")\n",
+                "        ####\n",
+                "\n",
+                "        if 'max_length' in args:\n",
+                "            pass\n",
+                "        elif 'max_position_embeddings' in pipeline.model.config.to_dict().keys():\n",
+                "            args['max_length'] = pipeline.model.config.max_position_embeddings\n",
+                "        elif 'max_length' in pipeline.model.config.to_dict().keys():\n",
+                "            args['max_length'] = pipeline.model.config.max_length\n",
+                "        else:\n",
+                "            log.logger.debug('No max_length found!')\n",
+                "\n",
+                "        labels_default = pipeline.model.config.id2label\n",
+                "        labels_map = {}\n",
+                "        if 'labels' in args:\n",
+                "            for num in labels_default.keys():\n",
+                "                labels_map[labels_default[num]] = args['labels'][num]\n",
+                "            args['labels_map'] = labels_map\n",
+                "        else:\n",
+                "            for num in labels_default.keys():\n",
+                "                labels_map[labels_default[num]] = labels_default[num]\n",
+                "            args['labels_map'] = labels_map\n",
+                "\n",
+                "        ###### store and persist in model folder\n",
+                "        self.model_storage.json_set('args', args)\n",
+                "\n",
+                "        ###### persist changes to handler folder\n",
+                "        self.engine_storage.folder_sync(model_name)\n",
+                "\n",
+                "    def predict(self, df, args=None):\n",
+                "\n",
+                "        def tidy_output_classification(args, result):\n",
+                "            final = {}\n",
+                "            explain = {}\n",
+                "            if type(result) == dict:\n",
+                "                result = [result]\n",
+                "            final[args['target']] = args['labels_map'][result[0]['label']]\n",
+                "            for elem in result:\n",
+                "                if args['labels_map']:\n",
+                "                    explain[args['labels_map'][elem['label']]] = elem['score']\n",
+                "                else:\n",
+                "                    explain[elem['label']] = elem['score']\n",
+                "            final[f\"{args['target']}_explain\"] = explain\n",
+                "\n",
+                "            return final\n",
+                "\n",
+                "        def tidy_output_zero_shot(args, result):\n",
+                "            final = {}\n",
+                "            final[args['target']] = result['labels'][0]\n",
+                "\n",
+                "            explain = dict(zip(result['labels'], result['scores']))\n",
+                "            final[f\"{args['target']}_explain\"] = explain\n",
+                "\n",
+                "            return final\n",
+                "\n",
+                "        def tidy_output_translation(args, result):\n",
+                "            final = {}\n",
+                "            final[args['target']] = result['translation_text']\n",
+                "\n",
+                "            return final\n",
+                "\n",
+                "        def tidy_output_summarization(args, result):\n",
+                "            final = {}\n",
+                "            final[args['target']] = result['summary_text']\n",
+                "\n",
+                "            return final\n",
+                "\n",
+                "        ###### get stuff from model folder\n",
+                "        args = self.model_storage.json_get('args')\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        hf_model_storage_path = self.engine_storage.folder_get(args['model_name'])\n"
+                ],
+                "after": [
+                    "        hf_model_storage_path = self.engine_storage.folder_get(args['model_name'], update=False)\n"
+                ],
+                "parent_version_range": {
+                    "start": 129,
+                    "end": 130
+                },
+                "child_version_range": {
+                    "start": 129,
+                    "end": 130
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HuggingFaceHandler",
+                        "signature": "class HuggingFaceHandler(BaseMLEngine):",
+                        "at_line": 7
+                    },
+                    {
+                        "type": "function",
+                        "name": "predict",
+                        "signature": "def predict(self, df, args=None):",
+                        "at_line": 88
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: mindsdb/integrations/handlers/huggingface_handler/huggingface_handler.py\nCode:\n           class HuggingFaceHandler(BaseMLEngine):\n               ...\n               def predict(self, df, args=None):\n                   ...\n126 126            ###### get stuff from model folder\n127 127            args = self.model_storage.json_get('args')\n128 128    \n129      -         hf_model_storage_path = self.engine_storage.folder_get(args['model_name'])\n    129  +         hf_model_storage_path = self.engine_storage.folder_get(args['model_name'], update=False)\n130 130    \n131 131            pipeline = transformers.pipeline(task=args['task_proper'], model=hf_model_storage_path,\n132 132                                             tokenizer=hf_model_storage_path)\n         ...\n",
+                "file_path": "mindsdb/integrations/handlers/huggingface_handler/huggingface_handler.py",
+                "identifiers_before": [
+                    "args",
+                    "engine_storage",
+                    "folder_get",
+                    "hf_model_storage_path",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "args",
+                    "engine_storage",
+                    "folder_get",
+                    "hf_model_storage_path",
+                    "self",
+                    "update"
+                ],
+                "prefix": [
+                    "        ###### get stuff from model folder\n",
+                    "        args = self.model_storage.json_get('args')\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        pipeline = transformers.pipeline(task=args['task_proper'], model=hf_model_storage_path,\n",
+                    "                                         tokenizer=hf_model_storage_path)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        pipeline = transformers.pipeline(task=args['task_proper'], model=hf_model_storage_path,\n",
+                "                                         tokenizer=hf_model_storage_path)\n",
+                "\n",
+                "        input_list = df[args['input_column']]\n",
+                "        input_list_str = [str(x) for x in input_list]\n",
+                "\n",
+                "        top_k = args.get('top_k', 1000)\n",
+                "\n",
+                "        task = args['task']\n",
+                "        if task == 'text-classification':\n",
+                "            output_list_messy = pipeline(input_list_str, top_k=top_k, truncation=True, max_length=args['max_length'])\n",
+                "            output_list_tidy = [tidy_output_classification(args, x) for x in output_list_messy]\n",
+                "\n",
+                "        elif task == 'zero-shot-classification':\n",
+                "            output_list_messy = pipeline(input_list_str, candidate_labels=args['candidate_labels'],\n",
+                "                                         truncation=True, top_k=top_k, max_length=args['max_length'])\n",
+                "            output_list_tidy = [tidy_output_zero_shot(args, x) for x in output_list_messy]\n",
+                "\n",
+                "        elif task == 'translation':\n",
+                "            output_list_messy = pipeline(input_list_str, max_length=args['max_length'])\n",
+                "            output_list_tidy = [tidy_output_translation(args, x) for x in output_list_messy]\n",
+                "\n",
+                "        elif task == 'summarization':\n",
+                "            output_list_messy = pipeline(input_list_str,\n",
+                "                                         min_length=args['min_output_length'],\n",
+                "                                         max_length=args['max_output_length'])\n",
+                "            output_list_tidy = [tidy_output_summarization(args, x) for x in output_list_messy]\n",
+                "        else:\n",
+                "            raise RuntimeError(f'Unknown task: {task}')\n",
+                "        pred_df = pd.DataFrame(output_list_tidy)\n",
+                "\n",
+                "        return pred_df"
+            ]
+        ],
+        "mindsdb/interfaces/storage/fs.py": [
+            [
+                "import os\n",
+                "import re\n",
+                "import shutil\n",
+                "import hashlib\n",
+                "from pathlib import Path\n",
+                "from abc import ABC, abstractmethod\n",
+                "from typing import Union, Optional\n",
+                "from dataclasses import dataclass\n",
+                "\n",
+                "from checksumdir import dirhash\n",
+                "try:\n",
+                "    import boto3\n",
+                "except Exception:\n",
+                "    # Only required for remote storage on s3\n",
+                "    pass\n",
+                "\n",
+                "@dataclass(frozen=True)\n",
+                "class RESOURCE_GROUP:\n",
+                "    PREDICTOR = 'predictor'\n",
+                "    INTEGRATION = 'integration'\n",
+                "\n",
+                "RESOURCE_GROUP = RESOURCE_GROUP()\n",
+                "\n",
+                "\n",
+                "from mindsdb.utilities.config import Config\n",
+                "\n",
+                "\n",
+                "def copy(src, dst):\n",
+                "    if os.path.isdir(src):\n",
+                "        if os.path.exists(dst):\n",
+                "            if dirhash(src) == dirhash(dst):\n",
+                "                return\n",
+                "        shutil.rmtree(dst, ignore_errors=True)\n",
+                "        shutil.copytree(src, dst)\n",
+                "    else:\n",
+                "        if os.path.exists(dst):\n",
+                "            if hashlib.md5(open(src, 'rb').read()).hexdigest() == hashlib.md5(open(dst, 'rb').read()).hexdigest():\n",
+                "                return\n",
+                "        try:\n",
+                "            os.remove(dst)\n",
+                "        except Exception:\n",
+                "            pass\n",
+                "        shutil.copy2(src, dst)\n",
+                "\n",
+                "\n",
+                "class BaseFSStore(ABC):\n",
+                "    \"\"\"Base class for file storage\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self):\n",
+                "        self.config = Config()\n",
+                "        self.storage = self.config['paths']['storage']\n",
+                "\n",
+                "    @abstractmethod\n",
+                "    def get(self, local_name, base_dir):\n",
+                "        \"\"\"Copy file/folder from storage to {base_dir}\n",
+                "\n",
+                "        Args:\n",
+                "            local_name (str): name of resource (file/folder)\n",
+                "            base_dir (str): path to copy the resource\n",
+                "        \"\"\"\n",
+                "        pass\n",
+                "\n",
+                "    @abstractmethod\n",
+                "    def put(self, local_name, base_dir):\n",
+                "        \"\"\"Copy file/folder from {base_dir} to storage\n",
+                "\n",
+                "        Args:\n",
+                "            local_name (str): name of resource (file/folder)\n",
+                "            base_dir (str): path to folder with the resource\n",
+                "        \"\"\"\n",
+                "        pass\n",
+                "\n",
+                "    @abstractmethod\n",
+                "    def delete(self, remote_name):\n",
+                "        \"\"\"Delete file/folder from storage\n",
+                "\n",
+                "        Args:\n",
+                "            remote_name (str): name of resource\n",
+                "        \"\"\"\n",
+                "        pass\n",
+                "\n",
+                "\n",
+                "class LocalFSStore(BaseFSStore):\n",
+                "    \"\"\"Storage that stores files locally\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self):\n",
+                "        super().__init__()\n",
+                "\n",
+                "    def get(self, local_name, base_dir):\n",
+                "        remote_name = local_name\n",
+                "        copy(\n",
+                "            os.path.join(self.storage, remote_name),\n",
+                "            os.path.join(base_dir, local_name)\n",
+                "        )\n",
+                "\n",
+                "    def put(self, local_name, base_dir):\n",
+                "        remote_name = local_name\n",
+                "        copy(\n",
+                "            os.path.join(base_dir, local_name),\n",
+                "            os.path.join(self.storage, remote_name)\n",
+                "        )\n",
+                "\n",
+                "    def delete(self, remote_name):\n",
+                "        pass\n",
+                "\n",
+                "\n",
+                "class S3FSStore(BaseFSStore):\n",
+                "    \"\"\"Storage that stores files in amazon s3\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self):\n",
+                "        super().__init__()\n",
+                "        if 's3_credentials' in self.config['permanent_storage']:\n",
+                "            self.s3 = boto3.client('s3', **self.config['permanent_storage']['s3_credentials'])\n",
+                "        else:\n",
+                "            self.s3 = boto3.client('s3')\n",
+                "        self.bucket = self.config['permanent_storage']['bucket']\n",
+                "\n",
+                "    def get(self, local_name, base_dir):\n",
+                "        remote_name = local_name\n",
+                "        remote_ziped_name = f'{remote_name}.tar.gz'\n",
+                "        local_ziped_name = f'{local_name}.tar.gz'\n",
+                "        local_ziped_path = os.path.join(base_dir, local_ziped_name)\n",
+                "        os.makedirs(base_dir, exist_ok=True)\n",
+                "        self.s3.download_file(self.bucket, remote_ziped_name, local_ziped_path)\n",
+                "        shutil.unpack_archive(local_ziped_path, base_dir)\n",
+                "        os.system(f'chmod -R 777 {base_dir}')\n",
+                "        os.remove(local_ziped_path)\n",
+                "\n",
+                "    def put(self, local_name, base_dir):\n",
+                "        # NOTE: This `make_archive` function is implemente poorly and will create an empty archive file even if\n",
+                "        # the file/dir to be archived doesn't exist or for some other reason can't be archived\n",
+                "        remote_name = local_name\n",
+                "        shutil.make_archive(\n",
+                "            os.path.join(base_dir, remote_name),\n",
+                "            'gztar',\n",
+                "            root_dir=base_dir,\n",
+                "            base_dir=local_name\n",
+                "        )\n",
+                "        self.s3.upload_file(\n",
+                "            os.path.join(base_dir, f'{remote_name}.tar.gz'),\n",
+                "            self.bucket,\n",
+                "            f'{remote_name}.tar.gz'\n",
+                "        )\n",
+                "        os.remove(os.path.join(base_dir, remote_name + '.tar.gz'))\n",
+                "\n",
+                "    def delete(self, remote_name):\n",
+                "        self.s3.delete_object(Bucket=self.bucket, Key=remote_name)\n",
+                "\n",
+                "\n",
+                "def FsStore():\n",
+                "    storage_location = Config()['permanent_storage']['location']\n",
+                "    if storage_location == 'local':\n",
+                "        return LocalFSStore()\n",
+                "    elif storage_location == 's3':\n",
+                "        return S3FSStore()\n",
+                "    else:\n",
+                "        raise Exception(f\"Location: '{storage_location}' not supported\")\n",
+                "\n",
+                "\n",
+                "class FileStorage:\n",
+                "    def __init__(self, resource_group: str, resource_id: int, company_id: Optional[int] = None,\n",
+                "                 root_dir: str = 'content', sync: bool = True):\n",
+                "        \"\"\"\n",
+                "            Args:\n",
+                "                resource_group (str)\n",
+                "                resource_id (int)\n",
+                "                company_id (Optional[int])\n",
+                "                root_dir (str)\n",
+                "                sync (bool)\n",
+                "        \"\"\"\n",
+                "\n",
+                "        self.resource_group = resource_group\n",
+                "        self.resource_id = resource_id\n",
+                "        self.company_id = company_id\n",
+                "        self.root_dir = root_dir\n",
+                "        self.sync = sync\n",
+                "\n",
+                "        self.folder_name = f'{resource_group}_{company_id}_{resource_id}'\n",
+                "\n",
+                "        config = Config()\n",
+                "        self.fs_store = FsStore()\n",
+                "        self.content_path = Path(config['paths'][root_dir])\n",
+                "        self.resource_group_path = self.content_path / resource_group\n",
+                "        self.folder_path = self.resource_group_path / self.folder_name\n",
+                "        if self.folder_path.exists() is False:\n",
+                "            self.folder_path.mkdir(parents=True, exist_ok=True)\n",
+                "\n",
+                "    def push(self):\n",
+                "        self.fs_store.put(str(self.folder_name), str(self.resource_group_path))\n",
+                "\n",
+                "    def push_path(self, path):\n",
+                "        self.fs_store.put(os.path.join(self.folder_name, path), str(self.resource_group_path))\n",
+                "\n",
+                "    def pull(self):\n",
+                "        try:\n",
+                "            self.fs_store.get(str(self.folder_name), str(self.resource_group_path))\n",
+                "        except Exception:\n",
+                "            pass\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def pull_path(self, path):\n"
+                ],
+                "after": [
+                    "    def pull_path(self, path, update=True):\n",
+                    "        if update is False:\n",
+                    "            # not pull from source if object is exists\n",
+                    "            if os.path.exists(self.resource_group_path / self.folder_name / path):\n",
+                    "                return\n"
+                ],
+                "parent_version_range": {
+                    "start": 202,
+                    "end": 203
+                },
+                "child_version_range": {
+                    "start": 202,
+                    "end": 207
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FileStorage",
+                        "signature": "class FileStorage:",
+                        "at_line": 162
+                    },
+                    {
+                        "type": "function",
+                        "name": "pull_path",
+                        "signature": "def pull_path(self, path):",
+                        "at_line": 202
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: mindsdb/interfaces/storage/fs.py\nCode:\n           class FileStorage:\n               ...\n199 199            except Exception:\n200 200                pass\n201 201    \n202      -     def pull_path(self, path):\n    202  +     def pull_path(self, path, update=True):\n    203  +         if update is False:\n    204  +             # not pull from source if object is exists\n    205  +             if os.path.exists(self.resource_group_path / self.folder_name / path):\n    206  +                 return\n203 207            try:\n204 208                # TODO not sync if not changed?\n205 209                self.fs_store.get(os.path.join(self.folder_name, path), str(self.resource_group_path))\n         ...\n",
+                "file_path": "mindsdb/interfaces/storage/fs.py",
+                "identifiers_before": [
+                    "path",
+                    "pull_path",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "exists",
+                    "folder_name",
+                    "os",
+                    "path",
+                    "pull_path",
+                    "resource_group_path",
+                    "self",
+                    "update"
+                ],
+                "prefix": [
+                    "        except Exception:\n",
+                    "            pass\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        try:\n",
+                    "            # TODO not sync if not changed?\n",
+                    "            self.fs_store.get(os.path.join(self.folder_name, path), str(self.resource_group_path))\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pull_path",
+                            "position": {
+                                "start": {
+                                    "line": 202,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 202,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/fs.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pull_path",
+                            "position": {
+                                "start": {
+                                    "line": 202,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 202,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/fs.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "update",
+                            "position": {
+                                "start": {
+                                    "line": 202,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 202,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/fs.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        try:\n",
+                "            # TODO not sync if not changed?\n",
+                "            self.fs_store.get(os.path.join(self.folder_name, path), str(self.resource_group_path))\n",
+                "        except Exception:\n",
+                "            pass\n",
+                "\n",
+                "    def file_set(self, name, content):\n",
+                "        if self.sync is True:\n",
+                "            self.pull()\n",
+                "\n",
+                "        dest_abs_path = self.folder_path / name\n",
+                "\n",
+                "        with open(dest_abs_path, 'wb') as fd:\n",
+                "            fd.write(content)\n",
+                "\n",
+                "        if self.sync is True:\n",
+                "            self.push()\n",
+                "\n",
+                "    def file_get(self, name):\n",
+                "\n",
+                "        if self.sync is True:\n",
+                "            self.pull()\n",
+                "\n",
+                "        dest_abs_path = self.folder_path / name\n",
+                "\n",
+                "        with open(dest_abs_path, 'rb') as fd:\n",
+                "            return fd.read()\n",
+                "\n",
+                "    def add(self, path: Union[str, Path], dest_rel_path: Optional[Union[str, Path]] = None):\n",
+                "        \"\"\"Copy file/folder to persist storage\n",
+                "\n",
+                "        Examples:\n",
+                "            Copy file 'args.json' to '{storage}/args.json'\n",
+                "            >>> fs.add('/path/args.json')\n",
+                "\n",
+                "            Copy file 'args.json' to '{storage}/folder/opts.json'\n",
+                "            >>> fs.add('/path/args.json', 'folder/opts.json')\n",
+                "\n",
+                "            Copy folder 'folder' to '{storage}/folder'\n",
+                "            >>> fs.add('/path/folder')\n",
+                "\n",
+                "            Copy folder 'folder' to '{storage}/path/folder'\n",
+                "            >>> fs.add('/path/folder', 'path/folder')\n",
+                "\n",
+                "        Args:\n",
+                "            path (Union[str, Path]): path to the resource\n",
+                "            dest_rel_path (Optional[Union[str, Path]]): relative path in storage to file or folder\n",
+                "        \"\"\"\n",
+                "        if self.sync is True:\n",
+                "            self.pull()\n",
+                "\n",
+                "        path = Path(path)\n",
+                "        if isinstance(dest_rel_path, str):\n",
+                "            dest_rel_path = Path(dest_rel_path)\n",
+                "\n",
+                "        if dest_rel_path is None:\n",
+                "            dest_abs_path = self.folder_path / path.name\n",
+                "        else:\n",
+                "            dest_abs_path = self.folder_path / dest_rel_path\n",
+                "\n",
+                "        copy(\n",
+                "            str(path),\n",
+                "            str(dest_abs_path)\n",
+                "        )\n",
+                "\n",
+                "        if self.sync is True:\n",
+                "            self.push()\n",
+                "\n",
+                "    def get_path(self, relative_path: Union[str, Path]) -> Path:\n",
+                "        \"\"\" Return path to file or folder\n",
+                "\n",
+                "        Examples:\n",
+                "            get path to 'opts.json':\n",
+                "            >>> fs.get_path('folder/opts.json')\n",
+                "            ... /path/{storage}/folder/opts.json\n",
+                "\n",
+                "        Args:\n",
+                "            relative_path (Union[str, Path]): Path relative to the storage folder\n",
+                "\n",
+                "        Returns:\n",
+                "            Path: path to requested file or folder\n",
+                "        \"\"\"\n",
+                "        if self.sync is True:\n",
+                "            self.pull()\n",
+                "\n",
+                "        if isinstance(relative_path, str):\n",
+                "            relative_path = Path(relative_path)\n",
+                "        # relative_path = relative_path.resolve()\n",
+                "\n",
+                "        if relative_path.is_absolute():\n",
+                "            raise TypeError('FSStorage.get_path() got absolute path as argument')\n",
+                "\n",
+                "        ret_path = self.folder_path / relative_path\n",
+                "        if not ret_path.exists():\n",
+                "            # raise Exception('Path does not exists')\n",
+                "            os.makedirs(ret_path)\n",
+                "\n",
+                "        return ret_path\n",
+                "\n",
+                "    def delete(self, relative_path: Union[str, Path] = '.') -> Path:\n",
+                "        if isinstance(relative_path, str):\n",
+                "            relative_path = Path(relative_path)\n",
+                "\n",
+                "        if relative_path.is_absolute():\n",
+                "            raise TypeError('FSStorage.delete() got absolute path as argument')\n",
+                "\n",
+                "        path = (self.folder_path / relative_path).resolve()\n",
+                "\n",
+                "        if path == self.folder_path.resolve():\n",
+                "            return self.complete_removal()\n",
+                "\n",
+                "        if self.sync is True:\n",
+                "            self.pull()\n",
+                "\n",
+                "        if path.exists() is False:\n",
+                "            raise Exception('Path does not exists')\n",
+                "\n",
+                "        if path.is_file():\n",
+                "            path.unlink()\n",
+                "        else:\n",
+                "            path.rmdir()\n",
+                "\n",
+                "        if self.sync is True:\n",
+                "            self.push()\n",
+                "\n",
+                "    def complete_removal(self):\n",
+                "        shutil.rmtree(str(self.folder_path))\n",
+                "        self.fs_store.delete(self.folder_name)\n",
+                "\n",
+                "\n",
+                "class FileStorageFactory:\n",
+                "    def __init__(self, resource_group: str, company_id: Optional[int] = None,\n",
+                "                 root_dir: str = 'content', sync: bool = True):\n",
+                "        self.resource_group = resource_group\n",
+                "        self.company_id = company_id\n",
+                "        self.root_dir = root_dir\n",
+                "        self.sync = sync\n",
+                "\n",
+                "    def __call__(self, resource_id: int):\n",
+                "        return FileStorage(\n",
+                "            resource_group=self.resource_group,\n",
+                "            company_id=self.company_id,\n",
+                "            root_dir=self.root_dir,\n",
+                "            sync=self.sync,\n",
+                "            resource_id=resource_id\n",
+                "        )\n",
+                ""
+            ]
+        ],
+        "mindsdb/interfaces/storage/model_fs.py": [
+            [
+                "import re\n",
+                "\n",
+                "import mindsdb.interfaces.storage.db as db\n",
+                "\n",
+                "from mindsdb.interfaces.storage.db import PREDICTOR_STATUS\n",
+                "\n",
+                "from .fs import RESOURCE_GROUP, FileStorageFactory\n",
+                "\n",
+                "from .json import get_json_storage\n",
+                "\n",
+                "class ModelStorage:\n",
+                "    \"\"\"\n",
+                "    This class deals with all model-related storage requirements, from setting status to storing artifacts.\n",
+                "    \"\"\"\n",
+                "    def __init__(self, company_id, predictor_id):\n",
+                "\n",
+                "        storageFactory = FileStorageFactory(\n",
+                "            resource_group=RESOURCE_GROUP.PREDICTOR,\n",
+                "            company_id=company_id,\n",
+                "            sync=True\n",
+                "        )\n",
+                "\n",
+                "        self.fileStorage = storageFactory(predictor_id)\n",
+                "\n",
+                "        self.company_id = company_id\n",
+                "        self.predictor_id = predictor_id\n",
+                "\n",
+                "    # -- fields --\n",
+                "\n",
+                "    def get_info(self):\n",
+                "        rec = db.Predictor.query.get(self.predictor_id)\n",
+                "        return dict(status=rec.status, to_predict=rec.to_predict)\n",
+                "\n",
+                "    def status_set(self, status, status_info=None):\n",
+                "        rec = db.Predictor.query.get(self.predictor_id)\n",
+                "        rec.status = status\n",
+                "        if status == PREDICTOR_STATUS.ERROR and status_info is not None:\n",
+                "            rec.data = status_info\n",
+                "        db.session.commit()\n",
+                "\n",
+                "    def columns_get(self):\n",
+                "        rec = db.Predictor.query.get(self.predictor_id)\n",
+                "        return rec.dtype_dict\n",
+                "\n",
+                "    def columns_set(self, columns):\n",
+                "        # columns: {name: dtype}\n",
+                "\n",
+                "        rec = db.Predictor.query.get(self.predictor_id)\n",
+                "        rec.dtype_dict = columns\n",
+                "        db.session.commit()\n",
+                "\n",
+                "    # files\n",
+                "\n",
+                "    def file_get(self, name):\n",
+                "        return self.fileStorage.file_get(name)\n",
+                "\n",
+                "    def file_set(self, name, content):\n",
+                "        self.fileStorage.file_set(name, content)\n",
+                "\n",
+                "    def file_list(self):\n",
+                "        ...\n",
+                "\n",
+                "    def file_del(self, name):\n",
+                "        ...\n",
+                "\n",
+                "    # jsons\n",
+                "\n",
+                "    def json_set(self, name, data):\n",
+                "        json_storage = get_json_storage(\n",
+                "            resource_id=self.predictor_id,\n",
+                "            resource_group=RESOURCE_GROUP.PREDICTOR,\n",
+                "            company_id=self.company_id\n",
+                "        )\n",
+                "        return json_storage.set(name, data)\n",
+                "\n",
+                "    def json_get(self, name):\n",
+                "        json_storage = get_json_storage(\n",
+                "            resource_id=self.predictor_id,\n",
+                "            resource_group=RESOURCE_GROUP.PREDICTOR,\n",
+                "            company_id=self.company_id\n",
+                "        )\n",
+                "        return json_storage.get(name)\n",
+                "\n",
+                "    def json_list(self):\n",
+                "        ...\n",
+                "\n",
+                "    def json_del(self, name):\n",
+                "        ...\n",
+                "\n",
+                "    def delete(self):\n",
+                "        self.fileStorage.delete()\n",
+                "        # TODO delete json\n",
+                "\n",
+                "\n",
+                "class HandlerStorage:\n",
+                "    \"\"\"\n",
+                "    This class deals with all handler-related storage requirements, from storing metadata to synchronizing folders\n",
+                "    across instances.\n",
+                "    \"\"\"\n",
+                "    def __init__(self, company_id, integration_id):\n",
+                "        storageFactory = FileStorageFactory(\n",
+                "            resource_group=RESOURCE_GROUP.INTEGRATION,\n",
+                "            company_id=company_id,\n",
+                "            sync=False\n",
+                "        )\n",
+                "        self.fileStorage = storageFactory(integration_id)\n",
+                "\n",
+                "        self.company_id = company_id\n",
+                "        self.integration_id = integration_id\n",
+                "\n",
+                "    def get_connection_args(self):\n",
+                "        rec = db.Integration.query.get(self.integration_id)\n",
+                "        return rec.data\n",
+                "\n",
+                "    # files\n",
+                "\n",
+                "    def file_get(self, name):\n",
+                "        self.fileStorage.pull_path(name)\n",
+                "        return self.fileStorage.file_get(name)\n",
+                "\n",
+                "    def file_set(self, name, content):\n",
+                "        self.fileStorage.file_set(name, content)\n",
+                "        self.fileStorage.push_path(name)\n",
+                "\n",
+                "    def file_list(self):\n",
+                "        ...\n",
+                "\n",
+                "    def file_del(self, name):\n",
+                "        ...\n",
+                "\n",
+                "    # folder\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def folder_get(self, name):\n"
+                ],
+                "after": [
+                    "    def folder_get(self, name, update=True):\n"
+                ],
+                "parent_version_range": {
+                    "start": 132,
+                    "end": 133
+                },
+                "child_version_range": {
+                    "start": 132,
+                    "end": 133
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HandlerStorage",
+                        "signature": "class HandlerStorage:",
+                        "at_line": 94
+                    },
+                    {
+                        "type": "function",
+                        "name": "folder_get",
+                        "signature": "def folder_get(self, name):",
+                        "at_line": 132
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: mindsdb/interfaces/storage/model_fs.py\nCode:\n           class HandlerStorage:\n               ...\n129 129    \n130 130        # folder\n131 131    \n132      -     def folder_get(self, name):\n    132  +     def folder_get(self, name, update=True):\n133 133            # pull folder and return path\n134 134            name = name.lower().replace(' ', '_')\n135 135            name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n         ...\n",
+                "file_path": "mindsdb/interfaces/storage/model_fs.py",
+                "identifiers_before": [
+                    "folder_get",
+                    "name",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "folder_get",
+                    "name",
+                    "self",
+                    "update"
+                ],
+                "prefix": [
+                    "\n",
+                    "    # folder\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        # pull folder and return path\n",
+                    "        name = name.lower().replace(' ', '_')\n",
+                    "        name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 132,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 132,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 132,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 132,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "update",
+                            "position": {
+                                "start": {
+                                    "line": 132,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 132,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        # pull folder and return path\n",
+                "        name = name.lower().replace(' ', '_')\n",
+                "        name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self.fileStorage.pull_path(name)\n"
+                ],
+                "after": [
+                    "        self.fileStorage.pull_path(name, update=update)\n"
+                ],
+                "parent_version_range": {
+                    "start": 137,
+                    "end": 138
+                },
+                "child_version_range": {
+                    "start": 137,
+                    "end": 138
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HandlerStorage",
+                        "signature": "class HandlerStorage:",
+                        "at_line": 94
+                    },
+                    {
+                        "type": "function",
+                        "name": "folder_get",
+                        "signature": "def folder_get(self, name):",
+                        "at_line": 132
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.fileStorage.pull_path",
+                        "signature": "self.fileStorage.pull_path(name)",
+                        "at_line": 137,
+                        "argument": "name"
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: mindsdb/interfaces/storage/model_fs.py\nCode:\n           class HandlerStorage:\n               ...\n               def folder_get(self, name):\n                   ...\n134 134            name = name.lower().replace(' ', '_')\n135 135            name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n136 136    \n137      -         self.fileStorage.pull_path(name)\n    137  +         self.fileStorage.pull_path(name, update=update)\n138 138            return str(self.fileStorage.get_path(name))\n139 139    \n140 140        def folder_sync(self, name):\n         ...\n",
+                "file_path": "mindsdb/interfaces/storage/model_fs.py",
+                "identifiers_before": [
+                    "fileStorage",
+                    "name",
+                    "pull_path",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "fileStorage",
+                    "name",
+                    "pull_path",
+                    "self",
+                    "update"
+                ],
+                "prefix": [
+                    "        name = name.lower().replace(' ', '_')\n",
+                    "        name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        return str(self.fileStorage.get_path(name))\n",
+                    "\n",
+                    "    def folder_sync(self, name):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "pull_path",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "pull_path",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "update",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "update",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 48
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 54
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/mindsdb/mindsdb/interfaces/storage/model_fs.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        return str(self.fileStorage.get_path(name))\n",
+                "\n",
+                "    def folder_sync(self, name):\n",
+                "        # sync abs path\n",
+                "        name = name.lower().replace(' ', '_')\n",
+                "        name = re.sub(r'([^a-z^A-Z^_\\d]+)', '_', name)\n",
+                "\n",
+                "        self.fileStorage.push_path(name)\n",
+                "\n",
+                "    # jsons\n",
+                "\n",
+                "    def json_set(self, name, content):\n",
+                "        ...\n",
+                "\n",
+                "    def json_get(self, name):\n",
+                "        ...\n",
+                "\n",
+                "    def json_list(self):\n",
+                "        ...\n",
+                "\n",
+                "    def json_del(self, name):\n",
+                "        ..."
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            2,
+            3,
+            1
+        ],
+        [
+            1,
+            3,
+            2,
+            0
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Variable Dependency",
+            "scenario of 0 -> 1": "edit 0 update the function signature with new argument, and edit 1 then uses that new argument.",
+            "scenario of 1 -> 0": "edit 1 uses the new argument first, then edit 0 introduces the new argument."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Update function signature before adding new argument to function call",
+            "scenario of 0 -> 1": "edit 0 update the function signature with new argument, and edit 1 then add the new argument.",
+            "scenario of 1 -> 0": "edit 1 adds the new argument first, then edit 0 introduces the new argument."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Update function signature before adding new argument to function call",
+            "scenario of 0 -> 1": "edit 0 update the function signature with new argument, and edit 1 then add the new argument.",
+            "scenario of 1 -> 0": "edit 1 adds the new argument first, then edit 0 introduces the new argument."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Update function signature before adding new argument to function call",
+            "scenario of 0 -> 1": "edit 0 update the function signature with new argument, and edit 1 then add the new argument.",
+            "scenario of 1 -> 0": "edit 1 adds the new argument first, then edit 0 introduces the new argument."
+        }
+    ]
+}

@@ -1,0 +1,109 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 calls the function `skip_if_no_boto()` in its changed line, while Edit 1 imports `skip_if_no_boto` from `scrapy.utils.test` in its changed line. Both edits reference the exact same symbol `skip_if_no_boto`. Edit 1 makes the symbol available for use, and Edit 0 uses that symbol. This creates a direct code dependency where both edits reference the same symbol, making either edit prompt the other as the next mechanical step in a single micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 calls the function `skip_if_no_boto()` in its changed line, while Edit 1 imports `skip_if_no_boto` from `scrapy.utils.test` in its changed line. Both edits reference the exact same symbol `skip_if_no_boto`. Edit 1 makes the symbol available for use, and Edit 0 uses that symbol. This creates a direct code dependency where both edits reference the same symbol, making either edit prompt the other as the next mechanical step in a single micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 replaces inline boto import logic with a call to `skip_if_no_boto()`, while Edit 1 defines the `skip_if_no_boto()` function. The changed lines reference the exact same symbol - the function `skip_if_no_boto`. Edit 0 calls this function and Edit 1 defines it. This creates a direct code dependency where defining the function (Edit 1) must occur before calling it (Edit 0), as calling an undefined function would cause a NameError at runtime in Python. However, since Python allows referencing undefined symbols at parse time and only fails at runtime/import time, both edits can be written and parsed in either order. The relationship is bi-directional because either edit naturally prompts the other as the immediate next step in the same micro-task of refactoring the boto import logic."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 replaces inline boto import logic with a call to `skip_if_no_boto()`, while Edit 1 defines the `skip_if_no_boto()` function. The changed lines reference the exact same symbol - the function `skip_if_no_boto`. Edit 0 calls this function and Edit 1 defines it. This creates a direct code dependency where defining the function (Edit 1) must occur before calling it (Edit 0), as calling an undefined function would cause a NameError at runtime in Python. However, since Python allows referencing undefined symbols at parse time and only fails at runtime/import time, both edits can be written and parsed in either order. The relationship is bi-directional because either edit naturally prompts the other as the immediate next step in the same micro-task of refactoring the boto import logic."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'six' module at the top of the file, and Edit 1 uses that exact same 'six' symbol in line 23 with 'six.PY2'. The changed lines reference the exact same symbol - the 'six' module. After making the import in Edit 0, using 'six.PY2' in Edit 1 becomes a natural next step. Conversely, if Edit 1 were made first, the usage of 'six.PY2' would create an immediate prompt to import the 'six' module. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 'six' module at the top of the file, and Edit 1 uses that exact same 'six' symbol in line 23 with 'six.PY2'. The changed lines reference the exact same symbol - the 'six' module. After making the import in Edit 0, using 'six.PY2' in Edit 1 becomes a natural next step. Conversely, if Edit 1 were made first, the usage of 'six.PY2' would create an immediate prompt to import the 'six' module. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 defines a function `skip_if_no_boto` and edit 1 calls that exact same function. The changed lines reference the same symbol - the function `skip_if_no_boto`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. Since Python allows calling undefined functions at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 defines a function `skip_if_no_boto` and edit 1 calls that exact same function. The changed lines reference the same symbol - the function `skip_if_no_boto`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. Since Python allows calling undefined functions at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 defines a function `skip_if_no_boto` in scrapy/utils/test.py, while Edit 1 calls this exact same function in tests/test_downloader_handlers.py. The changed lines reference the exact same symbol - the function `skip_if_no_boto`. This creates a definition-usage relationship where defining the function enables its usage. Since this is Python, the usage can be written and parsed even before the definition exists (it would only fail at runtime with a NameError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 defines a function `skip_if_no_boto` in scrapy/utils/test.py, while Edit 1 calls this exact same function in tests/test_downloader_handlers.py. The changed lines reference the exact same symbol - the function `skip_if_no_boto`. This creates a definition-usage relationship where defining the function enables its usage. Since this is Python, the usage can be written and parsed even before the definition exists (it would only fail at runtime with a NameError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports the function `skip_if_no_boto` from `scrapy.utils.test`, and Edit 1 calls that exact same function `skip_if_no_boto()` in the setUp method. This is a classic import-usage relationship where both edits reference the exact same symbol. The import makes the function available, and the usage calls it. In Python, both edits can be staged in either order since the usage would only fail at runtime (not parse time) if the import is missing. After making either edit, the other becomes the immediate next mechanical step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function `skip_if_no_boto` from `scrapy.utils.test`, and Edit 1 calls that exact same function `skip_if_no_boto()` in the setUp method. This is a classic import-usage relationship where both edits reference the exact same symbol. The import makes the function available, and the usage calls it. In Python, both edits can be staged in either order since the usage would only fail at runtime (not parse time) if the import is missing. After making either edit, the other becomes the immediate next mechanical step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 imports the function `skip_if_no_boto` from `scrapy.utils.test`, and Edit 1 calls that exact same function `skip_if_no_boto()` in the setUp method. The changed lines reference the exact same symbol - the `skip_if_no_boto` function. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 imports the function `skip_if_no_boto` from `scrapy.utils.test`, and Edit 1 calls that exact same function `skip_if_no_boto()` in the setUp method. The changed lines reference the exact same symbol - the `skip_if_no_boto` function. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `skip_if_no_boto` in the `scrapy.utils.test` module, and Edit 1 imports that exact same function from the same module. The changed lines reference the exact same symbol - the `skip_if_no_boto` function. After defining the function in Edit 0, importing it in Edit 1 becomes a natural next step if that function is needed in the test file. Conversely, if the import is added first, the function definition becomes immediately necessary to avoid an ImportError. Both edits can be staged in either order (the import won't cause a parse error, only a runtime ImportError when executed), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new function `skip_if_no_boto` in the `scrapy.utils.test` module, and Edit 1 imports that exact same function from the same module. The changed lines reference the exact same symbol - the `skip_if_no_boto` function. After defining the function in Edit 0, importing it in Edit 1 becomes a natural next step if that function is needed in the test file. Conversely, if the import is added first, the function definition becomes immediately necessary to avoid an ImportError. Both edits can be staged in either order (the import won't cause a parse error, only a runtime ImportError when executed), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits add the exact same line 'skip_if_no_boto()' to the setUp methods of different test classes (S3AnonTestCase and S3TestCase). This represents a bulk-edit pattern where identical code is being added to similar syntactic constructs (setUp methods in test classes) as part of what appears to be a single refactoring operation. The edits perform an identical structural substitution - adding the same function call at the same relative position in similar test class setUp methods. Either edit could be made first, and after making one, the other would be the natural next step to complete the uniform pattern across related test classes."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits add the exact same line 'skip_if_no_boto()' to the setUp methods of different test classes (S3AnonTestCase and S3TestCase). This represents a bulk-edit pattern where identical code is being added to similar syntactic constructs (setUp methods in test classes) as part of what appears to be a single refactoring operation. The edits perform an identical structural substitution - adding the same function call at the same relative position in similar test class setUp methods. Either edit could be made first, and after making one, the other would be the natural next step to complete the uniform pattern across related test classes."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the BaseS3TestCase class definition entirely, while Edit 1 changes S3TestCase's inheritance from BaseS3TestCase to unittest.TestCase. These edits reference the exact same symbol (BaseS3TestCase) - Edit 0 removes its definition and Edit 1 removes its usage as a parent class. This is a classic definition-usage relationship where both edits must be made together as part of removing the BaseS3TestCase class from the codebase. Edit 0 must come before Edit 1 because if Edit 1 is applied first (changing inheritance to unittest.TestCase), then Edit 0 can still be applied to remove the now-unused BaseS3TestCase class. However, if we consider the logical flow of refactoring, removing the inheritance dependency first makes more sense before removing the class definition. Actually, both edits can be staged in either order since they reference the same symbol but perform complementary operations - one removes the definition, the other removes the usage. This is bi-directional as either edit naturally prompts the other as the next step in eliminating BaseS3TestCase from the codebase."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes the BaseS3TestCase class definition entirely, while Edit 1 changes S3TestCase's inheritance from BaseS3TestCase to unittest.TestCase. These edits reference the exact same symbol (BaseS3TestCase) - Edit 0 removes its definition and Edit 1 removes its usage as a parent class. This is a classic definition-usage relationship where both edits must be made together as part of removing the BaseS3TestCase class from the codebase. Edit 0 must come before Edit 1 because if Edit 1 is applied first (changing inheritance to unittest.TestCase), then Edit 0 can still be applied to remove the now-unused BaseS3TestCase class. However, if we consider the logical flow of refactoring, removing the inheritance dependency first makes more sense before removing the class definition. Actually, both edits can be staged in either order since they reference the same symbol but perform complementary operations - one removes the definition, the other removes the usage. This is bi-directional as either edit naturally prompts the other as the next step in eliminating BaseS3TestCase from the codebase."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        6
+    ]
+}

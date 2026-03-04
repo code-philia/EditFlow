@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import statement 'from certbot import errors' at the top of the file, while Edit 1 adds a method that uses 'errors.PluginError' on line 108. The changed lines reference the exact same symbol 'errors' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing the module enables its usage in the new method. Both edits can be staged in either order since Python allows referencing undefined imports at parse time (only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'from certbot import errors' at the top of the file, while Edit 1 adds a method that uses 'errors.PluginError' on line 108. The changed lines reference the exact same symbol 'errors' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing the module enables its usage in the new method. Both edits can be staged in either order since Python allows referencing undefined imports at parse time (only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits add the exact same import statement 'from certbot import errors' to different files. This represents a bulk/pattern synchronization where identical textual substitutions are being made to the same type of syntactic construct (import statements). Both edits can be staged in either order without any parsing or syntactic dependencies between them. The relationship is bi-directional because either edit can be made first, and both are part of what appears to be a single refactoring task to add the same import across multiple files."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits add the exact same import statement 'from certbot import errors' to different files. This represents a bulk/pattern synchronization where identical textual substitutions are being made to the same type of syntactic construct (import statements). Both edits can be staged in either order without any parsing or syntactic dependencies between them. The relationship is bi-directional because either edit can be made first, and both are part of what appears to be a single refactoring task to add the same import across multiple files."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 1 defines a new method `_relevant_vhosts` and Edit 0 calls that exact same method. The changed lines reference the same symbol - `_relevant_vhosts`. Edit 0 replaces a loop over `self.configurator.vhosts` with a call to `self._relevant_vhosts()`, and Edit 1 defines that method. This creates an immediate code dependency where defining the method (Edit 1) enables the call (Edit 0). However, in Python, method calls can be written before the method definition without causing parse errors - it would only fail at runtime. Since both edits can be staged in either order without parser-level syntax errors, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new method `_relevant_vhosts` and Edit 0 calls that exact same method. The changed lines reference the same symbol - `_relevant_vhosts`. Edit 0 replaces a loop over `self.configurator.vhosts` with a call to `self._relevant_vhosts()`, and Edit 1 defines that method. This creates an immediate code dependency where defining the method (Edit 1) enables the call (Edit 0). However, in Python, method calls can be written before the method definition without causing parse errors - it would only fail at runtime. Since both edits can be staged in either order without parser-level syntax errors, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import statement 'from certbot import errors' to the http_01.py module. Edit 1 adds a test method that uses 'errors.PluginError' in an assertion. While both edits involve the 'errors' module, they reference different aspects - edit 0 imports the entire 'errors' module, while edit 1 uses a specific class 'PluginError' from that module. However, the test code's usage of 'errors.PluginError' depends on the import being present in the production code. Since this appears to be adding a new import and immediately using it in a test, and both edits reference the same 'errors' symbol (the module), this creates a bi-directional relationship where either edit could prompt the other as the next logical step in the same development session."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'from certbot import errors' to the http_01.py module. Edit 1 adds a test method that uses 'errors.PluginError' in an assertion. While both edits involve the 'errors' module, they reference different aspects - edit 0 imports the entire 'errors' module, while edit 1 uses a specific class 'PluginError' from that module. However, the test code's usage of 'errors.PluginError' depends on the import being present in the production code. Since this appears to be adding a new import and immediately using it in a test, and both edits reference the same 'errors' symbol (the module), this creates a bi-directional relationship where either edit could prompt the other as the next logical step in the same development session."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 'errors' module from certbot, and Edit 1 uses 'errors.PluginError' in a test assertion. The changed lines reference the exact same symbol - the 'errors' module. After importing 'errors' in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports the 'errors' module from certbot, and Edit 1 uses 'errors.PluginError' in a test assertion. The changed lines reference the exact same symbol - the 'errors' module. After importing 'errors' in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new method `_relevant_vhosts()` to the `ApacheHttp01` class that raises a `PluginError` when no virtual hosts are found listening on the specified port. Edit 1 adds a test method `test_no_vhost()` that specifically tests this error condition by setting an unusual port (12345) and asserting that `PluginError` is raised when `perform()` is called. The test directly validates the error-raising behavior implemented in the new `_relevant_vhosts()` method. Both edits reference the same error condition and the same `PluginError` exception type, with the test specifically designed to exercise the code path added in edit 0. This represents a test-production code synchronization where the test validates the exact behavior implemented in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new method `_relevant_vhosts()` to the `ApacheHttp01` class that raises a `PluginError` when no virtual hosts are found listening on the specified port. Edit 1 adds a test method `test_no_vhost()` that specifically tests this error condition by setting an unusual port (12345) and asserting that `PluginError` is raised when `perform()` is called. The test directly validates the error-raising behavior implemented in the new `_relevant_vhosts()` method. Both edits reference the same error condition and the same `PluginError` exception type, with the test specifically designed to exercise the code path added in edit 0. This represents a test-production code synchronization where the test validates the exact behavior implemented in the production code."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

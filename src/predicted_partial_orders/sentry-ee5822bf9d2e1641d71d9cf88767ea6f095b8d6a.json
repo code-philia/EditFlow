@@ -1,0 +1,78 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits add the exact same import statement 'from django.core.cache.backends.locmem import LocMemCache' to different test files. This represents a bulk-edit pattern where identical textual substitutions are being made to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor where the same import is being added to related test files, likely as part of introducing or expanding usage of LocMemCache in the test suite. The edits can be made in either order since they are independent additions to separate files."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits add the exact same import statement 'from django.core.cache.backends.locmem import LocMemCache' to different test files. This represents a bulk-edit pattern where identical textual substitutions are being made to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor where the same import is being added to related test files, likely as part of introducing or expanding usage of LocMemCache in the test suite. The edits can be made in either order since they are independent additions to separate files."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import for LocMemCache, and Edit 1 uses that exact same LocMemCache class in the changed lines. This creates a direct import-usage relationship where the imported symbol is immediately used. After adding the import, using LocMemCache becomes the natural next step, and after using LocMemCache, the import becomes necessary. Both edits reference the exact same symbol (LocMemCache) and either edit naturally prompts the other as the next mechanical action within the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import for LocMemCache, and Edit 1 uses that exact same LocMemCache class in the changed lines. This creates a direct import-usage relationship where the imported symbol is immediately used. After adding the import, using LocMemCache becomes the natural next step, and after using LocMemCache, the import becomes necessary. Both edits reference the exact same symbol (LocMemCache) and either edit naturally prompts the other as the next mechanical action within the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of RedisCache from the imports section, while Edit 1 removes the usage of RedisCache() in the store method and replaces it with LocMemCache. These edits reference the exact same symbol (RedisCache) - one removes the import and the other removes the usage. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order without causing parser errors. This is a classic import-usage relationship for the same symbol within the same file."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 removes the import of RedisCache from the imports section, while Edit 1 removes the usage of RedisCache() in the store method and replaces it with LocMemCache. These edits reference the exact same symbol (RedisCache) - one removes the import and the other removes the usage. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime. However, since Python allows referencing undefined symbols at parse time (only failing at runtime), both edits can be staged in either order without causing parser errors. This is a classic import-usage relationship for the same symbol within the same file."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitution by removing the same import line 'from sentry.cache.redis import RedisCache' from different test files. This represents a bulk cleanup operation where the same import is being removed across multiple files as part of a single refactoring task. The edits target the same type of syntactic construct (import statements) with identical before\u2192after patterns (removing the RedisCache import). This fits the criteria for bulk-edit synchronization where both edits are part of a contiguous cleanup sweep."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform identical textual substitution by removing the same import line 'from sentry.cache.redis import RedisCache' from different test files. This represents a bulk cleanup operation where the same import is being removed across multiple files as part of a single refactoring task. The edits target the same type of syntactic construct (import statements) with identical before\u2192after patterns (removing the RedisCache import). This fits the criteria for bulk-edit synchronization where both edits are part of a contiguous cleanup sweep."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual and structural substitution: replacing 'RedisCache()' with 'LocMemCache('test', {})' and adding the same cache clearing pattern. Both target the same type of syntactic construct (method definitions that return OptionsStore with cache parameter) and appear to be part of a single, contiguous refactor to change the cache implementation across test files. This is a clear bulk-edit pattern with identical before\u2192after substitution on the same construct type."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual and structural substitution: replacing 'RedisCache()' with 'LocMemCache('test', {})' and adding the same cache clearing pattern. Both target the same type of syntactic construct (method definitions that return OptionsStore with cache parameter) and appear to be part of a single, contiguous refactor to change the cache implementation across test files. This is a clear bulk-edit pattern with identical before\u2192after substitution on the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 removes the import of RedisCache from line 10, while Edit 1 removes the usage of RedisCache() from line 20 and replaces it with LocMemCache. Both edits reference the exact same symbol 'RedisCache' - one removes its import and the other removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. The relationship is bi-directional because either edit creates an immediate prompt for the other as part of removing RedisCache dependency from the codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 removes the import of RedisCache from line 10, while Edit 1 removes the usage of RedisCache() from line 20 and replaces it with LocMemCache. Both edits reference the exact same symbol 'RedisCache' - one removes its import and the other removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. The relationship is bi-directional because either edit creates an immediate prompt for the other as part of removing RedisCache dependency from the codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 imports LocMemCache from django.core.cache.backends.locmem, and Edit 1 uses that exact same imported symbol LocMemCache in the changed lines (instantiating it as 'c = LocMemCache('test', {})'). This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing LocMemCache in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol, and vice versa - if you're using LocMemCache in Edit 1, you need the import from Edit 0. Both edits can be staged in either order since Python allows usage before import (resulting in only a runtime NameError, not a parse error)."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 imports LocMemCache from django.core.cache.backends.locmem, and Edit 1 uses that exact same imported symbol LocMemCache in the changed lines (instantiating it as 'c = LocMemCache('test', {})'). This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing LocMemCache in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol, and vice versa - if you're using LocMemCache in Edit 1, you need the import from Edit 0. Both edits can be staged in either order since Python allows usage before import (resulting in only a runtime NameError, not a parse error)."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

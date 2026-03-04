@@ -1,0 +1,72 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the 'for_api' parameter from the function signature, while Edit 1 removes code that references this same 'for_api' parameter within the function body. These edits reference the exact same symbol (the 'for_api' parameter) and form a direct definition-usage relationship. After removing the parameter from the signature, the usage of that parameter in the function body becomes undefined and must be removed as the immediate next step. This creates a mechanically obvious code-driven prompt where one edit naturally leads to the other."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 removes the 'for_api' parameter from the function signature of get_raw_user_data, while Edit 1 removes the 'for_api=True' argument from a call to that same function. These edits reference the exact same symbol (the for_api parameter of get_raw_user_data) and form a signature-caller relationship. After removing the parameter from the function signature, the call site must also be updated to remove the corresponding argument, making this a mechanically obvious next step. Both edits can be staged in either order without causing parse errors in Python, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 removes the 'for_api' parameter from the function signature of get_raw_user_data, while Edit 1 removes the 'for_api=True' argument from a call to that same function. These edits reference the exact same symbol (the for_api parameter of get_raw_user_data) and form a signature-caller relationship. After removing the parameter from the function signature, the call site must also be updated to remove the corresponding argument, making this a mechanically obvious next step. Both edits can be staged in either order without causing parse errors in Python, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "These edits are bi-directional neighbours because they both involve the removal of bot_type field handling for human users in the API. Edit 0 removes the code that adds bot_type to the result for API calls, while Edit 1 removes the test assertion that was checking for this bot_type field. Both edits reference the exact same 'bot_type' field and are part of removing the same API quirk. After making either edit, the other becomes the immediate next step to maintain consistency between the implementation and its test."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they both involve the removal of bot_type field handling for human users in the API. Edit 0 removes the code that adds bot_type to the result for API calls, while Edit 1 removes the test assertion that was checking for this bot_type field. Both edits reference the exact same 'bot_type' field and are part of removing the same API quirk. After making either edit, the other becomes the immediate next step to maintain consistency between the implementation and its test."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 removes code that adds 'bot_type' field to API responses for human users, while Edit 1 removes 'bot_type' from the expected keys in a test assertion. Both edits reference the exact same symbol ('bot_type') and are part of removing this field from the API response structure. The test change directly corresponds to the implementation change - when the implementation no longer includes 'bot_type' in the response, the test expectation must be updated accordingly. Either edit could be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other to maintain consistency between implementation and test."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes code that adds 'bot_type' field to API responses for human users, while Edit 1 removes 'bot_type' from the expected keys in a test assertion. Both edits reference the exact same symbol ('bot_type') and are part of removing this field from the API response structure. The test change directly corresponds to the implementation change - when the implementation no longer includes 'bot_type' in the response, the test expectation must be updated accordingly. Either edit could be made first since both can be parsed independently, but making either edit creates an immediate prompt for the other to maintain consistency between implementation and test."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes 'bot_type' from the expected_keys_for_iago set, and Edit 1 removes the assertion that checks iago_raw_data['bot_type']. Both edits reference the exact same symbol 'bot_type' and are part of a synchronized removal - removing the key from the expected set naturally prompts removing the assertion that tests for that key's presence. This is a bi-directional relationship where either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain test consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes 'bot_type' from the expected_keys_for_iago set, and Edit 1 removes the assertion that checks iago_raw_data['bot_type']. Both edits reference the exact same symbol 'bot_type' and are part of a synchronized removal - removing the key from the expected set naturally prompts removing the assertion that tests for that key's presence. This is a bi-directional relationship where either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain test consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These edits are directly related and form a bi-directional relationship. Edit 0 removes code that conditionally adds 'bot_type' to the result when 'for_api' is True, while Edit 1 adds 'bot_type' to the result when 'is_bot' is True. Both edits reference the exact same symbols: 'result', 'bot_type', and 'row'. The edits appear to be refactoring the same functionality - moving the bot_type assignment from being conditional on for_api to being conditional on is_bot. Either edit could be made first and would create an immediate prompt for the other as part of the same refactoring task. The changed lines in both edits directly reference the same result dictionary assignment and the same row['bot_type'] access."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These edits are directly related and form a bi-directional relationship. Edit 0 removes code that conditionally adds 'bot_type' to the result when 'for_api' is True, while Edit 1 adds 'bot_type' to the result when 'is_bot' is True. Both edits reference the exact same symbols: 'result', 'bot_type', and 'row'. The edits appear to be refactoring the same functionality - moving the bot_type assignment from being conditional on for_api to being conditional on is_bot. Either edit could be made first and would create an immediate prompt for the other as part of the same refactoring task. The changed lines in both edits directly reference the same result dictionary assignment and the same row['bot_type'] access."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "These edits are bi-directional neighbours because they both involve the exact same function call and parameter. Edit 0 removes the for_api parameter handling from the get_raw_user_data function definition, while Edit 1 removes the for_api=True argument from a call to that same function. The changed lines reference the exact same symbol (the for_api parameter of get_raw_user_data function) and either edit creates an immediate, mechanically obvious prompt for the other - removing the parameter usage requires removing the parameter from callers, and vice versa. This is a classic definition-usage synchronization pattern where both edits can be made in either order without causing parse errors."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they both involve the exact same function call and parameter. Edit 0 removes the for_api parameter handling from the get_raw_user_data function definition, while Edit 1 removes the for_api=True argument from a call to that same function. The changed lines reference the exact same symbol (the for_api parameter of get_raw_user_data function) and either edit creates an immediate, mechanically obvious prompt for the other - removing the parameter usage requires removing the parameter from callers, and vice versa. This is a classic definition-usage synchronization pattern where both edits can be made in either order without causing parse errors."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

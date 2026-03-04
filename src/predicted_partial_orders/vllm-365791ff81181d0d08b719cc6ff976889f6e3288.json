@@ -1,0 +1,99 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes code that adds seq.eos_token_id to sampling_params.all_stop_token_ids, while Edit 1 adds seq.eos_token_id as a parameter to the update_from_generation_config method call. These edits are refactoring the same functionality - moving the eos_token_id handling from being added directly to sampling_params to being passed as a parameter to the update method. Both edits reference the exact same symbol (seq.eos_token_id) and appear to be part of a single refactoring operation where the eos token handling is being moved from one location to another within the same function. This creates a direct code dependency where both changes work together to relocate the same functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes code that adds seq.eos_token_id to sampling_params.all_stop_token_ids, while Edit 1 adds seq.eos_token_id as a parameter to the update_from_generation_config method call. These edits are refactoring the same functionality - moving the eos_token_id handling from being added directly to sampling_params to being passed as a parameter to the update method. Both edits reference the exact same symbol (seq.eos_token_id) and appear to be part of a single refactoring operation where the eos token handling is being moved from one location to another within the same function. This creates a direct code dependency where both changes work together to relocate the same functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes code that adds seq.eos_token_id to sampling_params.all_stop_token_ids, while Edit 1 adds a model_eos_token_id parameter to the update_from_generation_config method that is called immediately after the removed code. This suggests the EOS token handling is being moved from the caller (edit 0) into the update_from_generation_config method (edit 1). The changed lines reference the exact same method call - sampling_params.update_from_generation_config() - making this a direct code dependency where one edit modifies the method signature and the other edit modifies the call site context. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes code that adds seq.eos_token_id to sampling_params.all_stop_token_ids, while Edit 1 adds a model_eos_token_id parameter to the update_from_generation_config method that is called immediately after the removed code. This suggests the EOS token handling is being moved from the caller (edit 0) into the update_from_generation_config method (edit 1). The changed lines reference the exact same method call - sampling_params.update_from_generation_config() - making this a direct code dependency where one edit modifies the method signature and the other edit modifies the call site context. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits modify the same method `update_from_generation_config` within the same class `SamplingParams`. Edit 0 adds a new parameter `model_eos_token_id` to the method signature, while Edit 1 modifies the logic within the method body that handles `eos_token_id` processing. Both edits reference the exact same symbols: `generation_config` parameter and the method itself. The changes appear to be part of a coordinated modification to how EOS token handling works in this method. Since both edits can be applied in either order (the signature change doesn't break the body logic and vice versa), and both are part of the same micro-task of updating EOS token handling, this represents a bi-directional relationship where either edit naturally prompts the other as the next step in the same development flow."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits modify the same method `update_from_generation_config` within the same class `SamplingParams`. Edit 0 adds a new parameter `model_eos_token_id` to the method signature, while Edit 1 modifies the logic within the method body that handles `eos_token_id` processing. Both edits reference the exact same symbols: `generation_config` parameter and the method itself. The changes appear to be part of a coordinated modification to how EOS token handling works in this method. Since both edits can be applied in either order (the signature change doesn't break the body logic and vice versa), and both are part of the same micro-task of updating EOS token handling, this represents a bi-directional relationship where either edit naturally prompts the other as the next step in the same development flow."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a second parameter `seq.eos_token_id` to the call `sampling_params.update_from_generation_config()`, while Edit 1 adds the corresponding parameter `model_eos_token_id: Optional[int] = None` to the method signature of `update_from_generation_config`. These edits reference the exact same method symbol and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the method signature and its call site. Both edits can be staged in either order without causing parse errors (the call with extra argument will work if the method accepts it, and the method with extra parameter will work if called without it due to the default value)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a second parameter `seq.eos_token_id` to the call `sampling_params.update_from_generation_config()`, while Edit 1 adds the corresponding parameter `model_eos_token_id: Optional[int] = None` to the method signature of `update_from_generation_config`. These edits reference the exact same method symbol and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the method signature and its call site. Both edits can be staged in either order without causing parse errors (the call with extra argument will work if the method accepts it, and the method with extra parameter will work if called without it due to the default value)."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter `seq.eos_token_id` to the method call `sampling_params.update_from_generation_config()`. Edit 1 modifies the signature and implementation of the `update_from_generation_config` method to handle this new parameter (referenced as `model_eos_token_id` in the implementation). The changed lines reference the exact same method - Edit 0 calls it with the new parameter, and Edit 1 defines how to handle that parameter. This creates a direct code dependency where adding the parameter in the call site (Edit 0) requires updating the method definition (Edit 1) to accept and process it. Since this is a signature change with corresponding caller update for the same method, either edit can be made first and the other becomes the immediate next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter `seq.eos_token_id` to the method call `sampling_params.update_from_generation_config()`. Edit 1 modifies the signature and implementation of the `update_from_generation_config` method to handle this new parameter (referenced as `model_eos_token_id` in the implementation). The changed lines reference the exact same method - Edit 0 calls it with the new parameter, and Edit 1 defines how to handle that parameter. This creates a direct code dependency where adding the parameter in the call site (Edit 0) requires updating the method definition (Edit 1) to accept and process it. Since this is a signature change with corresponding caller update for the same method, either edit can be made first and the other becomes the immediate next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'model_eos_token_id' in their changed lines. Edit 0 adds 'model_eos_token_id' as a parameter to the function signature, and Edit 1 uses that exact same parameter in the function body. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the next natural step is to use it in the function body. The relationship is bi-directional because both edits can be staged in either order without causing parse errors (Python allows parameter usage in function bodies even if the parameter isn't defined yet at parse time), and either edit naturally prompts the other as the next contiguous action within the same micro-task of adding EOS token handling to this method."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'model_eos_token_id' in their changed lines. Edit 0 adds 'model_eos_token_id' as a parameter to the function signature, and Edit 1 uses that exact same parameter in the function body. This creates an immediate, mechanically obvious code dependency - after adding the parameter in the signature, the next natural step is to use it in the function body. The relationship is bi-directional because both edits can be staged in either order without causing parse errors (Python allows parameter usage in function bodies even if the parameter isn't defined yet at parse time), and either edit naturally prompts the other as the next contiguous action within the same micro-task of adding EOS token handling to this method."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'model_eos_token_id' in their changed lines within the same function. Edit 0 adds code that checks 'if model_eos_token_id is not None' and uses it to update 'self.all_stop_token_ids'. Edit 1 also references 'model_eos_token_id' in its changed lines, checking the same condition and using it in the logic for handling eos_ids. Both edits are working with the same symbol and appear to be part of a coordinated change to handle model_eos_token_id processing. The edits can be applied in either order since both are syntactically valid independently, making this a bi-directional relationship where either edit naturally prompts the other as part of the same micro-task of implementing model_eos_token_id handling."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'model_eos_token_id' in their changed lines within the same function. Edit 0 adds code that checks 'if model_eos_token_id is not None' and uses it to update 'self.all_stop_token_ids'. Edit 1 also references 'model_eos_token_id' in its changed lines, checking the same condition and using it in the logic for handling eos_ids. Both edits are working with the same symbol and appear to be part of a coordinated change to handle model_eos_token_id processing. The edits can be applied in either order since both are syntactically valid independently, making this a bi-directional relationship where either edit naturally prompts the other as part of the same micro-task of implementing model_eos_token_id handling."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'model_eos_token_id' to the function signature of update_from_generation_config. Edit 1 uses this exact same parameter 'model_eos_token_id' in the function body, referencing it multiple times in the changed lines (lines 296, 300). This creates a direct code dependency where the parameter added in edit 0 is immediately used in edit 1. Both edits reference the exact same symbol and are part of a single micro-task of adding parameter threading functionality. Either edit could be staged first in Python (no parse errors), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new parameter 'model_eos_token_id' to the function signature of update_from_generation_config. Edit 1 uses this exact same parameter 'model_eos_token_id' in the function body, referencing it multiple times in the changed lines (lines 296, 300). This creates a direct code dependency where the parameter added in edit 0 is immediately used in edit 1. Both edits reference the exact same symbol and are part of a single micro-task of adding parameter threading functionality. Either edit could be staged first in Python (no parse errors), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are modifying the same code block that handles eos_token_id processing within the same method. Edit 0 changes the condition for checking eos_ids, while Edit 1 modifies the logic that processes the eos_ids variable that was just assigned in Edit 0. The changed lines in both edits reference the exact same symbol 'eos_ids' - Edit 0 assigns to it via walrus operator, and Edit 1 immediately processes that same variable. This creates a direct code dependency where Edit 1's logic depends on the eos_ids variable that Edit 0 establishes. Both edits are part of the same contiguous micro-task of refactoring the eos_token_id handling logic, and either edit naturally prompts the other as the next mechanical step since they're working with the same variable in adjacent code blocks."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are modifying the same code block that handles eos_token_id processing within the same method. Edit 0 changes the condition for checking eos_ids, while Edit 1 modifies the logic that processes the eos_ids variable that was just assigned in Edit 0. The changed lines in both edits reference the exact same symbol 'eos_ids' - Edit 0 assigns to it via walrus operator, and Edit 1 immediately processes that same variable. This creates a direct code dependency where Edit 1's logic depends on the eos_ids variable that Edit 0 establishes. Both edits are part of the same contiguous micro-task of refactoring the eos_token_id handling logic, and either edit naturally prompts the other as the next mechanical step since they're working with the same variable in adjacent code blocks."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        3
+    ]
+}

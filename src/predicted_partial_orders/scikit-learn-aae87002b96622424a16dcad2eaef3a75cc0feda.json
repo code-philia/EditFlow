@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'tosequence' from sklearn.utils, while Edit 1 replaces the usage of 'tosequence' with 'list' in the same file. These edits reference the exact same symbol 'tosequence' - one removes its import and the other removes its usage. After removing the import (Edit 0), the usage (Edit 1) would cause a NameError at runtime, but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the immediate next step in removing the tosequence dependency."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'tosequence' from sklearn.utils, while Edit 1 replaces the usage of 'tosequence' with 'list' in the same file. These edits reference the exact same symbol 'tosequence' - one removes its import and the other removes its usage. After removing the import (Edit 0), the usage (Edit 1) would cause a NameError at runtime, but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the immediate next step in removing the tosequence dependency."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'tosequence(X)' with 'list(X)' on assignment lines. They target the same type of syntactic construct (assignment statements in constructor methods) and appear to be part of a single, contiguous refactor to replace the tosequence function with the built-in list function. This is a bulk-edit pattern where both edits can be made in either order as part of the same refactoring sweep."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'tosequence(X)' with 'list(X)' on assignment lines. They target the same type of syntactic construct (assignment statements in constructor methods) and appear to be part of a single, contiguous refactor to replace the tosequence function with the built-in list function. This is a bulk-edit pattern where both edits can be made in either order as part of the same refactoring sweep."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of 'tosequence' from sklearn.utils, while Edit 1 replaces the usage of 'tosequence(steps)' with 'list(steps)'. These edits reference the exact same symbol 'tosequence' - one removes its import and the other removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, and after removing the usage in Edit 1, the import in Edit 0 becomes unused. Both edits are part of the same micro-task of removing the tosequence dependency. Since Python allows referencing undefined names at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'tosequence' from sklearn.utils, while Edit 1 replaces the usage of 'tosequence(steps)' with 'list(steps)'. These edits reference the exact same symbol 'tosequence' - one removes its import and the other removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, and after removing the usage in Edit 1, the import in Edit 0 becomes unused. Both edits are part of the same micro-task of removing the tosequence dependency. Since Python allows referencing undefined names at parse time (only failing at runtime), either edit can be staged first, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        5
+    ]
+}

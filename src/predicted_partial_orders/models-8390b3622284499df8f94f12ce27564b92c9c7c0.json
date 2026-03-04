@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark_xla_8_gpu method, and Edit 1 uses FLAGS.log_steps as a parameter in the _run_and_report_benchmark method call. The changed lines reference the exact same symbol (FLAGS.log_steps) - one edit assigns a value to it, and the other edit uses that value. This creates an immediate code dependency where setting FLAGS.log_steps naturally prompts its usage as a parameter, making them part of the same micro-task flow."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark_xla_8_gpu method, and Edit 1 uses FLAGS.log_steps as a parameter in the _run_and_report_benchmark method call. The changed lines reference the exact same symbol (FLAGS.log_steps) - one edit assigns a value to it, and the other edit uses that value. This creates an immediate code dependency where setting FLAGS.log_steps naturally prompts its usage as a parameter, making them part of the same micro-task flow."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'log_steps' = 50 to the def_flags dictionary in the __init__ method, while Edit 1 adds log_steps=FLAGS.log_steps as a parameter to the _run_and_report_benchmark method call. These edits reference the exact same symbol 'log_steps' - Edit 0 defines it in the configuration flags, and Edit 1 uses that same flag value. This creates a direct code dependency where defining the flag naturally prompts its usage, and using the flag requires it to be defined. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'log_steps' = 50 to the def_flags dictionary in the __init__ method, while Edit 1 adds log_steps=FLAGS.log_steps as a parameter to the _run_and_report_benchmark method call. These edits reference the exact same symbol 'log_steps' - Edit 0 defines it in the configuration flags, and Edit 1 uses that same flag value. This creates a direct code dependency where defining the flag naturally prompts its usage, and using the flag requires it to be defined. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits add the identical line 'FLAGS.log_steps = 10' to different methods within the same class (ShakespeareKerasBenchmarkReal). This represents a bulk-edit pattern where the same structural substitution is being applied to multiple similar methods. Both methods are benchmark methods that configure FLAGS before running benchmarks, and the addition of the same configuration line to both methods appears to be part of a single, contiguous refactor to standardize logging configuration across benchmark methods. The edits involve identical textual substitution (adding the same line) to the same type of syntactic construct (benchmark method configuration sections)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits add the identical line 'FLAGS.log_steps = 10' to different methods within the same class (ShakespeareKerasBenchmarkReal). This represents a bulk-edit pattern where the same structural substitution is being applied to multiple similar methods. Both methods are benchmark methods that configure FLAGS before running benchmarks, and the addition of the same configuration line to both methods appears to be part of a single, contiguous refactor to standardize logging configuration across benchmark methods. The edits involve identical textual substitution (adding the same line) to the same type of syntactic construct (benchmark method configuration sections)."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in a benchmark method, while Edit 1 defines the log_steps flag with a default value of 100. These edits reference the exact same symbol (FLAGS.log_steps) and have a direct code dependency - Edit 0 uses a flag that Edit 1 defines. However, since this is Python, both edits can be parsed and staged in either order. The usage in Edit 0 would only fail at runtime if the flag isn't defined, not at parse time. After making either edit, the other becomes the immediate next step to complete the flag definition-usage pair."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in a benchmark method, while Edit 1 defines the log_steps flag with a default value of 100. These edits reference the exact same symbol (FLAGS.log_steps) and have a direct code dependency - Edit 0 uses a flag that Edit 1 defines. However, since this is Python, both edits can be parsed and staged in either order. The usage in Edit 0 would only fail at runtime if the flag isn't defined, not at parse time. After making either edit, the other becomes the immediate next step to complete the flag definition-usage pair."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in a benchmark method, while Edit 1 defines the log_steps flag with a default value of 100. These edits reference the exact same symbol (FLAGS.log_steps) and have a direct code dependency - Edit 0 uses a flag that Edit 1 defines. However, since this is Python, both edits can be parsed and staged in either order. Edit 0 would cause a runtime AttributeError if executed before Edit 1, but it can still be written and parsed. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step within the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in a benchmark method, while Edit 1 defines the log_steps flag with a default value of 100. These edits reference the exact same symbol (FLAGS.log_steps) and have a direct code dependency - Edit 0 uses a flag that Edit 1 defines. However, since this is Python, both edits can be parsed and staged in either order. Edit 0 would cause a runtime AttributeError if executed before Edit 1, but it can still be written and parsed. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step within the same development session."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'log_steps' parameter with value 50 to def_flags in the benchmark configuration. Edit 1 changes the TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the exact same symbol 'log_steps' - one defines it in the configuration and the other uses it in the implementation. This creates a direct code dependency where the configuration change enables the parameterization of the previously hardcoded value. Either edit could be made first since both can be parsed independently, but together they form a cohesive change to make the log_steps configurable."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'log_steps' parameter with value 50 to def_flags in the benchmark configuration. Edit 1 changes the TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the exact same symbol 'log_steps' - one defines it in the configuration and the other uses it in the implementation. This creates a direct code dependency where the configuration change enables the parameterization of the previously hardcoded value. Either edit could be made first since both can be parsed independently, but together they form a cohesive change to make the log_steps configurable."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark configuration, while Edit 1 changes the TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the exact same symbol (log_steps) - Edit 0 defines/sets the value and Edit 1 uses that value. This creates a direct code dependency where setting the log_steps flag in the benchmark naturally prompts updating the usage site to reference that flag instead of a hardcoded value. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark configuration, while Edit 1 changes the TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the exact same symbol (log_steps) - Edit 0 defines/sets the value and Edit 1 uses that value. This creates a direct code dependency where setting the log_steps flag in the benchmark naturally prompts updating the usage site to reference that flag instead of a hardcoded value. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark_8_gpu method, and Edit 1 passes FLAGS.log_steps as a parameter to the parent class method call. Both edits reference the exact same symbol (FLAGS.log_steps) - one assigns a value to it, and the other uses that value. This creates a direct code dependency where setting FLAGS.log_steps naturally prompts its usage in the method call, making them part of the same contiguous micro-task of adding log_steps functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 sets FLAGS.log_steps = 10 in the benchmark_8_gpu method, and Edit 1 passes FLAGS.log_steps as a parameter to the parent class method call. Both edits reference the exact same symbol (FLAGS.log_steps) - one assigns a value to it, and the other uses that value. This creates a direct code dependency where setting FLAGS.log_steps naturally prompts its usage in the method call, making them part of the same contiguous micro-task of adding log_steps functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds FLAGS.log_steps = 10 in a benchmark configuration, while Edit 1 changes a TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the same symbol (log_steps) - Edit 0 sets the FLAGS.log_steps value and Edit 1 uses that same flags_obj.log_steps value. This creates a direct code dependency where setting the log_steps configuration naturally prompts updating the usage of that configuration parameter. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds FLAGS.log_steps = 10 in a benchmark configuration, while Edit 1 changes a TimeHistory callback to use flags_obj.log_steps instead of the hardcoded value 100. These edits reference the same symbol (log_steps) - Edit 0 sets the FLAGS.log_steps value and Edit 1 uses that same flags_obj.log_steps value. This creates a direct code dependency where setting the log_steps configuration naturally prompts updating the usage of that configuration parameter. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new flag 'log_steps' with default value 100, and edit 1 uses that exact same flag (flags_obj.log_steps) to replace the hardcoded value 100 in the TimeHistory callback. The changed lines reference the exact same symbol - the log_steps flag. After defining the flag in edit 0, using it in edit 1 becomes the immediate next step to replace the hardcoded value. This is a classic definition-usage pattern where both edits reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new flag 'log_steps' with default value 100, and edit 1 uses that exact same flag (flags_obj.log_steps) to replace the hardcoded value 100 in the TimeHistory callback. The changed lines reference the exact same symbol - the log_steps flag. After defining the flag in edit 0, using it in edit 1 becomes the immediate next step to replace the hardcoded value. This is a classic definition-usage pattern where both edits reference the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a parameter 'log_steps=FLAGS.log_steps' to a function call, while Edit 1 defines the FLAGS.log_steps flag. These edits reference the exact same symbol (FLAGS.log_steps) - Edit 1 defines it and Edit 0 uses it. After making either edit, the other becomes the immediate next step: if you add the flag definition, you'd naturally use it in the function call, and if you add the usage, you'd need to define the flag. Both can be staged in either order (the usage would cause a runtime AttributeError if the flag isn't defined, but both are syntactically valid), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a parameter 'log_steps=FLAGS.log_steps' to a function call, while Edit 1 defines the FLAGS.log_steps flag. These edits reference the exact same symbol (FLAGS.log_steps) - Edit 1 defines it and Edit 0 uses it. After making either edit, the other becomes the immediate next step: if you add the flag definition, you'd naturally use it in the function call, and if you add the usage, you'd need to define the flag. Both can be staged in either order (the usage would cause a runtime AttributeError if the flag isn't defined, but both are syntactically valid), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

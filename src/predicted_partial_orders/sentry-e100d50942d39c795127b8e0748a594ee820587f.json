@@ -1,0 +1,99 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds an import for the 'six' module at the top of the file. Edit 1 uses 'six.text_type(e)' in the changed lines within an exception handler. The changed lines in edit 1 explicitly reference the exact same symbol 'six' that is imported in edit 0. This creates a direct import-usage relationship where the import in edit 0 makes the usage in edit 1 possible. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for the 'six' module at the top of the file. Edit 1 uses 'six.text_type(e)' in the changed lines within an exception handler. The changed lines in edit 1 explicitly reference the exact same symbol 'six' that is imported in edit 0. This creates a direct import-usage relationship where the import in edit 0 makes the usage in edit 1 possible. In Python, usage before import would cause a NameError at runtime but both edits can be parsed and staged in either order, making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports the ApiError class from sentry.integrations.exceptions, and Edit 1 uses that exact same ApiError class in a try-except block. The changed lines reference the exact same symbol - ApiError. After importing ApiError in Edit 0, it becomes available for use in Edit 1's exception handling. Conversely, if Edit 1 were made first, it would create an immediate need to import ApiError to resolve the undefined symbol. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports the ApiError class from sentry.integrations.exceptions, and Edit 1 uses that exact same ApiError class in a try-except block. The changed lines reference the exact same symbol - ApiError. After importing ApiError in Edit 0, it becomes available for use in Edit 1's exception handling. Conversely, if Edit 1 were made first, it would create an immediate need to import ApiError to resolve the undefined symbol. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the error handling behavior in the production code by catching ApiError exceptions and returning a 400 status code instead of letting them propagate. Edit 1 updates a test assertion to expect status code 400 instead of 503, which directly corresponds to the new error handling behavior. The test is specifically testing the 'search_issues_request_fails' scenario, and the changed line in edit 1 is asserting on the exact behavior that was modified in edit 0. This creates a direct code dependency where the test assertion must be updated to match the new implementation behavior."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes the error handling behavior in the production code by catching ApiError exceptions and returning a 400 status code instead of letting them propagate. Edit 1 updates a test assertion to expect status code 400 instead of 503, which directly corresponds to the new error handling behavior. The test is specifically testing the 'search_issues_request_fails' scenario, and the changed line in edit 1 is asserting on the exact behavior that was modified in edit 0. This creates a direct code dependency where the test assertion must be updated to match the new implementation behavior."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits apply the exact same structural pattern: wrapping an existing method call with identical try-except error handling logic. Both wrap `installation.search_*` method calls with the same `except ApiError as e: return Response({'detail': six.text_type(e)}, status=400)` pattern. This represents a uniform, synchronized substitution where the same before\u2192after transformation is being applied to the same type of syntactic construct (method calls on the installation object). The edits are clearly part of a single, contiguous refactoring task to add consistent error handling across similar API calls."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits apply the exact same structural pattern: wrapping an existing method call with identical try-except error handling logic. Both wrap `installation.search_*` method calls with the same `except ApiError as e: return Response({'detail': six.text_type(e)}, status=400)` pattern. This represents a uniform, synchronized substitution where the same before\u2192after transformation is being applied to the same type of syntactic construct (method calls on the installation object). The edits are clearly part of a single, contiguous refactoring task to add consistent error handling across similar API calls."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 imports the ApiError exception from sentry.integrations.exceptions, and Edit 1 uses that exact same ApiError symbol in a try-except block. The import in Edit 0 makes the ApiError symbol available for use, and Edit 1's changed lines explicitly reference and catch that same ApiError exception. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step in the same development session."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 imports the ApiError exception from sentry.integrations.exceptions, and Edit 1 uses that exact same ApiError symbol in a try-except block. The import in Edit 0 makes the ApiError symbol available for use, and Edit 1's changed lines explicitly reference and catch that same ApiError exception. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors since either edit naturally prompts the other as the next mechanical step in the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution (changing 'assert resp.status_code == 503' to 'assert resp.status_code == 400') on the same type of syntactic construct (assertion statements) within the same test file. This appears to be part of a single, contiguous refactor to update expected status codes across multiple test methods. The edits represent a bulk pattern synchronization where the same before\u2192after pattern is applied to identical construct types."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution (changing 'assert resp.status_code == 503' to 'assert resp.status_code == 400') on the same type of syntactic construct (assertion statements) within the same test file. This appears to be part of a single, contiguous refactor to update expected status codes across multiple test methods. The edits represent a bulk pattern synchronization where the same before\u2192after pattern is applied to identical construct types."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the error handling behavior in the production code by catching ApiError exceptions and returning a 400 status code instead of letting them propagate. Edit 1 updates the corresponding test assertion to expect the new 400 status code instead of 503. These edits reference the same behavior change - the HTTP status code returned when an API error occurs in the search_projects functionality. The test is directly asserting on the exact behavior that was modified in the production code, creating an immediate code-driven relationship where changing the production behavior necessitates updating the test expectation."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the error handling behavior in the production code by catching ApiError exceptions and returning a 400 status code instead of letting them propagate. Edit 1 updates the corresponding test assertion to expect the new 400 status code instead of 503. These edits reference the same behavior change - the HTTP status code returned when an API error occurs in the search_projects functionality. The test is directly asserting on the exact behavior that was modified in the production code, creating an immediate code-driven relationship where changing the production behavior necessitates updating the test expectation."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 changes the error handling behavior in the GitlabIssueSearchEndpoint.get method, specifically changing how ApiError exceptions are handled - instead of letting them propagate (which would result in a 503 status), it now catches them and returns a 400 status response. Edit 1 updates a test assertion to expect the new 400 status code instead of the previous 503 status code. The test is directly verifying the behavior of the exact same method that was modified in edit 0. This creates a bi-directional relationship where either edit prompts the need for the other - changing the implementation requires updating the test expectation, and updating the test expectation indicates the implementation behavior has changed."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 changes the error handling behavior in the GitlabIssueSearchEndpoint.get method, specifically changing how ApiError exceptions are handled - instead of letting them propagate (which would result in a 503 status), it now catches them and returns a 400 status response. Edit 1 updates a test assertion to expect the new 400 status code instead of the previous 503 status code. The test is directly verifying the behavior of the exact same method that was modified in edit 0. This creates a bi-directional relationship where either edit prompts the need for the other - changing the implementation requires updating the test expectation, and updating the test expectation indicates the implementation behavior has changed."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import for the 'six' module at the top of the file. Edit 1 uses 'six.text_type(e)' in a new exception handling block. The changed lines reference the exact same symbol 'six' - edit 0 imports it and edit 1 uses it. This creates an immediate code dependency where the import is required for the usage to work. In Python, using an undefined symbol like 'six' would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is in a function body that won't be executed until called. This makes it bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for the 'six' module at the top of the file. Edit 1 uses 'six.text_type(e)' in a new exception handling block. The changed lines reference the exact same symbol 'six' - edit 0 imports it and edit 1 uses it. This creates an immediate code dependency where the import is required for the usage to work. In Python, using an undefined symbol like 'six' would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is in a function body that won't be executed until called. This makes it bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        5
+    ]
+}

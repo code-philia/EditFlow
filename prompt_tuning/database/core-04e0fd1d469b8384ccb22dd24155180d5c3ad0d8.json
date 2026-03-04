@@ -1,0 +1,971 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/home-assistant/core/commit/04e0fd1d469b8384ccb22dd24155180d5c3ad0d8",
+    "commit_message": "Fix controller not being stored when setup fails and sequentially fails the retry functionality (#17927)",
+    "commit_snapshots": {
+        "homeassistant/components/unifi/__init__.py": [
+            [
+                "\"\"\"\n",
+                "Support for devices connected to UniFi POE.\n",
+                "\n",
+                "For more details about this platform, please refer to the documentation at\n",
+                "https://home-assistant.io/components/unifi/\n",
+                "\"\"\"\n",
+                "\n",
+                "import voluptuous as vol\n",
+                "\n",
+                "from homeassistant import config_entries\n",
+                "from homeassistant.const import (\n",
+                "    CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_USERNAME, CONF_VERIFY_SSL)\n",
+                "from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC\n",
+                "\n",
+                "from .const import (CONF_CONTROLLER, CONF_POE_CONTROL, CONF_SITE_ID,\n",
+                "                    CONTROLLER_ID, DOMAIN, LOGGER)\n",
+                "from .controller import UniFiController, get_controller\n",
+                "from .errors import (\n",
+                "    AlreadyConfigured, AuthenticationRequired, CannotConnect, UserLevel)\n",
+                "\n",
+                "DEFAULT_PORT = 8443\n",
+                "DEFAULT_SITE_ID = 'default'\n",
+                "DEFAULT_VERIFY_SSL = False\n",
+                "\n",
+                "REQUIREMENTS = ['aiounifi==3']\n",
+                "\n",
+                "\n",
+                "async def async_setup(hass, config):\n",
+                "    \"\"\"Component doesn't support configuration through configuration.yaml.\"\"\"\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(hass, config_entry):\n",
+                "    \"\"\"Set up the UniFi component.\"\"\"\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    controller = UniFiController(hass, config_entry)\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 34,
+                    "end": 36
+                },
+                "child_version_range": {
+                    "start": 34,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(hass, config_entry):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: homeassistant/components/unifi/__init__.py\nCode:\n31 31    \n32 32    async def async_setup_entry(hass, config_entry):\n33 33        \"\"\"Set up the UniFi component.\"\"\"\n34     -     controller = UniFiController(hass, config_entry)\n35     - \n36 34        if DOMAIN not in hass.data:\n37 35            hass.data[DOMAIN] = {}\n       ...\n",
+                "file_path": "homeassistant/components/unifi/__init__.py",
+                "identifiers_before": [
+                    "UniFiController",
+                    "config_entry",
+                    "controller",
+                    "hass"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "async def async_setup_entry(hass, config_entry):\n",
+                    "    \"\"\"Set up the UniFi component.\"\"\"\n"
+                ],
+                "suffix": [
+                    "    if DOMAIN not in hass.data:\n",
+                    "        hass.data[DOMAIN] = {}\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "controller",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/unifi/__init__.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    if DOMAIN not in hass.data:\n",
+                "        hass.data[DOMAIN] = {}\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "    controller = UniFiController(hass, config_entry)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 38,
+                    "end": 38
+                },
+                "child_version_range": {
+                    "start": 36,
+                    "end": 39
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if DOMAIN not in hass.data:",
+                        "start_line": 36,
+                        "end_line": 37
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(hass, config_entry):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: homeassistant/components/unifi/__init__.py\nCode:\n         def async_setup_entry(hass, config_entry):\n             ...\n36 34        if DOMAIN not in hass.data:\n37 35            hass.data[DOMAIN] = {}\n   36  + \n   37  +     controller = UniFiController(hass, config_entry)\n   38  + \n38 39        controller_id = CONTROLLER_ID.format(\n39 40            host=config_entry.data[CONF_CONTROLLER][CONF_HOST],\n40 41            site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n       ...\n",
+                "file_path": "homeassistant/components/unifi/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "UniFiController",
+                    "config_entry",
+                    "controller",
+                    "hass"
+                ],
+                "prefix": [
+                    "    if DOMAIN not in hass.data:\n",
+                    "        hass.data[DOMAIN] = {}\n"
+                ],
+                "suffix": [
+                    "    controller_id = CONTROLLER_ID.format(\n",
+                    "        host=config_entry.data[CONF_CONTROLLER][CONF_HOST],\n",
+                    "        site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "controller",
+                            "position": {
+                                "start": {
+                                    "line": 37,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 37,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/unifi/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    controller_id = CONTROLLER_ID.format(\n",
+                "        host=config_entry.data[CONF_CONTROLLER][CONF_HOST],\n",
+                "        site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n",
+                "    )\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    hass.data[DOMAIN][controller_id] = controller\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 43,
+                    "end": 43
+                },
+                "child_version_range": {
+                    "start": 44,
+                    "end": 46
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(hass, config_entry):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: homeassistant/components/unifi/__init__.py\nCode:\n         def async_setup_entry(hass, config_entry):\n             ...\n40 41            site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n41 42        )\n42 43    \n   44  +     hass.data[DOMAIN][controller_id] = controller\n   45  + \n43 46        if not await controller.async_setup():\n44 47            return False\n45 48    \n       ...\n",
+                "file_path": "homeassistant/components/unifi/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "DOMAIN",
+                    "controller",
+                    "controller_id",
+                    "data",
+                    "hass"
+                ],
+                "prefix": [
+                    "        site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n",
+                    "    )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    if not await controller.async_setup():\n",
+                    "        return False\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "controller",
+                            "position": {
+                                "start": {
+                                    "line": 44,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 44,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/unifi/__init__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    if not await controller.async_setup():\n",
+                "        return False\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    hass.data[DOMAIN][controller_id] = controller\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 46,
+                    "end": 48
+                },
+                "child_version_range": {
+                    "start": 49,
+                    "end": 49
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(hass, config_entry):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: homeassistant/components/unifi/__init__.py\nCode:\n         def async_setup_entry(hass, config_entry):\n             ...\n43 46        if not await controller.async_setup():\n44 47            return False\n45 48    \n46     -     hass.data[DOMAIN][controller_id] = controller\n47     - \n48 49        if controller.mac is None:\n49 50            return True\n50 51    \n       ...\n",
+                "file_path": "homeassistant/components/unifi/__init__.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "controller",
+                    "controller_id",
+                    "data",
+                    "hass"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    if not await controller.async_setup():\n",
+                    "        return False\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    if controller.mac is None:\n",
+                    "        return True\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "controller",
+                            "position": {
+                                "start": {
+                                    "line": 46,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 46,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/unifi/__init__.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    if controller.mac is None:\n",
+                "        return True\n",
+                "\n",
+                "    device_registry = await \\\n",
+                "        hass.helpers.device_registry.async_get_registry()\n",
+                "    device_registry.async_get_or_create(\n",
+                "        config_entry_id=config_entry.entry_id,\n",
+                "        connections={(CONNECTION_NETWORK_MAC, controller.mac)},\n",
+                "        manufacturer='Ubiquiti',\n",
+                "        model=\"UniFi Controller\",\n",
+                "        name=\"UniFi Controller\",\n",
+                "        # sw_version=config.raw['swversion'],\n",
+                "    )\n",
+                "\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "async def async_unload_entry(hass, config_entry):\n",
+                "    \"\"\"Unload a config entry.\"\"\"\n",
+                "    controller_id = CONTROLLER_ID.format(\n",
+                "        host=config_entry.data[CONF_CONTROLLER][CONF_HOST],\n",
+                "        site=config_entry.data[CONF_CONTROLLER][CONF_SITE_ID]\n",
+                "    )\n",
+                "    controller = hass.data[DOMAIN].pop(controller_id)\n",
+                "    return await controller.async_reset()\n",
+                "\n",
+                "\n",
+                "@config_entries.HANDLERS.register(DOMAIN)\n",
+                "class UnifiFlowHandler(config_entries.ConfigFlow):\n",
+                "    \"\"\"Handle a UniFi config flow.\"\"\"\n",
+                "\n",
+                "    VERSION = 1\n",
+                "    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL\n",
+                "\n",
+                "    def __init__(self):\n",
+                "        \"\"\"Initialize the UniFi flow.\"\"\"\n",
+                "        self.config = None\n",
+                "        self.desc = None\n",
+                "        self.sites = None\n",
+                "\n",
+                "    async def async_step_user(self, user_input=None):\n",
+                "        \"\"\"Handle a flow initialized by the user.\"\"\"\n",
+                "        errors = {}\n",
+                "\n",
+                "        if user_input is not None:\n",
+                "\n",
+                "            try:\n",
+                "                self.config = {\n",
+                "                    CONF_HOST: user_input[CONF_HOST],\n",
+                "                    CONF_USERNAME: user_input[CONF_USERNAME],\n",
+                "                    CONF_PASSWORD: user_input[CONF_PASSWORD],\n",
+                "                    CONF_PORT: user_input.get(CONF_PORT),\n",
+                "                    CONF_VERIFY_SSL: user_input.get(CONF_VERIFY_SSL),\n",
+                "                    CONF_SITE_ID: DEFAULT_SITE_ID,\n",
+                "                }\n",
+                "                controller = await get_controller(self.hass, **self.config)\n",
+                "\n",
+                "                self.sites = await controller.sites()\n",
+                "\n",
+                "                return await self.async_step_site()\n",
+                "\n",
+                "            except AuthenticationRequired:\n",
+                "                errors['base'] = 'faulty_credentials'\n",
+                "\n",
+                "            except CannotConnect:\n",
+                "                errors['base'] = 'service_unavailable'\n",
+                "\n",
+                "            except Exception:  # pylint: disable=broad-except\n",
+                "                LOGGER.error(\n",
+                "                    'Unknown error connecting with UniFi Controller at %s',\n",
+                "                    user_input[CONF_HOST])\n",
+                "                return self.async_abort(reason='unknown')\n",
+                "\n",
+                "        return self.async_show_form(\n",
+                "            step_id='user',\n",
+                "            data_schema=vol.Schema({\n",
+                "                vol.Required(CONF_HOST): str,\n",
+                "                vol.Required(CONF_USERNAME): str,\n",
+                "                vol.Required(CONF_PASSWORD): str,\n",
+                "                vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,\n",
+                "                vol.Optional(\n",
+                "                    CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): bool,\n",
+                "            }),\n",
+                "            errors=errors,\n",
+                "        )\n",
+                "\n",
+                "    async def async_step_site(self, user_input=None):\n",
+                "        \"\"\"Select site to control.\"\"\"\n",
+                "        errors = {}\n",
+                "\n",
+                "        if user_input is not None:\n",
+                "\n",
+                "            try:\n",
+                "                desc = user_input.get(CONF_SITE_ID, self.desc)\n",
+                "                for site in self.sites.values():\n",
+                "                    if desc == site['desc']:\n",
+                "                        if site['role'] != 'admin':\n",
+                "                            raise UserLevel\n",
+                "                        self.config[CONF_SITE_ID] = site['name']\n",
+                "                        break\n",
+                "\n",
+                "                for entry in self._async_current_entries():\n",
+                "                    controller = entry.data[CONF_CONTROLLER]\n",
+                "                    if controller[CONF_HOST] == self.config[CONF_HOST] and \\\n",
+                "                       controller[CONF_SITE_ID] == self.config[CONF_SITE_ID]:\n",
+                "                        raise AlreadyConfigured\n",
+                "\n",
+                "                data = {\n",
+                "                    CONF_CONTROLLER: self.config,\n",
+                "                    CONF_POE_CONTROL: True\n",
+                "                }\n",
+                "\n",
+                "                return self.async_create_entry(\n",
+                "                    title=desc,\n",
+                "                    data=data\n",
+                "                )\n",
+                "\n",
+                "            except AlreadyConfigured:\n",
+                "                return self.async_abort(reason='already_configured')\n",
+                "\n",
+                "            except UserLevel:\n",
+                "                return self.async_abort(reason='user_privilege')\n",
+                "\n",
+                "        if len(self.sites) == 1:\n",
+                "            self.desc = next(iter(self.sites.values()))['desc']\n",
+                "            return await self.async_step_site(user_input={})\n",
+                "\n",
+                "        sites = []\n",
+                "        for site in self.sites.values():\n",
+                "            sites.append(site['desc'])\n",
+                "\n",
+                "        return self.async_show_form(\n",
+                "            step_id='site',\n",
+                "            data_schema=vol.Schema({\n",
+                "                vol.Required(CONF_SITE_ID): vol.In(sites)\n",
+                "            }),\n",
+                "            errors=errors,\n",
+                "        )"
+            ]
+        ],
+        "tests/components/unifi/test_init.py": [
+            [
+                "\"\"\"Test UniFi setup process.\"\"\"\n",
+                "from unittest.mock import Mock, patch\n",
+                "\n",
+                "from homeassistant.components import unifi\n",
+                "from homeassistant.setup import async_setup_component\n",
+                "\n",
+                "from tests.common import mock_coro, MockConfigEntry\n",
+                "\n",
+                "\n",
+                "async def test_setup_with_no_config(hass):\n",
+                "    \"\"\"Test that we do not discover anything or try to set up a bridge.\"\"\"\n",
+                "    assert await async_setup_component(hass, unifi.DOMAIN, {}) is True\n",
+                "    assert unifi.DOMAIN not in hass.data\n",
+                "\n",
+                "\n",
+                "async def test_successful_config_entry(hass):\n",
+                "    \"\"\"Test that configured options for a host are loaded via config entry.\"\"\"\n",
+                "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                "        'controller': {\n",
+                "            'host': '0.0.0.0',\n",
+                "            'username': 'user',\n",
+                "            'password': 'pass',\n",
+                "            'port': 80,\n",
+                "            'site': 'default',\n",
+                "            'verify_ssl': True\n",
+                "        },\n",
+                "        'poe_control': True\n",
+                "    })\n",
+                "    entry.add_to_hass(hass)\n",
+                "    mock_registry = Mock()\n",
+                "    with patch.object(unifi, 'UniFiController') as mock_controller, \\\n",
+                "        patch('homeassistant.helpers.device_registry.async_get_registry',\n",
+                "              return_value=mock_coro(mock_registry)):\n",
+                "        mock_controller.return_value.async_setup.return_value = mock_coro(True)\n",
+                "        mock_controller.return_value.mac = '00:11:22:33:44:55'\n",
+                "        assert await unifi.async_setup_entry(hass, entry) is True\n",
+                "\n",
+                "    assert len(mock_controller.mock_calls) == 2\n",
+                "    p_hass, p_entry = mock_controller.mock_calls[0][1]\n",
+                "\n",
+                "    assert p_hass is hass\n",
+                "    assert p_entry is entry\n",
+                "\n",
+                "    assert len(mock_registry.mock_calls) == 1\n",
+                "    assert mock_registry.mock_calls[0][2] == {\n",
+                "        'config_entry_id': entry.entry_id,\n",
+                "        'connections': {\n",
+                "            ('mac', '00:11:22:33:44:55')\n",
+                "        },\n",
+                "        'manufacturer': 'Ubiquiti',\n",
+                "        'model': \"UniFi Controller\",\n",
+                "        'name': \"UniFi Controller\",\n",
+                "    }\n",
+                "\n",
+                "\n",
+                "async def test_controller_fail_setup(hass):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    \"\"\"Test that configured options for a host are loaded via config entry.\"\"\"\n"
+                ],
+                "after": [
+                    "    \"\"\"Test that a failed setup still stores controller.\"\"\"\n"
+                ],
+                "parent_version_range": {
+                    "start": 56,
+                    "end": 57
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 57
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_controller_fail_setup",
+                        "signature": "def test_controller_fail_setup(hass):",
+                        "at_line": 55
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: tests/components/unifi/test_init.py\nCode:\n53 53    \n54 54    \n55 55    async def test_controller_fail_setup(hass):\n56     -     \"\"\"Test that configured options for a host are loaded via config entry.\"\"\"\n   56  +     \"\"\"Test that a failed setup still stores controller.\"\"\"\n57 57        entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n58 58            'controller': {\n59 59                'host': '0.0.0.0',\n       ...\n",
+                "file_path": "tests/components/unifi/test_init.py",
+                "identifiers_before": [],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "\n",
+                    "async def test_controller_fail_setup(hass):\n"
+                ],
+                "suffix": [
+                    "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                    "        'controller': {\n",
+                    "            'host': '0.0.0.0',\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                "        'controller': {\n",
+                "            'host': '0.0.0.0',\n",
+                "            'username': 'user',\n",
+                "            'password': 'pass',\n",
+                "            'port': 80,\n",
+                "            'site': 'default',\n",
+                "            'verify_ssl': True\n",
+                "        },\n",
+                "        'poe_control': True\n",
+                "    })\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    with patch.object(unifi, 'UniFiController') as mock_cntrlr:\n",
+                "        mock_cntrlr.return_value.async_setup.return_value = mock_coro(False)\n",
+                "        assert await unifi.async_setup_entry(hass, entry) is False\n",
+                "\n",
+                "    controller_id = unifi.CONTROLLER_ID.format(\n",
+                "        host='0.0.0.0', site='default'\n",
+                "    )\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    assert controller_id not in hass.data[unifi.DOMAIN]\n"
+                ],
+                "after": [
+                    "    assert controller_id in hass.data[unifi.DOMAIN]\n"
+                ],
+                "parent_version_range": {
+                    "start": 77,
+                    "end": 78
+                },
+                "child_version_range": {
+                    "start": 77,
+                    "end": 78
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_controller_fail_setup",
+                        "signature": "def test_controller_fail_setup(hass):",
+                        "at_line": 55
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/components/unifi/test_init.py\nCode:\n         def test_controller_fail_setup(hass):\n             ...\n74 74        controller_id = unifi.CONTROLLER_ID.format(\n75 75            host='0.0.0.0', site='default'\n76 76        )\n77     -     assert controller_id not in hass.data[unifi.DOMAIN]\n   77  +     assert controller_id in hass.data[unifi.DOMAIN]\n78 78    \n79 79    \n80 80    async def test_controller_no_mac(hass):\n       ...\n",
+                "file_path": "tests/components/unifi/test_init.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "controller_id",
+                    "data",
+                    "hass",
+                    "unifi"
+                ],
+                "identifiers_after": [
+                    "DOMAIN",
+                    "controller_id",
+                    "data",
+                    "hass",
+                    "unifi"
+                ],
+                "prefix": [
+                    "    controller_id = unifi.CONTROLLER_ID.format(\n",
+                    "        host='0.0.0.0', site='default'\n",
+                    "    )\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "async def test_controller_no_mac(hass):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "async def test_controller_no_mac(hass):\n",
+                "    \"\"\"Test that configured options for a host are loaded via config entry.\"\"\"\n",
+                "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                "        'controller': {\n",
+                "            'host': '0.0.0.0',\n",
+                "            'username': 'user',\n",
+                "            'password': 'pass',\n",
+                "            'port': 80,\n",
+                "            'site': 'default',\n",
+                "            'verify_ssl': True\n",
+                "        },\n",
+                "        'poe_control': True\n",
+                "    })\n",
+                "    entry.add_to_hass(hass)\n",
+                "    mock_registry = Mock()\n",
+                "    with patch.object(unifi, 'UniFiController') as mock_controller, \\\n",
+                "        patch('homeassistant.helpers.device_registry.async_get_registry',\n",
+                "              return_value=mock_coro(mock_registry)):\n",
+                "        mock_controller.return_value.async_setup.return_value = mock_coro(True)\n",
+                "        mock_controller.return_value.mac = None\n",
+                "        assert await unifi.async_setup_entry(hass, entry) is True\n",
+                "\n",
+                "    assert len(mock_controller.mock_calls) == 2\n",
+                "\n",
+                "    assert len(mock_registry.mock_calls) == 0\n",
+                "\n",
+                "\n",
+                "async def test_unload_entry(hass):\n",
+                "    \"\"\"Test being able to unload an entry.\"\"\"\n",
+                "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                "        'controller': {\n",
+                "            'host': '0.0.0.0',\n",
+                "            'username': 'user',\n",
+                "            'password': 'pass',\n",
+                "            'port': 80,\n",
+                "            'site': 'default',\n",
+                "            'verify_ssl': True\n",
+                "        },\n",
+                "        'poe_control': True\n",
+                "    })\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    with patch.object(unifi, 'UniFiController') as mock_controller, \\\n",
+                "        patch('homeassistant.helpers.device_registry.async_get_registry',\n",
+                "              return_value=mock_coro(Mock())):\n",
+                "        mock_controller.return_value.async_setup.return_value = mock_coro(True)\n",
+                "        mock_controller.return_value.mac = '00:11:22:33:44:55'\n",
+                "        assert await unifi.async_setup_entry(hass, entry) is True\n",
+                "\n",
+                "    assert len(mock_controller.return_value.mock_calls) == 1\n",
+                "\n",
+                "    mock_controller.return_value.async_reset.return_value = mock_coro(True)\n",
+                "    assert await unifi.async_unload_entry(hass, entry)\n",
+                "    assert len(mock_controller.return_value.async_reset.mock_calls) == 1\n",
+                "    assert hass.data[unifi.DOMAIN] == {}\n",
+                "\n",
+                "\n",
+                "async def test_flow_works(hass, aioclient_mock):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    with patch('aiounifi.Controller') as mock_controller:\n",
+                "        def mock_constructor(host, username, password, port, site, websession):\n",
+                "            \"\"\"Fake the controller constructor.\"\"\"\n",
+                "            mock_controller.host = host\n",
+                "            mock_controller.username = username\n",
+                "            mock_controller.password = password\n",
+                "            mock_controller.port = port\n",
+                "            mock_controller.site = site\n",
+                "            return mock_controller\n",
+                "\n",
+                "        mock_controller.side_effect = mock_constructor\n",
+                "        mock_controller.login.return_value = mock_coro()\n",
+                "        mock_controller.sites.return_value = mock_coro({\n",
+                "            'site1': {'name': 'default', 'role': 'admin', 'desc': 'site name'}\n",
+                "        })\n",
+                "\n",
+                "        await flow.async_step_user(user_input={\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_PORT: 1234,\n",
+                "            unifi.CONF_VERIFY_SSL: True\n",
+                "        })\n",
+                "\n",
+                "        result = await flow.async_step_site(user_input={})\n",
+                "\n",
+                "    assert mock_controller.host == '1.2.3.4'\n",
+                "    assert len(mock_controller.login.mock_calls) == 1\n",
+                "    assert len(mock_controller.sites.mock_calls) == 1\n",
+                "\n",
+                "    assert result['type'] == 'create_entry'\n",
+                "    assert result['title'] == 'site name'\n",
+                "    assert result['data'] == {\n",
+                "        unifi.CONF_CONTROLLER: {\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_PORT: 1234,\n",
+                "            unifi.CONF_SITE_ID: 'default',\n",
+                "            unifi.CONF_VERIFY_SSL: True\n",
+                "        },\n",
+                "        unifi.CONF_POE_CONTROL: True\n",
+                "    }\n",
+                "\n",
+                "\n",
+                "async def test_controller_multiple_sites(hass):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    flow.config = {\n",
+                "        unifi.CONF_HOST: '1.2.3.4',\n",
+                "        unifi.CONF_USERNAME: 'username',\n",
+                "        unifi.CONF_PASSWORD: 'password',\n",
+                "    }\n",
+                "    flow.sites = {\n",
+                "        'site1': {\n",
+                "            'name': 'default', 'role': 'admin', 'desc': 'site name'\n",
+                "        },\n",
+                "        'site2': {\n",
+                "            'name': 'site2', 'role': 'admin', 'desc': 'site2 name'\n",
+                "        }\n",
+                "    }\n",
+                "\n",
+                "    result = await flow.async_step_site()\n",
+                "\n",
+                "    assert result['type'] == 'form'\n",
+                "    assert result['step_id'] == 'site'\n",
+                "\n",
+                "    assert result['data_schema']({'site': 'site name'})\n",
+                "    assert result['data_schema']({'site': 'site2 name'})\n",
+                "\n",
+                "\n",
+                "async def test_controller_site_already_configured(hass):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    entry = MockConfigEntry(domain=unifi.DOMAIN, data={\n",
+                "        'controller': {\n",
+                "            'host': '1.2.3.4',\n",
+                "            'site': 'default',\n",
+                "        }\n",
+                "    })\n",
+                "    entry.add_to_hass(hass)\n",
+                "\n",
+                "    flow.config = {\n",
+                "        unifi.CONF_HOST: '1.2.3.4',\n",
+                "        unifi.CONF_USERNAME: 'username',\n",
+                "        unifi.CONF_PASSWORD: 'password',\n",
+                "    }\n",
+                "    flow.desc = 'site name'\n",
+                "    flow.sites = {\n",
+                "        'site1': {\n",
+                "            'name': 'default', 'role': 'admin', 'desc': 'site name'\n",
+                "        }\n",
+                "    }\n",
+                "\n",
+                "    result = await flow.async_step_site()\n",
+                "\n",
+                "    assert result['type'] == 'abort'\n",
+                "\n",
+                "\n",
+                "async def test_user_permissions_low(hass, aioclient_mock):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    with patch('aiounifi.Controller') as mock_controller:\n",
+                "        def mock_constructor(host, username, password, port, site, websession):\n",
+                "            \"\"\"Fake the controller constructor.\"\"\"\n",
+                "            mock_controller.host = host\n",
+                "            mock_controller.username = username\n",
+                "            mock_controller.password = password\n",
+                "            mock_controller.port = port\n",
+                "            mock_controller.site = site\n",
+                "            return mock_controller\n",
+                "\n",
+                "        mock_controller.side_effect = mock_constructor\n",
+                "        mock_controller.login.return_value = mock_coro()\n",
+                "        mock_controller.sites.return_value = mock_coro({\n",
+                "            'site1': {'name': 'default', 'role': 'viewer', 'desc': 'site name'}\n",
+                "        })\n",
+                "\n",
+                "        await flow.async_step_user(user_input={\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_PORT: 1234,\n",
+                "            unifi.CONF_VERIFY_SSL: True\n",
+                "        })\n",
+                "\n",
+                "        result = await flow.async_step_site(user_input={})\n",
+                "\n",
+                "    assert result['type'] == 'abort'\n",
+                "\n",
+                "\n",
+                "async def test_user_credentials_faulty(hass, aioclient_mock):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    with patch.object(unifi, 'get_controller',\n",
+                "                      side_effect=unifi.errors.AuthenticationRequired):\n",
+                "        result = await flow.async_step_user({\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_SITE_ID: 'default',\n",
+                "        })\n",
+                "\n",
+                "    assert result['type'] == 'form'\n",
+                "    assert result['errors'] == {'base': 'faulty_credentials'}\n",
+                "\n",
+                "\n",
+                "async def test_controller_is_unavailable(hass, aioclient_mock):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    with patch.object(unifi, 'get_controller',\n",
+                "                      side_effect=unifi.errors.CannotConnect):\n",
+                "        result = await flow.async_step_user({\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_SITE_ID: 'default',\n",
+                "        })\n",
+                "\n",
+                "    assert result['type'] == 'form'\n",
+                "    assert result['errors'] == {'base': 'service_unavailable'}\n",
+                "\n",
+                "\n",
+                "async def test_controller_unkown_problem(hass, aioclient_mock):\n",
+                "    \"\"\"Test config flow.\"\"\"\n",
+                "    flow = unifi.UnifiFlowHandler()\n",
+                "    flow.hass = hass\n",
+                "\n",
+                "    with patch.object(unifi, 'get_controller',\n",
+                "                      side_effect=Exception):\n",
+                "        result = await flow.async_step_user({\n",
+                "            unifi.CONF_HOST: '1.2.3.4',\n",
+                "            unifi.CONF_USERNAME: 'username',\n",
+                "            unifi.CONF_PASSWORD: 'password',\n",
+                "            unifi.CONF_SITE_ID: 'default',\n",
+                "        })\n",
+                "\n",
+                "    assert result['type'] == 'abort'"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "0 before 1",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "0 before 1",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "1 before 0",
+            "reason": "move"
+        }
+    ]
+}

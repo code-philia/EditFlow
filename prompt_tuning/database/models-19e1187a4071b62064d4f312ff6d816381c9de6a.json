@@ -1,0 +1,2656 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/tensorflow/models/commit/19e1187a4071b62064d4f312ff6d816381c9de6a",
+    "commit_message": "Add control to turn-on/off BN for segmentation head 3D.\n\nPiperOrigin-RevId: 384262412",
+    "commit_snapshots": {
+        "official/vision/beta/projects/volumetric_models/configs/semantic_segmentation_3d.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "# Lint as: python3\n",
+                "\"\"\"Semantic segmentation configuration definition.\"\"\"\n",
+                "from typing import List, Optional, Union\n",
+                "\n",
+                "import dataclasses\n",
+                "\n",
+                "from official.core import exp_factory\n",
+                "from official.modeling import hyperparams\n",
+                "from official.modeling import optimization\n",
+                "from official.modeling.hyperparams import config_definitions as cfg\n",
+                "from official.vision.beta.configs import common\n",
+                "from official.vision.beta.projects.volumetric_models.configs import backbones\n",
+                "from official.vision.beta.projects.volumetric_models.configs import decoders\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class DataConfig(cfg.DataConfig):\n",
+                "  \"\"\"Input config for training.\"\"\"\n",
+                "  output_size: List[int] = dataclasses.field(default_factory=list)\n",
+                "  input_size: List[int] = dataclasses.field(default_factory=list)\n",
+                "  num_classes: int = 0\n",
+                "  num_channels: int = 1\n",
+                "  input_path: str = ''\n",
+                "  global_batch_size: int = 0\n",
+                "  is_training: bool = True\n",
+                "  dtype: str = 'float32'\n",
+                "  label_dtype: str = 'float32'\n",
+                "  image_field_key: str = 'image/encoded'\n",
+                "  label_field_key: str = 'image/class/label'\n",
+                "  shuffle_buffer_size: int = 1000\n",
+                "  cycle_length: int = 10\n",
+                "  drop_remainder: bool = False\n",
+                "  file_type: str = 'tfrecord'\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class SegmentationHead3D(hyperparams.Config):\n",
+                "  \"\"\"Segmentation head config.\"\"\"\n",
+                "  num_classes: int = 0\n",
+                "  level: int = 1\n",
+                "  num_convs: int = 0\n",
+                "  num_filters: int = 256\n",
+                "  upsample_factor: int = 1\n",
+                "  output_logits: bool = True\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "  use_batch_normalization: bool = True\n"
+                ],
+                "parent_version_range": {
+                    "start": 58,
+                    "end": 58
+                },
+                "child_version_range": {
+                    "start": 58,
+                    "end": 59
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(hyperparams.Config):",
+                        "at_line": 50
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/configs/semantic_segmentation_3d.py\nCode:\n         class SegmentationHead3D(hyperparams.Config):\n             ...\n55 55      num_filters: int = 256\n56 56      upsample_factor: int = 1\n57 57      output_logits: bool = True\n   58  +   use_batch_normalization: bool = True\n58 59    \n59 60    \n60 61    @dataclasses.dataclass\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/configs/semantic_segmentation_3d.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bool",
+                    "use_batch_normalization"
+                ],
+                "prefix": [
+                    "  num_filters: int = 256\n",
+                    "  upsample_factor: int = 1\n",
+                    "  output_logits: bool = True\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "@dataclasses.dataclass\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 2
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/configs/semantic_segmentation_3d.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class SemanticSegmentationModel3D(hyperparams.Config):\n",
+                "  \"\"\"Semantic segmentation model config.\"\"\"\n",
+                "  num_classes: int = 0\n",
+                "  num_channels: int = 1\n",
+                "  input_size: List[int] = dataclasses.field(default_factory=list)\n",
+                "  min_level: int = 3\n",
+                "  max_level: int = 6\n",
+                "  head: SegmentationHead3D = SegmentationHead3D()\n",
+                "  backbone: backbones.Backbone = backbones.Backbone(\n",
+                "      type='unet_3d', unet_3d=backbones.UNet3D())\n",
+                "  decoder: decoders.Decoder = decoders.Decoder(\n",
+                "      type='unet_3d_decoder', unet_3d_decoder=decoders.UNet3DDecoder())\n",
+                "  norm_activation: common.NormActivation = common.NormActivation()\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class Losses(hyperparams.Config):\n",
+                "  # Supported `loss_type` are `adaptive` and `generalized`.\n",
+                "  loss_type: str = 'adaptive'\n",
+                "  l2_weight_decay: float = 0.0\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class Evaluation(hyperparams.Config):\n",
+                "  report_per_class_metric: bool = False  # Whether to report per-class metrics.\n",
+                "\n",
+                "\n",
+                "@dataclasses.dataclass\n",
+                "class SemanticSegmentation3DTask(cfg.TaskConfig):\n",
+                "  \"\"\"The model config.\"\"\"\n",
+                "  model: SemanticSegmentationModel3D = SemanticSegmentationModel3D()\n",
+                "  train_data: DataConfig = DataConfig(is_training=True)\n",
+                "  validation_data: DataConfig = DataConfig(is_training=False)\n",
+                "  losses: Losses = Losses()\n",
+                "  evaluation: Evaluation = Evaluation()\n",
+                "  train_input_partition_dims: List[int] = dataclasses.field(\n",
+                "      default_factory=list)\n",
+                "  eval_input_partition_dims: List[int] = dataclasses.field(default_factory=list)\n",
+                "  init_checkpoint: Optional[str] = None\n",
+                "  init_checkpoint_modules: Union[\n",
+                "      str, List[str]] = 'all'  # all, backbone, and/or decoder\n",
+                "\n",
+                "\n",
+                "@exp_factory.register_config_factory('seg_unet3d_test')\n",
+                "def seg_unet3d_test() -> cfg.ExperimentConfig:\n",
+                "  \"\"\"Image segmentation on a dummy dataset with 3D UNet for testing purpose.\"\"\"\n",
+                "  train_batch_size = 2\n",
+                "  eval_batch_size = 2\n",
+                "  steps_per_epoch = 10\n",
+                "  config = cfg.ExperimentConfig(\n",
+                "      task=SemanticSegmentation3DTask(\n",
+                "          model=SemanticSegmentationModel3D(\n",
+                "              num_classes=2,\n",
+                "              input_size=[32, 32, 32],\n",
+                "              num_channels=2,\n",
+                "              backbone=backbones.Backbone(\n",
+                "                  type='unet_3d', unet_3d=backbones.UNet3D(model_id=2)),\n",
+                "              decoder=decoders.Decoder(\n",
+                "                  type='unet_3d_decoder',\n",
+                "                  unet_3d_decoder=decoders.UNet3DDecoder(model_id=2)),\n",
+                "              head=SegmentationHead3D(num_convs=0, num_classes=2),\n",
+                "              norm_activation=common.NormActivation(\n",
+                "                  activation='relu', use_sync_bn=False)),\n",
+                "          train_data=DataConfig(\n",
+                "              input_path='train.tfrecord',\n",
+                "              num_classes=2,\n",
+                "              input_size=[32, 32, 32],\n",
+                "              num_channels=2,\n",
+                "              is_training=True,\n",
+                "              global_batch_size=train_batch_size),\n",
+                "          validation_data=DataConfig(\n",
+                "              input_path='val.tfrecord',\n",
+                "              num_classes=2,\n",
+                "              input_size=[32, 32, 32],\n",
+                "              num_channels=2,\n",
+                "              is_training=False,\n",
+                "              global_batch_size=eval_batch_size),\n",
+                "          losses=Losses(loss_type='adaptive')),\n",
+                "      trainer=cfg.TrainerConfig(\n",
+                "          steps_per_loop=steps_per_epoch,\n",
+                "          summary_interval=steps_per_epoch,\n",
+                "          checkpoint_interval=steps_per_epoch,\n",
+                "          train_steps=10,\n",
+                "          validation_steps=10,\n",
+                "          validation_interval=steps_per_epoch,\n",
+                "          optimizer_config=optimization.OptimizationConfig({\n",
+                "              'optimizer': {\n",
+                "                  'type': 'sgd',\n",
+                "              },\n",
+                "              'learning_rate': {\n",
+                "                  'type': 'constant',\n",
+                "                  'constant': {\n",
+                "                      'learning_rate': 0.000001\n",
+                "                  }\n",
+                "              }\n",
+                "          })),\n",
+                "      restrictions=[\n",
+                "          'task.train_data.is_training != None',\n",
+                "          'task.validation_data.is_training != None'\n",
+                "      ])\n",
+                "\n",
+                "  return config"
+            ]
+        ],
+        "official/vision/beta/projects/volumetric_models/modeling/factory.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "\"\"\"Factory methods to build models.\"\"\"\n",
+                "\n",
+                "# Import libraries\n",
+                "\n",
+                "import tensorflow as tf\n",
+                "\n",
+                "from official.modeling import hyperparams\n",
+                "from official.vision.beta.modeling import segmentation_model\n",
+                "from official.vision.beta.modeling.backbones import factory as backbone_factory\n",
+                "from official.vision.beta.projects.volumetric_models.modeling.decoders import factory as decoder_factory\n",
+                "from official.vision.beta.projects.volumetric_models.modeling.heads import segmentation_heads_3d\n",
+                "\n",
+                "\n",
+                "def build_segmentation_model_3d(\n",
+                "    input_specs: tf.keras.layers.InputSpec,\n",
+                "    model_config: hyperparams.Config,\n",
+                "    l2_regularizer: tf.keras.regularizers.Regularizer = None) -> tf.keras.Model:\n",
+                "  \"\"\"Builds Segmentation model.\"\"\"\n",
+                "  norm_activation_config = model_config.norm_activation\n",
+                "  backbone = backbone_factory.build_backbone(\n",
+                "      input_specs=input_specs,\n",
+                "      backbone_config=model_config.backbone,\n",
+                "      norm_activation_config=norm_activation_config,\n",
+                "      l2_regularizer=l2_regularizer)\n",
+                "\n",
+                "  decoder = decoder_factory.build_decoder(\n",
+                "      input_specs=backbone.output_specs,\n",
+                "      model_config=model_config,\n",
+                "      l2_regularizer=l2_regularizer)\n",
+                "\n",
+                "  head_config = model_config.head\n",
+                "\n",
+                "  head = segmentation_heads_3d.SegmentationHead3D(\n",
+                "      num_classes=model_config.num_classes,\n",
+                "      level=head_config.level,\n",
+                "      num_convs=head_config.num_convs,\n",
+                "      num_filters=head_config.num_filters,\n",
+                "      upsample_factor=head_config.upsample_factor,\n",
+                "      activation=norm_activation_config.activation,\n",
+                "      use_sync_bn=norm_activation_config.use_sync_bn,\n",
+                "      norm_momentum=norm_activation_config.norm_momentum,\n",
+                "      norm_epsilon=norm_activation_config.norm_epsilon,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "      use_batch_normalization=head_config.use_batch_normalization,\n"
+                ],
+                "parent_version_range": {
+                    "start": 56,
+                    "end": 56
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 57
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "build_segmentation_model_3d",
+                        "signature": "def build_segmentation_model_3d(\n    input_specs: tf.keras.layers.InputSpec,\n    model_config: hyperparams.Config,\n    l2_regularizer: tf.keras.regularizers.Regularizer = None)->tf.keras.Model:",
+                        "at_line": 27
+                    },
+                    {
+                        "type": "call",
+                        "name": "segmentation_heads_3d.SegmentationHead3D",
+                        "signature": "segmentation_heads_3d.SegmentationHead3D(\n      num_classes=model_config.num_classes,\n      level=head_config.level,\n      num_convs=head_config.num_convs,\n      num_filters=head_config.num_filters,\n      upsample_factor=head_config.upsample_factor,\n      activation=norm_activation_config.activation,\n      use_sync_bn=norm_activation_config.use_sync_bn,\n      norm_momentum=norm_activation_config.norm_momentum,\n      norm_epsilon=norm_activation_config.norm_epsilon,\n      kernel_regularizer=l2_regularizer,\n      output_logits=head_config.output_logits)",
+                        "at_line": 46,
+                        "argument": "norm_epsilon=..."
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/factory.py\nCode:\n         def build_segmentation_model_3d(\n    input_specs: tf.keras.layers.InputSpec,\n    model_config: hyperparams.Config,\n    l2_regularizer: tf.keras.regularizers.Regularizer = None)->tf.keras.Model:\n             ...\n             segmentation_heads_3d.SegmentationHead3D(\n      num_classes=model_config.num_classes,\n      level=head_config.level,\n      num_convs=head_config.num_convs,\n      num_filters=head_config.num_filters,\n      upsample_factor=head_config.upsample_factor,\n      activation=norm_activation_config.activation,\n      use_sync_bn=norm_activation_config.use_sync_bn,\n      norm_momentum=norm_activation_config.norm_momentum,\n      norm_epsilon=norm_activation_config.norm_epsilon,\n      kernel_regularizer=l2_regularizer,\n      output_logits=head_config.output_logits)\n                 ...\n53 53          use_sync_bn=norm_activation_config.use_sync_bn,\n54 54          norm_momentum=norm_activation_config.norm_momentum,\n55 55          norm_epsilon=norm_activation_config.norm_epsilon,\n   56  +       use_batch_normalization=head_config.use_batch_normalization,\n56 57          kernel_regularizer=l2_regularizer,\n57 58          output_logits=head_config.output_logits)\n58 59    \n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/factory.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "head_config",
+                    "use_batch_normalization"
+                ],
+                "prefix": [
+                    "      use_sync_bn=norm_activation_config.use_sync_bn,\n",
+                    "      norm_momentum=norm_activation_config.norm_momentum,\n",
+                    "      norm_epsilon=norm_activation_config.norm_epsilon,\n"
+                ],
+                "suffix": [
+                    "      kernel_regularizer=l2_regularizer,\n",
+                    "      output_logits=head_config.output_logits)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/factory.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "      kernel_regularizer=l2_regularizer,\n",
+                "      output_logits=head_config.output_logits)\n",
+                "\n",
+                "  model = segmentation_model.SegmentationModel(backbone, decoder, head)\n",
+                "  return model"
+            ]
+        ],
+        "official/vision/beta/projects/volumetric_models/modeling/factory_test.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "\"\"\"Tests for factory.py.\"\"\"\n",
+                "\n",
+                "from absl.testing import parameterized\n",
+                "import tensorflow as tf\n",
+                "\n",
+                "# pylint: disable=unused-import\n",
+                "from official.vision.beta.projects.volumetric_models.configs import semantic_segmentation_3d as exp_cfg\n",
+                "from official.vision.beta.projects.volumetric_models.modeling import backbones\n",
+                "from official.vision.beta.projects.volumetric_models.modeling import decoders\n",
+                "from official.vision.beta.projects.volumetric_models.modeling import factory\n",
+                "\n",
+                "\n",
+                "class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "  @parameterized.parameters(((128, 128, 128), 5e-5), ((64, 64, 64), None))\n",
+                    "  def test_unet3d_builder(self, input_size, weight_decay):\n"
+                ],
+                "after": [
+                    "  @parameterized.parameters(((128, 128, 128), 5e-5, True),\n",
+                    "                            ((64, 64, 64), None, False))\n",
+                    "  def test_unet3d_builder(self, input_size, weight_decay, use_bn):\n"
+                ],
+                "parent_version_range": {
+                    "start": 28,
+                    "end": 30
+                },
+                "child_version_range": {
+                    "start": 28,
+                    "end": 31
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationModelBuilderTest",
+                        "signature": "class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):",
+                        "at_line": 26
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/factory_test.py\nCode:\n25 25    \n26 26    class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):\n27 27    \n28     -   @parameterized.parameters(((128, 128, 128), 5e-5), ((64, 64, 64), None))\n29     -   def test_unet3d_builder(self, input_size, weight_decay):\n   28  +   @parameterized.parameters(((128, 128, 128), 5e-5, True),\n   29  +                             ((64, 64, 64), None, False))\n   30  +   def test_unet3d_builder(self, input_size, weight_decay, use_bn):\n30 31        num_classes = 3\n31 32        input_specs = tf.keras.layers.InputSpec(\n32 33            shape=[None, input_size[0], input_size[1], input_size[2], 3])\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/factory_test.py",
+                "identifiers_before": [
+                    "input_size",
+                    "parameterized",
+                    "parameters",
+                    "self",
+                    "test_unet3d_builder",
+                    "weight_decay"
+                ],
+                "identifiers_after": [
+                    "input_size",
+                    "parameterized",
+                    "parameters",
+                    "self",
+                    "test_unet3d_builder",
+                    "use_bn",
+                    "weight_decay"
+                ],
+                "prefix": [
+                    "\n",
+                    "class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    num_classes = 3\n",
+                    "    input_specs = tf.keras.layers.InputSpec(\n",
+                    "        shape=[None, input_size[0], input_size[1], input_size[2], 3])\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "use_bn",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 58
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/factory_test.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    num_classes = 3\n",
+                "    input_specs = tf.keras.layers.InputSpec(\n",
+                "        shape=[None, input_size[0], input_size[1], input_size[2], 3])\n",
+                "    model_config = exp_cfg.SemanticSegmentationModel3D(num_classes=num_classes)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    model_config.head.use_batch_normalization = use_bn\n"
+                ],
+                "parent_version_range": {
+                    "start": 34,
+                    "end": 34
+                },
+                "child_version_range": {
+                    "start": 35,
+                    "end": 36
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationModelBuilderTest",
+                        "signature": "class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_unet3d_builder",
+                        "signature": "def test_unet3d_builder(self, input_size, weight_decay):",
+                        "at_line": 29
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/factory_test.py\nCode:\n         class SegmentationModelBuilderTest(parameterized.TestCase, tf.test.TestCase):\n             ...\n             def test_unet3d_builder(self, input_size, weight_decay):\n                 ...\n31 32        input_specs = tf.keras.layers.InputSpec(\n32 33            shape=[None, input_size[0], input_size[1], input_size[2], 3])\n33 34        model_config = exp_cfg.SemanticSegmentationModel3D(num_classes=num_classes)\n   35  +     model_config.head.use_batch_normalization = use_bn\n34 36        l2_regularizer = (\n35 37            tf.keras.regularizers.l2(weight_decay) if weight_decay else None)\n36 38        model = factory.build_segmentation_model_3d(\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/factory_test.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "head",
+                    "model_config",
+                    "use_batch_normalization",
+                    "use_bn"
+                ],
+                "prefix": [
+                    "    input_specs = tf.keras.layers.InputSpec(\n",
+                    "        shape=[None, input_size[0], input_size[1], input_size[2], 3])\n",
+                    "    model_config = exp_cfg.SemanticSegmentationModel3D(num_classes=num_classes)\n"
+                ],
+                "suffix": [
+                    "    l2_regularizer = (\n",
+                    "        tf.keras.regularizers.l2(weight_decay) if weight_decay else None)\n",
+                    "    model = factory.build_segmentation_model_3d(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 45
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/factory_test.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "use_bn",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 48
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 54
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/factory_test.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    l2_regularizer = (\n",
+                "        tf.keras.regularizers.l2(weight_decay) if weight_decay else None)\n",
+                "    model = factory.build_segmentation_model_3d(\n",
+                "        input_specs=input_specs,\n",
+                "        model_config=model_config,\n",
+                "        l2_regularizer=l2_regularizer)\n",
+                "    self.assertIsInstance(\n",
+                "        model, tf.keras.Model,\n",
+                "        'Output should be a tf.keras.Model instance but got %s' % type(model))\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "  tf.test.main()"
+            ]
+        ],
+        "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "\"\"\"Segmentation heads.\"\"\"\n",
+                "\n",
+                "from typing import Any, Union, Sequence, Mapping\n",
+                "import tensorflow as tf\n",
+                "\n",
+                "from official.modeling import tf_utils\n",
+                "\n",
+                "\n",
+                "@tf.keras.utils.register_keras_serializable(package='Vision')\n",
+                "class SegmentationHead3D(tf.keras.layers.Layer):\n",
+                "  \"\"\"Segmentation head for 3D input.\"\"\"\n",
+                "\n",
+                "  def __init__(self,\n",
+                "               num_classes: int,\n",
+                "               level: Union[int, str],\n",
+                "               num_convs: int = 2,\n",
+                "               num_filters: int = 256,\n",
+                "               upsample_factor: int = 1,\n",
+                "               activation: str = 'relu',\n",
+                "               use_sync_bn: bool = False,\n",
+                "               norm_momentum: float = 0.99,\n",
+                "               norm_epsilon: float = 0.001,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "               use_batch_normalization: bool = False,\n"
+                ],
+                "parent_version_range": {
+                    "start": 36,
+                    "end": 36
+                },
+                "child_version_range": {
+                    "start": 36,
+                    "end": 37
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):",
+                        "at_line": 26
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n         class SegmentationHead3D(tf.keras.layers.Layer):\n             ...\n             def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):\n                 ...\n33 33                   use_sync_bn: bool = False,\n34 34                   norm_momentum: float = 0.99,\n35 35                   norm_epsilon: float = 0.001,\n   36  +                use_batch_normalization: bool = False,\n36 37                   kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n37 38                   bias_regularizer: tf.keras.regularizers.Regularizer = None,\n38 39                   output_logits: bool = True,\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bool",
+                    "use_batch_normalization"
+                ],
+                "prefix": [
+                    "               use_sync_bn: bool = False,\n",
+                    "               norm_momentum: float = 0.99,\n",
+                    "               norm_epsilon: float = 0.001,\n"
+                ],
+                "suffix": [
+                    "               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                    "               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                    "               output_logits: bool = True,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                "               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                "               output_logits: bool = True,\n",
+                "               **kwargs):\n",
+                "    \"\"\"Initialize params to build segmentation head.\n",
+                "\n",
+                "    Args:\n",
+                "      num_classes: `int` number of mask classification categories. The number of\n",
+                "        classes does not include background class.\n",
+                "      level: `int` or `str`, level to use to build segmentation head.\n",
+                "      num_convs: `int` number of stacked convolution before the last prediction\n",
+                "        layer.\n",
+                "      num_filters: `int` number to specify the number of filters used. Default\n",
+                "        is 256.\n",
+                "      upsample_factor: `int` number to specify the upsampling factor to generate\n",
+                "        finer mask. Default 1 means no upsampling is applied.\n",
+                "      activation: `string`, indicating which activation is used, e.g. 'relu',\n",
+                "        'swish', etc.\n",
+                "      use_sync_bn: `bool`, whether to use synchronized batch normalization\n",
+                "        across different replicas.\n",
+                "      norm_momentum: `float`, the momentum parameter of the normalization\n",
+                "        layers.\n",
+                "      norm_epsilon: `float`, the epsilon parameter of the normalization layers.\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "      use_batch_normalization: A bool of whether to use batch normalization or\n",
+                    "        not.\n"
+                ],
+                "parent_version_range": {
+                    "start": 59,
+                    "end": 59
+                },
+                "child_version_range": {
+                    "start": 60,
+                    "end": 62
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):",
+                        "at_line": 26
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n         class SegmentationHead3D(tf.keras.layers.Layer):\n             ...\n             def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):\n                 ...\n56 57          norm_momentum: `float`, the momentum parameter of the normalization\n57 58            layers.\n58 59          norm_epsilon: `float`, the epsilon parameter of the normalization layers.\n   60  +       use_batch_normalization: A bool of whether to use batch normalization or\n   61  +         not.\n59 62          kernel_regularizer: `tf.keras.regularizers.Regularizer` object for layer\n60 63            kernel.\n61 64          bias_regularizer: `tf.keras.regularizers.Regularizer` object for bias.\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "A",
+                    "batch",
+                    "bool",
+                    "normalization",
+                    "of",
+                    "to",
+                    "use",
+                    "use_batch_normalization",
+                    "whether"
+                ],
+                "prefix": [
+                    "      norm_momentum: `float`, the momentum parameter of the normalization\n",
+                    "        layers.\n",
+                    "      norm_epsilon: `float`, the epsilon parameter of the normalization layers.\n"
+                ],
+                "suffix": [
+                    "      kernel_regularizer: `tf.keras.regularizers.Regularizer` object for layer\n",
+                    "        kernel.\n",
+                    "      bias_regularizer: `tf.keras.regularizers.Regularizer` object for bias.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "      kernel_regularizer: `tf.keras.regularizers.Regularizer` object for layer\n",
+                "        kernel.\n",
+                "      bias_regularizer: `tf.keras.regularizers.Regularizer` object for bias.\n",
+                "      output_logits: A `bool` of whether to output logits or not. Default\n",
+                "        is True. If set to False, output softmax.\n",
+                "      **kwargs: other keyword arguments passed to Layer.\n",
+                "    \"\"\"\n",
+                "    super(SegmentationHead3D, self).__init__(**kwargs)\n",
+                "\n",
+                "    self._config_dict = {\n",
+                "        'num_classes': num_classes,\n",
+                "        'level': level,\n",
+                "        'num_convs': num_convs,\n",
+                "        'num_filters': num_filters,\n",
+                "        'upsample_factor': upsample_factor,\n",
+                "        'activation': activation,\n",
+                "        'use_sync_bn': use_sync_bn,\n",
+                "        'norm_momentum': norm_momentum,\n",
+                "        'norm_epsilon': norm_epsilon,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        'use_batch_normalization': use_batch_normalization,\n"
+                ],
+                "parent_version_range": {
+                    "start": 78,
+                    "end": 78
+                },
+                "child_version_range": {
+                    "start": 81,
+                    "end": 82
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):",
+                        "at_line": 26
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n         class SegmentationHead3D(tf.keras.layers.Layer):\n             ...\n             def __init__(self,\n               num_classes: int,\n               level: Union[int, str],\n               num_convs: int = 2,\n               num_filters: int = 256,\n               upsample_factor: int = 1,\n               activation: str = 'relu',\n               use_sync_bn: bool = False,\n               norm_momentum: float = 0.99,\n               norm_epsilon: float = 0.001,\n               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n               output_logits: bool = True,\n               **kwargs):\n                 ...\n75 78            'use_sync_bn': use_sync_bn,\n76 79            'norm_momentum': norm_momentum,\n77 80            'norm_epsilon': norm_epsilon,\n   81  +         'use_batch_normalization': use_batch_normalization,\n78 82            'kernel_regularizer': kernel_regularizer,\n79 83            'bias_regularizer': bias_regularizer,\n80 84            'output_logits': output_logits\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "use_batch_normalization"
+                ],
+                "prefix": [
+                    "        'use_sync_bn': use_sync_bn,\n",
+                    "        'norm_momentum': norm_momentum,\n",
+                    "        'norm_epsilon': norm_epsilon,\n"
+                ],
+                "suffix": [
+                    "        'kernel_regularizer': kernel_regularizer,\n",
+                    "        'bias_regularizer': bias_regularizer,\n",
+                    "        'output_logits': output_logits\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 81,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 81,
+                                    "column": 58
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        'kernel_regularizer': kernel_regularizer,\n",
+                "        'bias_regularizer': bias_regularizer,\n",
+                "        'output_logits': output_logits\n",
+                "    }\n",
+                "    if tf.keras.backend.image_data_format() == 'channels_last':\n",
+                "      self._bn_axis = -1\n",
+                "    else:\n",
+                "      self._bn_axis = 1\n",
+                "    self._activation = tf_utils.get_activation(activation)\n",
+                "\n",
+                "  def build(self, input_shape: Union[tf.TensorShape, Sequence[tf.TensorShape]]):\n",
+                "    \"\"\"Creates the variables of the segmentation head.\"\"\"\n",
+                "    conv_op = tf.keras.layers.Conv3D\n",
+                "    conv_kwargs = {\n",
+                "        'kernel_size': (3, 3, 3),\n",
+                "        'padding': 'same',\n",
+                "        'use_bias': False,\n",
+                "        'kernel_initializer': tf.keras.initializers.RandomNormal(stddev=0.01),\n",
+                "        'kernel_regularizer': self._config_dict['kernel_regularizer'],\n",
+                "    }\n",
+                "    final_kernel_size = (1, 1, 1)\n",
+                "\n",
+                "    bn_op = (\n",
+                "        tf.keras.layers.experimental.SyncBatchNormalization\n",
+                "        if self._config_dict['use_sync_bn'] else\n",
+                "        tf.keras.layers.BatchNormalization)\n",
+                "    bn_kwargs = {\n",
+                "        'axis': self._bn_axis,\n",
+                "        'momentum': self._config_dict['norm_momentum'],\n",
+                "        'epsilon': self._config_dict['norm_epsilon'],\n",
+                "    }\n",
+                "\n",
+                "    # Segmentation head layers.\n",
+                "    self._convs = []\n",
+                "    self._norms = []\n",
+                "    for i in range(self._config_dict['num_convs']):\n",
+                "      conv_name = 'segmentation_head_conv_{}'.format(i)\n",
+                "      self._convs.append(\n",
+                "          conv_op(\n",
+                "              name=conv_name,\n",
+                "              filters=self._config_dict['num_filters'],\n",
+                "              **conv_kwargs))\n",
+                "      norm_name = 'segmentation_head_norm_{}'.format(i)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      self._norms.append(bn_op(name=norm_name, **bn_kwargs))\n"
+                ],
+                "after": [
+                    "      if self._config_dict['use_batch_normalization']:\n",
+                    "        self._norms.append(bn_op(name=norm_name, **bn_kwargs))\n"
+                ],
+                "parent_version_range": {
+                    "start": 121,
+                    "end": 122
+                },
+                "child_version_range": {
+                    "start": 125,
+                    "end": 127
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for i in range(self._config_dict['num_convs']):",
+                        "start_line": 113,
+                        "end_line": 121
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(self, input_shape: Union[tf.TensorShape, Sequence[tf.TensorShape]]):",
+                        "at_line": 88
+                    },
+                    {
+                        "type": "call",
+                        "name": "self._norms.append",
+                        "signature": "self._norms.append(bn_op(name=norm_name, **bn_kwargs))",
+                        "at_line": 121,
+                        "argument": "bn_op(name=norm_name, **bn_kwa..."
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n           class SegmentationHead3D(tf.keras.layers.Layer):\n               ...\n               def build(self, input_shape: Union[tf.TensorShape, Sequence[tf.TensorShape]]):\n                   ...\n118 122                  filters=self._config_dict['num_filters'],\n119 123                  **conv_kwargs))\n120 124          norm_name = 'segmentation_head_norm_{}'.format(i)\n121      -       self._norms.append(bn_op(name=norm_name, **bn_kwargs))\n    125  +       if self._config_dict['use_batch_normalization']:\n    126  +         self._norms.append(bn_op(name=norm_name, **bn_kwargs))\n122 127    \n123 128        self._classifier = conv_op(\n124 129            name='segmentation_output',\n         ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [
+                    "_norms",
+                    "append",
+                    "bn_kwargs",
+                    "bn_op",
+                    "name",
+                    "norm_name",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "_config_dict",
+                    "_norms",
+                    "append",
+                    "bn_kwargs",
+                    "bn_op",
+                    "name",
+                    "norm_name",
+                    "self"
+                ],
+                "prefix": [
+                    "              filters=self._config_dict['num_filters'],\n",
+                    "              **conv_kwargs))\n",
+                    "      norm_name = 'segmentation_head_norm_{}'.format(i)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    self._classifier = conv_op(\n",
+                    "        name='segmentation_output',\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    self._classifier = conv_op(\n",
+                "        name='segmentation_output',\n",
+                "        filters=self._config_dict['num_classes'],\n",
+                "        kernel_size=final_kernel_size,\n",
+                "        padding='valid',\n",
+                "        activation=None,\n",
+                "        bias_initializer=tf.zeros_initializer(),\n",
+                "        kernel_initializer=tf.keras.initializers.RandomNormal(stddev=0.01),\n",
+                "        kernel_regularizer=self._config_dict['kernel_regularizer'],\n",
+                "        bias_regularizer=self._config_dict['bias_regularizer'])\n",
+                "\n",
+                "    super(SegmentationHead3D, self).build(input_shape)\n",
+                "\n",
+                "  def call(self, backbone_output: Mapping[str, tf.Tensor],\n",
+                "           decoder_output: Mapping[str, tf.Tensor]) -> tf.Tensor:\n",
+                "    \"\"\"Forward pass of the segmentation head.\n",
+                "\n",
+                "    Args:\n",
+                "      backbone_output: a dict of tensors\n",
+                "        - key: `str`, the level of the multilevel features.\n",
+                "        - values: `Tensor`, the feature map tensors, whose shape is [batch,\n",
+                "          height_l, width_l, channels].\n",
+                "      decoder_output: a dict of tensors\n",
+                "        - key: `str`, the level of the multilevel features.\n",
+                "        - values: `Tensor`, the feature map tensors, whose shape is [batch,\n",
+                "          height_l, width_l, channels].\n",
+                "\n",
+                "    Returns:\n",
+                "      segmentation prediction mask: `Tensor`, the segmentation mask scores\n",
+                "        predicted from input feature.\n",
+                "    \"\"\"\n",
+                "    x = decoder_output[str(self._config_dict['level'])]\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    for conv, norm in zip(self._convs, self._norms):\n"
+                ],
+                "after": [
+                    "    for i, conv in enumerate(self._convs):\n"
+                ],
+                "parent_version_range": {
+                    "start": 156,
+                    "end": 157
+                },
+                "child_version_range": {
+                    "start": 161,
+                    "end": 162
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for conv, norm in zip(self._convs, self._norms):",
+                        "start_line": 156,
+                        "end_line": 159
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "call",
+                        "signature": "def call(self, backbone_output: Mapping[str, tf.Tensor],\n           decoder_output: Mapping[str, tf.Tensor])->tf.Tensor:",
+                        "at_line": 136
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n           class SegmentationHead3D(tf.keras.layers.Layer):\n               ...\n               def call(self, backbone_output: Mapping[str, tf.Tensor],\n           decoder_output: Mapping[str, tf.Tensor])->tf.Tensor:\n                   ...\n153 158        \"\"\"\n154 159        x = decoder_output[str(self._config_dict['level'])]\n155 160    \n156      -     for conv, norm in zip(self._convs, self._norms):\n    161  +     for i, conv in enumerate(self._convs):\n157 162          x = conv(x)\n         ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [
+                    "_convs",
+                    "_norms",
+                    "conv",
+                    "norm",
+                    "self",
+                    "zip"
+                ],
+                "identifiers_after": [
+                    "_convs",
+                    "conv",
+                    "enumerate",
+                    "i",
+                    "self"
+                ],
+                "prefix": [
+                    "    \"\"\"\n",
+                    "    x = decoder_output[str(self._config_dict['level'])]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "      x = conv(x)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "norm",
+                            "position": {
+                                "start": {
+                                    "line": 156,
+                                    "column": 14
+                                },
+                                "end": {
+                                    "line": 156,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "i",
+                            "position": {
+                                "start": {
+                                    "line": 161,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 161,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "      x = conv(x)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      x = norm(x)\n"
+                ],
+                "after": [
+                    "      if self._norms:\n",
+                    "        x = self._norms[i](x)\n"
+                ],
+                "parent_version_range": {
+                    "start": 158,
+                    "end": 159
+                },
+                "child_version_range": {
+                    "start": 163,
+                    "end": 165
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for conv, norm in zip(self._convs, self._norms):",
+                        "start_line": 156,
+                        "end_line": 159
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3D",
+                        "signature": "class SegmentationHead3D(tf.keras.layers.Layer):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "call",
+                        "signature": "def call(self, backbone_output: Mapping[str, tf.Tensor],\n           decoder_output: Mapping[str, tf.Tensor])->tf.Tensor:",
+                        "at_line": 136
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py\nCode:\n           class SegmentationHead3D(tf.keras.layers.Layer):\n               ...\n               def call(self, backbone_output: Mapping[str, tf.Tensor],\n           decoder_output: Mapping[str, tf.Tensor])->tf.Tensor:\n                   ...\n157 162          x = conv(x)\n158      -       x = norm(x)\n    163  +       if self._norms:\n    164  +         x = self._norms[i](x)\n159 165          x = self._activation(x)\n160 166    \n161 167        x = tf.keras.layers.UpSampling3D(size=self._config_dict['upsample_factor'])(\n         ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                "identifiers_before": [
+                    "norm",
+                    "x"
+                ],
+                "identifiers_after": [
+                    "_norms",
+                    "i",
+                    "self",
+                    "x"
+                ],
+                "prefix": [
+                    "      x = conv(x)\n"
+                ],
+                "suffix": [
+                    "      x = self._activation(x)\n",
+                    "\n",
+                    "    x = tf.keras.layers.UpSampling3D(size=self._config_dict['upsample_factor'])(\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "norm",
+                            "position": {
+                                "start": {
+                                    "line": 158,
+                                    "column": 10
+                                },
+                                "end": {
+                                    "line": 158,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "i",
+                            "position": {
+                                "start": {
+                                    "line": 164,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 164,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "      x = self._activation(x)\n",
+                "\n",
+                "    x = tf.keras.layers.UpSampling3D(size=self._config_dict['upsample_factor'])(\n",
+                "        x)\n",
+                "    x = self._classifier(x)\n",
+                "    return x if self._config_dict['output_logits'] else tf.keras.layers.Softmax(\n",
+                "        dtype='float32')(\n",
+                "            x)\n",
+                "\n",
+                "  def get_config(self) -> Mapping[str, Any]:\n",
+                "    return self._config_dict\n",
+                "\n",
+                "  @classmethod\n",
+                "  def from_config(cls, config: Mapping[str, Any]):\n",
+                "    return cls(**config)"
+            ]
+        ],
+        "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "# Lint as: python3\n",
+                "\"\"\"Tests for segmentation_heads.py.\"\"\"\n",
+                "\n",
+                "from absl.testing import parameterized\n",
+                "import numpy as np\n",
+                "import tensorflow as tf\n",
+                "\n",
+                "from official.vision.beta.projects.volumetric_models.modeling.heads import segmentation_heads_3d\n",
+                "\n",
+                "\n",
+                "class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):\n",
+                "\n",
+                "  @parameterized.parameters(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      (1, 0),\n",
+                    "      (2, 1),\n"
+                ],
+                "after": [
+                    "      (1, 0, True),\n",
+                    "      (2, 1, False),\n"
+                ],
+                "parent_version_range": {
+                    "start": 27,
+                    "end": 29
+                },
+                "child_version_range": {
+                    "start": 27,
+                    "end": 29
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3DTest",
+                        "signature": "class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "call",
+                        "name": "parameterized.parameters",
+                        "signature": "parameterized.parameters(\n      (1, 0),\n      (2, 1),\n  )",
+                        "at_line": 26,
+                        "argument": "(1, 0)"
+                    }
+                ],
+                "idx": 10,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py\nCode:\n24 24    class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):\n25 25    \n26 26      @parameterized.parameters(\n27     -       (1, 0),\n28     -       (2, 1),\n   27  +       (1, 0, True),\n   28  +       (2, 1, False),\n29 29      )\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                "identifiers_before": [],
+                "identifiers_after": [],
+                "prefix": [
+                    "class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):\n",
+                    "\n",
+                    "  @parameterized.parameters(\n"
+                ],
+                "suffix": [
+                    "  )\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "  )\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "  def test_forward(self, level, num_convs):\n"
+                ],
+                "after": [
+                    "  def test_forward(self, level, num_convs, use_bn):\n"
+                ],
+                "parent_version_range": {
+                    "start": 30,
+                    "end": 31
+                },
+                "child_version_range": {
+                    "start": 30,
+                    "end": 31
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3DTest",
+                        "signature": "class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_forward",
+                        "signature": "def test_forward(self, level, num_convs):",
+                        "at_line": 30
+                    }
+                ],
+                "idx": 11,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py\nCode:\n         class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):\n             ...\n29 29      )\n30     -   def test_forward(self, level, num_convs):\n   30  +   def test_forward(self, level, num_convs, use_bn):\n31 31        head = segmentation_heads_3d.SegmentationHead3D(\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                "identifiers_before": [
+                    "level",
+                    "num_convs",
+                    "self",
+                    "test_forward"
+                ],
+                "identifiers_after": [
+                    "level",
+                    "num_convs",
+                    "self",
+                    "test_forward",
+                    "use_bn"
+                ],
+                "prefix": [
+                    "  )\n"
+                ],
+                "suffix": [
+                    "    head = segmentation_heads_3d.SegmentationHead3D(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "level",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "num_convs",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "level",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "num_convs",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "use_bn",
+                            "position": {
+                                "start": {
+                                    "line": 30,
+                                    "column": 43
+                                },
+                                "end": {
+                                    "line": 30,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    head = segmentation_heads_3d.SegmentationHead3D(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        num_classes=10, level=level, num_convs=num_convs)\n"
+                ],
+                "after": [
+                    "        num_classes=10,\n",
+                    "        level=level,\n",
+                    "        num_convs=num_convs,\n",
+                    "        use_batch_normalization=use_bn)\n"
+                ],
+                "parent_version_range": {
+                    "start": 32,
+                    "end": 33
+                },
+                "child_version_range": {
+                    "start": 32,
+                    "end": 36
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SegmentationHead3DTest",
+                        "signature": "class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_forward",
+                        "signature": "def test_forward(self, level, num_convs):",
+                        "at_line": 30
+                    },
+                    {
+                        "type": "call",
+                        "name": "segmentation_heads_3d.SegmentationHead3D",
+                        "signature": "segmentation_heads_3d.SegmentationHead3D(\n        num_classes=10, level=level, num_convs=num_convs)",
+                        "at_line": 31,
+                        "argument": "num_classes=..."
+                    }
+                ],
+                "idx": 12,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py\nCode:\n         class SegmentationHead3DTest(parameterized.TestCase, tf.test.TestCase):\n             ...\n             def test_forward(self, level, num_convs):\n                 ...\n31 31        head = segmentation_heads_3d.SegmentationHead3D(\n32     -         num_classes=10, level=level, num_convs=num_convs)\n   32  +         num_classes=10,\n   33  +         level=level,\n   34  +         num_convs=num_convs,\n   35  +         use_batch_normalization=use_bn)\n33 36        backbone_features = {\n34 37            '1': np.random.rand(2, 128, 128, 128, 16),\n35 38            '2': np.random.rand(2, 64, 64, 64, 16),\n       ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                "identifiers_before": [
+                    "level",
+                    "num_classes",
+                    "num_convs"
+                ],
+                "identifiers_after": [
+                    "level",
+                    "num_classes",
+                    "num_convs",
+                    "use_batch_normalization",
+                    "use_bn"
+                ],
+                "prefix": [
+                    "    head = segmentation_heads_3d.SegmentationHead3D(\n"
+                ],
+                "suffix": [
+                    "    backbone_features = {\n",
+                    "        '1': np.random.rand(2, 128, 128, 128, 16),\n",
+                    "        '2': np.random.rand(2, 64, 64, 64, 16),\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "level",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "num_convs",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 56
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "use_batch_normalization",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "level",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 14
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "num_convs",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "use_bn",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/models/official/vision/beta/projects/volumetric_models/modeling/heads/segmentation_heads_3d_test.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    backbone_features = {\n",
+                "        '1': np.random.rand(2, 128, 128, 128, 16),\n",
+                "        '2': np.random.rand(2, 64, 64, 64, 16),\n",
+                "    }\n",
+                "    decoder_features = {\n",
+                "        '1': np.random.rand(2, 128, 128, 128, 16),\n",
+                "        '2': np.random.rand(2, 64, 64, 64, 16),\n",
+                "    }\n",
+                "    logits = head(backbone_features, decoder_features)\n",
+                "\n",
+                "    if str(level) in decoder_features:\n",
+                "      self.assertAllEqual(logits.numpy().shape, [\n",
+                "          2, decoder_features[str(level)].shape[1],\n",
+                "          decoder_features[str(level)].shape[2],\n",
+                "          decoder_features[str(level)].shape[3], 10\n",
+                "      ])\n",
+                "\n",
+                "  def test_serialize_deserialize(self):\n",
+                "    head = segmentation_heads_3d.SegmentationHead3D(num_classes=10, level=3)\n",
+                "    config = head.get_config()\n",
+                "    new_head = segmentation_heads_3d.SegmentationHead3D.from_config(config)\n",
+                "    self.assertAllEqual(head.get_config(), new_head.get_config())\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "  tf.test.main()"
+            ]
+        ],
+        "official/vision/beta/projects/volumetric_models/modeling/nn_blocks_3d.py": [
+            [
+                "# Copyright 2021 The TensorFlow Authors. All Rights Reserved.\n",
+                "#\n",
+                "# Licensed under the Apache License, Version 2.0 (the \"License\");\n",
+                "# you may not use this file except in compliance with the License.\n",
+                "# You may obtain a copy of the License at\n",
+                "#\n",
+                "#     http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing, software\n",
+                "# distributed under the License is distributed on an \"AS IS\" BASIS,\n",
+                "# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n",
+                "# See the License for the specific language governing permissions and\n",
+                "# limitations under the License.\n",
+                "\n",
+                "\"\"\"Contains common building blocks for neural networks.\"\"\"\n",
+                "\n",
+                "from typing import Sequence, Union\n",
+                "\n",
+                "# Import libraries\n",
+                "import tensorflow as tf\n",
+                "\n",
+                "from official.modeling import tf_utils\n",
+                "from official.vision.beta.modeling.layers import nn_layers\n",
+                "\n",
+                "\n",
+                "@tf.keras.utils.register_keras_serializable(package='Vision')\n",
+                "class BasicBlock3DVolume(tf.keras.layers.Layer):\n",
+                "  \"\"\"A basic 3d convolution block.\"\"\"\n",
+                "\n",
+                "  def __init__(self,\n",
+                "               filters: Union[int, Sequence[int]],\n",
+                "               strides: Union[int, Sequence[int]],\n",
+                "               kernel_size: Union[int, Sequence[int]],\n",
+                "               kernel_initializer: str = 'VarianceScaling',\n",
+                "               kernel_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                "               bias_regularizer: tf.keras.regularizers.Regularizer = None,\n",
+                "               activation: str = 'relu',\n",
+                "               use_sync_bn: bool = False,\n",
+                "               norm_momentum: float = 0.99,\n",
+                "               norm_epsilon: float = 0.001,\n",
+                "               use_batch_normalization: bool = False,\n",
+                "               **kwargs):\n",
+                "    \"\"\"Creates a basic 3d convolution block applying one or more convolutions.\n",
+                "\n",
+                "    Args:\n",
+                "      filters: A list of `int` numbers or an `int` number of filters. Given an\n",
+                "        `int` input, a single convolution is applied; otherwise a series of\n",
+                "        convolutions are applied.\n",
+                "      strides: An integer or tuple/list of 3 integers, specifying the strides of\n",
+                "        the convolution along each spatial dimension. Can be a single integer to\n",
+                "        specify the same value for all spatial dimensions.\n",
+                "      kernel_size: An integer or tuple/list of 3 integers, specifying the depth,\n",
+                "        height and width of the 3D convolution window. Can be a single integer\n",
+                "        to specify the same value for all spatial dimensions.\n",
+                "      kernel_initializer: kernel_initializer for convolutional layers.\n",
+                "      kernel_regularizer: tf.keras.regularizers.Regularizer object for Conv2D.\n",
+                "        Default to None.\n",
+                "      bias_regularizer: tf.keras.regularizers.Regularizer object for Conv2d.\n",
+                "        Default to None.\n",
+                "      activation: `str` name of the activation function.\n",
+                "      use_sync_bn: if True, use synchronized batch normalization.\n",
+                "      norm_momentum: `float` normalization omentum for the moving average.\n",
+                "      norm_epsilon: `float` small float added to variance to avoid dividing by\n",
+                "        zero.\n",
+                "      use_batch_normalization: Wheher to use batch normalizaion or not.\n",
+                "      **kwargs: keyword arguments to be passed.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    super().__init__(**kwargs)\n",
+                "\n",
+                "    if isinstance(filters, int):\n",
+                "      self._filters = [filters]\n",
+                "    else:\n",
+                "      self._filters = filters\n",
+                "    self._strides = strides\n",
+                "    self._kernel_size = kernel_size\n",
+                "    self._kernel_initializer = kernel_initializer\n",
+                "    self._kernel_regularizer = kernel_regularizer\n",
+                "    self._bias_regularizer = bias_regularizer\n",
+                "    self._activation = activation\n",
+                "    self._use_sync_bn = use_sync_bn\n",
+                "    self._norm_momentum = norm_momentum\n",
+                "    self._norm_epsilon = norm_epsilon\n",
+                "    self._use_batch_normalization = use_batch_normalization\n",
+                "\n",
+                "    if use_sync_bn:\n",
+                "      self._norm = tf.keras.layers.experimental.SyncBatchNormalization\n",
+                "    else:\n",
+                "      self._norm = tf.keras.layers.BatchNormalization\n",
+                "    if tf.keras.backend.image_data_format() == 'channels_last':\n",
+                "      self._bn_axis = -1\n",
+                "    else:\n",
+                "      self._bn_axis = 1\n",
+                "    self._activation_fn = tf_utils.get_activation(activation)\n",
+                "\n",
+                "  def build(self, input_shape: tf.TensorShape):\n",
+                "    \"\"\"Builds the basic 3d convolution block.\"\"\"\n",
+                "    self._convs = []\n",
+                "    self._norms = []\n",
+                "    for filters in self._filters:\n",
+                "      self._convs.append(\n",
+                "          tf.keras.layers.Conv3D(\n",
+                "              filters=filters,\n",
+                "              kernel_size=self._kernel_size,\n",
+                "              strides=self._strides,\n",
+                "              padding='same',\n",
+                "              data_format=tf.keras.backend.image_data_format(),\n",
+                "              activation=None))\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "      self._norms.append(self._norm(axis=self._bn_axis))\n"
+                ],
+                "after": [
+                    "      self._norms.append(\n",
+                    "          self._norm(\n",
+                    "              axis=self._bn_axis,\n",
+                    "              momentum=self._norm_momentum,\n",
+                    "              epsilon=self._norm_epsilon))\n"
+                ],
+                "parent_version_range": {
+                    "start": 108,
+                    "end": 109
+                },
+                "child_version_range": {
+                    "start": 108,
+                    "end": 113
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for filters in self._filters:",
+                        "start_line": 99,
+                        "end_line": 108
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "BasicBlock3DVolume",
+                        "signature": "class BasicBlock3DVolume(tf.keras.layers.Layer):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "function",
+                        "name": "build",
+                        "signature": "def build(self, input_shape: tf.TensorShape):",
+                        "at_line": 95
+                    },
+                    {
+                        "type": "call",
+                        "name": "self._norms.append",
+                        "signature": "self._norms.append(self._norm(axis=self._bn_axis))",
+                        "at_line": 108,
+                        "argument": "self._norm(axis=self._bn_axis)"
+                    }
+                ],
+                "idx": 13,
+                "hunk_diff": "File: official/vision/beta/projects/volumetric_models/modeling/nn_blocks_3d.py\nCode:\n           class BasicBlock3DVolume(tf.keras.layers.Layer):\n               ...\n               def build(self, input_shape: tf.TensorShape):\n                   ...\n105 105                  padding='same',\n106 106                  data_format=tf.keras.backend.image_data_format(),\n107 107                  activation=None))\n108      -       self._norms.append(self._norm(axis=self._bn_axis))\n    108  +       self._norms.append(\n    109  +           self._norm(\n    110  +               axis=self._bn_axis,\n    111  +               momentum=self._norm_momentum,\n    112  +               epsilon=self._norm_epsilon))\n109 113    \n110 114        super(BasicBlock3DVolume, self).build(input_shape)\n111 115    \n         ...\n",
+                "file_path": "official/vision/beta/projects/volumetric_models/modeling/nn_blocks_3d.py",
+                "identifiers_before": [
+                    "_bn_axis",
+                    "_norm",
+                    "_norms",
+                    "append",
+                    "axis",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "_bn_axis",
+                    "_norm",
+                    "_norm_epsilon",
+                    "_norm_momentum",
+                    "_norms",
+                    "append",
+                    "axis",
+                    "epsilon",
+                    "momentum",
+                    "self"
+                ],
+                "prefix": [
+                    "              padding='same',\n",
+                    "              data_format=tf.keras.backend.image_data_format(),\n",
+                    "              activation=None))\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    super(BasicBlock3DVolume, self).build(input_shape)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    super(BasicBlock3DVolume, self).build(input_shape)\n",
+                "\n",
+                "  def get_config(self):\n",
+                "    \"\"\"Returns the config of the basic 3d convolution block.\"\"\"\n",
+                "    config = {\n",
+                "        'filters': self._filters,\n",
+                "        'strides': self._strides,\n",
+                "        'kernel_size': self._kernel_size,\n",
+                "        'kernel_initializer': self._kernel_initializer,\n",
+                "        'kernel_regularizer': self._kernel_regularizer,\n",
+                "        'bias_regularizer': self._bias_regularizer,\n",
+                "        'activation': self._activation,\n",
+                "        'use_sync_bn': self._use_sync_bn,\n",
+                "        'norm_momentum': self._norm_momentum,\n",
+                "        'norm_epsilon': self._norm_epsilon,\n",
+                "        'use_batch_normalization': self._use_batch_normalization\n",
+                "    }\n",
+                "    base_config = super(BasicBlock3DVolume, self).get_config()\n",
+                "    return dict(list(base_config.items()) + list(config.items()))\n",
+                "\n",
+                "  def call(self, inputs: tf.Tensor, training: bool = None) -> tf.Tensor:\n",
+                "    \"\"\"Runs forward pass on the input tensor.\"\"\"\n",
+                "    x = inputs\n",
+                "    for conv, norm in zip(self._convs, self._norms):\n",
+                "      x = conv(x)\n",
+                "      if self._use_batch_normalization:\n",
+                "        x = norm(x)\n",
+                "      x = self._activation_fn(x)\n",
+                "    return x\n",
+                "\n",
+                "\n",
+                "@tf.keras.utils.register_keras_serializable(package='Vision')\n",
+                "class ResidualBlock3DVolume(tf.keras.layers.Layer):\n",
+                "  \"\"\"A residual 3d block.\"\"\"\n",
+                "\n",
+                "  def __init__(self,\n",
+                "               filters,\n",
+                "               strides,\n",
+                "               use_projection=False,\n",
+                "               se_ratio=None,\n",
+                "               stochastic_depth_drop_rate=None,\n",
+                "               kernel_initializer='VarianceScaling',\n",
+                "               kernel_regularizer=None,\n",
+                "               bias_regularizer=None,\n",
+                "               activation='relu',\n",
+                "               use_sync_bn=False,\n",
+                "               norm_momentum=0.99,\n",
+                "               norm_epsilon=0.001,\n",
+                "               **kwargs):\n",
+                "    \"\"\"A residual 3d block with BN after convolutions.\n",
+                "\n",
+                "    Args:\n",
+                "      filters: `int` number of filters for the first two convolutions. Note that\n",
+                "        the third and final convolution will use 4 times as many filters.\n",
+                "      strides: `int` block stride. If greater than 1, this block will ultimately\n",
+                "        downsample the input.\n",
+                "      use_projection: `bool` for whether this block should use a projection\n",
+                "        shortcut (versus the default identity shortcut). This is usually `True`\n",
+                "        for the first block of a block group, which may change the number of\n",
+                "        filters and the resolution.\n",
+                "      se_ratio: `float` or None. Ratio of the Squeeze-and-Excitation layer.\n",
+                "      stochastic_depth_drop_rate: `float` or None. if not None, drop rate for\n",
+                "        the stochastic depth layer.\n",
+                "      kernel_initializer: kernel_initializer for convolutional layers.\n",
+                "      kernel_regularizer: tf.keras.regularizers.Regularizer object for Conv2D.\n",
+                "        Default to None.\n",
+                "      bias_regularizer: tf.keras.regularizers.Regularizer object for Conv2d.\n",
+                "        Default to None.\n",
+                "      activation: `str` name of the activation function.\n",
+                "      use_sync_bn: if True, use synchronized batch normalization.\n",
+                "      norm_momentum: `float` normalization omentum for the moving average.\n",
+                "      norm_epsilon: `float` small float added to variance to avoid dividing by\n",
+                "        zero.\n",
+                "      **kwargs: keyword arguments to be passed.\n",
+                "    \"\"\"\n",
+                "    super().__init__(**kwargs)\n",
+                "\n",
+                "    self._filters = filters\n",
+                "    self._strides = strides\n",
+                "    self._use_projection = use_projection\n",
+                "    self._se_ratio = se_ratio\n",
+                "    self._use_sync_bn = use_sync_bn\n",
+                "    self._activation = activation\n",
+                "    self._stochastic_depth_drop_rate = stochastic_depth_drop_rate\n",
+                "    self._kernel_initializer = kernel_initializer\n",
+                "    self._norm_momentum = norm_momentum\n",
+                "    self._norm_epsilon = norm_epsilon\n",
+                "    self._kernel_regularizer = kernel_regularizer\n",
+                "    self._bias_regularizer = bias_regularizer\n",
+                "\n",
+                "    if use_sync_bn:\n",
+                "      self._norm = tf.keras.layers.experimental.SyncBatchNormalization\n",
+                "    else:\n",
+                "      self._norm = tf.keras.layers.BatchNormalization\n",
+                "    if tf.keras.backend.image_data_format() == 'channels_last':\n",
+                "      self._bn_axis = -1\n",
+                "    else:\n",
+                "      self._bn_axis = 1\n",
+                "    self._activation_fn = tf_utils.get_activation(activation)\n",
+                "\n",
+                "  def build(self, input_shape):\n",
+                "    if self._use_projection:\n",
+                "      self._shortcut = tf.keras.layers.Conv3D(\n",
+                "          filters=self._filters,\n",
+                "          kernel_size=1,\n",
+                "          strides=self._strides,\n",
+                "          use_bias=False,\n",
+                "          kernel_initializer=self._kernel_initializer,\n",
+                "          kernel_regularizer=self._kernel_regularizer,\n",
+                "          bias_regularizer=self._bias_regularizer)\n",
+                "      self._norm0 = self._norm(\n",
+                "          axis=self._bn_axis,\n",
+                "          momentum=self._norm_momentum,\n",
+                "          epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    self._conv1 = tf.keras.layers.Conv3D(\n",
+                "        filters=self._filters,\n",
+                "        kernel_size=3,\n",
+                "        strides=self._strides,\n",
+                "        padding='same',\n",
+                "        use_bias=False,\n",
+                "        kernel_initializer=self._kernel_initializer,\n",
+                "        kernel_regularizer=self._kernel_regularizer,\n",
+                "        bias_regularizer=self._bias_regularizer)\n",
+                "    self._norm1 = self._norm(\n",
+                "        axis=self._bn_axis,\n",
+                "        momentum=self._norm_momentum,\n",
+                "        epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    self._conv2 = tf.keras.layers.Conv3D(\n",
+                "        filters=self._filters,\n",
+                "        kernel_size=3,\n",
+                "        strides=1,\n",
+                "        padding='same',\n",
+                "        use_bias=False,\n",
+                "        kernel_initializer=self._kernel_initializer,\n",
+                "        kernel_regularizer=self._kernel_regularizer,\n",
+                "        bias_regularizer=self._bias_regularizer)\n",
+                "    self._norm2 = self._norm(\n",
+                "        axis=self._bn_axis,\n",
+                "        momentum=self._norm_momentum,\n",
+                "        epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    if self._se_ratio and self._se_ratio > 0 and self._se_ratio <= 1:\n",
+                "      self._squeeze_excitation = nn_layers.SqueezeExcitation(\n",
+                "          in_filters=self._filters,\n",
+                "          out_filters=self._filters,\n",
+                "          se_ratio=self._se_ratio,\n",
+                "          use_3d_input=True,\n",
+                "          kernel_initializer=self._kernel_initializer,\n",
+                "          kernel_regularizer=self._kernel_regularizer,\n",
+                "          bias_regularizer=self._bias_regularizer)\n",
+                "    else:\n",
+                "      self._squeeze_excitation = None\n",
+                "\n",
+                "    if self._stochastic_depth_drop_rate:\n",
+                "      self._stochastic_depth = nn_layers.StochasticDepth(\n",
+                "          self._stochastic_depth_drop_rate)\n",
+                "    else:\n",
+                "      self._stochastic_depth = None\n",
+                "\n",
+                "    super(ResidualBlock3DVolume, self).build(input_shape)\n",
+                "\n",
+                "  def get_config(self):\n",
+                "    config = {\n",
+                "        'filters': self._filters,\n",
+                "        'strides': self._strides,\n",
+                "        'use_projection': self._use_projection,\n",
+                "        'se_ratio': self._se_ratio,\n",
+                "        'stochastic_depth_drop_rate': self._stochastic_depth_drop_rate,\n",
+                "        'kernel_initializer': self._kernel_initializer,\n",
+                "        'kernel_regularizer': self._kernel_regularizer,\n",
+                "        'bias_regularizer': self._bias_regularizer,\n",
+                "        'activation': self._activation,\n",
+                "        'use_sync_bn': self._use_sync_bn,\n",
+                "        'norm_momentum': self._norm_momentum,\n",
+                "        'norm_epsilon': self._norm_epsilon\n",
+                "    }\n",
+                "    base_config = super(ResidualBlock3DVolume, self).get_config()\n",
+                "    return dict(list(base_config.items()) + list(config.items()))\n",
+                "\n",
+                "  def call(self, inputs, training=None):\n",
+                "    shortcut = inputs\n",
+                "    if self._use_projection:\n",
+                "      shortcut = self._shortcut(shortcut)\n",
+                "      shortcut = self._norm0(shortcut)\n",
+                "\n",
+                "    x = self._conv1(inputs)\n",
+                "    x = self._norm1(x)\n",
+                "    x = self._activation_fn(x)\n",
+                "\n",
+                "    x = self._conv2(x)\n",
+                "    x = self._norm2(x)\n",
+                "\n",
+                "    if self._squeeze_excitation:\n",
+                "      x = self._squeeze_excitation(x)\n",
+                "\n",
+                "    if self._stochastic_depth:\n",
+                "      x = self._stochastic_depth(x, training=training)\n",
+                "\n",
+                "    return self._activation_fn(x + shortcut)\n",
+                "\n",
+                "\n",
+                "@tf.keras.utils.register_keras_serializable(package='Vision')\n",
+                "class BottleneckBlock3DVolume(tf.keras.layers.Layer):\n",
+                "  \"\"\"A standard bottleneck block.\"\"\"\n",
+                "\n",
+                "  def __init__(self,\n",
+                "               filters,\n",
+                "               strides,\n",
+                "               dilation_rate=1,\n",
+                "               use_projection=False,\n",
+                "               se_ratio=None,\n",
+                "               stochastic_depth_drop_rate=None,\n",
+                "               kernel_initializer='VarianceScaling',\n",
+                "               kernel_regularizer=None,\n",
+                "               bias_regularizer=None,\n",
+                "               activation='relu',\n",
+                "               use_sync_bn=False,\n",
+                "               norm_momentum=0.99,\n",
+                "               norm_epsilon=0.001,\n",
+                "               **kwargs):\n",
+                "    \"\"\"A standard bottleneck 3d block with BN after convolutions.\n",
+                "\n",
+                "    Args:\n",
+                "      filters: `int` number of filters for the first two convolutions. Note that\n",
+                "        the third and final convolution will use 4 times as many filters.\n",
+                "      strides: `int` block stride. If greater than 1, this block will ultimately\n",
+                "        downsample the input.\n",
+                "      dilation_rate: `int` dilation_rate of convolutions. Default to 1.\n",
+                "      use_projection: `bool` for whether this block should use a projection\n",
+                "        shortcut (versus the default identity shortcut). This is usually `True`\n",
+                "        for the first block of a block group, which may change the number of\n",
+                "        filters and the resolution.\n",
+                "      se_ratio: `float` or None. Ratio of the Squeeze-and-Excitation layer.\n",
+                "      stochastic_depth_drop_rate: `float` or None. if not None, drop rate for\n",
+                "        the stochastic depth layer.\n",
+                "      kernel_initializer: kernel_initializer for convolutional layers.\n",
+                "      kernel_regularizer: tf.keras.regularizers.Regularizer object for Conv2D.\n",
+                "        Default to None.\n",
+                "      bias_regularizer: tf.keras.regularizers.Regularizer object for Conv2d.\n",
+                "        Default to None.\n",
+                "      activation: `str` name of the activation function.\n",
+                "      use_sync_bn: if True, use synchronized batch normalization.\n",
+                "      norm_momentum: `float` normalization omentum for the moving average.\n",
+                "      norm_epsilon: `float` small float added to variance to avoid dividing by\n",
+                "        zero.\n",
+                "      **kwargs: keyword arguments to be passed.\n",
+                "    \"\"\"\n",
+                "    super().__init__(**kwargs)\n",
+                "\n",
+                "    self._filters = filters\n",
+                "    self._strides = strides\n",
+                "    self._dilation_rate = dilation_rate\n",
+                "    self._use_projection = use_projection\n",
+                "    self._se_ratio = se_ratio\n",
+                "    self._use_sync_bn = use_sync_bn\n",
+                "    self._activation = activation\n",
+                "    self._stochastic_depth_drop_rate = stochastic_depth_drop_rate\n",
+                "    self._kernel_initializer = kernel_initializer\n",
+                "    self._norm_momentum = norm_momentum\n",
+                "    self._norm_epsilon = norm_epsilon\n",
+                "    self._kernel_regularizer = kernel_regularizer\n",
+                "    self._bias_regularizer = bias_regularizer\n",
+                "    if use_sync_bn:\n",
+                "      self._norm = tf.keras.layers.experimental.SyncBatchNormalization\n",
+                "    else:\n",
+                "      self._norm = tf.keras.layers.BatchNormalization\n",
+                "    if tf.keras.backend.image_data_format() == 'channels_last':\n",
+                "      self._bn_axis = -1\n",
+                "    else:\n",
+                "      self._bn_axis = 1\n",
+                "    self._activation_fn = tf_utils.get_activation(activation)\n",
+                "\n",
+                "  def build(self, input_shape):\n",
+                "    if self._use_projection:\n",
+                "      self._shortcut = tf.keras.layers.Conv3D(\n",
+                "          filters=self._filters * 4,\n",
+                "          kernel_size=1,\n",
+                "          strides=self._strides,\n",
+                "          use_bias=False,\n",
+                "          kernel_initializer=self._kernel_initializer,\n",
+                "          kernel_regularizer=self._kernel_regularizer,\n",
+                "          bias_regularizer=self._bias_regularizer)\n",
+                "      self._norm0 = self._norm(\n",
+                "          axis=self._bn_axis,\n",
+                "          momentum=self._norm_momentum,\n",
+                "          epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    self._conv1 = tf.keras.layers.Conv3D(\n",
+                "        filters=self._filters,\n",
+                "        kernel_size=1,\n",
+                "        strides=1,\n",
+                "        use_bias=False,\n",
+                "        kernel_initializer=self._kernel_initializer,\n",
+                "        kernel_regularizer=self._kernel_regularizer,\n",
+                "        bias_regularizer=self._bias_regularizer)\n",
+                "    self._norm1 = self._norm(\n",
+                "        axis=self._bn_axis,\n",
+                "        momentum=self._norm_momentum,\n",
+                "        epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    self._conv2 = tf.keras.layers.Conv3D(\n",
+                "        filters=self._filters,\n",
+                "        kernel_size=3,\n",
+                "        strides=self._strides,\n",
+                "        dilation_rate=self._dilation_rate,\n",
+                "        padding='same',\n",
+                "        use_bias=False,\n",
+                "        kernel_initializer=self._kernel_initializer,\n",
+                "        kernel_regularizer=self._kernel_regularizer,\n",
+                "        bias_regularizer=self._bias_regularizer)\n",
+                "    self._norm2 = self._norm(\n",
+                "        axis=self._bn_axis,\n",
+                "        momentum=self._norm_momentum,\n",
+                "        epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    self._conv3 = tf.keras.layers.Conv3D(\n",
+                "        filters=self._filters * 4,\n",
+                "        kernel_size=1,\n",
+                "        strides=1,\n",
+                "        use_bias=False,\n",
+                "        kernel_initializer=self._kernel_initializer,\n",
+                "        kernel_regularizer=self._kernel_regularizer,\n",
+                "        bias_regularizer=self._bias_regularizer)\n",
+                "    self._norm3 = self._norm(\n",
+                "        axis=self._bn_axis,\n",
+                "        momentum=self._norm_momentum,\n",
+                "        epsilon=self._norm_epsilon)\n",
+                "\n",
+                "    if self._se_ratio and self._se_ratio > 0 and self._se_ratio <= 1:\n",
+                "      self._squeeze_excitation = nn_layers.SqueezeExcitation(\n",
+                "          in_filters=self._filters * 4,\n",
+                "          out_filters=self._filters * 4,\n",
+                "          se_ratio=self._se_ratio,\n",
+                "          use_3d_input=True,\n",
+                "          kernel_initializer=self._kernel_initializer,\n",
+                "          kernel_regularizer=self._kernel_regularizer,\n",
+                "          bias_regularizer=self._bias_regularizer)\n",
+                "    else:\n",
+                "      self._squeeze_excitation = None\n",
+                "\n",
+                "    if self._stochastic_depth_drop_rate:\n",
+                "      self._stochastic_depth = nn_layers.StochasticDepth(\n",
+                "          self._stochastic_depth_drop_rate)\n",
+                "    else:\n",
+                "      self._stochastic_depth = None\n",
+                "\n",
+                "    super(BottleneckBlock3DVolume, self).build(input_shape)\n",
+                "\n",
+                "  def get_config(self):\n",
+                "    config = {\n",
+                "        'filters': self._filters,\n",
+                "        'strides': self._strides,\n",
+                "        'dilation_rate': self._dilation_rate,\n",
+                "        'use_projection': self._use_projection,\n",
+                "        'se_ratio': self._se_ratio,\n",
+                "        'stochastic_depth_drop_rate': self._stochastic_depth_drop_rate,\n",
+                "        'kernel_initializer': self._kernel_initializer,\n",
+                "        'kernel_regularizer': self._kernel_regularizer,\n",
+                "        'bias_regularizer': self._bias_regularizer,\n",
+                "        'activation': self._activation,\n",
+                "        'use_sync_bn': self._use_sync_bn,\n",
+                "        'norm_momentum': self._norm_momentum,\n",
+                "        'norm_epsilon': self._norm_epsilon\n",
+                "    }\n",
+                "    base_config = super(BottleneckBlock3DVolume, self).get_config()\n",
+                "    return dict(list(base_config.items()) + list(config.items()))\n",
+                "\n",
+                "  def call(self, inputs, training=None):\n",
+                "    shortcut = inputs\n",
+                "    if self._use_projection:\n",
+                "      shortcut = self._shortcut(shortcut)\n",
+                "      shortcut = self._norm0(shortcut)\n",
+                "\n",
+                "    x = self._conv1(inputs)\n",
+                "    x = self._norm1(x)\n",
+                "    x = self._activation_fn(x)\n",
+                "\n",
+                "    x = self._conv2(x)\n",
+                "    x = self._norm2(x)\n",
+                "    x = self._activation_fn(x)\n",
+                "\n",
+                "    x = self._conv3(x)\n",
+                "    x = self._norm3(x)\n",
+                "\n",
+                "    if self._squeeze_excitation:\n",
+                "      x = self._squeeze_excitation(x)\n",
+                "\n",
+                "    if self._stochastic_depth:\n",
+                "      x = self._stochastic_depth(x, training=training)\n",
+                "\n",
+                "    return self._activation_fn(x + shortcut)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "config def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "config def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same action"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "semantic sync"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and implement"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                7
+            ],
+            "edit_order": "no relation",
+            "reason": "self._config_dict in edit 7 is defined in edit 6, which is not directly related to edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "config def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and comment"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test parameter"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "doc and implement"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "logical dependency"
+        },
+        {
+            "edit_hunk_pair": [
+                10,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                10,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "test param def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                11,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'mails_sudo' within the same function '_action_send_statistics'. Edit 0 introduces the variable 'mails_sudo' by assigning it to 'self.env['mail.mail'].sudo()', and edit 1 uses this same variable by appending to it with '+=' and returning it. The changed lines in both edits directly reference the same symbol, creating an immediate code dependency where defining the variable in edit 0 makes it available for use in edit 1. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'mails_sudo' within the same function '_action_send_statistics'. Edit 0 introduces the variable 'mails_sudo' by assigning it to 'self.env['mail.mail'].sudo()', and edit 1 uses this same variable by appending to it with '+=' and returning it. The changed lines in both edits directly reference the same symbol, creating an immediate code dependency where defining the variable in edit 0 makes it available for use in edit 1. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits are part of a single refactoring within the same method `_action_send_statistics`. Edit 0 adds a 'state': 'outgoing' parameter to the mail_values dictionary, while Edit 1 changes the mail creation and sending logic to accumulate mails in a collection and return them instead of immediately sending. Both edits modify the same mail creation flow and the mail_values dictionary that Edit 0 modifies is directly used in the create() call that Edit 1 modifies. The changes work together to transform the method from immediately sending individual mails to collecting them for batch processing, with the state parameter being part of this coordinated change. Both edits reference the same mail_values dictionary and mail creation process."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits are part of a single refactoring within the same method `_action_send_statistics`. Edit 0 adds a 'state': 'outgoing' parameter to the mail_values dictionary, while Edit 1 changes the mail creation and sending logic to accumulate mails in a collection and return them instead of immediately sending. Both edits modify the same mail creation flow and the mail_values dictionary that Edit 0 modifies is directly used in the create() call that Edit 1 modifies. The changes work together to transform the method from immediately sending individual mails to collecting them for batch processing, with the state parameter being part of this coordinated change. Both edits reference the same mail_values dictionary and mail creation process."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same 'state' attribute but in different contexts. Edit 0 sets 'state': 'outgoing' in a dictionary within the _action_send_statistics method, while Edit 1 changes a test assertion from expecting 'sent' to expecting 'outgoing' for mail.state. These appear to be synchronized changes where the production code behavior change (setting state to 'outgoing') requires the corresponding test expectation to be updated. The test is directly asserting on the same state value that the production code is now setting, making this a test-production synchronization pattern where both edits reference the same conceptual state attribute and the test change is mechanically prompted by the production code change."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same 'state' attribute but in different contexts. Edit 0 sets 'state': 'outgoing' in a dictionary within the _action_send_statistics method, while Edit 1 changes a test assertion from expecting 'sent' to expecting 'outgoing' for mail.state. These appear to be synchronized changes where the production code behavior change (setting state to 'outgoing') requires the corresponding test expectation to be updated. The test is directly asserting on the same state value that the production code is now setting, making this a test-production synchronization pattern where both edits reference the same conceptual state attribute and the test change is mechanically prompted by the production code change."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'state' and involve changing its value from 'sent' to 'outgoing'. Edit 0 sets the state to 'outgoing' in the production code, while Edit 1 updates the test assertion to expect 'outgoing' instead of 'sent'. This is a classic test-production code synchronization where the test assertion is updated to match the changed implementation behavior for the exact same attribute."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'state' and involve changing its value from 'sent' to 'outgoing'. Edit 0 sets the state to 'outgoing' in the production code, while Edit 1 updates the test assertion to expect 'outgoing' instead of 'sent'. This is a classic test-production code synchronization where the test assertion is updated to match the changed implementation behavior for the exact same attribute."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "These two edits are part of a coordinated test behavior change within the same test method. Edit 0 changes the mock_mail_gateway parameter from mail_unlink_sent=False to mail_unlink_sent=True, which directly affects how mail objects are handled after sending. Edit 1 updates the corresponding test assertion from expecting mail.state='sent' to mail.state='outgoing', which reflects the behavioral change caused by the mock parameter modification. The changed lines reference the same test scenario and the mail state assertion must be updated to match the new mock behavior. This represents a synchronized test update where both changes work together to maintain test correctness after a behavioral modification."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "These two edits are part of a coordinated test behavior change within the same test method. Edit 0 changes the mock_mail_gateway parameter from mail_unlink_sent=False to mail_unlink_sent=True, which directly affects how mail objects are handled after sending. Edit 1 updates the corresponding test assertion from expecting mail.state='sent' to mail.state='outgoing', which reflects the behavioral change caused by the mock parameter modification. The changed lines reference the same test scenario and the mail state assertion must be updated to match the new mock behavior. This represents a synchronized test update where both changes work together to maintain test correctness after a behavioral modification."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution (changing 'mail_unlink_sent=False' to 'mail_unlink_sent=True') on the same type of syntactic construct (method call with keyword argument). They are part of what appears to be a uniform refactor across multiple test files, changing the same parameter value in the same method call pattern. This represents a bulk-edit pattern where both edits apply the same before\u2192after transformation to the same construct type, making them part of a single contiguous refactoring task where either edit naturally prompts the other as part of the same systematic change."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution (changing 'mail_unlink_sent=False' to 'mail_unlink_sent=True') on the same type of syntactic construct (method call with keyword argument). They are part of what appears to be a uniform refactor across multiple test files, changing the same parameter value in the same method call pattern. This represents a bulk-edit pattern where both edits apply the same before\u2192after transformation to the same construct type, making them part of a single contiguous refactoring task where either edit naturally prompts the other as part of the same systematic change."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "These two edits are part of a coordinated test change where the mock configuration is being modified to change the behavior (mail_unlink_sent from False to True), and the corresponding test assertion is being updated to match the expected outcome (mail.state from 'sent' to 'outgoing'). Both edits reference the same test scenario and the change in mock behavior directly affects what the test should assert. The first edit changes the test setup/configuration, and the second edit updates the assertion to match the new expected behavior, making them part of the same logical test modification."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "These two edits are part of a coordinated test change where the mock configuration is being modified to change the behavior (mail_unlink_sent from False to True), and the corresponding test assertion is being updated to match the expected outcome (mail.state from 'sent' to 'outgoing'). Both edits reference the same test scenario and the change in mock behavior directly affects what the test should assert. The first edit changes the test setup/configuration, and the second edit updates the assertion to match the new expected behavior, making them part of the same logical test modification."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (assertEqual statements testing mail.state), changing different expected values to the same 'outgoing' value. This appears to be part of a single, contiguous refactor updating test expectations for mail state across multiple test methods. The edits reference different mail objects in different test methods, so they don't reference the exact same symbol, but they follow the bulk-edit pattern of synchronized substitutions on the same construct type."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (assertEqual statements testing mail.state), changing different expected values to the same 'outgoing' value. This appears to be part of a single, contiguous refactor updating test expectations for mail state across multiple test methods. The edits reference different mail objects in different test methods, so they don't reference the exact same symbol, but they follow the bulk-edit pattern of synchronized substitutions on the same construct type."
+        }
+    ],
+    "allowed_init_edits": [
+        7
+    ]
+}

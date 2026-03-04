@@ -1,0 +1,29 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'import sys' at the top of the file (line 6), while Edit 1 removes 'import sys' from within a function (line 60). These edits reference the exact same symbol 'sys' and represent a refactoring operation where the import is being moved from local scope to module scope. This is a cut-and-paste style move where the removal must happen after the addition to avoid any potential import issues, making this an ordered relationship where Edit 0 (addition) should occur before Edit 1 (removal)."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 imports the sys module, and Edit 1 uses that exact same sys module in the changed lines (specifically `sys.frozen`). This creates a direct import-usage relationship where the import in Edit 0 makes the usage in Edit 1 possible. In Python, both edits can be staged in either order since referencing an undefined module only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 imports the sys module, and Edit 1 uses that exact same sys module in the changed lines (specifically `sys.frozen`). This creates a direct import-usage relationship where the import in Edit 0 makes the usage in Edit 1 possible. In Python, both edits can be staged in either order since referencing an undefined module only causes a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "This is a cut-and-paste move operation where the exact same import statement 'from kittens.unicode_input import unicode_names' is being removed from line 24 in edit 0 and added to line 26 in edit 1. The symbol 'unicode_names' is referenced in the 'del' statement on line 27, so the import must exist before that line can execute properly. Edit 0 must occur before edit 1 because removing the import first and then adding it back maintains code functionality, whereas doing it in reverse order would temporarily create a duplicate import."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        0,
+        4
+    ]
+}

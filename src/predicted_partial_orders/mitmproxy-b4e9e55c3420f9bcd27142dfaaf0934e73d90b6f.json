@@ -1,0 +1,34 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'reterr' within the same function. Edit 0 introduces the variable 'reterr = None' and Edit 1 assigns to that same variable 'reterr = v.strerror'. This creates a direct code dependency where the variable defined in Edit 0 is used in Edit 1. The edits are part of a single micro-task of refactoring error handling to use a variable instead of direct return. Either edit can be staged first without causing parse errors - the variable can be defined before assignment or assignment can occur before initialization (both are syntactically valid in Python)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'reterr' within the same function. Edit 0 introduces the variable 'reterr = None' and Edit 1 assigns to that same variable 'reterr = v.strerror'. This creates a direct code dependency where the variable defined in Edit 0 is used in Edit 1. The edits are part of a single micro-task of refactoring error handling to use a variable instead of direct return. Either edit can be staged first without causing parse errors - the variable can be defined before assignment or assignment can occur before initialization (both are syntactically valid in Python)."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes a return statement to an assignment 'reterr = v.strerror', and Edit 1 adds a return statement 'return reterr' that uses the exact same variable. The changed lines reference the same symbol 'reterr' - Edit 0 assigns to it and Edit 1 returns it. This creates an immediate code dependency where Edit 1 cannot function without the variable assignment from Edit 0, making Edit 0 a prerequisite for Edit 1 to be meaningful."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable 'reterr' by adding the line 'reterr = None', and Edit 1 uses this exact same variable by adding 'return reterr'. Both edits are within the same function (load_flows) and reference the exact same symbol 'reterr'. After making Edit 0, the natural next step would be to use the newly introduced variable, which Edit 1 does. Conversely, Edit 1 cannot be made without Edit 0 first defining 'reterr', as it would result in a NameError at runtime. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be written and parsed in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'reterr' by adding the line 'reterr = None', and Edit 1 uses this exact same variable by adding 'return reterr'. Both edits are within the same function (load_flows) and reference the exact same symbol 'reterr'. After making Edit 0, the natural next step would be to use the newly introduced variable, which Edit 1 does. Conversely, Edit 1 cannot be made without Edit 0 first defining 'reterr', as it would result in a NameError at runtime. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be written and parsed in either order, making this bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        5
+    ]
+}

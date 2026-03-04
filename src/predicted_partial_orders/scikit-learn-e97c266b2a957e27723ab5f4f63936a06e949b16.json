@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'import warnings' at the module level (line 47), while Edit 1 removes 'import warnings' from inside the _eigs function (line 1189). These edits reference the exact same symbol 'warnings' and represent a refactoring pattern where a local import is being moved to the module level. After making either edit, the other becomes the immediate next step to complete the refactoring - if you add the module-level import first, you'd naturally remove the redundant local import next, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'import warnings' at the module level (line 47), while Edit 1 removes 'import warnings' from inside the _eigs function (line 1189). These edits reference the exact same symbol 'warnings' and represent a refactoring pattern where a local import is being moved to the module level. After making either edit, the other becomes the immediate next step to complete the refactoring - if you add the module-level import first, you'd naturally remove the redundant local import next, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'import warnings' at the module level (line 47), while Edit 1 removes 'import warnings' from within the _eigsh function (line 1448). These edits reference the exact same symbol 'warnings' and represent a refactoring pattern where a local import is being moved to the module level. After making either edit, the other becomes the immediate next step to maintain functionality - if you add the module-level import, you should remove the redundant local import, and vice versa. This is a bi-directional relationship as both edits can be staged in either order without causing parse errors, but together they form a cohesive refactoring of the same import statement."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'import warnings' at the module level (line 47), while Edit 1 removes 'import warnings' from within the _eigsh function (line 1448). These edits reference the exact same symbol 'warnings' and represent a refactoring pattern where a local import is being moved to the module level. After making either edit, the other becomes the immediate next step to maintain functionality - if you add the module-level import, you should remove the redundant local import, and vice versa. This is a bi-directional relationship as both edits can be staged in either order without causing parse errors, but together they form a cohesive refactoring of the same import statement."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 'warnings' module at the top of the file, and Edit 1 uses that exact same 'warnings' module in the changed lines with 'warnings.catch_warnings()' and 'warnings.simplefilter()'. This is a classic import-usage pattern where the import creates the symbol that is then referenced in the usage. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional. The changed lines in both edits reference the exact same 'warnings' symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 'warnings' module at the top of the file, and Edit 1 uses that exact same 'warnings' module in the changed lines with 'warnings.catch_warnings()' and 'warnings.simplefilter()'. This is a classic import-usage pattern where the import creates the symbol that is then referenced in the usage. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional. The changed lines in both edits reference the exact same 'warnings' symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits remove identical import statements ('import warnings') from different functions within the same file. This represents a bulk-edit pattern where the same textual substitution (removing 'import warnings') is being applied to the same type of syntactic construct (import statements) in multiple locations. The edits are part of a single, contiguous refactor to clean up redundant imports. Either edit can be made first, and after making either, the other becomes a natural next step in the same cleanup operation."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits remove identical import statements ('import warnings') from different functions within the same file. This represents a bulk-edit pattern where the same textual substitution (removing 'import warnings') is being applied to the same type of syntactic construct (import statements) in multiple locations. The edits are part of a single, contiguous refactor to clean up redundant imports. Either edit can be made first, and after making either, the other becomes a natural next step in the same cleanup operation."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits apply the same pattern within the same function `_svds`: checking if an object has a 'dot' attribute and using either the object's dot method or np.dot accordingly. Edit 0 applies this pattern to variables XH and X in the matvec_XH_X function definition, while Edit 1 applies the identical pattern to variable X in a different part of the same function. This represents a uniform substitution pattern - both edits implement the same before\u2192after transformation (direct .dot() call \u2192 conditional .dot() vs np.dot() usage) on the same type of syntactic construct (method calls on matrix-like objects). The edits are part of a single refactoring task to handle objects that may or may not have a dot method, and either edit could be applied first as they don't depend on each other syntactically."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits apply the same pattern within the same function `_svds`: checking if an object has a 'dot' attribute and using either the object's dot method or np.dot accordingly. Edit 0 applies this pattern to variables XH and X in the matvec_XH_X function definition, while Edit 1 applies the identical pattern to variable X in a different part of the same function. This represents a uniform substitution pattern - both edits implement the same before\u2192after transformation (direct .dot() call \u2192 conditional .dot() vs np.dot() usage) on the same type of syntactic construct (method calls on matrix-like objects). The edits are part of a single refactoring task to handle objects that may or may not have a dot method, and either edit could be applied first as they don't depend on each other syntactically."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits apply the identical pattern of checking for 'dot' attribute and providing fallback to np.dot for matrix operations. Edit 0 modifies the matvec_XH_X function definition to handle cases where XH lacks a dot method, while Edit 1 applies the same pattern to handle cases where X lacks a dot method. Both edits reference different matrix objects (XH vs X) but follow the exact same structural substitution pattern within the same function context. This represents a bulk-edit pattern where the same before\u2192after transformation is applied to the same type of syntactic construct (matrix dot operations) as part of a single refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits apply the identical pattern of checking for 'dot' attribute and providing fallback to np.dot for matrix operations. Edit 0 modifies the matvec_XH_X function definition to handle cases where XH lacks a dot method, while Edit 1 applies the same pattern to handle cases where X lacks a dot method. Both edits reference different matrix objects (XH vs X) but follow the exact same structural substitution pattern within the same function context. This represents a bulk-edit pattern where the same before\u2192after transformation is applied to the same type of syntactic construct (matrix dot operations) as part of a single refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits apply the exact same structural transformation pattern within the same function `_svds`. They both replace a direct `.dot()` method call with a conditional check using `hasattr(X, 'dot')` and fallback to `np.dot()`. Edit 0 transforms `X.dot(v) / s` and Edit 1 transforms `X.dot(u) / s`. This is a uniform, synchronized substitution pattern applied to the same type of syntactic construct (dot product operations) within the same function scope. Both edits are part of the same refactoring task to handle cases where X might not have a dot method, and either edit could be applied first as they are independent transformations of similar code patterns."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits apply the exact same structural transformation pattern within the same function `_svds`. They both replace a direct `.dot()` method call with a conditional check using `hasattr(X, 'dot')` and fallback to `np.dot()`. Edit 0 transforms `X.dot(v) / s` and Edit 1 transforms `X.dot(u) / s`. This is a uniform, synchronized substitution pattern applied to the same type of syntactic construct (dot product operations) within the same function scope. Both edits are part of the same refactoring task to handle cases where X might not have a dot method, and either edit could be applied first as they are independent transformations of similar code patterns."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

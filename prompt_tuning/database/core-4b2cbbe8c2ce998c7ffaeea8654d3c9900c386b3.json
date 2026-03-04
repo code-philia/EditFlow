@@ -1,0 +1,2320 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/home-assistant/core/commit/4b2cbbe8c2ce998c7ffaeea8654d3c9900c386b3",
+    "commit_message": "Use dispatcher helper to add new Fronius inverter entities (#96782)\n\nUsing dispatcher to add new entities for inverter",
+    "commit_snapshots": {
+        "homeassistant/components/fronius/__init__.py": [
+            [
+                "\"\"\"The Fronius integration.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "import asyncio\n",
+                "from collections.abc import Callable\n",
+                "from datetime import datetime, timedelta\n",
+                "import logging\n",
+                "from typing import Final, TypeVar\n",
+                "\n",
+                "from pyfronius import Fronius, FroniusError\n",
+                "\n",
+                "from homeassistant.config_entries import ConfigEntry, ConfigEntryState\n",
+                "from homeassistant.const import ATTR_MODEL, ATTR_SW_VERSION, CONF_HOST, Platform\n",
+                "from homeassistant.core import HomeAssistant\n",
+                "from homeassistant.exceptions import ConfigEntryNotReady\n",
+                "from homeassistant.helpers import device_registry as dr\n",
+                "from homeassistant.helpers.aiohttp_client import async_get_clientsession\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from homeassistant.helpers.dispatcher import dispatcher_send\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n  ...\n14 14    from homeassistant.exceptions import ConfigEntryNotReady\n15 15    from homeassistant.helpers import device_registry as dr\n16 16    from homeassistant.helpers.aiohttp_client import async_get_clientsession\n   17  + from homeassistant.helpers.dispatcher import dispatcher_send\n17 18    from homeassistant.helpers.entity import DeviceInfo\n       ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "dispatcher",
+                    "dispatcher_send",
+                    "helpers",
+                    "homeassistant"
+                ],
+                "prefix": [
+                    "from homeassistant.exceptions import ConfigEntryNotReady\n",
+                    "from homeassistant.helpers import device_registry as dr\n",
+                    "from homeassistant.helpers.aiohttp_client import async_get_clientsession\n"
+                ],
+                "suffix": [
+                    "from homeassistant.helpers.entity import DeviceInfo\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "dispatcher_send",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    7
+                ]
+            },
+            [
+                "from homeassistant.helpers.entity import DeviceInfo\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from homeassistant.helpers.entity_platform import AddEntitiesCallback\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 18,
+                    "end": 19
+                },
+                "child_version_range": {
+                    "start": 19,
+                    "end": 19
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n  ...\n17 18    from homeassistant.helpers.entity import DeviceInfo\n18     - from homeassistant.helpers.entity_platform import AddEntitiesCallback\n19 19    from homeassistant.helpers.event import async_track_time_interval\n20 20    \n21 21    from .const import (\n       ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [
+                    "AddEntitiesCallback",
+                    "entity_platform",
+                    "helpers",
+                    "homeassistant"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "from homeassistant.helpers.entity import DeviceInfo\n"
+                ],
+                "suffix": [
+                    "from homeassistant.helpers.event import async_track_time_interval\n",
+                    "\n",
+                    "from .const import (\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "AddEntitiesCallback",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from homeassistant.helpers.event import async_track_time_interval\n",
+                "\n",
+                "from .const import (\n",
+                "    DOMAIN,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    SOLAR_NET_DISCOVERY_NEW,\n"
+                ],
+                "parent_version_range": {
+                    "start": 23,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 23,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n  ...\n20 20    \n21 21    from .const import (\n22 22        DOMAIN,\n   23  +     SOLAR_NET_DISCOVERY_NEW,\n23 24        SOLAR_NET_ID_SYSTEM,\n24 25        SOLAR_NET_RESCAN_TIMER,\n25 26        FroniusDeviceInfo,\n       ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "SOLAR_NET_DISCOVERY_NEW"
+                ],
+                "prefix": [
+                    "\n",
+                    "from .const import (\n",
+                    "    DOMAIN,\n"
+                ],
+                "suffix": [
+                    "    SOLAR_NET_ID_SYSTEM,\n",
+                    "    SOLAR_NET_RESCAN_TIMER,\n",
+                    "    FroniusDeviceInfo,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    SOLAR_NET_ID_SYSTEM,\n",
+                "    SOLAR_NET_RESCAN_TIMER,\n",
+                "    FroniusDeviceInfo,\n",
+                ")\n",
+                "from .coordinator import (\n",
+                "    FroniusCoordinatorBase,\n",
+                "    FroniusInverterUpdateCoordinator,\n",
+                "    FroniusLoggerUpdateCoordinator,\n",
+                "    FroniusMeterUpdateCoordinator,\n",
+                "    FroniusOhmpilotUpdateCoordinator,\n",
+                "    FroniusPowerFlowUpdateCoordinator,\n",
+                "    FroniusStorageUpdateCoordinator,\n",
+                ")\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from .sensor import InverterSensor\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 36,
+                    "end": 37
+                },
+                "child_version_range": {
+                    "start": 37,
+                    "end": 37
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n  ...\n33 34        FroniusPowerFlowUpdateCoordinator,\n34 35        FroniusStorageUpdateCoordinator,\n35 36    )\n36     - from .sensor import InverterSensor\n37 37    \n38 38    _LOGGER: Final = logging.getLogger(__name__)\n39 39    PLATFORMS: Final = [Platform.SENSOR]\n       ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [
+                    "InverterSensor",
+                    "sensor"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    FroniusPowerFlowUpdateCoordinator,\n",
+                    "    FroniusStorageUpdateCoordinator,\n",
+                    ")\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "_LOGGER: Final = logging.getLogger(__name__)\n",
+                    "PLATFORMS: Final = [Platform.SENSOR]\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "InverterSensor",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "_LOGGER: Final = logging.getLogger(__name__)\n",
+                "PLATFORMS: Final = [Platform.SENSOR]\n",
+                "\n",
+                "_FroniusCoordinatorT = TypeVar(\"_FroniusCoordinatorT\", bound=FroniusCoordinatorBase)\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:\n",
+                "    \"\"\"Set up fronius from a config entry.\"\"\"\n",
+                "    host = entry.data[CONF_HOST]\n",
+                "    fronius = Fronius(async_get_clientsession(hass), host)\n",
+                "    solar_net = FroniusSolarNet(hass, entry, fronius)\n",
+                "    await solar_net.init_devices()\n",
+                "\n",
+                "    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = solar_net\n",
+                "    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:\n",
+                "    \"\"\"Unload a config entry.\"\"\"\n",
+                "    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)\n",
+                "    if unload_ok:\n",
+                "        solar_net = hass.data[DOMAIN].pop(entry.entry_id)\n",
+                "        while solar_net.cleanup_callbacks:\n",
+                "            solar_net.cleanup_callbacks.pop()()\n",
+                "\n",
+                "    return unload_ok\n",
+                "\n",
+                "\n",
+                "class FroniusSolarNet:\n",
+                "    \"\"\"The FroniusSolarNet class routes received values to sensor entities.\"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self, hass: HomeAssistant, entry: ConfigEntry, fronius: Fronius\n",
+                "    ) -> None:\n",
+                "        \"\"\"Initialize FroniusSolarNet class.\"\"\"\n",
+                "        self.hass = hass\n",
+                "        self.cleanup_callbacks: list[Callable[[], None]] = []\n",
+                "        self.config_entry = entry\n",
+                "        self.coordinator_lock = asyncio.Lock()\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        self.sensor_async_add_entities: AddEntitiesCallback | None = None\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 78,
+                    "end": 79
+                },
+                "child_version_range": {
+                    "start": 78,
+                    "end": 78
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FroniusSolarNet",
+                        "signature": "class FroniusSolarNet:",
+                        "at_line": 67
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self, hass: HomeAssistant, entry: ConfigEntry, fronius: Fronius\n    )->None:",
+                        "at_line": 70
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n         class FroniusSolarNet:\n             ...\n             def __init__(\n        self, hass: HomeAssistant, entry: ConfigEntry, fronius: Fronius\n    )->None:\n                 ...\n75 75            self.cleanup_callbacks: list[Callable[[], None]] = []\n76 76            self.config_entry = entry\n77 77            self.coordinator_lock = asyncio.Lock()\n78     -         self.sensor_async_add_entities: AddEntitiesCallback | None = None\n79 78            self.fronius = fronius\n80 79            self.host: str = entry.data[CONF_HOST]\n81 80            # entry.unique_id is either logger uid or first inverter uid if no logger available\n       ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [
+                    "AddEntitiesCallback",
+                    "self",
+                    "sensor_async_add_entities"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        self.cleanup_callbacks: list[Callable[[], None]] = []\n",
+                    "        self.config_entry = entry\n",
+                    "        self.coordinator_lock = asyncio.Lock()\n"
+                ],
+                "suffix": [
+                    "        self.fronius = fronius\n",
+                    "        self.host: str = entry.data[CONF_HOST]\n",
+                    "        # entry.unique_id is either logger uid or first inverter uid if no logger available\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "AddEntitiesCallback",
+                            "position": {
+                                "start": {
+                                    "line": 78,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 78,
+                                    "column": 59
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 78,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 78,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 78,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 78,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 78,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 78,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        self.fronius = fronius\n",
+                "        self.host: str = entry.data[CONF_HOST]\n",
+                "        # entry.unique_id is either logger uid or first inverter uid if no logger available\n",
+                "        # prepended by \"solar_net_\" to have individual device for whole system (power_flow)\n",
+                "        self.solar_net_device_id = f\"solar_net_{entry.unique_id}\"\n",
+                "        self.system_device_info: DeviceInfo | None = None\n",
+                "\n",
+                "        self.inverter_coordinators: list[FroniusInverterUpdateCoordinator] = []\n",
+                "        self.logger_coordinator: FroniusLoggerUpdateCoordinator | None = None\n",
+                "        self.meter_coordinator: FroniusMeterUpdateCoordinator | None = None\n",
+                "        self.ohmpilot_coordinator: FroniusOhmpilotUpdateCoordinator | None = None\n",
+                "        self.power_flow_coordinator: FroniusPowerFlowUpdateCoordinator | None = None\n",
+                "        self.storage_coordinator: FroniusStorageUpdateCoordinator | None = None\n",
+                "\n",
+                "    async def init_devices(self) -> None:\n",
+                "        \"\"\"Initialize DataUpdateCoordinators for SolarNet devices.\"\"\"\n",
+                "        if self.config_entry.data[\"is_logger\"]:\n",
+                "            self.logger_coordinator = FroniusLoggerUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=f\"{DOMAIN}_logger_{self.host}\",\n",
+                "            )\n",
+                "            await self.logger_coordinator.async_config_entry_first_refresh()\n",
+                "\n",
+                "        # _create_solar_net_device uses data from self.logger_coordinator when available\n",
+                "        self.system_device_info = await self._create_solar_net_device()\n",
+                "\n",
+                "        await self._init_devices_inverter()\n",
+                "\n",
+                "        self.meter_coordinator = await self._init_optional_coordinator(\n",
+                "            FroniusMeterUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=f\"{DOMAIN}_meters_{self.host}\",\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "        self.ohmpilot_coordinator = await self._init_optional_coordinator(\n",
+                "            FroniusOhmpilotUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=f\"{DOMAIN}_ohmpilot_{self.host}\",\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "        self.power_flow_coordinator = await self._init_optional_coordinator(\n",
+                "            FroniusPowerFlowUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=f\"{DOMAIN}_power_flow_{self.host}\",\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "        self.storage_coordinator = await self._init_optional_coordinator(\n",
+                "            FroniusStorageUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=f\"{DOMAIN}_storages_{self.host}\",\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "        # Setup periodic re-scan\n",
+                "        self.cleanup_callbacks.append(\n",
+                "            async_track_time_interval(\n",
+                "                self.hass,\n",
+                "                self._init_devices_inverter,\n",
+                "                timedelta(minutes=SOLAR_NET_RESCAN_TIMER),\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "    async def _create_solar_net_device(self) -> DeviceInfo:\n",
+                "        \"\"\"Create a device for the Fronius SolarNet system.\"\"\"\n",
+                "        solar_net_device: DeviceInfo = DeviceInfo(\n",
+                "            configuration_url=self.fronius.url,\n",
+                "            identifiers={(DOMAIN, self.solar_net_device_id)},\n",
+                "            manufacturer=\"Fronius\",\n",
+                "            name=\"SolarNet\",\n",
+                "        )\n",
+                "        if self.logger_coordinator:\n",
+                "            _logger_info = self.logger_coordinator.data[SOLAR_NET_ID_SYSTEM]\n",
+                "            # API v0 doesn't provide product_type\n",
+                "            solar_net_device[ATTR_MODEL] = _logger_info.get(\"product_type\", {}).get(\n",
+                "                \"value\", \"Datalogger Web\"\n",
+                "            )\n",
+                "            solar_net_device[ATTR_SW_VERSION] = _logger_info[\"software_version\"][\n",
+                "                \"value\"\n",
+                "            ]\n",
+                "\n",
+                "        device_registry = dr.async_get(self.hass)\n",
+                "        device_registry.async_get_or_create(\n",
+                "            config_entry_id=self.config_entry.entry_id,\n",
+                "            **solar_net_device,\n",
+                "        )\n",
+                "        return solar_net_device\n",
+                "\n",
+                "    async def _init_devices_inverter(self, _now: datetime | None = None) -> None:\n",
+                "        \"\"\"Get available inverters and set up coordinators for new found devices.\"\"\"\n",
+                "        _inverter_infos = await self._get_inverter_infos()\n",
+                "\n",
+                "        _LOGGER.debug(\"Processing inverters for: %s\", _inverter_infos)\n",
+                "        for _inverter_info in _inverter_infos:\n",
+                "            _inverter_name = (\n",
+                "                f\"{DOMAIN}_inverter_{_inverter_info.solar_net_id}_{self.host}\"\n",
+                "            )\n",
+                "\n",
+                "            # Add found inverter only not already existing\n",
+                "            if _inverter_info.solar_net_id in [\n",
+                "                inv.inverter_info.solar_net_id for inv in self.inverter_coordinators\n",
+                "            ]:\n",
+                "                continue\n",
+                "\n",
+                "            _coordinator = FroniusInverterUpdateCoordinator(\n",
+                "                hass=self.hass,\n",
+                "                solar_net=self,\n",
+                "                logger=_LOGGER,\n",
+                "                name=_inverter_name,\n",
+                "                inverter_info=_inverter_info,\n",
+                "            )\n",
+                "            await _coordinator.async_config_entry_first_refresh()\n",
+                "            self.inverter_coordinators.append(_coordinator)\n",
+                "\n",
+                "            # Only for re-scans. Initial setup adds entities through sensor.async_setup_entry\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            if self.sensor_async_add_entities is not None:\n",
+                    "                _coordinator.add_entities_for_seen_keys(\n",
+                    "                    self.sensor_async_add_entities, InverterSensor\n",
+                    "                )\n"
+                ],
+                "after": [
+                    "            if self.config_entry.state == ConfigEntryState.LOADED:\n",
+                    "                dispatcher_send(self.hass, SOLAR_NET_DISCOVERY_NEW, _coordinator)\n"
+                ],
+                "parent_version_range": {
+                    "start": 206,
+                    "end": 210
+                },
+                "child_version_range": {
+                    "start": 205,
+                    "end": 207
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for _inverter_info in _inverter_infos:",
+                        "start_line": 184,
+                        "end_line": 214
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.sensor_async_add_entities is not None:",
+                        "start_line": 206,
+                        "end_line": 209
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FroniusSolarNet",
+                        "signature": "class FroniusSolarNet:",
+                        "at_line": 67
+                    },
+                    {
+                        "type": "function",
+                        "name": "_init_devices_inverter",
+                        "signature": "def _init_devices_inverter(self, _now: datetime | None = None)->None:",
+                        "at_line": 179
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: homeassistant/components/fronius/__init__.py\nCode:\n           class FroniusSolarNet:\n               ...\n               def _init_devices_inverter(self, _now: datetime | None = None)->None:\n                   ...\n203 202                self.inverter_coordinators.append(_coordinator)\n204 203    \n205 204                # Only for re-scans. Initial setup adds entities through sensor.async_setup_entry\n206      -             if self.sensor_async_add_entities is not None:\n207      -                 _coordinator.add_entities_for_seen_keys(\n208      -                     self.sensor_async_add_entities, InverterSensor\n209      -                 )\n    205  +             if self.config_entry.state == ConfigEntryState.LOADED:\n    206  +                 dispatcher_send(self.hass, SOLAR_NET_DISCOVERY_NEW, _coordinator)\n210 207    \n211 208                _LOGGER.debug(\n212 209                    \"New inverter added (UID: %s)\",\n         ...\n",
+                "file_path": "homeassistant/components/fronius/__init__.py",
+                "identifiers_before": [
+                    "InverterSensor",
+                    "_coordinator",
+                    "add_entities_for_seen_keys",
+                    "self",
+                    "sensor_async_add_entities"
+                ],
+                "identifiers_after": [
+                    "ConfigEntryState",
+                    "LOADED",
+                    "SOLAR_NET_DISCOVERY_NEW",
+                    "_coordinator",
+                    "config_entry",
+                    "dispatcher_send",
+                    "hass",
+                    "self",
+                    "state"
+                ],
+                "prefix": [
+                    "            self.inverter_coordinators.append(_coordinator)\n",
+                    "\n",
+                    "            # Only for re-scans. Initial setup adds entities through sensor.async_setup_entry\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "            _LOGGER.debug(\n",
+                    "                \"New inverter added (UID: %s)\",\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "InverterSensor",
+                            "position": {
+                                "start": {
+                                    "line": 208,
+                                    "column": 52
+                                },
+                                "end": {
+                                    "line": 208,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 45
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 208,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 208,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "dispatcher_send",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 43
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 43
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/__init__.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "            _LOGGER.debug(\n",
+                "                \"New inverter added (UID: %s)\",\n",
+                "                _inverter_info.unique_id,\n",
+                "            )\n",
+                "\n",
+                "    async def _get_inverter_infos(self) -> list[FroniusDeviceInfo]:\n",
+                "        \"\"\"Get information about the inverters in the SolarNet system.\"\"\"\n",
+                "        inverter_infos: list[FroniusDeviceInfo] = []\n",
+                "\n",
+                "        try:\n",
+                "            _inverter_info = await self.fronius.inverter_info()\n",
+                "        except FroniusError as err:\n",
+                "            if self.config_entry.state == ConfigEntryState.LOADED:\n",
+                "                # During a re-scan we will attempt again as per schedule.\n",
+                "                _LOGGER.debug(\"Re-scan failed for %s\", self.host)\n",
+                "                return inverter_infos\n",
+                "\n",
+                "            raise ConfigEntryNotReady from err\n",
+                "\n",
+                "        for inverter in _inverter_info[\"inverters\"]:\n",
+                "            solar_net_id = inverter[\"device_id\"][\"value\"]\n",
+                "            unique_id = inverter[\"unique_id\"][\"value\"]\n",
+                "            device_info = DeviceInfo(\n",
+                "                identifiers={(DOMAIN, unique_id)},\n",
+                "                manufacturer=inverter[\"device_type\"].get(\"manufacturer\", \"Fronius\"),\n",
+                "                model=inverter[\"device_type\"].get(\n",
+                "                    \"model\", inverter[\"device_type\"][\"value\"]\n",
+                "                ),\n",
+                "                name=inverter.get(\"custom_name\", {}).get(\"value\"),\n",
+                "                via_device=(DOMAIN, self.solar_net_device_id),\n",
+                "            )\n",
+                "            inverter_infos.append(\n",
+                "                FroniusDeviceInfo(\n",
+                "                    device_info=device_info,\n",
+                "                    solar_net_id=solar_net_id,\n",
+                "                    unique_id=unique_id,\n",
+                "                )\n",
+                "            )\n",
+                "            _LOGGER.debug(\n",
+                "                \"Inverter found at %s (Device ID: %s, UID: %s)\",\n",
+                "                self.host,\n",
+                "                solar_net_id,\n",
+                "                unique_id,\n",
+                "            )\n",
+                "        return inverter_infos\n",
+                "\n",
+                "    @staticmethod\n",
+                "    async def _init_optional_coordinator(\n",
+                "        coordinator: _FroniusCoordinatorT,\n",
+                "    ) -> _FroniusCoordinatorT | None:\n",
+                "        \"\"\"Initialize an update coordinator and return it if devices are found.\"\"\"\n",
+                "        try:\n",
+                "            await coordinator.async_config_entry_first_refresh()\n",
+                "        except ConfigEntryNotReady:\n",
+                "            # ConfigEntryNotReady raised form FroniusError / KeyError in\n",
+                "            # DataUpdateCoordinator if request not supported by the Fronius device\n",
+                "            return None\n",
+                "        # if no device for the request is installed an empty dict is returned\n",
+                "        if not coordinator.data:\n",
+                "            return None\n",
+                "        return coordinator"
+            ]
+        ],
+        "homeassistant/components/fronius/const.py": [
+            [
+                "\"\"\"Constants for the Fronius integration.\"\"\"\n",
+                "from typing import Final, NamedTuple, TypedDict\n",
+                "\n",
+                "from homeassistant.helpers.entity import DeviceInfo\n",
+                "\n",
+                "DOMAIN: Final = \"fronius\"\n",
+                "\n",
+                "SolarNetId = str\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "SOLAR_NET_DISCOVERY_NEW: Final = \"fronius_discovery_new\"\n"
+                ],
+                "parent_version_range": {
+                    "start": 8,
+                    "end": 8
+                },
+                "child_version_range": {
+                    "start": 8,
+                    "end": 9
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: homeassistant/components/fronius/const.py\nCode:\n  ...\n 5  5    DOMAIN: Final = \"fronius\"\n 6  6    \n 7  7    SolarNetId = str\n    8  + SOLAR_NET_DISCOVERY_NEW: Final = \"fronius_discovery_new\"\n 8  9    SOLAR_NET_ID_POWER_FLOW: SolarNetId = \"power_flow\"\n 9 10    SOLAR_NET_ID_SYSTEM: SolarNetId = \"system\"\n10 11    SOLAR_NET_RESCAN_TIMER: Final = 60\n       ...\n",
+                "file_path": "homeassistant/components/fronius/const.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Final",
+                    "SOLAR_NET_DISCOVERY_NEW"
+                ],
+                "prefix": [
+                    "DOMAIN: Final = \"fronius\"\n",
+                    "\n",
+                    "SolarNetId = str\n"
+                ],
+                "suffix": [
+                    "SOLAR_NET_ID_POWER_FLOW: SolarNetId = \"power_flow\"\n",
+                    "SOLAR_NET_ID_SYSTEM: SolarNetId = \"system\"\n",
+                    "SOLAR_NET_RESCAN_TIMER: Final = 60\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/const.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/const.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/const.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 8,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 8,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/const.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "SOLAR_NET_ID_POWER_FLOW: SolarNetId = \"power_flow\"\n",
+                "SOLAR_NET_ID_SYSTEM: SolarNetId = \"system\"\n",
+                "SOLAR_NET_RESCAN_TIMER: Final = 60\n",
+                "\n",
+                "\n",
+                "class FroniusConfigEntryData(TypedDict):\n",
+                "    \"\"\"ConfigEntry for the Fronius integration.\"\"\"\n",
+                "\n",
+                "    host: str\n",
+                "    is_logger: bool\n",
+                "\n",
+                "\n",
+                "class FroniusDeviceInfo(NamedTuple):\n",
+                "    \"\"\"Information about a Fronius inverter device.\"\"\"\n",
+                "\n",
+                "    device_info: DeviceInfo\n",
+                "    solar_net_id: SolarNetId\n",
+                "    unique_id: str"
+            ]
+        ],
+        "homeassistant/components/fronius/sensor.py": [
+            [
+                "\"\"\"Support for Fronius devices.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from dataclasses import dataclass\n",
+                "from typing import TYPE_CHECKING, Any, Final\n",
+                "\n",
+                "from homeassistant.components.sensor import (\n",
+                "    SensorDeviceClass,\n",
+                "    SensorEntity,\n",
+                "    SensorEntityDescription,\n",
+                "    SensorStateClass,\n",
+                ")\n",
+                "from homeassistant.config_entries import ConfigEntry\n",
+                "from homeassistant.const import (\n",
+                "    PERCENTAGE,\n",
+                "    POWER_VOLT_AMPERE_REACTIVE,\n",
+                "    EntityCategory,\n",
+                "    UnitOfApparentPower,\n",
+                "    UnitOfElectricCurrent,\n",
+                "    UnitOfElectricPotential,\n",
+                "    UnitOfEnergy,\n",
+                "    UnitOfFrequency,\n",
+                "    UnitOfPower,\n",
+                "    UnitOfTemperature,\n",
+                ")\n",
+                "from homeassistant.core import HomeAssistant, callback\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from homeassistant.helpers.dispatcher import async_dispatcher_connect\n"
+                ],
+                "parent_version_range": {
+                    "start": 26,
+                    "end": 26
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 27
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 7,
+                "hunk_diff": "File: homeassistant/components/fronius/sensor.py\nCode:\n  ...\n23 23        UnitOfTemperature,\n24 24    )\n25 25    from homeassistant.core import HomeAssistant, callback\n   26  + from homeassistant.helpers.dispatcher import async_dispatcher_connect\n26 27    from homeassistant.helpers.entity import DeviceInfo\n27 28    from homeassistant.helpers.entity_platform import AddEntitiesCallback\n28 29    from homeassistant.helpers.typing import StateType\n       ...\n",
+                "file_path": "homeassistant/components/fronius/sensor.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "async_dispatcher_connect",
+                    "dispatcher",
+                    "helpers",
+                    "homeassistant"
+                ],
+                "prefix": [
+                    "    UnitOfTemperature,\n",
+                    ")\n",
+                    "from homeassistant.core import HomeAssistant, callback\n"
+                ],
+                "suffix": [
+                    "from homeassistant.helpers.entity import DeviceInfo\n",
+                    "from homeassistant.helpers.entity_platform import AddEntitiesCallback\n",
+                    "from homeassistant.helpers.typing import StateType\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "async_dispatcher_connect",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from homeassistant.helpers.entity import DeviceInfo\n",
+                "from homeassistant.helpers.entity_platform import AddEntitiesCallback\n",
+                "from homeassistant.helpers.typing import StateType\n",
+                "from homeassistant.helpers.update_coordinator import CoordinatorEntity\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from .const import DOMAIN\n"
+                ],
+                "after": [
+                    "from .const import DOMAIN, SOLAR_NET_DISCOVERY_NEW\n"
+                ],
+                "parent_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "child_version_range": {
+                    "start": 32,
+                    "end": 33
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 8,
+                "hunk_diff": "File: homeassistant/components/fronius/sensor.py\nCode:\n  ...\n28 29    from homeassistant.helpers.typing import StateType\n29 30    from homeassistant.helpers.update_coordinator import CoordinatorEntity\n30 31    \n31     - from .const import DOMAIN\n   32  + from .const import DOMAIN, SOLAR_NET_DISCOVERY_NEW\n32 33    \n33 34    if TYPE_CHECKING:\n34 35        from . import FroniusSolarNet\n       ...\n",
+                "file_path": "homeassistant/components/fronius/sensor.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "const"
+                ],
+                "identifiers_after": [
+                    "DOMAIN",
+                    "SOLAR_NET_DISCOVERY_NEW",
+                    "const"
+                ],
+                "prefix": [
+                    "from homeassistant.helpers.typing import StateType\n",
+                    "from homeassistant.helpers.update_coordinator import CoordinatorEntity\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "if TYPE_CHECKING:\n",
+                    "    from . import FroniusSolarNet\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 32,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 32,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "if TYPE_CHECKING:\n",
+                "    from . import FroniusSolarNet\n",
+                "    from .coordinator import (\n",
+                "        FroniusCoordinatorBase,\n",
+                "        FroniusInverterUpdateCoordinator,\n",
+                "        FroniusLoggerUpdateCoordinator,\n",
+                "        FroniusMeterUpdateCoordinator,\n",
+                "        FroniusOhmpilotUpdateCoordinator,\n",
+                "        FroniusPowerFlowUpdateCoordinator,\n",
+                "        FroniusStorageUpdateCoordinator,\n",
+                "    )\n",
+                "\n",
+                "ENERGY_VOLT_AMPERE_REACTIVE_HOUR: Final = \"varh\"\n",
+                "\n",
+                "\n",
+                "async def async_setup_entry(\n",
+                "    hass: HomeAssistant,\n",
+                "    config_entry: ConfigEntry,\n",
+                "    async_add_entities: AddEntitiesCallback,\n",
+                ") -> None:\n",
+                "    \"\"\"Set up Fronius sensor entities based on a config entry.\"\"\"\n",
+                "    solar_net: FroniusSolarNet = hass.data[DOMAIN][config_entry.entry_id]\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    solar_net.sensor_async_add_entities = async_add_entities\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 55,
+                    "end": 56
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 56
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_setup_entry",
+                        "signature": "def async_setup_entry(\n    hass: HomeAssistant,\n    config_entry: ConfigEntry,\n    async_add_entities: AddEntitiesCallback,\n)->None:",
+                        "at_line": 48
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: homeassistant/components/fronius/sensor.py\nCode:\n         def async_setup_entry(\n    hass: HomeAssistant,\n    config_entry: ConfigEntry,\n    async_add_entities: AddEntitiesCallback,\n)->None:\n             ...\n52 53    ) -> None:\n53 54        \"\"\"Set up Fronius sensor entities based on a config entry.\"\"\"\n54 55        solar_net: FroniusSolarNet = hass.data[DOMAIN][config_entry.entry_id]\n55     -     solar_net.sensor_async_add_entities = async_add_entities\n56 56    \n57 57        for inverter_coordinator in solar_net.inverter_coordinators:\n58 58            inverter_coordinator.add_entities_for_seen_keys(\n       ...\n",
+                "file_path": "homeassistant/components/fronius/sensor.py",
+                "identifiers_before": [
+                    "async_add_entities",
+                    "sensor_async_add_entities",
+                    "solar_net"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    ") -> None:\n",
+                    "    \"\"\"Set up Fronius sensor entities based on a config entry.\"\"\"\n",
+                    "    solar_net: FroniusSolarNet = hass.data[DOMAIN][config_entry.entry_id]\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    for inverter_coordinator in solar_net.inverter_coordinators:\n",
+                    "        inverter_coordinator.add_entities_for_seen_keys(\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "sensor_async_add_entities",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 14
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    for inverter_coordinator in solar_net.inverter_coordinators:\n",
+                "        inverter_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, InverterSensor\n",
+                "        )\n",
+                "    if solar_net.logger_coordinator is not None:\n",
+                "        solar_net.logger_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, LoggerSensor\n",
+                "        )\n",
+                "    if solar_net.meter_coordinator is not None:\n",
+                "        solar_net.meter_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, MeterSensor\n",
+                "        )\n",
+                "    if solar_net.ohmpilot_coordinator is not None:\n",
+                "        solar_net.ohmpilot_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, OhmpilotSensor\n",
+                "        )\n",
+                "    if solar_net.power_flow_coordinator is not None:\n",
+                "        solar_net.power_flow_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, PowerFlowSensor\n",
+                "        )\n",
+                "    if solar_net.storage_coordinator is not None:\n",
+                "        solar_net.storage_coordinator.add_entities_for_seen_keys(\n",
+                "            async_add_entities, StorageSensor\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    @callback\n",
+                    "    def async_add_new_entities(coordinator: FroniusInverterUpdateCoordinator) -> None:\n",
+                    "        \"\"\"Add newly found inverter entities.\"\"\"\n",
+                    "        coordinator.add_entities_for_seen_keys(async_add_entities, InverterSensor)\n",
+                    "\n",
+                    "    config_entry.async_on_unload(\n",
+                    "        async_dispatcher_connect(\n",
+                    "            hass,\n",
+                    "            SOLAR_NET_DISCOVERY_NEW,\n",
+                    "            async_add_new_entities,\n",
+                    "        )\n",
+                    "    )\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 82,
+                    "end": 82
+                },
+                "child_version_range": {
+                    "start": 82,
+                    "end": 95
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 10,
+                "hunk_diff": "File: homeassistant/components/fronius/sensor.py\nCode:\n  ...\n79 79                async_add_entities, StorageSensor\n80 80            )\n81 81    \n   82  +     @callback\n   83  +     def async_add_new_entities(coordinator: FroniusInverterUpdateCoordinator) -> None:\n   84  +         \"\"\"Add newly found inverter entities.\"\"\"\n   85  +         coordinator.add_entities_for_seen_keys(async_add_entities, InverterSensor)\n   86  + \n   87  +     config_entry.async_on_unload(\n   88  +         async_dispatcher_connect(\n   89  +             hass,\n   90  +             SOLAR_NET_DISCOVERY_NEW,\n   91  +             async_add_new_entities,\n   92  +         )\n   93  +     )\n   94  + \n82 95    \n83 96    @dataclass\n84 97    class FroniusSensorEntityDescription(SensorEntityDescription):\n       ...\n",
+                "file_path": "homeassistant/components/fronius/sensor.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "FroniusInverterUpdateCoordinator",
+                    "InverterSensor",
+                    "SOLAR_NET_DISCOVERY_NEW",
+                    "add_entities_for_seen_keys",
+                    "async_add_entities",
+                    "async_add_new_entities",
+                    "async_dispatcher_connect",
+                    "async_on_unload",
+                    "callback",
+                    "config_entry",
+                    "coordinator",
+                    "hass"
+                ],
+                "prefix": [
+                    "            async_add_entities, StorageSensor\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "@dataclass\n",
+                    "class FroniusSensorEntityDescription(SensorEntityDescription):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "SOLAR_NET_DISCOVERY_NEW",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "async_dispatcher_connect",
+                            "position": {
+                                "start": {
+                                    "line": 88,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 88,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/fronius/sensor.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "@dataclass\n",
+                "class FroniusSensorEntityDescription(SensorEntityDescription):\n",
+                "    \"\"\"Describes Fronius sensor entity.\"\"\"\n",
+                "\n",
+                "    default_value: StateType | None = None\n",
+                "\n",
+                "\n",
+                "INVERTER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_day\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_year\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_total\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"frequency_ac\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfFrequency.HERTZ,\n",
+                "        device_class=SensorDeviceClass.FREQUENCY,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_ac\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_dc\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_dc_2\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_ac\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_dc\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_dc_2\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    # device status entities\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"inverter_state\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"error_code\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"status_code\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"led_state\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"led_color\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "LOGGER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"co2_factor\",\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:molecule-co2\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"cash_factor\",\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:cash-plus\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"delivery_factor\",\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:cash-minus\",\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "METER_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_ac_phase_1\",\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_ac_phase_2\",\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_ac_phase_3\",\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_reactive_ac_consumed\",\n",
+                "        native_unit_of_measurement=ENERGY_VOLT_AMPERE_REACTIVE_HOUR,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        icon=\"mdi:lightning-bolt-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_reactive_ac_produced\",\n",
+                "        native_unit_of_measurement=ENERGY_VOLT_AMPERE_REACTIVE_HOUR,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        icon=\"mdi:lightning-bolt-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_real_ac_minus\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_real_ac_plus\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_real_consumed\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_real_produced\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"frequency_phase_average\",\n",
+                "        native_unit_of_measurement=UnitOfFrequency.HERTZ,\n",
+                "        device_class=SensorDeviceClass.FREQUENCY,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"meter_location\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_apparent_phase_1\",\n",
+                "        native_unit_of_measurement=UnitOfApparentPower.VOLT_AMPERE,\n",
+                "        device_class=SensorDeviceClass.APPARENT_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_apparent_phase_2\",\n",
+                "        native_unit_of_measurement=UnitOfApparentPower.VOLT_AMPERE,\n",
+                "        device_class=SensorDeviceClass.APPARENT_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_apparent_phase_3\",\n",
+                "        native_unit_of_measurement=UnitOfApparentPower.VOLT_AMPERE,\n",
+                "        device_class=SensorDeviceClass.APPARENT_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_apparent\",\n",
+                "        native_unit_of_measurement=UnitOfApparentPower.VOLT_AMPERE,\n",
+                "        device_class=SensorDeviceClass.APPARENT_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_factor_phase_1\",\n",
+                "        device_class=SensorDeviceClass.POWER_FACTOR,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_factor_phase_2\",\n",
+                "        device_class=SensorDeviceClass.POWER_FACTOR,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_factor_phase_3\",\n",
+                "        device_class=SensorDeviceClass.POWER_FACTOR,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_factor\",\n",
+                "        device_class=SensorDeviceClass.POWER_FACTOR,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_reactive_phase_1\",\n",
+                "        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,\n",
+                "        device_class=SensorDeviceClass.REACTIVE_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_reactive_phase_2\",\n",
+                "        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,\n",
+                "        device_class=SensorDeviceClass.REACTIVE_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_reactive_phase_3\",\n",
+                "        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,\n",
+                "        device_class=SensorDeviceClass.REACTIVE_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_reactive\",\n",
+                "        native_unit_of_measurement=POWER_VOLT_AMPERE_REACTIVE,\n",
+                "        device_class=SensorDeviceClass.REACTIVE_POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:flash-outline\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_real_phase_1\",\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_real_phase_2\",\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_real_phase_3\",\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_real\",\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_1\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_2\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_3\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_to_phase_12\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_to_phase_23\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_ac_phase_to_phase_31\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "OHMPILOT_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_real_ac_consumed\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_real_ac\",\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"temperature_channel_1\",\n",
+                "        native_unit_of_measurement=UnitOfTemperature.CELSIUS,\n",
+                "        device_class=SensorDeviceClass.TEMPERATURE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"error_code\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"state_code\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"state_message\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "POWER_FLOW_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_day\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_year\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"energy_total\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        device_class=SensorDeviceClass.ENERGY,\n",
+                "        state_class=SensorStateClass.TOTAL_INCREASING,\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"meter_mode\",\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_battery\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_grid\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_load\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"power_photovoltaics\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=UnitOfPower.WATT,\n",
+                "        device_class=SensorDeviceClass.POWER,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"relative_autonomy\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:home-circle-outline\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"relative_self_consumption\",\n",
+                "        default_value=0,\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:solar-power\",\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "STORAGE_ENTITY_DESCRIPTIONS: list[FroniusSensorEntityDescription] = [\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"capacity_maximum\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"capacity_designed\",\n",
+                "        native_unit_of_measurement=UnitOfEnergy.WATT_HOUR,\n",
+                "        entity_category=EntityCategory.DIAGNOSTIC,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"current_dc\",\n",
+                "        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,\n",
+                "        device_class=SensorDeviceClass.CURRENT,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_dc\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_dc_maximum_cell\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"voltage_dc_minimum_cell\",\n",
+                "        native_unit_of_measurement=UnitOfElectricPotential.VOLT,\n",
+                "        device_class=SensorDeviceClass.VOLTAGE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "        icon=\"mdi:current-dc\",\n",
+                "        entity_registry_enabled_default=False,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"state_of_charge\",\n",
+                "        native_unit_of_measurement=PERCENTAGE,\n",
+                "        device_class=SensorDeviceClass.BATTERY,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "    FroniusSensorEntityDescription(\n",
+                "        key=\"temperature_cell\",\n",
+                "        native_unit_of_measurement=UnitOfTemperature.CELSIUS,\n",
+                "        device_class=SensorDeviceClass.TEMPERATURE,\n",
+                "        state_class=SensorStateClass.MEASUREMENT,\n",
+                "    ),\n",
+                "]\n",
+                "\n",
+                "\n",
+                "class _FroniusSensorEntity(CoordinatorEntity[\"FroniusCoordinatorBase\"], SensorEntity):\n",
+                "    \"\"\"Defines a Fronius coordinator entity.\"\"\"\n",
+                "\n",
+                "    entity_description: FroniusSensorEntityDescription\n",
+                "    entity_descriptions: list[FroniusSensorEntityDescription]\n",
+                "\n",
+                "    _attr_has_entity_name = True\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusCoordinatorBase,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius meter sensor.\"\"\"\n",
+                "        super().__init__(coordinator)\n",
+                "        self.entity_description = next(\n",
+                "            desc for desc in self.entity_descriptions if desc.key == key\n",
+                "        )\n",
+                "        self.solar_net_id = solar_net_id\n",
+                "        self._attr_native_value = self._get_entity_value()\n",
+                "        self._attr_translation_key = self.entity_description.key\n",
+                "\n",
+                "    def _device_data(self) -> dict[str, Any]:\n",
+                "        \"\"\"Extract information for SolarNet device from coordinator data.\"\"\"\n",
+                "        return self.coordinator.data[self.solar_net_id]\n",
+                "\n",
+                "    def _get_entity_value(self) -> Any:\n",
+                "        \"\"\"Extract entity value from coordinator. Raises KeyError if not included in latest update.\"\"\"\n",
+                "        new_value = self.coordinator.data[self.solar_net_id][\n",
+                "            self.entity_description.key\n",
+                "        ][\"value\"]\n",
+                "        if new_value is None:\n",
+                "            return self.entity_description.default_value\n",
+                "        if isinstance(new_value, float):\n",
+                "            return round(new_value, 4)\n",
+                "        return new_value\n",
+                "\n",
+                "    @callback\n",
+                "    def _handle_coordinator_update(self) -> None:\n",
+                "        \"\"\"Handle updated data from the coordinator.\"\"\"\n",
+                "        try:\n",
+                "            self._attr_native_value = self._get_entity_value()\n",
+                "        except KeyError:\n",
+                "            # sets state to `None` if no default_value is defined in entity description\n",
+                "            self._attr_native_value = self.entity_description.default_value\n",
+                "        self.async_write_ha_state()\n",
+                "\n",
+                "\n",
+                "class InverterSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius inverter device sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = INVERTER_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusInverterUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius inverter sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        # device_info created in __init__ from a `GetInverterInfo` request\n",
+                "        self._attr_device_info = coordinator.inverter_info.device_info\n",
+                "        self._attr_unique_id = f\"{coordinator.inverter_info.unique_id}-{key}\"\n",
+                "\n",
+                "\n",
+                "class LoggerSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius logger device sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = LOGGER_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusLoggerUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius meter sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        logger_data = self._device_data()\n",
+                "        # Logger device is already created in FroniusSolarNet._create_solar_net_device\n",
+                "        self._attr_device_info = coordinator.solar_net.system_device_info\n",
+                "        self._attr_native_unit_of_measurement = logger_data[key].get(\"unit\")\n",
+                "        self._attr_unique_id = f'{logger_data[\"unique_identifier\"][\"value\"]}-{key}'\n",
+                "\n",
+                "\n",
+                "class MeterSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius meter device sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = METER_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusMeterUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius meter sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        meter_data = self._device_data()\n",
+                "        # S0 meters connected directly to inverters respond \"n.a.\" as serial number\n",
+                "        # `model` contains the inverter id: \"S0 Meter at inverter 1\"\n",
+                "        if (meter_uid := meter_data[\"serial\"][\"value\"]) == \"n.a.\":\n",
+                "            meter_uid = (\n",
+                "                f\"{coordinator.solar_net.solar_net_device_id}:\"\n",
+                "                f'{meter_data[\"model\"][\"value\"]}'\n",
+                "            )\n",
+                "\n",
+                "        self._attr_device_info = DeviceInfo(\n",
+                "            identifiers={(DOMAIN, meter_uid)},\n",
+                "            manufacturer=meter_data[\"manufacturer\"][\"value\"],\n",
+                "            model=meter_data[\"model\"][\"value\"],\n",
+                "            name=meter_data[\"model\"][\"value\"],\n",
+                "            via_device=(DOMAIN, coordinator.solar_net.solar_net_device_id),\n",
+                "        )\n",
+                "        self._attr_unique_id = f\"{meter_uid}-{key}\"\n",
+                "\n",
+                "\n",
+                "class OhmpilotSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius Ohmpilot sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = OHMPILOT_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusOhmpilotUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius meter sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        device_data = self._device_data()\n",
+                "\n",
+                "        self._attr_device_info = DeviceInfo(\n",
+                "            identifiers={(DOMAIN, device_data[\"serial\"][\"value\"])},\n",
+                "            manufacturer=device_data[\"manufacturer\"][\"value\"],\n",
+                "            model=f\"{device_data['model']['value']} {device_data['hardware']['value']}\",\n",
+                "            name=device_data[\"model\"][\"value\"],\n",
+                "            sw_version=device_data[\"software\"][\"value\"],\n",
+                "            via_device=(DOMAIN, coordinator.solar_net.solar_net_device_id),\n",
+                "        )\n",
+                "        self._attr_unique_id = f'{device_data[\"serial\"][\"value\"]}-{key}'\n",
+                "\n",
+                "\n",
+                "class PowerFlowSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius power flow sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = POWER_FLOW_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusPowerFlowUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius power flow sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        # SolarNet device is already created in FroniusSolarNet._create_solar_net_device\n",
+                "        self._attr_device_info = coordinator.solar_net.system_device_info\n",
+                "        self._attr_unique_id = (\n",
+                "            f\"{coordinator.solar_net.solar_net_device_id}-power_flow-{key}\"\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "class StorageSensor(_FroniusSensorEntity):\n",
+                "    \"\"\"Defines a Fronius storage device sensor entity.\"\"\"\n",
+                "\n",
+                "    entity_descriptions = STORAGE_ENTITY_DESCRIPTIONS\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        coordinator: FroniusStorageUpdateCoordinator,\n",
+                "        key: str,\n",
+                "        solar_net_id: str,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Set up an individual Fronius storage sensor.\"\"\"\n",
+                "        super().__init__(coordinator, key, solar_net_id)\n",
+                "        storage_data = self._device_data()\n",
+                "\n",
+                "        self._attr_unique_id = f'{storage_data[\"serial\"][\"value\"]}-{key}'\n",
+                "        self._attr_device_info = DeviceInfo(\n",
+                "            identifiers={(DOMAIN, storage_data[\"serial\"][\"value\"])},\n",
+                "            manufacturer=storage_data[\"manufacturer\"][\"value\"],\n",
+                "            model=storage_data[\"model\"][\"value\"],\n",
+                "            name=storage_data[\"model\"][\"value\"],\n",
+                "            via_device=(DOMAIN, coordinator.solar_net.solar_net_device_id),\n",
+                "        )"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        }
+    ]
+}

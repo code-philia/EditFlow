@@ -1,0 +1,63 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits remove the exact same import line 'from ..core.fields import PrefetchingConnectionField' from different files. This represents a bulk uniform substitution where the same before\u2192after pattern (removing this specific import) is applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor to remove unused imports or clean up dependencies. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform removal pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits remove the exact same import line 'from ..core.fields import PrefetchingConnectionField' from different files. This represents a bulk uniform substitution where the same before\u2192after pattern (removing this specific import) is applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor to remove unused imports or clean up dependencies. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform removal pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'gql_optimizer' from the file, while Edit 1 removes the usage of 'gql_optimizer.field()' and replaces it with 'graphene.List()'. The changed lines reference the exact same symbol 'gql_optimizer' - Edit 0 removes its import definition and Edit 1 removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the gql_optimizer dependency."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'gql_optimizer' from the file, while Edit 1 removes the usage of 'gql_optimizer.field()' and replaces it with 'graphene.List()'. The changed lines reference the exact same symbol 'gql_optimizer' - Edit 0 removes its import definition and Edit 1 removes its usage. After removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, but both edits can still be parsed and staged in either order since Python allows referencing undefined names at parse time. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the gql_optimizer dependency."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the User.addresses field from a PrefetchingConnectionField (which supports pagination with totalCount) to a simple graphene.List (which does not support totalCount). Edit 1 updates a test query to remove the totalCount field from the addresses query and replace it with id. These edits reference the same GraphQL field (addresses) and the test change is a direct consequence of the implementation change - after changing addresses to a List type, totalCount is no longer available, making the test update mechanically necessary. The test is specifically testing the addresses field that was modified in edit 0."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'PrefetchingConnectionField' in their changed lines. Edit 0 removes the import of PrefetchingConnectionField, while Edit 1 removes its usage in the User class. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed as the next mechanical step. Conversely, after removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, making its removal the next logical step. Both edits can be parsed and staged in either order (Python allows referencing undefined names at parse time), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'PrefetchingConnectionField' in their changed lines. Edit 0 removes the import of PrefetchingConnectionField, while Edit 1 removes its usage in the User class. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed as the next mechanical step. Conversely, after removing the import in Edit 0, the usage in Edit 1 would cause a NameError at runtime, making its removal the next logical step. Both edits can be parsed and staged in either order (Python allows referencing undefined names at parse time), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "These edits are bi-directional neighbours because they both reference the exact same field change in the GraphQL schema. Edit 0 changes the User.addresses field from a PrefetchingConnectionField (which returns paginated data with totalCount) to a graphene.List (which returns a simple list). Edit 1 updates the corresponding test assertion to match this change - from accessing data['addresses']['totalCount'] to using len(data['addresses']). Both edits reference the same addresses field and the test change is the immediate, mechanically obvious next step after changing the field type, or vice versa. Either edit can be made first since both are syntactically valid independently, but making either one creates an immediate prompt for the other to maintain consistency between the schema and its test."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they both reference the exact same field change in the GraphQL schema. Edit 0 changes the User.addresses field from a PrefetchingConnectionField (which returns paginated data with totalCount) to a graphene.List (which returns a simple list). Edit 1 updates the corresponding test assertion to match this change - from accessing data['addresses']['totalCount'] to using len(data['addresses']). Both edits reference the same addresses field and the test change is the immediate, mechanically obvious next step after changing the field type, or vice versa. Either edit can be made first since both are syntactically valid independently, but making either one creates an immediate prompt for the other to maintain consistency between the schema and its test."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are part of the same test function and involve changing how addresses are handled in a GraphQL query and its corresponding assertion. Edit 0 changes the GraphQL query from requesting 'totalCount' to requesting 'id' for addresses, and Edit 1 updates the test assertion from checking 'totalCount' to checking the length of the addresses array. These changes reference the same addresses field and represent a coordinated change from a count-based approach to a list-based approach. The edits are mechanically linked because changing the query structure (Edit 0) necessitates updating the corresponding assertion logic (Edit 1) to match the new data structure. Either edit could be made first since both are syntactically valid independently, but together they form a coherent change to the same test's addresses handling."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are part of the same test function and involve changing how addresses are handled in a GraphQL query and its corresponding assertion. Edit 0 changes the GraphQL query from requesting 'totalCount' to requesting 'id' for addresses, and Edit 1 updates the test assertion from checking 'totalCount' to checking the length of the addresses array. These changes reference the same addresses field and represent a coordinated change from a count-based approach to a list-based approach. The edits are mechanically linked because changing the query structure (Edit 0) necessitates updating the corresponding assertion logic (Edit 1) to match the new data structure. Either edit could be made first since both are syntactically valid independently, but together they form a coherent change to the same test's addresses handling."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        0
+    ]
+}

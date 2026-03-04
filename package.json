@@ -1,0 +1,160 @@
+{
+  "name": "EditFlow",
+  "displayName": "EditFlow",
+  "description": "Benchmarking and optimizing code edit recommendation systems via reconstruction of developer flows",
+  "version": "0.0.1",
+  "publisher": "CodePhilia",
+  "icon": "media/icon.jpg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/code-philia/EditFlow"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "commit-recovery-simulator.simulateCommitRecoveryFromInput",
+        "title": "Commit Simulation"
+      },
+      {
+        "command": "commit-recovery-simulator.pauseResume",
+        "title": "Resume Simulation",
+        "icon": "/media/pause_and_continue.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.simulateEditSuggestion",
+        "title": "Flow-keeper: Suggest Next Edit"
+      },
+      {
+        "command": "edit-suggestion-simulator.suggestion",
+        "title": "Suggest Next Edit",
+        "icon": "/media/suggestion.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.acceptDiff",
+        "title": "Accept Diff",
+        "icon": "/media/accept.svg"
+      },
+      {
+        "command": "edit-suggestion-simulator.rejectDiff",
+        "title": "Reject Diff",
+        "icon": "/media/reject.svg"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "simulator",
+          "title": "Simulator",
+          "icon": "./media/simulation.svg"
+        },
+        {
+          "id": "Flow-keeper",
+          "title": "Flow-keeper",
+          "icon": "./media/flow-keeper.svg"
+        }
+      ]
+    },
+    "views": {
+      "simulator": [
+        {
+          "id": "simulatorView",
+          "name": "Predicted Locations"
+        }
+      ],
+      "Flow-keeper": [
+        {
+          "id": "flowKeeper.Tracking",
+          "name": "Edit Flow Tracking"
+        }
+      ]
+    },
+    "menus": {
+      "editor/title": [
+        {
+          "command": "commit-recovery-simulator.pauseResume",
+          "group": "navigation@3",
+          "when": "!(resourceFilename =~ /^hunk1-/)"
+        },
+        {
+          "command": "edit-suggestion-simulator.suggestion",
+          "group": "navigation@3",
+          "when": "!(resourceFilename =~ /^hunk1-/)"
+        },
+        {
+          "command": "edit-suggestion-simulator.acceptDiff",
+          "group": "navigation@3",
+          "when": "resourceFilename =~ /^hunk1-/"
+        },
+        {
+          "command": "edit-suggestion-simulator.rejectDiff",
+          "group": "navigation@3",
+          "when": "resourceFilename =~ /^hunk1-/"
+        }
+      ]
+    },
+    "configuration": [
+      {
+        "title": "EditFlow",
+        "properties": {
+          "editFlow.serverURL": {
+            "type": "string",
+            "default": "http://localhost:5002",
+            "description": "The backend URL for EditFlow server."
+          }
+        }
+      },
+      {
+        "title": "Digital twin simulator",
+        "properties": {
+          "digitalTwinSimulator.serverURL": {
+            "type": "string",
+            "default": "http://localhost:5001",
+            "description": "The backend URL for Digital twin simulator server."
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "vscode-test",
+    "build": "tsc --build jsconfig.json",
+    "package": "vsce package --no-yarn"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "overrides": {
+    "serialize-javascript": ">=7.0.3",
+    "mocha": {
+      "diff": ">=8.0.3"
+    }
+  },
+  "dependencies": {
+    "@vscode/codicons": "^0.0.36",
+    "axios": "^1.10.0",
+    "diff": "^8.0.3",
+    "ejs": "^3.1.9",
+    "lodash": "^4.17.21",
+    "luxon": "^3.7.1",
+    "openai": "^5.1.1"
+  }
+}

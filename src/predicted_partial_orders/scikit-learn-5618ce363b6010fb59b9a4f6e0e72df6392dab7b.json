@@ -1,0 +1,64 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'y_ind' by transforming y with LabelEncoder, while Edit 1 uses this exact same 'y_ind' variable in the for loop and comparison. The changed lines in Edit 1 directly reference the 'y_ind' symbol that was created in Edit 0. After making Edit 0, using 'y_ind' in Edit 1 becomes the immediate next step to utilize the label-encoded values. Both edits reference the exact same symbol 'y_ind' and form a definition-usage relationship within the same function."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports LabelEncoder from sklearn.preprocessing, and Edit 1 uses that exact same LabelEncoder symbol by instantiating it with 'le = LabelEncoder()'. The changed lines reference the exact same symbol - the LabelEncoder class. After importing LabelEncoder in Edit 0, using it in Edit 1 becomes a natural next step. Conversely, if Edit 1 were made first, the usage of LabelEncoder would create an immediate prompt to import it. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports LabelEncoder from sklearn.preprocessing, and Edit 1 uses that exact same LabelEncoder symbol by instantiating it with 'le = LabelEncoder()'. The changed lines reference the exact same symbol - the LabelEncoder class. After importing LabelEncoder in Edit 0, using it in Edit 1 becomes a natural next step. Conversely, if Edit 1 were made first, the usage of LabelEncoder would create an immediate prompt to import it. Both edits can be staged in either order in Python (usage before import only causes a runtime NameError, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'y_ind' by creating it with 'y_ind = le.fit_transform(y)'. Edit 1 uses this exact same variable 'y_ind' in the expression 'self.centroids_[y_ind]'. The changed lines reference the exact same symbol 'y_ind', where edit 0 defines it and edit 1 uses it. This creates an immediate, mechanically obvious code dependency - after introducing y_ind in edit 0, using it in edit 1 becomes the natural next step. Both edits are within the same function (fit method) and would be part of the same uninterrupted micro-task of refactoring the label handling. Either edit could be staged first since Python allows referencing undefined variables at parse time (only failing at runtime), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'y_ind' by creating it with 'y_ind = le.fit_transform(y)'. Edit 1 uses this exact same variable 'y_ind' in the expression 'self.centroids_[y_ind]'. The changed lines reference the exact same symbol 'y_ind', where edit 0 defines it and edit 1 uses it. This creates an immediate, mechanically obvious code dependency - after introducing y_ind in edit 0, using it in edit 1 becomes the natural next step. Both edits are within the same function (fit method) and would be part of the same uninterrupted micro-task of refactoring the label handling. Either edit could be staged first since Python allows referencing undefined variables at parse time (only failing at runtime), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits involve changing from using the original variable 'y' to using 'y_ind' in the same function context. Edit 0 changes the loop variable and mask comparison from 'y == cur_class' to 'y_ind == cur_class', while Edit 1 changes the indexing from 'self.centroids_[y]' to 'self.centroids_[y_ind]'. Both edits reference the exact same symbols (y and y_ind) and are part of a uniform substitution pattern where 'y' is being replaced with 'y_ind' throughout the function. This appears to be a single refactoring operation where a variable name is being changed consistently across multiple usage sites within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits involve changing from using the original variable 'y' to using 'y_ind' in the same function context. Edit 0 changes the loop variable and mask comparison from 'y == cur_class' to 'y_ind == cur_class', while Edit 1 changes the indexing from 'self.centroids_[y]' to 'self.centroids_[y_ind]'. Both edits reference the exact same symbols (y and y_ind) and are part of a uniform substitution pattern where 'y' is being replaced with 'y_ind' throughout the function. This appears to be a single refactoring operation where a variable name is being changed consistently across multiple usage sites within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 modifies the NearestCentroid.fit() method to use LabelEncoder for handling labels, changing how the classes_ attribute is set and introducing label encoding. Edit 1 adds a test function that specifically tests the behavior of NearestCentroid with encoded vs decoded labels, directly testing the functionality introduced in Edit 0. The test calls clf.fit() with both encoded and decoded labels and compares the centroids, which directly exercises the label encoding changes made in Edit 0. This is a test-production code synchronization where the test is specifically designed to verify the exact functionality being modified in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the NearestCentroid.fit() method to use LabelEncoder for handling labels, changing how the classes_ attribute is set and introducing label encoding. Edit 1 adds a test function that specifically tests the behavior of NearestCentroid with encoded vs decoded labels, directly testing the functionality introduced in Edit 0. The test calls clf.fit() with both encoded and decoded labels and compares the centroids, which directly exercises the label encoding changes made in Edit 0. This is a test-production code synchronization where the test is specifically designed to verify the exact functionality being modified in the production code."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are part of the same refactoring operation that changes the loop variable from 'i' (an index) to 'cur_class' (the actual class value). Edit 0 changes the for loop to iterate directly over y_ind values using 'cur_class', and Edit 1 updates the array indexing to use 'cur_class' instead of 'i'. The changed lines in both edits reference the exact same symbol 'cur_class' - Edit 0 introduces it as the loop variable, and Edit 1 uses it for array indexing. This creates a direct code dependency where both edits must be made together as part of a single, contiguous refactoring task. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring operation that changes the loop variable from 'i' (an index) to 'cur_class' (the actual class value). Edit 0 changes the for loop to iterate directly over y_ind values using 'cur_class', and Edit 1 updates the array indexing to use 'cur_class' instead of 'i'. The changed lines in both edits reference the exact same symbol 'cur_class' - Edit 0 introduces it as the loop variable, and Edit 1 uses it for array indexing. This creates a direct code dependency where both edits must be made together as part of a single, contiguous refactoring task. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the refactoring."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        5,
+        3
+    ]
+}

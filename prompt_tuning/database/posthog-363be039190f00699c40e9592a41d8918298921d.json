@@ -1,0 +1,1004 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/PostHog/posthog/commit/363be039190f00699c40e9592a41d8918298921d",
+    "commit_message": "fix: force reconnection of db connection in proxy temporal jobs (#22722)\n\nforce reconnection of db connection in proxy temporal jobs",
+    "commit_snapshots": {
+        "posthog/temporal/proxy_service/common.py": [
+            [
+                "from asgiref.sync import sync_to_async\n",
+                "from dataclasses import dataclass\n",
+                "import grpc.aio\n",
+                "import uuid\n",
+                "from django.conf import settings\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from django.db import connection\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 5
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: posthog/temporal/proxy_service/common.py\nCode:\n  ...\n2 2    import grpc.aio\n3 3    import uuid\n4 4    from django.conf import settings\n  5  + from django.db import connection\n5 6    \n6 7    from temporalio import activity\n7 8    \n     ...\n",
+                "file_path": "posthog/temporal/proxy_service/common.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connection",
+                    "db",
+                    "django"
+                ],
+                "prefix": [
+                    "import grpc.aio\n",
+                    "import uuid\n",
+                    "from django.conf import settings\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from temporalio import activity\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    5
+                ]
+            },
+            [
+                "\n",
+                "from temporalio import activity\n",
+                "\n",
+                "from posthog.models import ProxyRecord\n",
+                "from posthog.temporal.common.logger import bind_temporal_org_worker_logger\n",
+                "\n",
+                "from posthog.temporal.proxy_service.proto import ProxyProvisionerServiceStub\n",
+                "\n",
+                "\n",
+                "async def get_grpc_client():\n",
+                "    channel = grpc.aio.insecure_channel(settings.PROXY_PROVISIONER_ADDR)\n",
+                "    await channel.channel_ready()\n",
+                "    return ProxyProvisionerServiceStub(channel)\n",
+                "\n",
+                "\n",
+                "class NonRetriableException(Exception):\n",
+                "    pass\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class UpdateProxyRecordInputs:\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "    status: str\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def update_proxy_record(inputs: UpdateProxyRecordInputs):\n",
+                "    \"\"\"Activity that does a DNS lookup for the target subdomain and checks it has a CNAME\n",
+                "    record matching the expected value.\n",
+                "    \"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Updating proxy record %s state to %s\",\n",
+                "        inputs.proxy_record_id,\n",
+                "        inputs.status,\n",
+                "    )\n",
+                "\n",
+                "    @sync_to_async\n",
+                "    def update_record(proxy_record_id):\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        connection.connect()\n"
+                ],
+                "parent_version_range": {
+                    "start": 45,
+                    "end": 45
+                },
+                "child_version_range": {
+                    "start": 46,
+                    "end": 47
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "update_proxy_record",
+                        "signature": "def update_proxy_record(inputs: UpdateProxyRecordInputs):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "update_record",
+                        "signature": "def update_record(proxy_record_id):",
+                        "at_line": 44
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: posthog/temporal/proxy_service/common.py\nCode:\n         def update_proxy_record(inputs: UpdateProxyRecordInputs):\n             ...\n42 43    \n43 44        @sync_to_async\n44 45        def update_record(proxy_record_id):\n   46  +         connection.connect()\n45 47            pr = ProxyRecord.objects.get(id=proxy_record_id)\n46 48            pr.status = inputs.status\n47 49            pr.save()\n       ...\n",
+                "file_path": "posthog/temporal/proxy_service/common.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connect",
+                    "connection"
+                ],
+                "prefix": [
+                    "\n",
+                    "    @sync_to_async\n",
+                    "    def update_record(proxy_record_id):\n"
+                ],
+                "suffix": [
+                    "        pr = ProxyRecord.objects.get(id=proxy_record_id)\n",
+                    "        pr.status = inputs.status\n",
+                    "        pr.save()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3,
+                    4,
+                    6
+                ]
+            },
+            [
+                "        pr = ProxyRecord.objects.get(id=proxy_record_id)\n",
+                "        pr.status = inputs.status\n",
+                "        pr.save()\n",
+                "\n",
+                "    await update_record(inputs.proxy_record_id)"
+            ]
+        ],
+        "posthog/temporal/proxy_service/create.py": [
+            [
+                "from asgiref.sync import sync_to_async\n",
+                "from dataclasses import dataclass\n",
+                "import datetime as dt\n",
+                "import dns.resolver\n",
+                "import grpc.aio\n",
+                "import json\n",
+                "import uuid\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from django.db import connection\n"
+                ],
+                "parent_version_range": {
+                    "start": 7,
+                    "end": 7
+                },
+                "child_version_range": {
+                    "start": 7,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: posthog/temporal/proxy_service/create.py\nCode:\n  ...\n 4  4    import grpc.aio\n 5  5    import json\n 6  6    import uuid\n    7  + from django.db import connection\n 7  8    \n 8  9    from temporalio import activity, workflow\n 9 10    import temporalio.common\n       ...\n",
+                "file_path": "posthog/temporal/proxy_service/create.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connection",
+                    "db",
+                    "django"
+                ],
+                "prefix": [
+                    "import grpc.aio\n",
+                    "import json\n",
+                    "import uuid\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from temporalio import activity, workflow\n",
+                    "import temporalio.common\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0,
+                    5
+                ]
+            },
+            [
+                "\n",
+                "from temporalio import activity, workflow\n",
+                "import temporalio.common\n",
+                "from temporalio.exceptions import ApplicationError\n",
+                "\n",
+                "from posthog.models import ProxyRecord\n",
+                "from posthog.temporal.batch_exports.base import PostHogWorkflow\n",
+                "from posthog.temporal.common.logger import bind_temporal_org_worker_logger\n",
+                "\n",
+                "from posthog.temporal.proxy_service.common import (\n",
+                "    get_grpc_client,\n",
+                "    NonRetriableException,\n",
+                "    update_proxy_record,\n",
+                "    UpdateProxyRecordInputs,\n",
+                ")\n",
+                "from posthog.temporal.proxy_service.proto import CreateRequest, StatusRequest, CertificateState_READY\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class CreateManagedProxyInputs:\n",
+                "    \"\"\"Inputs for the CreateManagedProxy Workflow and Activity.\"\"\"\n",
+                "\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "    domain: str\n",
+                "    target_cname: str\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class WaitForDNSRecordsInputs:\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "    domain: str\n",
+                "    target_cname: str\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class WaitForCertificateInputs:\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "    domain: str\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def wait_for_dns_records(inputs: WaitForDNSRecordsInputs):\n",
+                "    \"\"\"Activity that does a DNS lookup for the target subdomain and checks it has a CNAME\n",
+                "    record matching the expected value.\n",
+                "    \"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Looking up DNS record for %s, expecting %s\",\n",
+                "        inputs.domain,\n",
+                "        inputs.target_cname,\n",
+                "    )\n",
+                "\n",
+                "    @sync_to_async\n",
+                "    def record_exists(proxy_record_id) -> bool:\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        connection.connect()\n"
+                ],
+                "parent_version_range": {
+                    "start": 64,
+                    "end": 64
+                },
+                "child_version_range": {
+                    "start": 65,
+                    "end": 66
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "wait_for_dns_records",
+                        "signature": "def wait_for_dns_records(inputs: WaitForDNSRecordsInputs):",
+                        "at_line": 51
+                    },
+                    {
+                        "type": "function",
+                        "name": "record_exists",
+                        "signature": "def record_exists(proxy_record_id)->bool:",
+                        "at_line": 63
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: posthog/temporal/proxy_service/create.py\nCode:\n         def wait_for_dns_records(inputs: WaitForDNSRecordsInputs):\n             ...\n61 62    \n62 63        @sync_to_async\n63 64        def record_exists(proxy_record_id) -> bool:\n   65  +         connection.connect()\n64 66            pr = ProxyRecord.objects.filter(id=proxy_record_id)\n65 67            return len(pr) > 0\n66 68    \n       ...\n",
+                "file_path": "posthog/temporal/proxy_service/create.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connect",
+                    "connection"
+                ],
+                "prefix": [
+                    "\n",
+                    "    @sync_to_async\n",
+                    "    def record_exists(proxy_record_id) -> bool:\n"
+                ],
+                "suffix": [
+                    "        pr = ProxyRecord.objects.filter(id=proxy_record_id)\n",
+                    "        return len(pr) > 0\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1,
+                    4,
+                    6
+                ]
+            },
+            [
+                "        pr = ProxyRecord.objects.filter(id=proxy_record_id)\n",
+                "        return len(pr) > 0\n",
+                "\n",
+                "    if not await record_exists(inputs.proxy_record_id):\n",
+                "        raise NonRetriableException(\"proxy record was deleted while waiting for DNS records\")\n",
+                "\n",
+                "    try:\n",
+                "        cnames = dns.resolver.query(inputs.domain, \"CNAME\")\n",
+                "        value = cnames[0].target.canonicalize().to_text()\n",
+                "\n",
+                "        if value == inputs.target_cname:\n",
+                "            return\n",
+                "        else:\n",
+                "            raise ApplicationError(\"target CNAME doesn't match\", non_retryable=False)\n",
+                "    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, ApplicationError):\n",
+                "        # retriable\n",
+                "        raise\n",
+                "    except Exception as e:\n",
+                "        raise NonRetriableException(\"unknown exception in check_dns_record\") from e\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def create_managed_proxy(inputs: CreateManagedProxyInputs):\n",
+                "    \"\"\"Activity that calls the proxy provisioner to create the resources for\n",
+                "    a Hosted Proxy. It also waits for provisioning to be complete and updates\n",
+                "    the Proxy Record's state as it goes.\n",
+                "    \"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Creating managed proxy resources for domain %s\",\n",
+                "        inputs.domain,\n",
+                "    )\n",
+                "\n",
+                "    @sync_to_async\n",
+                "    def record_exists(proxy_record_id) -> bool:\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        connection.connect()\n"
+                ],
+                "parent_version_range": {
+                    "start": 99,
+                    "end": 99
+                },
+                "child_version_range": {
+                    "start": 101,
+                    "end": 102
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "create_managed_proxy",
+                        "signature": "def create_managed_proxy(inputs: CreateManagedProxyInputs):",
+                        "at_line": 86
+                    },
+                    {
+                        "type": "function",
+                        "name": "record_exists",
+                        "signature": "def record_exists(proxy_record_id)->bool:",
+                        "at_line": 98
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: posthog/temporal/proxy_service/create.py\nCode:\n           def create_managed_proxy(inputs: CreateManagedProxyInputs):\n               ...\n 96  98    \n 97  99        @sync_to_async\n 98 100        def record_exists(proxy_record_id) -> bool:\n    101  +         connection.connect()\n 99 102            pr = ProxyRecord.objects.filter(id=proxy_record_id)\n100 103            return len(pr) > 0\n101 104    \n         ...\n",
+                "file_path": "posthog/temporal/proxy_service/create.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connect",
+                    "connection"
+                ],
+                "prefix": [
+                    "\n",
+                    "    @sync_to_async\n",
+                    "    def record_exists(proxy_record_id) -> bool:\n"
+                ],
+                "suffix": [
+                    "        pr = ProxyRecord.objects.filter(id=proxy_record_id)\n",
+                    "        return len(pr) > 0\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1,
+                    3,
+                    6
+                ]
+            },
+            [
+                "        pr = ProxyRecord.objects.filter(id=proxy_record_id)\n",
+                "        return len(pr) > 0\n",
+                "\n",
+                "    if not await record_exists(inputs.proxy_record_id):\n",
+                "        raise NonRetriableException(\"proxy record was deleted while waiting for certificate to be provisioned\")\n",
+                "\n",
+                "    client = await get_grpc_client()\n",
+                "\n",
+                "    try:\n",
+                "        await client.Create(\n",
+                "            CreateRequest(\n",
+                "                uuid=str(inputs.proxy_record_id),\n",
+                "                domain=inputs.domain,\n",
+                "            )\n",
+                "        )\n",
+                "    except grpc.aio.AioRpcError as e:\n",
+                "        if e.code() == grpc.StatusCode.INVALID_ARGUMENT:\n",
+                "            raise NonRetriableException(\"invalid argument\") from e\n",
+                "        raise\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def wait_for_certificate(inputs: WaitForCertificateInputs):\n",
+                "    \"\"\"Activity that calls the proxy provisioner to create the resources for\n",
+                "    a Hosted Proxy. It also waits for provisioning to be complete and updates\n",
+                "    the Proxy Record's state as it goes.\n",
+                "    \"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Waiting for certificate to be provisioned for domain %s\",\n",
+                "        inputs.domain,\n",
+                "    )\n",
+                "\n",
+                "    client = await get_grpc_client()\n",
+                "\n",
+                "    try:\n",
+                "        response = await client.Status(\n",
+                "            StatusRequest(\n",
+                "                uuid=str(inputs.proxy_record_id),\n",
+                "                domain=inputs.domain,\n",
+                "            )\n",
+                "        )\n",
+                "\n",
+                "        # throw exceptions until ready\n",
+                "        # this lets temporal handle retry/backoff logic\n",
+                "        if response.certificate_status != CertificateState_READY:\n",
+                "            raise ApplicationError(\"certificate not yet ready\")\n",
+                "    except grpc.aio.AioRpcError as e:\n",
+                "        if e.code() == grpc.StatusCode.INVALID_ARGUMENT:\n",
+                "            raise NonRetriableException(\"invalid argument\") from e\n",
+                "        if e.code() == grpc.StatusCode.NOT_FOUND:\n",
+                "            raise NonRetriableException(\"not found\") from e\n",
+                "    except ApplicationError:\n",
+                "        raise\n",
+                "    except Exception as e:\n",
+                "        raise NonRetriableException(\"unknown exception in wait_for_certificate\") from e\n",
+                "\n",
+                "\n",
+                "@workflow.defn(name=\"create-proxy\")\n",
+                "class CreateManagedProxyWorkflow(PostHogWorkflow):\n",
+                "    \"\"\"A Temporal Workflow to create a Managed reverse Proxy.\"\"\"\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def parse_inputs(inputs: list[str]) -> CreateManagedProxyInputs:\n",
+                "        \"\"\"Parse inputs from the management command CLI.\"\"\"\n",
+                "        loaded = json.loads(inputs[0])\n",
+                "        return CreateManagedProxyInputs(**loaded)\n",
+                "\n",
+                "    @temporalio.workflow.run\n",
+                "    async def run(self, inputs: CreateManagedProxyInputs) -> None:\n",
+                "        \"\"\"Workflow implementation to create a Managed reverse Proxy.\"\"\"\n",
+                "\n",
+                "        try:\n",
+                "            # Wait for DNS record to be created.\n",
+                "            # This will fail and retry infinitely until the expected resolution is found.\n",
+                "            # Timeout after 7 days - users will need to delete and recreate after this time.\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                wait_for_dns_records,\n",
+                "                WaitForDNSRecordsInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    domain=inputs.domain,\n",
+                "                    target_cname=inputs.target_cname,\n",
+                "                ),\n",
+                "                schedule_to_close_timeout=dt.timedelta(days=7),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=2),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    backoff_coefficient=1.1,\n",
+                "                    initial_interval=dt.timedelta(seconds=3),\n",
+                "                    maximum_interval=dt.timedelta(seconds=3600),\n",
+                "                    maximum_attempts=0,\n",
+                "                    non_retryable_error_types=[\"NonRetriableException\"],\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "            # We've found the correct DNS record - update record to the ISSUING state\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                update_proxy_record,\n",
+                "                UpdateProxyRecordInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    status=ProxyRecord.Status.ISSUING.value,\n",
+                "                ),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=10),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    maximum_attempts=2,\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "            # Call proxy provisioner to create the HTTProxy and Certificate resources\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                create_managed_proxy,\n",
+                "                inputs,\n",
+                "                schedule_to_close_timeout=dt.timedelta(minutes=5),\n",
+                "                start_to_close_timeout=dt.timedelta(minutes=1),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    initial_interval=dt.timedelta(seconds=10),\n",
+                "                    maximum_attempts=5,\n",
+                "                    non_retryable_error_types=[\"NonRetriableException\"],\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "            # Waits for the certificate to be provisioned and for the proxy to be live\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                wait_for_certificate,\n",
+                "                WaitForCertificateInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    domain=inputs.domain,\n",
+                "                ),\n",
+                "                schedule_to_close_timeout=dt.timedelta(minutes=15),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=5),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    backoff_coefficient=1.1,\n",
+                "                    initial_interval=dt.timedelta(seconds=1),\n",
+                "                    maximum_interval=dt.timedelta(seconds=10),\n",
+                "                    maximum_attempts=0,\n",
+                "                    non_retryable_error_types=[\"NonRetriableException\"],\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "            # Everything's created and ready to go, update to VALID\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                update_proxy_record,\n",
+                "                UpdateProxyRecordInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    status=ProxyRecord.Status.VALID.value,\n",
+                "                ),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=10),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    maximum_attempts=2,\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "        except Exception:\n",
+                "            # Something went wrong - set the record to error state\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                update_proxy_record,\n",
+                "                UpdateProxyRecordInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    status=ProxyRecord.Status.ERRORING.value,\n",
+                "                ),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=60),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    maximum_attempts=10,\n",
+                "                ),\n",
+                "            )\n",
+                "            raise"
+            ]
+        ],
+        "posthog/temporal/proxy_service/delete.py": [
+            [
+                "from asgiref.sync import sync_to_async\n",
+                "from dataclasses import dataclass\n",
+                "import datetime as dt\n",
+                "import grpc.aio\n",
+                "import json\n",
+                "import uuid\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from django.db import connection\n"
+                ],
+                "parent_version_range": {
+                    "start": 6,
+                    "end": 6
+                },
+                "child_version_range": {
+                    "start": 6,
+                    "end": 7
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: posthog/temporal/proxy_service/delete.py\nCode:\n  ...\n3 3    import grpc.aio\n4 4    import json\n5 5    import uuid\n  6  + from django.db import connection\n6 7    \n7 8    from temporalio import activity, workflow\n8 9    import temporalio.common\n     ...\n",
+                "file_path": "posthog/temporal/proxy_service/delete.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connection",
+                    "db",
+                    "django"
+                ],
+                "prefix": [
+                    "import grpc.aio\n",
+                    "import json\n",
+                    "import uuid\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from temporalio import activity, workflow\n",
+                    "import temporalio.common\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0,
+                    2
+                ]
+            },
+            [
+                "\n",
+                "from temporalio import activity, workflow\n",
+                "import temporalio.common\n",
+                "\n",
+                "from posthog.models import ProxyRecord\n",
+                "from posthog.temporal.batch_exports.base import PostHogWorkflow\n",
+                "from posthog.temporal.common.logger import bind_temporal_org_worker_logger\n",
+                "\n",
+                "from posthog.temporal.proxy_service.common import (\n",
+                "    get_grpc_client,\n",
+                "    NonRetriableException,\n",
+                "    update_proxy_record,\n",
+                "    UpdateProxyRecordInputs,\n",
+                ")\n",
+                "from posthog.temporal.proxy_service.proto import DeleteRequest\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class DeleteProxyRecordInputs:\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "\n",
+                "\n",
+                "@dataclass\n",
+                "class DeleteManagedProxyInputs:\n",
+                "    \"\"\"Inputs for the DeleteManagedProxy Workflow and Activity.\"\"\"\n",
+                "\n",
+                "    organization_id: uuid.UUID\n",
+                "    proxy_record_id: uuid.UUID\n",
+                "    domain: str\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def delete_proxy_record(inputs: DeleteProxyRecordInputs):\n",
+                "    \"\"\"Activity that does a DNS lookup for the target subdomain and checks it has a CNAME\n",
+                "    record matching the expected value.\n",
+                "    \"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Deleting proxy record %s\",\n",
+                "        inputs.proxy_record_id,\n",
+                "    )\n",
+                "\n",
+                "    @sync_to_async\n",
+                "    def delete_record(proxy_record_id):\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        connection.connect()\n"
+                ],
+                "parent_version_range": {
+                    "start": 51,
+                    "end": 51
+                },
+                "child_version_range": {
+                    "start": 52,
+                    "end": 53
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "delete_proxy_record",
+                        "signature": "def delete_proxy_record(inputs: DeleteProxyRecordInputs):",
+                        "at_line": 39
+                    },
+                    {
+                        "type": "function",
+                        "name": "delete_record",
+                        "signature": "def delete_record(proxy_record_id):",
+                        "at_line": 50
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: posthog/temporal/proxy_service/delete.py\nCode:\n         def delete_proxy_record(inputs: DeleteProxyRecordInputs):\n             ...\n48 49    \n49 50        @sync_to_async\n50 51        def delete_record(proxy_record_id):\n   52  +         connection.connect()\n51 53            pr = ProxyRecord.objects.get(id=proxy_record_id)\n52 54            pr.delete()\n53 55    \n       ...\n",
+                "file_path": "posthog/temporal/proxy_service/delete.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "connect",
+                    "connection"
+                ],
+                "prefix": [
+                    "\n",
+                    "    @sync_to_async\n",
+                    "    def delete_record(proxy_record_id):\n"
+                ],
+                "suffix": [
+                    "        pr = ProxyRecord.objects.get(id=proxy_record_id)\n",
+                    "        pr.delete()\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1,
+                    3,
+                    4
+                ]
+            },
+            [
+                "        pr = ProxyRecord.objects.get(id=proxy_record_id)\n",
+                "        pr.delete()\n",
+                "\n",
+                "    await delete_record(inputs.proxy_record_id)\n",
+                "\n",
+                "\n",
+                "@activity.defn\n",
+                "async def delete_managed_proxy(inputs: DeleteManagedProxyInputs):\n",
+                "    \"\"\"Activity that calls the proxy provisioner to delete the resources for a Hosted Proxy.\"\"\"\n",
+                "    logger = await bind_temporal_org_worker_logger(organization_id=inputs.organization_id)\n",
+                "    logger.info(\n",
+                "        \"Deleting hosted proxy %s for domain %s\",\n",
+                "        inputs.proxy_record_id,\n",
+                "        inputs.domain,\n",
+                "    )\n",
+                "\n",
+                "    client = await get_grpc_client()\n",
+                "\n",
+                "    try:\n",
+                "        await client.Delete(\n",
+                "            DeleteRequest(\n",
+                "                uuid=str(inputs.proxy_record_id),\n",
+                "                domain=inputs.domain,\n",
+                "            )\n",
+                "        )\n",
+                "    except grpc.aio.AioRpcError as e:\n",
+                "        if e.code() == grpc.StatusCode.INVALID_ARGUMENT:\n",
+                "            raise NonRetriableException(\"invalid argument\") from e\n",
+                "        if e.code() == grpc.StatusCode.NOT_FOUND:\n",
+                "            raise NonRetriableException(\"not found\") from e\n",
+                "        raise\n",
+                "\n",
+                "\n",
+                "@workflow.defn(name=\"delete-proxy\")\n",
+                "class DeleteManagedProxyWorkflow(PostHogWorkflow):\n",
+                "    \"\"\"A Temporal Workflow to delete a Managed reverse Proxy.\"\"\"\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def parse_inputs(inputs: list[str]) -> DeleteManagedProxyInputs:\n",
+                "        \"\"\"Parse inputs from the management command CLI.\"\"\"\n",
+                "        loaded = json.loads(inputs[0])\n",
+                "        return DeleteManagedProxyInputs(**loaded)\n",
+                "\n",
+                "    @temporalio.workflow.run\n",
+                "    async def run(self, inputs: DeleteManagedProxyInputs) -> None:\n",
+                "        \"\"\"Workflow implementation to delete a Managed reverse Proxy.\"\"\"\n",
+                "\n",
+                "        try:\n",
+                "            # Call proxy provisioner to delete the HTTProxy and Certificate resources\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                delete_managed_proxy,\n",
+                "                inputs,\n",
+                "                schedule_to_close_timeout=dt.timedelta(minutes=5),\n",
+                "                start_to_close_timeout=dt.timedelta(minutes=1),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    initial_interval=dt.timedelta(seconds=10),\n",
+                "                    maximum_attempts=5,\n",
+                "                    non_retryable_error_types=[\"NonRetriableException\"],\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "            # Resources have been deleted - delete the proxy record.\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                delete_proxy_record,\n",
+                "                DeleteProxyRecordInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                ),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=10),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    maximum_attempts=2,\n",
+                "                ),\n",
+                "            )\n",
+                "\n",
+                "        except Exception:\n",
+                "            # Something went wrong - set the record to error state\n",
+                "            await temporalio.workflow.execute_activity(\n",
+                "                update_proxy_record,\n",
+                "                UpdateProxyRecordInputs(\n",
+                "                    organization_id=inputs.organization_id,\n",
+                "                    proxy_record_id=inputs.proxy_record_id,\n",
+                "                    status=ProxyRecord.Status.ERRORING.value,\n",
+                "                ),\n",
+                "                start_to_close_timeout=dt.timedelta(seconds=60),\n",
+                "                retry_policy=temporalio.common.RetryPolicy(\n",
+                "                    maximum_attempts=10,\n",
+                "                ),\n",
+                "            )\n",
+                "            raise"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        [
+            1,
+            0,
+            3,
+            2,
+            4,
+            6,
+            5
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                1,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "user may first use the object imported in edit 0, then driven by error, import in edit 1",
+            "scenario of 1 -> 0": "user may first import the object in edit 1, then import in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "user may first use the object imported in edit 0, then driven by error, import in edit 1",
+            "scenario of 1 -> 0": "user may first import the object in edit 1, then import in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "user may first use the object imported in edit 0, then driven by error, import in edit 1",
+            "scenario of 1 -> 0": "user may first import the object in edit 1, then import in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "user may first use the object imported in edit 0, then driven by error, import in edit 1",
+            "scenario of 1 -> 0": "user may first import the object in edit 1, then import in edit 0"
+        }
+    ]
+}

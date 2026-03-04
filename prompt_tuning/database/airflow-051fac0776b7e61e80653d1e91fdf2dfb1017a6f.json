@@ -1,0 +1,1150 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/apache/airflow/commit/051fac0776b7e61e80653d1e91fdf2dfb1017a6f",
+    "commit_message": "Add support to replace S3 file on MySqlToS3Operator (#20506)",
+    "commit_snapshots": {
+        "airflow/providers/amazon/aws/transfers/mysql_to_s3.py": [
+            [
+                "#\n",
+                "# Licensed to the Apache Software Foundation (ASF) under one\n",
+                "# or more contributor license agreements.  See the NOTICE file\n",
+                "# distributed with this work for additional information\n",
+                "# regarding copyright ownership.  The ASF licenses this file\n",
+                "# to you under the Apache License, Version 2.0 (the\n",
+                "# \"License\"); you may not use this file except in compliance\n",
+                "# with the License.  You may obtain a copy of the License at\n",
+                "#\n",
+                "#   http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing,\n",
+                "# software distributed under the License is distributed on an\n",
+                "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n",
+                "# KIND, either express or implied.  See the License for the\n",
+                "# specific language governing permissions and limitations\n",
+                "# under the License.\n",
+                "\n",
+                "import os\n",
+                "import warnings\n",
+                "from collections import namedtuple\n",
+                "from enum import Enum\n",
+                "from tempfile import NamedTemporaryFile\n",
+                "from typing import Optional, Union\n",
+                "\n",
+                "import numpy as np\n",
+                "import pandas as pd\n",
+                "from typing_extensions import Literal\n",
+                "\n",
+                "from airflow.exceptions import AirflowException\n",
+                "from airflow.models import BaseOperator\n",
+                "from airflow.providers.amazon.aws.hooks.s3 import S3Hook\n",
+                "from airflow.providers.mysql.hooks.mysql import MySqlHook\n",
+                "\n",
+                "FILE_FORMAT = Enum(\n",
+                "    \"FILE_FORMAT\",\n",
+                "    \"CSV, PARQUET\",\n",
+                ")\n",
+                "\n",
+                "FileOptions = namedtuple('FileOptions', ['mode', 'suffix'])\n",
+                "\n",
+                "FILE_OPTIONS_MAP = {\n",
+                "    FILE_FORMAT.CSV: FileOptions('r+', '.csv'),\n",
+                "    FILE_FORMAT.PARQUET: FileOptions('rb+', '.parquet'),\n",
+                "}\n",
+                "\n",
+                "\n",
+                "class MySQLToS3Operator(BaseOperator):\n",
+                "    \"\"\"\n",
+                "    Saves data from an specific MySQL query into a file in S3.\n",
+                "\n",
+                "    :param query: the sql query to be executed. If you want to execute a file, place the absolute path of it,\n",
+                "        ending with .sql extension. (templated)\n",
+                "    :type query: str\n",
+                "    :param s3_bucket: bucket where the data will be stored. (templated)\n",
+                "    :type s3_bucket: str\n",
+                "    :param s3_key: desired key for the file. It includes the name of the file. (templated)\n",
+                "    :type s3_key: str\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    :param replace: whether or not to replace the file in S3 if it previously existed\n",
+                    "    :type replace: bool\n"
+                ],
+                "parent_version_range": {
+                    "start": 58,
+                    "end": 58
+                },
+                "child_version_range": {
+                    "start": 58,
+                    "end": 60
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MySQLToS3Operator",
+                        "signature": "class MySQLToS3Operator(BaseOperator):",
+                        "at_line": 47
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: airflow/providers/amazon/aws/transfers/mysql_to_s3.py\nCode:\n         class MySQLToS3Operator(BaseOperator):\n             ...\n55 55        :type s3_bucket: str\n56 56        :param s3_key: desired key for the file. It includes the name of the file. (templated)\n57 57        :type s3_key: str\n   58  +     :param replace: whether or not to replace the file in S3 if it previously existed\n   59  +     :type replace: bool\n58 60        :param mysql_conn_id: Reference to :ref:`mysql connection id <howto/connection:mysql>`.\n59 61        :type mysql_conn_id: str\n60 62        :param aws_conn_id: reference to a specific S3 connection\n       ...\n",
+                "file_path": "airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "S3",
+                    "bool",
+                    "existed",
+                    "file",
+                    "it",
+                    "param",
+                    "previously",
+                    "replace",
+                    "the",
+                    "to",
+                    "type",
+                    "whether"
+                ],
+                "prefix": [
+                    "    :type s3_bucket: str\n",
+                    "    :param s3_key: desired key for the file. It includes the name of the file. (templated)\n",
+                    "    :type s3_key: str\n"
+                ],
+                "suffix": [
+                    "    :param mysql_conn_id: Reference to :ref:`mysql connection id <howto/connection:mysql>`.\n",
+                    "    :type mysql_conn_id: str\n",
+                    "    :param aws_conn_id: reference to a specific S3 connection\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    :param mysql_conn_id: Reference to :ref:`mysql connection id <howto/connection:mysql>`.\n",
+                "    :type mysql_conn_id: str\n",
+                "    :param aws_conn_id: reference to a specific S3 connection\n",
+                "    :type aws_conn_id: str\n",
+                "    :param verify: Whether or not to verify SSL certificates for S3 connection.\n",
+                "        By default SSL certificates are verified.\n",
+                "        You can provide the following values:\n",
+                "\n",
+                "        - ``False``: do not validate SSL certificates. SSL will still be used\n",
+                "                (unless use_ssl is False), but SSL certificates will not be verified.\n",
+                "        - ``path/to/cert/bundle.pem``: A filename of the CA cert bundle to uses.\n",
+                "                You can specify this argument if you want to use a different\n",
+                "                CA cert bundle than the one used by botocore.\n",
+                "    :type verify: bool or str\n",
+                "    :param pd_csv_kwargs: arguments to include in pd.to_csv (header, index, columns...)\n",
+                "    :type pd_csv_kwargs: dict\n",
+                "    :param index: whether to have the index or not in the dataframe\n",
+                "    :type index: str\n",
+                "    :param header: whether to include header or not into the S3 file\n",
+                "    :type header: bool\n",
+                "    :param file_format: the destination file format, only string 'csv' or 'parquet' is accepted.\n",
+                "    :type file_format: str\n",
+                "    :param pd_kwargs: arguments to include in ``DataFrame.to_parquet()`` or\n",
+                "        ``DataFrame.to_csv()``. This is preferred than ``pd_csv_kwargs``.\n",
+                "    :type pd_kwargs: dict\n",
+                "    \"\"\"\n",
+                "\n",
+                "    template_fields = (\n",
+                "        's3_bucket',\n",
+                "        's3_key',\n",
+                "        'query',\n",
+                "    )\n",
+                "    template_ext = ('.sql',)\n",
+                "    template_fields_renderers = {\n",
+                "        \"query\": \"sql\",\n",
+                "        \"pd_csv_kwargs\": \"json\",\n",
+                "        \"pd_kwargs\": \"json\",\n",
+                "    }\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        *,\n",
+                "        query: str,\n",
+                "        s3_bucket: str,\n",
+                "        s3_key: str,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        replace: bool = False,\n"
+                ],
+                "parent_version_range": {
+                    "start": 103,
+                    "end": 103
+                },
+                "child_version_range": {
+                    "start": 105,
+                    "end": 106
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MySQLToS3Operator",
+                        "signature": "class MySQLToS3Operator(BaseOperator):",
+                        "at_line": 47
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        *,\n        query: str,\n        s3_bucket: str,\n        s3_key: str,\n        mysql_conn_id: str = 'mysql_default',\n        aws_conn_id: str = 'aws_default',\n        verify: Optional[Union[bool, str]] = None,\n        pd_csv_kwargs: Optional[dict] = None,\n        index: bool = False,\n        header: bool = False,\n        file_format: Literal['csv', 'parquet'] = 'csv',\n        pd_kwargs: Optional[dict] = None,\n        **kwargs,\n    )->None:",
+                        "at_line": 97
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: airflow/providers/amazon/aws/transfers/mysql_to_s3.py\nCode:\n           class MySQLToS3Operator(BaseOperator):\n               ...\n               def __init__(\n        self,\n        *,\n        query: str,\n        s3_bucket: str,\n        s3_key: str,\n        mysql_conn_id: str = 'mysql_default',\n        aws_conn_id: str = 'aws_default',\n        verify: Optional[Union[bool, str]] = None,\n        pd_csv_kwargs: Optional[dict] = None,\n        index: bool = False,\n        header: bool = False,\n        file_format: Literal['csv', 'parquet'] = 'csv',\n        pd_kwargs: Optional[dict] = None,\n        **kwargs,\n    )->None:\n                   ...\n100 102            query: str,\n101 103            s3_bucket: str,\n102 104            s3_key: str,\n    105  +         replace: bool = False,\n103 106            mysql_conn_id: str = 'mysql_default',\n104 107            aws_conn_id: str = 'aws_default',\n105 108            verify: Optional[Union[bool, str]] = None,\n         ...\n",
+                "file_path": "airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bool",
+                    "replace"
+                ],
+                "prefix": [
+                    "        query: str,\n",
+                    "        s3_bucket: str,\n",
+                    "        s3_key: str,\n"
+                ],
+                "suffix": [
+                    "        mysql_conn_id: str = 'mysql_default',\n",
+                    "        aws_conn_id: str = 'aws_default',\n",
+                    "        verify: Optional[Union[bool, str]] = None,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 105,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 105,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 105,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 105,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 105,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 105,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        mysql_conn_id: str = 'mysql_default',\n",
+                "        aws_conn_id: str = 'aws_default',\n",
+                "        verify: Optional[Union[bool, str]] = None,\n",
+                "        pd_csv_kwargs: Optional[dict] = None,\n",
+                "        index: bool = False,\n",
+                "        header: bool = False,\n",
+                "        file_format: Literal['csv', 'parquet'] = 'csv',\n",
+                "        pd_kwargs: Optional[dict] = None,\n",
+                "        **kwargs,\n",
+                "    ) -> None:\n",
+                "        super().__init__(**kwargs)\n",
+                "        self.query = query\n",
+                "        self.s3_bucket = s3_bucket\n",
+                "        self.s3_key = s3_key\n",
+                "        self.mysql_conn_id = mysql_conn_id\n",
+                "        self.aws_conn_id = aws_conn_id\n",
+                "        self.verify = verify\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.replace = replace\n"
+                ],
+                "parent_version_range": {
+                    "start": 120,
+                    "end": 120
+                },
+                "child_version_range": {
+                    "start": 123,
+                    "end": 124
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MySQLToS3Operator",
+                        "signature": "class MySQLToS3Operator(BaseOperator):",
+                        "at_line": 47
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        *,\n        query: str,\n        s3_bucket: str,\n        s3_key: str,\n        mysql_conn_id: str = 'mysql_default',\n        aws_conn_id: str = 'aws_default',\n        verify: Optional[Union[bool, str]] = None,\n        pd_csv_kwargs: Optional[dict] = None,\n        index: bool = False,\n        header: bool = False,\n        file_format: Literal['csv', 'parquet'] = 'csv',\n        pd_kwargs: Optional[dict] = None,\n        **kwargs,\n    )->None:",
+                        "at_line": 97
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: airflow/providers/amazon/aws/transfers/mysql_to_s3.py\nCode:\n           class MySQLToS3Operator(BaseOperator):\n               ...\n               def __init__(\n        self,\n        *,\n        query: str,\n        s3_bucket: str,\n        s3_key: str,\n        mysql_conn_id: str = 'mysql_default',\n        aws_conn_id: str = 'aws_default',\n        verify: Optional[Union[bool, str]] = None,\n        pd_csv_kwargs: Optional[dict] = None,\n        index: bool = False,\n        header: bool = False,\n        file_format: Literal['csv', 'parquet'] = 'csv',\n        pd_kwargs: Optional[dict] = None,\n        **kwargs,\n    )->None:\n                   ...\n117 120            self.mysql_conn_id = mysql_conn_id\n118 121            self.aws_conn_id = aws_conn_id\n119 122            self.verify = verify\n    123  +         self.replace = replace\n120 124    \n121 125            if file_format == \"csv\":\n122 126                self.file_format = FILE_FORMAT.CSV\n         ...\n",
+                "file_path": "airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "replace",
+                    "self"
+                ],
+                "prefix": [
+                    "        self.mysql_conn_id = mysql_conn_id\n",
+                    "        self.aws_conn_id = aws_conn_id\n",
+                    "        self.verify = verify\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if file_format == \"csv\":\n",
+                    "            self.file_format = FILE_FORMAT.CSV\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if file_format == \"csv\":\n",
+                "            self.file_format = FILE_FORMAT.CSV\n",
+                "        else:\n",
+                "            self.file_format = FILE_FORMAT.PARQUET\n",
+                "\n",
+                "        if pd_csv_kwargs:\n",
+                "            warnings.warn(\n",
+                "                \"pd_csv_kwargs is deprecated. Please use pd_kwargs.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "        if index or header:\n",
+                "            warnings.warn(\n",
+                "                \"index and header are deprecated. Please pass them via pd_kwargs.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "\n",
+                "        self.pd_kwargs = pd_kwargs or pd_csv_kwargs or {}\n",
+                "        if self.file_format == FILE_FORMAT.CSV:\n",
+                "            if \"path_or_buf\" in self.pd_kwargs:\n",
+                "                raise AirflowException('The argument path_or_buf is not allowed, please remove it')\n",
+                "            if \"index\" not in self.pd_kwargs:\n",
+                "                self.pd_kwargs[\"index\"] = index\n",
+                "            if \"header\" not in self.pd_kwargs:\n",
+                "                self.pd_kwargs[\"header\"] = header\n",
+                "        else:\n",
+                "            if pd_csv_kwargs is not None:\n",
+                "                raise TypeError(\"pd_csv_kwargs may not be specified when file_format='parquet'\")\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def _fix_int_dtypes(df: pd.DataFrame) -> None:\n",
+                "        \"\"\"Mutate DataFrame to set dtypes for int columns containing NaN values.\"\"\"\n",
+                "        for col in df:\n",
+                "            if \"float\" in df[col].dtype.name and df[col].hasnans:\n",
+                "                # inspect values to determine if dtype of non-null values is int or float\n",
+                "                notna_series = df[col].dropna().values\n",
+                "                if np.isclose(notna_series, notna_series.astype(int)).all():\n",
+                "                    # set to dtype that retains integers and supports NaNs\n",
+                "                    df[col] = np.where(df[col].isnull(), None, df[col])\n",
+                "                    df[col] = df[col].astype(pd.Int64Dtype())\n",
+                "\n",
+                "    def execute(self, context) -> None:\n",
+                "        mysql_hook = MySqlHook(mysql_conn_id=self.mysql_conn_id)\n",
+                "        s3_conn = S3Hook(aws_conn_id=self.aws_conn_id, verify=self.verify)\n",
+                "        data_df = mysql_hook.get_pandas_df(self.query)\n",
+                "        self.log.info(\"Data from MySQL obtained\")\n",
+                "\n",
+                "        self._fix_int_dtypes(data_df)\n",
+                "        file_options = FILE_OPTIONS_MAP[self.file_format]\n",
+                "        with NamedTemporaryFile(mode=file_options.mode, suffix=file_options.suffix) as tmp_file:\n",
+                "            if self.file_format == FILE_FORMAT.CSV:\n",
+                "                data_df.to_csv(tmp_file.name, **self.pd_kwargs)\n",
+                "            else:\n",
+                "                data_df.to_parquet(tmp_file.name, **self.pd_kwargs)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            s3_conn.load_file(filename=tmp_file.name, key=self.s3_key, bucket_name=self.s3_bucket)\n"
+                ],
+                "after": [
+                    "            s3_conn.load_file(\n",
+                    "                filename=tmp_file.name, key=self.s3_key, bucket_name=self.s3_bucket, replace=self.replace\n",
+                    "            )\n"
+                ],
+                "parent_version_range": {
+                    "start": 176,
+                    "end": 177
+                },
+                "child_version_range": {
+                    "start": 180,
+                    "end": 183
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with NamedTemporaryFile(mode=file_options.mode, suffix=file_options.suffix) as tmp_file:",
+                        "start_line": 171,
+                        "end_line": 176
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MySQLToS3Operator",
+                        "signature": "class MySQLToS3Operator(BaseOperator):",
+                        "at_line": 47
+                    },
+                    {
+                        "type": "function",
+                        "name": "execute",
+                        "signature": "def execute(self, context)->None:",
+                        "at_line": 163
+                    },
+                    {
+                        "type": "call",
+                        "name": "s3_conn.load_file",
+                        "signature": "s3_conn.load_file(filename=tmp_file.name, key=self.s3_key, bucket_name=self.s3_bucket)",
+                        "at_line": 176,
+                        "argument": "filename=..."
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: airflow/providers/amazon/aws/transfers/mysql_to_s3.py\nCode:\n           class MySQLToS3Operator(BaseOperator):\n               ...\n               def execute(self, context)->None:\n                   ...\n173 177                    data_df.to_csv(tmp_file.name, **self.pd_kwargs)\n174 178                else:\n175 179                    data_df.to_parquet(tmp_file.name, **self.pd_kwargs)\n176      -             s3_conn.load_file(filename=tmp_file.name, key=self.s3_key, bucket_name=self.s3_bucket)\n    180  +             s3_conn.load_file(\n    181  +                 filename=tmp_file.name, key=self.s3_key, bucket_name=self.s3_bucket, replace=self.replace\n    182  +             )\n177 183    \n178 184            if s3_conn.check_for_key(self.s3_key, bucket_name=self.s3_bucket):\n179 185                file_location = os.path.join(self.s3_bucket, self.s3_key)\n         ...\n",
+                "file_path": "airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                "identifiers_before": [
+                    "bucket_name",
+                    "filename",
+                    "key",
+                    "load_file",
+                    "name",
+                    "s3_bucket",
+                    "s3_conn",
+                    "s3_key",
+                    "self",
+                    "tmp_file"
+                ],
+                "identifiers_after": [
+                    "bucket_name",
+                    "filename",
+                    "key",
+                    "load_file",
+                    "name",
+                    "replace",
+                    "s3_bucket",
+                    "s3_conn",
+                    "s3_key",
+                    "self",
+                    "tmp_file"
+                ],
+                "prefix": [
+                    "                data_df.to_csv(tmp_file.name, **self.pd_kwargs)\n",
+                    "            else:\n",
+                    "                data_df.to_parquet(tmp_file.name, **self.pd_kwargs)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if s3_conn.check_for_key(self.s3_key, bucket_name=self.s3_bucket):\n",
+                    "            file_location = os.path.join(self.s3_bucket, self.s3_key)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 181,
+                                    "column": 98
+                                },
+                                "end": {
+                                    "line": 181,
+                                    "column": 105
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/airflow/providers/amazon/aws/transfers/mysql_to_s3.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if s3_conn.check_for_key(self.s3_key, bucket_name=self.s3_bucket):\n",
+                "            file_location = os.path.join(self.s3_bucket, self.s3_key)\n",
+                "            self.log.info(\"File saved correctly in %s\", file_location)"
+            ]
+        ],
+        "tests/providers/amazon/aws/transfers/test_mysql_to_s3.py": [
+            [
+                "#\n",
+                "# Licensed to the Apache Software Foundation (ASF) under one\n",
+                "# or more contributor license agreements.  See the NOTICE file\n",
+                "# distributed with this work for additional information\n",
+                "# regarding copyright ownership.  The ASF licenses this file\n",
+                "# to you under the Apache License, Version 2.0 (the\n",
+                "# \"License\"); you may not use this file except in compliance\n",
+                "# with the License.  You may obtain a copy of the License at\n",
+                "#\n",
+                "#   http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing,\n",
+                "# software distributed under the License is distributed on an\n",
+                "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n",
+                "# KIND, either express or implied.  See the License for the\n",
+                "# specific language governing permissions and limitations\n",
+                "# under the License.\n",
+                "#\n",
+                "import unittest\n",
+                "from tempfile import NamedTemporaryFile\n",
+                "from unittest import mock\n",
+                "\n",
+                "import pandas as pd\n",
+                "\n",
+                "from airflow.providers.amazon.aws.transfers.mysql_to_s3 import MySQLToS3Operator\n",
+                "\n",
+                "\n",
+                "class TestMySqlToS3Operator(unittest.TestCase):\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.NamedTemporaryFile\")\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.S3Hook\")\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.MySqlHook\")\n",
+                "    def test_execute_csv(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n",
+                "        query = \"query\"\n",
+                "        s3_bucket = \"bucket\"\n",
+                "        s3_key = \"key\"\n",
+                "\n",
+                "        test_df = pd.DataFrame({'a': '1', 'b': '2'}, index=[0, 1])\n",
+                "        get_pandas_df_mock = mock_mysql_hook.return_value.get_pandas_df\n",
+                "        get_pandas_df_mock.return_value = test_df\n",
+                "        with NamedTemporaryFile() as f:\n",
+                "            temp_mock.return_value.__enter__.return_value.name = f.name\n",
+                "\n",
+                "            op = MySQLToS3Operator(\n",
+                "                query=query,\n",
+                "                s3_bucket=s3_bucket,\n",
+                "                s3_key=s3_key,\n",
+                "                mysql_conn_id=\"mysql_conn_id\",\n",
+                "                aws_conn_id=\"aws_conn_id\",\n",
+                "                task_id=\"task_id\",\n",
+                "                index=True,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "                replace=True,\n"
+                ],
+                "parent_version_range": {
+                    "start": 50,
+                    "end": 50
+                },
+                "child_version_range": {
+                    "start": 50,
+                    "end": 51
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with NamedTemporaryFile() as f:",
+                        "start_line": 39,
+                        "end_line": 63
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestMySqlToS3Operator",
+                        "signature": "class TestMySqlToS3Operator(unittest.TestCase):",
+                        "at_line": 27
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_execute_csv",
+                        "signature": "def test_execute_csv(self, mock_mysql_hook, mock_s3_hook, temp_mock):",
+                        "at_line": 31
+                    },
+                    {
+                        "type": "call",
+                        "name": "MySQLToS3Operator",
+                        "signature": "MySQLToS3Operator(\n                query=query,\n                s3_bucket=s3_bucket,\n                s3_key=s3_key,\n                mysql_conn_id=\"mysql_conn_id\",\n                aws_conn_id=\"aws_conn_id\",\n                task_id=\"task_id\",\n                index=True,\n                header=True,\n                pd_csv_kwargs={'index': False, 'header': False},\n                dag=None,\n            )",
+                        "at_line": 42,
+                        "argument": "index=..."
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: tests/providers/amazon/aws/transfers/test_mysql_to_s3.py\nCode:\n         class TestMySqlToS3Operator(unittest.TestCase):\n             ...\n             def test_execute_csv(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n                 ...\n                 MySQLToS3Operator(\n                query=query,\n                s3_bucket=s3_bucket,\n                s3_key=s3_key,\n                mysql_conn_id=\"mysql_conn_id\",\n                aws_conn_id=\"aws_conn_id\",\n                task_id=\"task_id\",\n                index=True,\n                header=True,\n                pd_csv_kwargs={'index': False, 'header': False},\n                dag=None,\n            )\n                     ...\n47 47                    aws_conn_id=\"aws_conn_id\",\n48 48                    task_id=\"task_id\",\n49 49                    index=True,\n   50  +                 replace=True,\n50 51                    header=True,\n51 52                    pd_csv_kwargs={'index': False, 'header': False},\n52 53                    dag=None,\n       ...\n",
+                "file_path": "tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "replace"
+                ],
+                "prefix": [
+                    "                aws_conn_id=\"aws_conn_id\",\n",
+                    "                task_id=\"task_id\",\n",
+                    "                index=True,\n"
+                ],
+                "suffix": [
+                    "                header=True,\n",
+                    "                pd_csv_kwargs={'index': False, 'header': False},\n",
+                    "                dag=None,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 50,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 50,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                header=True,\n",
+                "                pd_csv_kwargs={'index': False, 'header': False},\n",
+                "                dag=None,\n",
+                "            )\n",
+                "            op.execute(None)\n",
+                "            mock_mysql_hook.assert_called_once_with(mysql_conn_id=\"mysql_conn_id\")\n",
+                "            mock_s3_hook.assert_called_once_with(aws_conn_id=\"aws_conn_id\", verify=None)\n",
+                "\n",
+                "            get_pandas_df_mock.assert_called_once_with(query)\n",
+                "\n",
+                "            temp_mock.assert_called_once_with(mode='r+', suffix=\".csv\")\n",
+                "            mock_s3_hook.return_value.load_file.assert_called_once_with(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                filename=f.name, key=s3_key, bucket_name=s3_bucket\n"
+                ],
+                "after": [
+                    "                filename=f.name,\n",
+                    "                key=s3_key,\n",
+                    "                bucket_name=s3_bucket,\n",
+                    "                replace=True,\n"
+                ],
+                "parent_version_range": {
+                    "start": 62,
+                    "end": 63
+                },
+                "child_version_range": {
+                    "start": 63,
+                    "end": 67
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with NamedTemporaryFile() as f:",
+                        "start_line": 39,
+                        "end_line": 63
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestMySqlToS3Operator",
+                        "signature": "class TestMySqlToS3Operator(unittest.TestCase):",
+                        "at_line": 27
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_execute_csv",
+                        "signature": "def test_execute_csv(self, mock_mysql_hook, mock_s3_hook, temp_mock):",
+                        "at_line": 31
+                    },
+                    {
+                        "type": "call",
+                        "name": "mock_s3_hook.return_value.load_file.assert_called_once_with",
+                        "signature": "mock_s3_hook.return_value.load_file.assert_called_once_with(\n                filename=f.name, key=s3_key, bucket_name=s3_bucket\n            )",
+                        "at_line": 61,
+                        "argument": "filename=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/providers/amazon/aws/transfers/test_mysql_to_s3.py\nCode:\n         class TestMySqlToS3Operator(unittest.TestCase):\n             ...\n             def test_execute_csv(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n                 ...\n59 60    \n60 61                temp_mock.assert_called_once_with(mode='r+', suffix=\".csv\")\n61 62                mock_s3_hook.return_value.load_file.assert_called_once_with(\n62     -                 filename=f.name, key=s3_key, bucket_name=s3_bucket\n   63  +                 filename=f.name,\n   64  +                 key=s3_key,\n   65  +                 bucket_name=s3_bucket,\n   66  +                 replace=True,\n63 67                )\n64 68    \n65 69        @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.NamedTemporaryFile\")\n       ...\n",
+                "file_path": "tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                "identifiers_before": [
+                    "bucket_name",
+                    "f",
+                    "filename",
+                    "key",
+                    "name",
+                    "s3_bucket",
+                    "s3_key"
+                ],
+                "identifiers_after": [
+                    "bucket_name",
+                    "f",
+                    "filename",
+                    "key",
+                    "name",
+                    "replace",
+                    "s3_bucket",
+                    "s3_key"
+                ],
+                "prefix": [
+                    "\n",
+                    "            temp_mock.assert_called_once_with(mode='r+', suffix=\".csv\")\n",
+                    "            mock_s3_hook.return_value.load_file.assert_called_once_with(\n"
+                ],
+                "suffix": [
+                    "            )\n",
+                    "\n",
+                    "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.NamedTemporaryFile\")\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            )\n",
+                "\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.NamedTemporaryFile\")\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.S3Hook\")\n",
+                "    @mock.patch(\"airflow.providers.amazon.aws.transfers.mysql_to_s3.MySqlHook\")\n",
+                "    def test_execute_parquet(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n",
+                "        query = \"query\"\n",
+                "        s3_bucket = \"bucket\"\n",
+                "        s3_key = \"key\"\n",
+                "\n",
+                "        test_df = pd.DataFrame({'a': '1', 'b': '2'}, index=[0, 1])\n",
+                "        get_pandas_df_mock = mock_mysql_hook.return_value.get_pandas_df\n",
+                "        get_pandas_df_mock.return_value = test_df\n",
+                "        with NamedTemporaryFile() as f:\n",
+                "            temp_mock.return_value.__enter__.return_value.name = f.name\n",
+                "\n",
+                "            op = MySQLToS3Operator(\n",
+                "                query=query,\n",
+                "                s3_bucket=s3_bucket,\n",
+                "                s3_key=s3_key,\n",
+                "                mysql_conn_id=\"mysql_conn_id\",\n",
+                "                aws_conn_id=\"aws_conn_id\",\n",
+                "                task_id=\"task_id\",\n",
+                "                file_format=\"parquet\",\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "                replace=False,\n"
+                ],
+                "parent_version_range": {
+                    "start": 87,
+                    "end": 87
+                },
+                "child_version_range": {
+                    "start": 91,
+                    "end": 92
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with NamedTemporaryFile() as f:",
+                        "start_line": 76,
+                        "end_line": 98
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestMySqlToS3Operator",
+                        "signature": "class TestMySqlToS3Operator(unittest.TestCase):",
+                        "at_line": 27
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_execute_parquet",
+                        "signature": "def test_execute_parquet(self, mock_mysql_hook, mock_s3_hook, temp_mock):",
+                        "at_line": 68
+                    },
+                    {
+                        "type": "call",
+                        "name": "MySQLToS3Operator",
+                        "signature": "MySQLToS3Operator(\n                query=query,\n                s3_bucket=s3_bucket,\n                s3_key=s3_key,\n                mysql_conn_id=\"mysql_conn_id\",\n                aws_conn_id=\"aws_conn_id\",\n                task_id=\"task_id\",\n                file_format=\"parquet\",\n                dag=None,\n            )",
+                        "at_line": 79,
+                        "argument": "file_format=..."
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: tests/providers/amazon/aws/transfers/test_mysql_to_s3.py\nCode:\n         class TestMySqlToS3Operator(unittest.TestCase):\n             ...\n             def test_execute_parquet(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n                 ...\n                 MySQLToS3Operator(\n                query=query,\n                s3_bucket=s3_bucket,\n                s3_key=s3_key,\n                mysql_conn_id=\"mysql_conn_id\",\n                aws_conn_id=\"aws_conn_id\",\n                task_id=\"task_id\",\n                file_format=\"parquet\",\n                dag=None,\n            )\n                     ...\n84 88                    aws_conn_id=\"aws_conn_id\",\n85 89                    task_id=\"task_id\",\n86 90                    file_format=\"parquet\",\n   91  +                 replace=False,\n87 92                    dag=None,\n88 93                )\n89 94                op.execute(None)\n       ...\n",
+                "file_path": "tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "replace"
+                ],
+                "prefix": [
+                    "                aws_conn_id=\"aws_conn_id\",\n",
+                    "                task_id=\"task_id\",\n",
+                    "                file_format=\"parquet\",\n"
+                ],
+                "suffix": [
+                    "                dag=None,\n",
+                    "            )\n",
+                    "            op.execute(None)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "replace",
+                            "position": {
+                                "start": {
+                                    "line": 91,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 91,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/airflow/tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                dag=None,\n",
+                "            )\n",
+                "            op.execute(None)\n",
+                "            mock_mysql_hook.assert_called_once_with(mysql_conn_id=\"mysql_conn_id\")\n",
+                "            mock_s3_hook.assert_called_once_with(aws_conn_id=\"aws_conn_id\", verify=None)\n",
+                "\n",
+                "            get_pandas_df_mock.assert_called_once_with(query)\n",
+                "\n",
+                "            temp_mock.assert_called_once_with(mode='rb+', suffix=\".parquet\")\n",
+                "            mock_s3_hook.return_value.load_file.assert_called_once_with(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                filename=f.name, key=s3_key, bucket_name=s3_bucket\n"
+                ],
+                "after": [
+                    "                filename=f.name, key=s3_key, bucket_name=s3_bucket, replace=False\n"
+                ],
+                "parent_version_range": {
+                    "start": 97,
+                    "end": 98
+                },
+                "child_version_range": {
+                    "start": 102,
+                    "end": 103
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with NamedTemporaryFile() as f:",
+                        "start_line": 76,
+                        "end_line": 98
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestMySqlToS3Operator",
+                        "signature": "class TestMySqlToS3Operator(unittest.TestCase):",
+                        "at_line": 27
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_execute_parquet",
+                        "signature": "def test_execute_parquet(self, mock_mysql_hook, mock_s3_hook, temp_mock):",
+                        "at_line": 68
+                    },
+                    {
+                        "type": "call",
+                        "name": "mock_s3_hook.return_value.load_file.assert_called_once_with",
+                        "signature": "mock_s3_hook.return_value.load_file.assert_called_once_with(\n                filename=f.name, key=s3_key, bucket_name=s3_bucket\n            )",
+                        "at_line": 96,
+                        "argument": "filename=..."
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: tests/providers/amazon/aws/transfers/test_mysql_to_s3.py\nCode:\n           class TestMySqlToS3Operator(unittest.TestCase):\n               ...\n               def test_execute_parquet(self, mock_mysql_hook, mock_s3_hook, temp_mock):\n                   ...\n 94  99    \n 95 100                temp_mock.assert_called_once_with(mode='rb+', suffix=\".parquet\")\n 96 101                mock_s3_hook.return_value.load_file.assert_called_once_with(\n 97      -                 filename=f.name, key=s3_key, bucket_name=s3_bucket\n    102  +                 filename=f.name, key=s3_key, bucket_name=s3_bucket, replace=False\n 98 103                )\n 99 104    \n100 105        def test_fix_int_dtypes(self):\n         ...\n",
+                "file_path": "tests/providers/amazon/aws/transfers/test_mysql_to_s3.py",
+                "identifiers_before": [
+                    "bucket_name",
+                    "f",
+                    "filename",
+                    "key",
+                    "name",
+                    "s3_bucket",
+                    "s3_key"
+                ],
+                "identifiers_after": [
+                    "bucket_name",
+                    "f",
+                    "filename",
+                    "key",
+                    "name",
+                    "replace",
+                    "s3_bucket",
+                    "s3_key"
+                ],
+                "prefix": [
+                    "\n",
+                    "            temp_mock.assert_called_once_with(mode='rb+', suffix=\".parquet\")\n",
+                    "            mock_s3_hook.return_value.load_file.assert_called_once_with(\n"
+                ],
+                "suffix": [
+                    "            )\n",
+                    "\n",
+                    "    def test_fix_int_dtypes(self):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            )\n",
+                "\n",
+                "    def test_fix_int_dtypes(self):\n",
+                "        op = MySQLToS3Operator(query=\"query\", s3_bucket=\"s3_bucket\", s3_key=\"s3_key\", task_id=\"task_id\")\n",
+                "        dirty_df = pd.DataFrame({\"strings\": [\"a\", \"b\", \"c\"], \"ints\": [1, 2, None]})\n",
+                "        op._fix_int_dtypes(df=dirty_df)\n",
+                "        assert dirty_df[\"ints\"].dtype.kind == \"i\""
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "doc and def update"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "doc and def update"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "assign arg"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "class def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "class def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "semantic"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "semantic"
+        }
+    ]
+}

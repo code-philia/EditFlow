@@ -1,0 +1,37 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the set_guid method implementation in the BasicSpider class, while Edit 1 adds a new method parse_item_wrapper that calls self.set_guid(ret). The changed lines reference the exact same symbol - the set_guid method. Edit 1's new method calls the set_guid method that Edit 0 modifies. This creates a direct code dependency where both edits reference the same method symbol, making either edit prompt the other as the next logical step in the development flow."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the set_guid method implementation in the BasicSpider class, while Edit 1 adds a new method parse_item_wrapper that calls self.set_guid(ret). The changed lines reference the exact same symbol - the set_guid method. Edit 1's new method calls the set_guid method that Edit 0 modifies. This creates a direct code dependency where both edits reference the same method symbol, making either edit prompt the other as the next logical step in the development flow."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `parse_item_wrapper` and Edit 1 calls that exact same method. The changed lines reference the same symbol - `parse_item_wrapper`. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, replacing the direct call to `parse_item`. This is a classic definition-usage pattern where both edits reference the exact same symbol and either can be staged first (the method definition can exist without being called, and the call can be written before the method exists since Python allows this at parse time)."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `parse_item_wrapper` and Edit 1 calls that exact same method. The changed lines reference the same symbol - `parse_item_wrapper`. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, replacing the direct call to `parse_item`. This is a classic definition-usage pattern where both edits reference the exact same symbol and either can be staged first (the method definition can exist without being called, and the call can be written before the method exists since Python allows this at parse time)."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits modify the same function and both reference the exact same variable 'curr_val' in their changed lines. Edit 0 moves the assignment of 'curr_val' inside an 'if val:' condition, while Edit 1 restructures the control flow that uses 'curr_val'. The variable 'curr_val' is defined in Edit 0's changed lines and used in Edit 1's changed lines. However, both edits can be applied in either order - the code will parse and be syntactically valid regardless of which edit is applied first. The relationship is bi-directional because both edits reference the same symbol and either edit naturally prompts consideration of the other as part of the same refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits modify the same function and both reference the exact same variable 'curr_val' in their changed lines. Edit 0 moves the assignment of 'curr_val' inside an 'if val:' condition, while Edit 1 restructures the control flow that uses 'curr_val'. The variable 'curr_val' is defined in Edit 0's changed lines and used in Edit 1's changed lines. However, both edits can be applied in either order - the code will parse and be syntactically valid regardless of which edit is applied first. The relationship is bi-directional because both edits reference the same symbol and either edit naturally prompts consideration of the other as part of the same refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

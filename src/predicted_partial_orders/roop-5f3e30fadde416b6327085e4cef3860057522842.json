@@ -1,0 +1,75 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a global variable POOL at module level, and Edit 1 uses that exact same POOL variable in a function call. The changed line in Edit 1 explicitly references the POOL symbol that was defined in Edit 0. This creates a definition-usage relationship where both edits reference the exact same symbol. In Python, using an undefined variable is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a global variable POOL at module level, and Edit 1 uses that exact same POOL variable in a function call. The changed line in Edit 1 explicitly references the POOL symbol that was defined in Edit 0. This creates a definition-usage relationship where both edits reference the exact same symbol. In Python, using an undefined variable is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 declares a global variable 'POOL = None' at module level, and Edit 1 references and assigns to that exact same global variable 'POOL' within a function. The changed lines in both edits reference the exact same symbol 'POOL'. After making either edit, the other becomes the immediate next step - if you declare the global variable, you need to update the usage to match the new name, and if you change the usage, you need the global declaration to exist. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 declares a global variable 'POOL = None' at module level, and Edit 1 references and assigns to that exact same global variable 'POOL' within a function. The changed lines in both edits reference the exact same symbol 'POOL'. After making either edit, the other becomes the immediate next step - if you declare the global variable, you need to update the usage to match the new name, and if you change the usage, you need the global declaration to exist. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 defines a global variable POOL = None, and Edit 1 changes references from 'pool' to 'POOL' in the same file. The changed lines in Edit 1 directly reference the exact same symbol (POOL) that is being defined in Edit 0. This creates an immediate code dependency where defining the global POOL variable enables the usage of POOL in the function calls. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in refactoring from a local 'pool' variable to a global 'POOL' variable."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 defines a global variable POOL = None, and Edit 1 changes references from 'pool' to 'POOL' in the same file. The changed lines in Edit 1 directly reference the exact same symbol (POOL) that is being defined in Edit 0. This creates an immediate code dependency where defining the global POOL variable enables the usage of POOL in the function calls. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in refactoring from a local 'pool' variable to a global 'POOL' variable."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits change references from the local variable 'pool' to the global variable 'POOL' within the same function. Edit 0 changes 'pool.apply_async' to 'POOL.apply_async' and Edit 1 changes 'pool.close()' and 'pool.join()' to 'POOL.close()' and 'POOL.join()'. This is a uniform substitution pattern where the exact same symbol reference is being changed from 'pool' to 'POOL' in both edits. Both edits are part of the same refactoring operation to replace all references to the local 'pool' variable with the global 'POOL' variable within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits change references from the local variable 'pool' to the global variable 'POOL' within the same function. Edit 0 changes 'pool.apply_async' to 'POOL.apply_async' and Edit 1 changes 'pool.close()' and 'pool.join()' to 'POOL.close()' and 'POOL.join()'. This is a uniform substitution pattern where the exact same symbol reference is being changed from 'pool' to 'POOL' in both edits. Both edits are part of the same refactoring operation to replace all references to the local 'pool' variable with the global 'POOL' variable within the same function scope."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same global variable symbol, just with different names (pool vs POOL). Edit 1 changes the global variable definition from 'pool' to 'POOL', and edit 0 changes the usage of that same global variable from 'pool' to 'POOL'. This is a classic variable rename refactoring where the definition and usage of the same symbol must be updated together. The changed lines in both edits reference the exact same global variable symbol, making this a bi-directional relationship where either edit can be made first and the other becomes the immediate next step to maintain code consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same global variable symbol, just with different names (pool vs POOL). Edit 1 changes the global variable definition from 'pool' to 'POOL', and edit 0 changes the usage of that same global variable from 'pool' to 'POOL'. This is a classic variable rename refactoring where the definition and usage of the same symbol must be updated together. The changed lines in both edits reference the exact same global variable symbol, making this a bi-directional relationship where either edit can be made first and the other becomes the immediate next step to maintain code consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same global variable symbol 'pool'/'POOL' - edit 1 changes the assignment from 'pool' to 'POOL', and edit 0 changes the usage from 'pool' to 'POOL'. This is a synchronized renaming operation where both the definition/assignment and usage of the same symbol are being updated together. The changed lines in both edits reference the exact same symbol (the global pool variable), making this a bi-directional relationship where either edit could be made first and would prompt the other as the immediate next step to maintain consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same global variable symbol 'pool'/'POOL' - edit 1 changes the assignment from 'pool' to 'POOL', and edit 0 changes the usage from 'pool' to 'POOL'. This is a synchronized renaming operation where both the definition/assignment and usage of the same symbol are being updated together. The changed lines in both edits reference the exact same symbol (the global pool variable), making this a bi-directional relationship where either edit could be made first and would prompt the other as the immediate next step to maintain consistency."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits involve the same 'threads' variable within the same function. Edit 0 adds the line 'threads = []' at line 55, while Edit 1 removes the identical line 'threads = []' from lines 61-62. This is a cut-and-paste move operation where the variable initialization is being relocated from one position to another within the same function. The removal must occur before the addition to avoid having duplicate variable initializations, making this an ordered relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        7,
+        0,
+        1,
+        8
+    ]
+}

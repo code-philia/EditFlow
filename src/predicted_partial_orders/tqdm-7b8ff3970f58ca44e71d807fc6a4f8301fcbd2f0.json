@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'self.hspan'. Edit 0 initializes 'self.hspan = plt.axhspan(...)' in the __init__ method, while Edit 1 uses 'self.hspan' in the __iter__ method with a try-except block that handles the case where the attribute might not exist. The changed lines in both edits directly reference the same instance attribute symbol. Edit 1's try-except pattern suggests it's designed to handle cases where self.hspan might not be initialized, making it compatible with either order of implementation. Both edits can be staged independently - Edit 0 creates the attribute, Edit 1 uses it with fallback initialization."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'self.hspan'. Edit 0 initializes 'self.hspan = plt.axhspan(...)' in the __init__ method, while Edit 1 uses 'self.hspan' in the __iter__ method with a try-except block that handles the case where the attribute might not exist. The changed lines in both edits directly reference the same instance attribute symbol. Edit 1's try-except pattern suggests it's designed to handle cases where self.hspan might not be initialized, making it compatible with either order of implementation. Both edits can be staged independently - Edit 0 creates the attribute, Edit 1 uses it with fallback initialization."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 initializes `self.hspan` as a new attribute in the `__init__` method, while Edit 1 uses this same `self.hspan` attribute in the `update` method. The changed lines in both edits reference the exact same symbol `self.hspan`. Edit 1's code includes a fallback that creates `self.hspan` if it doesn't exist (via AttributeError handling), which means Edit 1 can function without Edit 0, but Edit 0 establishes the expected initialization. However, since Edit 1 has a fallback mechanism and both edits can be staged in either order without parser errors, this represents a bi-directional relationship where either edit naturally prompts consideration of the other as part of the same feature implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 initializes `self.hspan` as a new attribute in the `__init__` method, while Edit 1 uses this same `self.hspan` attribute in the `update` method. The changed lines in both edits reference the exact same symbol `self.hspan`. Edit 1's code includes a fallback that creates `self.hspan` if it doesn't exist (via AttributeError handling), which means Edit 1 can function without Edit 0, but Edit 0 establishes the expected initialization. However, since Edit 1 has a fallback mechanism and both edits can be staged in either order without parser errors, this represents a bi-directional relationship where either edit naturally prompts consideration of the other as part of the same feature implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'ax.set_ylim(ymin, 1.1 * y)' with a two-line pattern that first assigns 'ymax = 1.1 * y' then calls 'ax.set_ylim(ymin, ymax)'. This is a uniform refactoring applied to the same type of syntactic construct (matplotlib axis limit setting) in two different methods of the same class. The before\u2192after pattern is identical and both target the same construct type, making this a clear bulk-edit synchronization."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution pattern: replacing 'ax.set_ylim(ymin, 1.1 * y)' with a two-line pattern that first assigns 'ymax = 1.1 * y' then calls 'ax.set_ylim(ymin, ymax)'. This is a uniform refactoring applied to the same type of syntactic construct (matplotlib axis limit setting) in two different methods of the same class. The before\u2192after pattern is identical and both target the same construct type, making this a clear bulk-edit synchronization."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable 'ymax' by calculating it as '1.1 * y' and then using it in the ax.set_ylim() call. Edit 1 then references this exact same 'ymax' variable in multiple places (lines 447, 448, 452) within the same method context. The changed lines in edit 1 explicitly reference the 'ymax' symbol that was introduced in edit 0. This creates a direct code dependency where edit 1 cannot function correctly without the 'ymax' variable being defined first in edit 0. However, since both edits are within the same method and edit 1 would cause a NameError if executed before edit 0 (referencing undefined 'ymax'), this is an ordered relationship where edit 0 must come before edit 1."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new variable 'ymax' that is assigned the value '1.1 * y' and then used in the ax.set_ylim() call. Edit 1 references this same 'ymax' variable in multiple places (lines 550, 551, 552) within the same method context. The changed lines in edit 1 explicitly reference the exact same 'ymax' symbol that was introduced in edit 0. This creates a direct code dependency where edit 0 must come first to define 'ymax' before edit 1 can reference it, otherwise edit 1 would result in a NameError for the undefined 'ymax' variable."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits add nearly identical code blocks that handle hspan polygon limits manipulation. The code added is structurally identical - both try to get poly_lims from self.hspan.get_xy(), handle AttributeError by creating a new axhspan, then manipulate the same poly_lims array indices in the same way. The only differences are minor contextual variations (plt vs self.plt, n vs self.n). This represents a bulk-edit pattern where the same structural addition is being applied to multiple locations in the same file, which constitutes a uniform substitution of the same construct type (both are adding the same hspan handling logic). Either edit could be made first as they are independent additions to different methods."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits add nearly identical code blocks that handle hspan polygon limits manipulation. The code added is structurally identical - both try to get poly_lims from self.hspan.get_xy(), handle AttributeError by creating a new axhspan, then manipulate the same poly_lims array indices in the same way. The only differences are minor contextual variations (plt vs self.plt, n vs self.n). This represents a bulk-edit pattern where the same structural addition is being applied to multiple locations in the same file, which constitutes a uniform substitution of the same construct type (both are adding the same hspan handling logic). Either edit could be made first as they are independent additions to different methods."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        6
+    ]
+}

@@ -1,0 +1,92 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "These edits are bi-directional neighbours because they both reference the exact same symbol being changed. Edit 0 changes the import from 'DEFAULT_EXTERNAL_ACCOUNTS' to 'get_default_external_accounts', and Edit 1 updates the usage of that same symbol from 'DEFAULT_EXTERNAL_ACCOUNTS' to 'get_default_external_accounts()' with a function call. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step. After making either edit, the other becomes immediately necessary to maintain code consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "These edits are bi-directional neighbours because they both reference the exact same symbol being changed. Edit 0 changes the import from 'DEFAULT_EXTERNAL_ACCOUNTS' to 'get_default_external_accounts', and Edit 1 updates the usage of that same symbol from 'DEFAULT_EXTERNAL_ACCOUNTS' to 'get_default_external_accounts()' with a function call. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step. After making either edit, the other becomes immediately necessary to maintain code consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 1 defines a new function `get_default_external_accounts()` and Edit 0 calls that exact same function. The changed line in Edit 0 references the symbol being defined in Edit 1. This creates a direct code dependency where defining the function enables its usage. In Python, both edits can be parsed and staged in either order (the function call would only fail at runtime/import time if the function doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new function `get_default_external_accounts()` and Edit 0 calls that exact same function. The changed line in Edit 0 references the symbol being defined in Edit 1. This creates a direct code dependency where defining the function enables its usage. In Python, both edits can be parsed and staged in either order (the function call would only fail at runtime/import time if the function doesn't exist), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 changes an import statement to import 'get_default_external_accounts' instead of 'DEFAULT_EXTERNAL_ACCOUNTS', while Edit 1 defines the function 'get_default_external_accounts'. These edits reference the exact same symbol - the function 'get_default_external_accounts'. Edit 1 must be applied first because it defines the function, and Edit 0 cannot be parsed/imported successfully without this function definition existing. This creates a parser/import-level dependency where Edit 0 would fail if applied before Edit 1."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports `gettext_lazy` from `django.utils.translation`, and Edit 1 uses this newly imported `gettext_lazy` function to wrap a string literal. The changed lines reference the exact same symbol - `gettext_lazy`. After importing `gettext_lazy` in Edit 0, Edit 1 becomes the immediate next step to use this imported function. This is a classic import-usage pattern where both edits reference the same symbol and either could prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports `gettext_lazy` from `django.utils.translation`, and Edit 1 uses this newly imported `gettext_lazy` function to wrap a string literal. The changed lines reference the exact same symbol - `gettext_lazy`. After importing `gettext_lazy` in Edit 0, Edit 1 becomes the immediate next step to use this imported function. This is a classic import-usage pattern where both edits reference the same symbol and either could prompt the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 imports 'copy' and 'Dict' symbols, while Edit 1 uses these exact same imported symbols in the new function definition. The changed lines in Edit 1 explicitly reference 'copy.deepcopy()' and use 'Dict' in the type annotation, creating a direct import-usage relationship for the same symbols within the same file. This creates an immediate code-driven prompt where either edit naturally leads to the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 imports 'copy' and 'Dict' symbols, while Edit 1 uses these exact same imported symbols in the new function definition. The changed lines in Edit 1 explicitly reference 'copy.deepcopy()' and use 'Dict' in the type annotation, creating a direct import-usage relationship for the same symbols within the same file. This creates an immediate code-driven prompt where either edit naturally leads to the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports `gettext_lazy` from `django.utils.translation`, and Edit 1 uses this newly imported `gettext_lazy` function to wrap a string. The changed line in Edit 1 directly references the exact same symbol (`gettext_lazy`) that was imported in Edit 0. After making Edit 0, Edit 1 becomes the immediate next step to use the imported function. This is a classic import-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical action."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports `gettext_lazy` from `django.utils.translation`, and Edit 1 uses this newly imported `gettext_lazy` function to wrap a string. The changed line in Edit 1 directly references the exact same symbol (`gettext_lazy`) that was imported in Edit 0. After making Edit 0, Edit 1 becomes the immediate next step to use the imported function. This is a classic import-usage pattern where both edits reference the same symbol and either can prompt the other as the next mechanical action."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: wrapping a string literal with gettext_lazy() function call. Edit 0 changes '\"Twitter username\"' to 'gettext_lazy(\"Twitter username\")' and Edit 1 changes '\"GitHub username\"' to 'gettext_lazy(\"GitHub username\")'. Both target the same type of syntactic construct (string literals in 'name' fields within dictionary structures) and apply the exact same before\u2192after transformation pattern. This represents a bulk refactoring operation where the same internationalization change is being applied uniformly across multiple similar constructs in the same file. Either edit could be made first, and both are part of the same contiguous micro-task of adding internationalization support."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: wrapping a string literal with gettext_lazy() function call. Edit 0 changes '\"Twitter username\"' to 'gettext_lazy(\"Twitter username\")' and Edit 1 changes '\"GitHub username\"' to 'gettext_lazy(\"GitHub username\")'. Both target the same type of syntactic construct (string literals in 'name' fields within dictionary structures) and apply the exact same before\u2192after transformation pattern. This represents a bulk refactoring operation where the same internationalization change is being applied uniformly across multiple similar constructs in the same file. Either edit could be made first, and both are part of the same contiguous micro-task of adding internationalization support."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 changes the 'name' field from a plain string to a gettext_lazy() call, making it a lazy translation object. Edit 1 adds a function that processes DEFAULT_EXTERNAL_ACCOUNTS and explicitly converts the 'name' field back to a string using str(). The new function directly handles the consequence of Edit 0's change - the lazy translation objects need to be converted to strings when the external accounts data is used. The changed lines reference the exact same 'name' field that was modified in Edit 0, creating a direct code dependency where Edit 1's str() conversion is the immediate mechanical response to Edit 0's introduction of lazy translation objects."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 changes the 'name' field from a plain string to a gettext_lazy() call, making it a lazy translation object. Edit 1 adds a function that processes DEFAULT_EXTERNAL_ACCOUNTS and explicitly converts the 'name' field back to a string using str(). The new function directly handles the consequence of Edit 0's change - the lazy translation objects need to be converted to strings when the external accounts data is used. The changed lines reference the exact same 'name' field that was modified in Edit 0, creating a direct code dependency where Edit 1's str() conversion is the immediate mechanical response to Edit 0's introduction of lazy translation objects."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the 'name' field from a plain string to a gettext_lazy() call, making it a lazy translation object. Edit 1 adds a function that processes DEFAULT_EXTERNAL_ACCOUNTS and explicitly converts the 'name' field back to a string using str(). The new function directly handles the consequence of edit 0's change - it processes the same data structure and specifically converts the lazy translation objects created by edit 0 back to strings. This creates a direct code dependency where edit 1's str() conversion is the immediate mechanical response to edit 0's introduction of lazy translation objects."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the 'name' field from a plain string to a gettext_lazy() call, making it a lazy translation object. Edit 1 adds a function that processes DEFAULT_EXTERNAL_ACCOUNTS and explicitly converts the 'name' field back to a string using str(). The new function directly handles the consequence of edit 0's change - it processes the same data structure and specifically converts the lazy translation objects created by edit 0 back to strings. This creates a direct code dependency where edit 1's str() conversion is the immediate mechanical response to edit 0's introduction of lazy translation objects."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

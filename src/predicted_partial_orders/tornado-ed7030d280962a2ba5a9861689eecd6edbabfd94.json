@@ -1,0 +1,57 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 removes 'import unittest' from line 5 and replaces it with 'import socket'. Edit 1 adds 'import unittest' at line 7. This appears to be a cut-and-paste move operation where the unittest import is being relocated from one position to another within the same file. The removal must occur before the relocation can be completed, as you cannot move something that hasn't been removed first. This creates an ordered dependency where edit 0 (removal) must happen before edit 1 (insertion at new location)."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits add identical validation logic to different register methods in different classes (_KQueue and _Select). They both add the same type of check (if fd is already registered) and raise the same IOError with identical message format. This represents a synchronized pattern addition across multiple implementations of the same interface, where both edits perform an identical structural substitution (adding the same validation pattern) to the same type of syntactic construct (register method implementations). This is a bulk-edit pattern where the same before\u2192after change is applied to multiple related locations as part of a single refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits add identical validation logic to different register methods in different classes (_KQueue and _Select). They both add the same type of check (if fd is already registered) and raise the same IOError with identical message format. This represents a synchronized pattern addition across multiple implementations of the same interface, where both edits perform an identical structural substitution (adding the same validation pattern) to the same type of syntactic construct (register method implementations). This is a bulk-edit pattern where the same before\u2192after change is applied to multiple related locations as part of a single refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds error handling to the register method in the _Select class to raise an IOError when attempting to register an already registered file descriptor. Edit 1 adds a test method that specifically tests this behavior by attempting to add the same handler twice and asserting that an Exception is raised. The test directly validates the exact functionality implemented in edit 0 - both edits reference the same behavior (duplicate registration detection) and the test is designed to verify the IOError that edit 0 introduces. This is a classic test-production code synchronization where the implementation change and its corresponding test are mechanically linked."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds error handling to the register method in the _Select class to raise an IOError when attempting to register an already registered file descriptor. Edit 1 adds a test method that specifically tests this behavior by attempting to add the same handler twice and asserting that an Exception is raised. The test directly validates the exact functionality implemented in edit 0 - both edits reference the same behavior (duplicate registration detection) and the test is designed to verify the IOError that edit 0 introduces. This is a classic test-production code synchronization where the implementation change and its corresponding test are mechanically linked."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the socket module, and Edit 1 uses socket.AF_INET in the newly added test method. The changed lines reference the exact same symbol 'socket' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing socket enables its usage in the test method. Both edits can be staged in either order since Python allows referencing undefined imports at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the socket module, and Edit 1 uses socket.AF_INET in the newly added test method. The changed lines reference the exact same symbol 'socket' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing socket enables its usage in the test method. Both edits can be staged in either order since Python allows referencing undefined imports at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports IOLoop, bind_sockets, and get_unused_port. Edit 1 uses these exact same imported symbols in the test method - bind_sockets and get_unused_port are called on line 37, and IOLoop is referenced on lines 41 and 46. The changed lines in edit 1 directly reference the exact same symbols that are imported in edit 0. This creates an immediate code dependency where the imports must be available for the usage to work, making this a definition-usage relationship for the same symbols."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds an import statement for 'unittest' module, while Edit 1 adds a test method that uses unittest functionality (specifically self.assertRaises). The test method in Edit 1 directly depends on the unittest module being imported in Edit 0. However, in Python, the unittest import is not strictly required at parse time for the test method to be written - the method can be parsed and staged even without the import, and would only fail at runtime when executed. Since both edits can be written and parsed in either order, with only a runtime dependency, this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds an import statement for 'unittest' module, while Edit 1 adds a test method that uses unittest functionality (specifically self.assertRaises). The test method in Edit 1 directly depends on the unittest module being imported in Edit 0. However, in Python, the unittest import is not strictly required at parse time for the test method to be written - the method can be parsed and staged even without the import, and would only fail at runtime when executed. Since both edits can be written and parsed in either order, with only a runtime dependency, this represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

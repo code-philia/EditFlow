@@ -1,0 +1,113 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new function `check_full_name` in the `zerver.lib.users` module, while Edit 1 adds an import for that exact same function `check_full_name` to the import statement in `zerver.views.users`. The changed lines reference the exact same symbol - the `check_full_name` function. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to make it available for use. Both edits can be staged in either order since Python allows importing undefined symbols (resulting in runtime ImportError only, not parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `check_full_name` in the `zerver.lib.users` module, while Edit 1 adds an import for that exact same function `check_full_name` to the import statement in `zerver.views.users`. The changed lines reference the exact same symbol - the `check_full_name` function. After defining the function in Edit 0, importing it in Edit 1 becomes the immediate next step to make it available for use. Both edits can be staged in either order since Python allows importing undefined symbols (resulting in runtime ImportError only, not parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits replace inline validation logic with calls to the same function `check_full_name(full_name_raw)`. Edit 0 removes manual validation code (strip, length check, character validation) and replaces it with a call to `check_full_name`. Edit 1 adds a call to the same `check_full_name` function. This represents a uniform refactoring pattern where validation logic is being centralized into a single function. Both edits reference the exact same symbol (`check_full_name`) and appear to be part of the same refactoring effort to consolidate validation logic. The edits can be applied in either order since they are independent changes that both rely on the same validation function."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits replace inline validation logic with calls to the same function `check_full_name(full_name_raw)`. Edit 0 removes manual validation code (strip, length check, character validation) and replaces it with a call to `check_full_name`. Edit 1 adds a call to the same `check_full_name` function. This represents a uniform refactoring pattern where validation logic is being centralized into a single function. Both edits reference the exact same symbol (`check_full_name`) and appear to be part of the same refactoring effort to consolidate validation logic. The edits can be applied in either order since they are independent changes that both rely on the same validation function."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new function `check_full_name` and edit 1 calls that exact same function. The changed line in edit 1 references the symbol `check_full_name` that is being defined in edit 0. This creates a direct code dependency where defining the function in edit 0 enables its usage in edit 1. Since Python allows function calls to be written before the function is defined (they only fail at runtime/import time, not at parse time), both edits can be staged in either order without causing parser errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `check_full_name` and edit 1 calls that exact same function. The changed line in edit 1 references the symbol `check_full_name` that is being defined in edit 0. This creates a direct code dependency where defining the function in edit 0 enables its usage in edit 1. Since Python allows function calls to be written before the function is defined (they only fail at runtime/import time, not at parse time), both edits can be staged in either order without causing parser errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a call to `check_full_name(full_name_raw)` in the function body, while Edit 1 adds `check_full_name` to the import statement from the same module. This creates a direct definition-usage relationship where the exact same symbol `check_full_name` is being imported in Edit 1 and called in Edit 0. After making either edit, the other becomes the immediate next step to ensure the code works correctly - if you add the function call without the import, you get a NameError at runtime; if you add the import without using it, the import becomes unused. Since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a call to `check_full_name(full_name_raw)` in the function body, while Edit 1 adds `check_full_name` to the import statement from the same module. This creates a direct definition-usage relationship where the exact same symbol `check_full_name` is being imported in Edit 1 and called in Edit 0. After making either edit, the other becomes the immediate next step to ensure the code works correctly - if you add the function call without the import, you get a NameError at runtime; if you add the import without using it, the import becomes unused. Since Python allows both edits to be parsed and staged in either order (the NameError only occurs at runtime), this is a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new function `check_full_name` and edit 1 calls that exact same function. The changed lines reference the same symbol - `check_full_name`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. However, since this is Python, edit 1 could be written and parsed even before edit 0 exists (it would only fail at runtime with a NameError). Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `check_full_name` and edit 1 calls that exact same function. The changed lines reference the same symbol - `check_full_name`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. However, since this is Python, edit 1 could be written and parsed even before edit 0 exists (it would only fail at runtime with a NameError). Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 extracts validation logic into a new function `check_full_name` and changes the parameter name from `full_name` to `full_name_raw`. Edit 1 then calls this newly created `check_full_name` function with the `full_name_raw` parameter. The changed lines in edit 1 directly reference the exact same symbols (`check_full_name` function and `full_name_raw` parameter) that were created/modified in edit 0. This creates an immediate, mechanically obvious code dependency where edit 0 must occur before edit 1, as edit 1 calls a function that doesn't exist until edit 0 creates it. This is a classic definition-before-usage scenario where the second edit cannot be parsed/executed without the first."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'full_name=REQ()' to 'full_name_raw=REQ(\"full_name\")' in function parameter lists. This is a uniform, synchronized refactoring operation targeting the same type of syntactic construct (function parameters) with the exact same before\u2192after pattern. Both edits appear to be part of a single, contiguous refactor to rename the parameter while maintaining backward compatibility through the REQ specification."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'full_name=REQ()' to 'full_name_raw=REQ(\"full_name\")' in function parameter lists. This is a uniform, synchronized refactoring operation targeting the same type of syntactic construct (function parameters) with the exact same before\u2192after pattern. Both edits appear to be part of a single, contiguous refactor to rename the parameter while maintaining backward compatibility through the REQ specification."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 imports the function 'check_full_name' from zerver.lib.users, and Edit 1 uses that exact same function 'check_full_name' in the create_user_backend function. The changed lines reference the exact same symbol - the check_full_name function. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 imports the function 'check_full_name' from zerver.lib.users, and Edit 1 uses that exact same function 'check_full_name' in the create_user_backend function. The changed lines reference the exact same symbol - the check_full_name function. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 imports the function 'check_full_name' from zerver.lib.users, and Edit 1 uses that exact same imported function 'check_full_name' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if you try to use check_full_name without importing it first, you'd get a NameError at runtime (but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time)."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 imports the function 'check_full_name' from zerver.lib.users, and Edit 1 uses that exact same imported function 'check_full_name' in a function call. This creates a direct import-usage relationship where the changed lines reference the exact same symbol. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if you try to use check_full_name without importing it first, you'd get a NameError at runtime (but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time)."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the parameter name from 'full_name' to 'full_name_raw' in the function signature. Edit 1 then uses this new 'full_name_raw' parameter in the function body to create a processed 'full_name' variable. The changed lines reference the exact same symbol 'full_name_raw' - edit 0 defines it as a parameter and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the mechanically obvious next step to handle the renamed parameter. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the parameter name from 'full_name' to 'full_name_raw' in the function signature. Edit 1 then uses this new 'full_name_raw' parameter in the function body to create a processed 'full_name' variable. The changed lines reference the exact same symbol 'full_name_raw' - edit 0 defines it as a parameter and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the mechanically obvious next step to handle the renamed parameter. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 changes the parameter name from 'full_name' to 'full_name_raw' in the function signature. Edit 1 adds a line that references this exact same 'full_name_raw' parameter. The changed lines reference the exact same symbol - the 'full_name_raw' parameter. After making edit 0, the parameter is renamed but not used in the function body, creating an immediate code-driven prompt to use this parameter. Edit 1 provides that usage. Either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 changes the parameter name from 'full_name' to 'full_name_raw' in the function signature. Edit 1 adds a line that references this exact same 'full_name_raw' parameter. The changed lines reference the exact same symbol - the 'full_name_raw' parameter. After making edit 0, the parameter is renamed but not used in the function body, creating an immediate code-driven prompt to use this parameter. Edit 1 provides that usage. Either edit can be staged first without causing parse errors, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        5
+    ]
+}

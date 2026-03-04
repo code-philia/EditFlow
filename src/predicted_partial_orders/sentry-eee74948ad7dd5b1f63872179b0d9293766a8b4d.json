@@ -1,0 +1,127 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits modify the same method `detect_trends` in the `RegressionDetector` class. Edit 0 changes the return type annotation to include `DetectorState` as a fourth element in the tuple, while edit 1 modifies the yield statement to actually return the fourth element `algorithm.state`. These edits reference the exact same method and form a signature-implementation pair where changing the return type annotation creates an immediate code-driven prompt to update the corresponding yield statement to match the new signature. Either edit can be made first and would naturally prompt the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits modify the same method `detect_trends` in the `RegressionDetector` class. Edit 0 changes the return type annotation to include `DetectorState` as a fourth element in the tuple, while edit 1 modifies the yield statement to actually return the fourth element `algorithm.state`. These edits reference the exact same method and form a signature-implementation pair where changing the return type annotation creates an immediate code-driven prompt to update the corresponding yield statement to match the new signature. Either edit can be made first and would naturally prompt the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 changes the return type signature of the `detect_trends` method to include an additional `DetectorState` element in the tuple. Edit 1 updates test code that yields tuples matching this signature by adding `None` as the fourth element to each yield statement. The test code is directly calling/mocking the exact same method signature that was changed in edit 0. This creates a direct code dependency where the signature change in edit 0 makes the test update in edit 1 the immediate next mechanical step to maintain compatibility."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 changes the return type signature of the `detect_trends` method to include an additional `DetectorState` element in the tuple. Edit 1 updates test code that yields tuples matching this signature by adding `None` as the fourth element to each yield statement. The test code is directly calling/mocking the exact same method signature that was changed in edit 0. This creates a direct code dependency where the signature change in edit 0 makes the test update in edit 1 the immediate next mechanical step to maintain compatibility."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits modify the exact same type annotation by adding 'DetectorState' as a fourth element to the tuple in a Generator type. Edit 0 changes the return type of the detect_trends method, and Edit 1 changes the parameter type of the limit_regressions_by_project function that receives the output from detect_trends. This creates a direct code dependency where the function signature change in Edit 0 must be synchronized with the parameter type in Edit 1 to maintain type consistency. The changed lines reference the exact same type structure, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain type safety."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits modify the exact same type annotation by adding 'DetectorState' as a fourth element to the tuple in a Generator type. Edit 0 changes the return type of the detect_trends method, and Edit 1 changes the parameter type of the limit_regressions_by_project function that receives the output from detect_trends. This creates a direct code dependency where the function signature change in Edit 0 must be synchronized with the parameter type in Edit 1 to maintain type consistency. The changed lines reference the exact same type structure, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain type safety."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 changes the return type signature of the `detect_trends` method to include a fourth element `DetectorState` in the tuple. Edit 1 updates the unpacking of this tuple in a for loop to include the new fourth element `state`. These edits reference the exact same data structure - the tuple returned by `detect_trends` and consumed by the for loop. After making edit 0, the code in edit 1 would fail with a ValueError due to too many values to unpack, making edit 1 the immediate next required step. However, both edits can be written and parsed in either order (Python allows mismatched tuple unpacking at parse time), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 changes the return type signature of the `detect_trends` method to include a fourth element `DetectorState` in the tuple. Edit 1 updates the unpacking of this tuple in a for loop to include the new fourth element `state`. These edits reference the exact same data structure - the tuple returned by `detect_trends` and consumed by the for loop. After making edit 0, the code in edit 1 would fail with a ValueError due to too many values to unpack, making edit 1 the immediate next required step. However, both edits can be written and parsed in either order (Python allows mismatched tuple unpacking at parse time), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 changes the return type annotation of the detect_trends method to include DetectorState as a fourth tuple element. Edit 1 adds DetectorState to the import statement in a different file. These edits reference the exact same symbol (DetectorState) - one edit modifies a method signature to return it, and the other edit imports it for use. After making either edit, the other becomes the immediate next step: if you change the return type to include DetectorState, you need to import it where it's used; if you import DetectorState, you need to use it in the return type. Both edits can be staged in either order without parser errors (the import can exist before usage, and the usage can exist before import in Python), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 changes the return type annotation of the detect_trends method to include DetectorState as a fourth tuple element. Edit 1 adds DetectorState to the import statement in a different file. These edits reference the exact same symbol (DetectorState) - one edit modifies a method signature to return it, and the other edit imports it for use. After making either edit, the other becomes the immediate next step: if you change the return type to include DetectorState, you need to import it where it's used; if you import DetectorState, you need to use it in the return type. Both edits can be staged in either order without parser errors (the import can exist before usage, and the usage can exist before import in Python), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 changes the yield statement in RegressionDetector.detect_trends() to return a 4-tuple (trend_type, score, payload, algorithm.state) instead of a 3-tuple. Edit 1 updates the unpacking in limit_regressions_by_project() to expect this new 4-tuple format by adding 'state' to the for loop unpacking. The changed lines reference the exact same data structure being yielded and consumed - this is a signature change followed by its corresponding caller update. After making edit 0, edit 1 becomes immediately necessary to handle the new tuple format, and vice versa."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 changes the yield statement in RegressionDetector.detect_trends() to return a 4-tuple (trend_type, score, payload, algorithm.state) instead of a 3-tuple. Edit 1 updates the unpacking in limit_regressions_by_project() to expect this new 4-tuple format by adding 'state' to the for loop unpacking. The changed lines reference the exact same data structure being yielded and consumed - this is a signature change followed by its corresponding caller update. After making edit 0, edit 1 becomes immediately necessary to handle the new tuple format, and vice versa."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the yield statement in RegressionDetector.detect_trends to return a 4-tuple by adding 'algorithm.state' as the fourth element. Edit 1 updates the type annotation for the 'trends' parameter in limit_regressions_by_project to match this new 4-tuple structure by adding 'DetectorState' as the fourth type. The changed lines reference the exact same data structure - the generator that yields tuples from detect_trends and is consumed by limit_regressions_by_project. This is a signature change followed by a corresponding type annotation update for the same data flow, making them bi-directional neighbours where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes the yield statement in RegressionDetector.detect_trends to return a 4-tuple by adding 'algorithm.state' as the fourth element. Edit 1 updates the type annotation for the 'trends' parameter in limit_regressions_by_project to match this new 4-tuple structure by adding 'DetectorState' as the fourth type. The changed lines reference the exact same data structure - the generator that yields tuples from detect_trends and is consumed by limit_regressions_by_project. This is a signature change followed by a corresponding type annotation update for the same data flow, making them bi-directional neighbours where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 changes the yield statement in the detect_trends method to return a 4-tuple by adding 'algorithm.state' as the fourth element. Edit 1 updates test code that mocks this same yield behavior by adding 'None' as the fourth element to all yield statements. The changed lines in both edits reference the exact same yield pattern/signature - they are synchronizing the same tuple structure. After making edit 0, the test code in edit 1 would need to be updated to match the new 4-tuple format, making this a direct code dependency where both edits reference the same yield signature."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 changes the yield statement in the detect_trends method to return a 4-tuple by adding 'algorithm.state' as the fourth element. Edit 1 updates test code that mocks this same yield behavior by adding 'None' as the fourth element to all yield statements. The changed lines in both edits reference the exact same yield pattern/signature - they are synchronizing the same tuple structure. After making edit 0, the test code in edit 1 would need to be updated to match the new 4-tuple format, making this a direct code dependency where both edits reference the same yield signature."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbols: DetectorPayload, TrendType, and DetectorState. Edit 0 adds DetectorState to the import statement, while Edit 1 adds DetectorState to a type annotation in a function signature. After adding DetectorState to the import (Edit 0), using it in the type annotation (Edit 1) becomes the natural next step. Conversely, if DetectorState is added to the type annotation first, it would create an immediate need to import it. Both edits can be parsed and staged in either order in Python (undefined names in type annotations only cause runtime/import-time errors, not parse errors), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbols: DetectorPayload, TrendType, and DetectorState. Edit 0 adds DetectorState to the import statement, while Edit 1 adds DetectorState to a type annotation in a function signature. After adding DetectorState to the import (Edit 0), using it in the type annotation (Edit 1) becomes the natural next step. Conversely, if DetectorState is added to the type annotation first, it would create an immediate need to import it. Both edits can be parsed and staged in either order in Python (undefined names in type annotations only cause runtime/import-time errors, not parse errors), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'trends' (the parameter in the function signature). Edit 0 changes the type annotation of the 'trends' parameter to include a fourth element (DetectorState) in the tuple. Edit 1 updates the unpacking of the 'trends' parameter in the for loop to include the fourth element 'state'. After making edit 0, the type annotation indicates the tuple has 4 elements, making edit 1 (updating the unpacking to match) the immediate next mechanical step. Conversely, after making edit 1, the unpacking expects 4 elements but the type annotation only shows 3, making edit 0 the natural next step to synchronize the type annotation. Both edits reference the same 'trends' symbol and create an immediate code-driven prompt for the other."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'trends' (the parameter in the function signature). Edit 0 changes the type annotation of the 'trends' parameter to include a fourth element (DetectorState) in the tuple. Edit 1 updates the unpacking of the 'trends' parameter in the for loop to include the fourth element 'state'. After making edit 0, the type annotation indicates the tuple has 4 elements, making edit 1 (updating the unpacking to match) the immediate next mechanical step. Conversely, after making edit 1, the unpacking expects 4 elements but the type annotation only shows 3, making edit 0 the natural next step to synchronize the type annotation. Both edits reference the same 'trends' symbol and create an immediate code-driven prompt for the other."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 changes the function signature of `limit_regressions_by_project` to add `DetectorState` as a fourth element in the tuple type annotation. Edit 1 updates the test code that calls this function by adding `None` as the fourth element to each yielded tuple to match the new signature. The changed lines reference the exact same function signature - edit 0 modifies the parameter type annotation and edit 1 updates the test data to conform to that new type. This is a classic signature-caller relationship where both edits reference the same function and the test must be updated to match the production code change. Either edit can be staged first since Python allows type annotation mismatches at parse time (they only cause issues at runtime/type checking), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 changes the function signature of `limit_regressions_by_project` to add `DetectorState` as a fourth element in the tuple type annotation. Edit 1 updates the test code that calls this function by adding `None` as the fourth element to each yielded tuple to match the new signature. The changed lines reference the exact same function signature - edit 0 modifies the parameter type annotation and edit 1 updates the test data to conform to that new type. This is a classic signature-caller relationship where both edits reference the same function and the test must be updated to match the production code change. Either edit can be staged first since Python allows type annotation mismatches at parse time (they only cause issues at runtime/type checking), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 changes the function signature to expect 4-tuples instead of 3-tuples by adding a 'state' parameter to the unpacking. Edit 1 updates the test's mock generator to yield 4-tuples with None as the fourth element to match the new signature. These edits reference the exact same function call pattern - the tuple unpacking in the for loop expects the same structure that the generator yields. After making edit 0, the test would fail because it's still yielding 3-tuples while the function expects 4-tuples. After making edit 1, the production code would fail because it's still expecting 3-tuples while the test yields 4-tuples. Either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action to maintain the tuple structure contract."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 changes the function signature to expect 4-tuples instead of 3-tuples by adding a 'state' parameter to the unpacking. Edit 1 updates the test's mock generator to yield 4-tuples with None as the fourth element to match the new signature. These edits reference the exact same function call pattern - the tuple unpacking in the for loop expects the same structure that the generator yields. After making edit 0, the test would fail because it's still yielding 3-tuples while the function expects 4-tuples. After making edit 1, the production code would fail because it's still expecting 3-tuples while the test yields 4-tuples. Either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action to maintain the tuple structure contract."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

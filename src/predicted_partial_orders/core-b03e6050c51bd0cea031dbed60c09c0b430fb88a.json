@@ -1,0 +1,59 @@
+{
+    "partial_orders": [
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These edits represent a cut-and-paste move operation where the same line 'hass.data[DOMAIN][controller_id] = controller' is being removed from one location (edit 1) and added to another location (edit 0) within the same function. This is a classic ordered relationship where the removal must happen before the addition to avoid duplication. The edits reference the exact same code line and represent a single atomic move operation."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "These edits represent a cut-and-paste move operation where the same line 'controller = UniFiController(hass, config_entry)' is being removed from one location (line 34) and added to another location (line 37) within the same function. This is a classic ordered relationship because the removal must occur before the relocation - you cannot have the same line in both locations simultaneously. The exact same symbol assignment is being moved from one position to another, creating a mechanical dependency where edit 0 (removal) must happen before edit 1 (insertion at new location)."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'controller' within the same function. Edit 0 creates/assigns the controller variable, and edit 1 uses that same controller variable. After making edit 0, the controller variable exists and can be referenced in edit 1. After making edit 1, the controller variable is being used, which would prompt ensuring it's properly defined in edit 0. Both edits are part of the same contiguous micro-task of setting up the controller object and storing it in the data structure. The relationship is bi-directional because both edits can be written and parsed in either order (Python allows referencing variables before assignment at parse time), and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'controller' within the same function. Edit 0 creates/assigns the controller variable, and edit 1 uses that same controller variable. After making edit 0, the controller variable exists and can be referenced in edit 1. After making edit 1, the controller variable is being used, which would prompt ensuring it's properly defined in edit 0. Both edits are part of the same contiguous micro-task of setting up the controller object and storing it in the data structure. The relationship is bi-directional because both edits can be written and parsed in either order (Python allows referencing variables before assignment at parse time), and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line that creates the `controller` variable (`controller = UniFiController(hass, config_entry)`), while Edit 1 adds a line that uses this same `controller` variable (`hass.data[DOMAIN][controller_id] = controller`). The changed lines reference the exact same symbol - the `controller` variable. After removing the controller creation in Edit 0, the usage in Edit 1 would result in a NameError at runtime since `controller` would be undefined. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This creates a bi-directional relationship where making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the line that creates the `controller` variable (`controller = UniFiController(hass, config_entry)`), while Edit 1 adds a line that uses this same `controller` variable (`hass.data[DOMAIN][controller_id] = controller`). The changed lines reference the exact same symbol - the `controller` variable. After removing the controller creation in Edit 0, the usage in Edit 1 would result in a NameError at runtime since `controller` would be undefined. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This creates a bi-directional relationship where making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes the line that creates the 'controller' variable, while Edit 1 removes a line that references this same 'controller' variable. After Edit 0 is applied, the 'controller' variable no longer exists, making the reference in line 46 (Edit 1's context) undefined. However, since this is Python, the code can still be parsed and staged even with an undefined variable - it would only fail at runtime with a NameError. Both edits reference the exact same symbol 'controller' and appear to be part of removing controller-related code from this function. Either edit can be applied first from a parsing perspective, and after applying either edit, the other becomes the natural next step to complete the removal of controller references."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes the line that creates the 'controller' variable, while Edit 1 removes a line that references this same 'controller' variable. After Edit 0 is applied, the 'controller' variable no longer exists, making the reference in line 46 (Edit 1's context) undefined. However, since this is Python, the code can still be parsed and staged even with an undefined variable - it would only fail at runtime with a NameError. Both edits reference the exact same symbol 'controller' and appear to be part of removing controller-related code from this function. Either edit can be applied first from a parsing perspective, and after applying either edit, the other becomes the natural next step to complete the removal of controller references."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits modify the same test function `test_controller_fail_setup` and are part of changing the test's behavior from expecting failure to expecting success. Edit 0 changes the docstring to reflect that a failed setup should still store the controller, and Edit 1 changes the assertion from expecting the controller_id NOT to be in the data to expecting it TO be in the data. These changes are synchronized modifications within the same function that together implement a coherent change to the test's expected behavior. Both edits reference the same test function context and work together to update the test logic consistently."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits modify the same test function `test_controller_fail_setup` and are part of changing the test's behavior from expecting failure to expecting success. Edit 0 changes the docstring to reflect that a failed setup should still store the controller, and Edit 1 changes the assertion from expecting the controller_id NOT to be in the data to expecting it TO be in the data. These changes are synchronized modifications within the same function that together implement a coherent change to the test's expected behavior. Both edits reference the same test function context and work together to update the test logic consistently."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        5
+    ]
+}

@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'encoding' within the same function '_get_file_contents'. Edit 0 removes the 'encoding' parameter from the function signature, and Edit 1 removes the usage of that same 'encoding' parameter in the function body. These edits are part of a single refactoring task to remove the encoding parameter entirely. After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the parameter from the signature, you must remove its usage in the body, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'encoding' within the same function '_get_file_contents'. Edit 0 removes the 'encoding' parameter from the function signature, and Edit 1 removes the usage of that same 'encoding' parameter in the function body. These edits are part of a single refactoring task to remove the encoding parameter entirely. After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the parameter from the signature, you must remove its usage in the body, and vice versa. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 removes the 'encoding' parameter from the _get_file_contents method signature, while Edit 1 updates a call site to remove the encoding parameter and handle encoding manually with to_text(). These edits reference the exact same method symbol (_get_file_contents) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the caller, you get a TypeError, and if you update the caller without changing the signature, the encoding parameter becomes unused. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 removes the 'encoding' parameter from the _get_file_contents method signature, while Edit 1 updates a call site to remove the encoding parameter and handle encoding manually with to_text(). These edits reference the exact same method symbol (_get_file_contents) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the caller, you get a TypeError, and if you update the caller without changing the signature, the encoding parameter becomes unused. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the _get_file_contents method to return raw bytes instead of decoded text (removing the to_text call and encoding parameter usage). Edit 1 updates a caller of this same method to handle the new return type by removing the encoding parameter from the call and adding its own to_text conversion. These edits reference the exact same method (_get_file_contents) and form a signature-caller relationship where the method signature change necessitates updating the call site to handle the new return type. This is a direct code dependency where making either edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the _get_file_contents method to return raw bytes instead of decoded text (removing the to_text call and encoding parameter usage). Edit 1 updates a caller of this same method to handle the new return type by removing the encoding parameter from the call and adding its own to_text conversion. These edits reference the exact same method (_get_file_contents) and form a signature-caller relationship where the method signature change necessitates updating the call site to handle the new return type. This is a direct code dependency where making either edit creates an immediate prompt for the other."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2,
+        4
+    ]
+}

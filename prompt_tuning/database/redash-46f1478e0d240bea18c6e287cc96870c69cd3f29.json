@@ -1,0 +1,770 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/getredash/redash/commit/46f1478e0d240bea18c6e287cc96870c69cd3f29",
+    "commit_message": "Make sure only 20 dashboards/queries returned in recent call.",
+    "commit_snapshots": {
+        "redash/handlers/dashboards.py": [
+            [
+                "from flask import request\n",
+                "from flask.ext.restful import abort\n",
+                "from flask_login import current_user\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from funcy import distinct\n"
+                ],
+                "after": [
+                    "from funcy import distinct, take\n"
+                ],
+                "parent_version_range": {
+                    "start": 4,
+                    "end": 5
+                },
+                "child_version_range": {
+                    "start": 4,
+                    "end": 5
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: redash/handlers/dashboards.py\nCode:\n  ...\n1 1    from flask.ext.restful import abort\n2 2    from flask_login import current_user\n3 3    \n4    - from funcy import distinct\n  4  + from funcy import distinct, take\n5 5    from itertools import chain\n6 6    \n7 7    from redash import models\n     ...\n",
+                "file_path": "redash/handlers/dashboards.py",
+                "identifiers_before": [
+                    "distinct",
+                    "funcy"
+                ],
+                "identifiers_after": [
+                    "distinct",
+                    "funcy",
+                    "take"
+                ],
+                "prefix": [
+                    "from flask.ext.restful import abort\n",
+                    "from flask_login import current_user\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from itertools import chain\n",
+                    "\n",
+                    "from redash import models\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 4,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 4,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "take",
+                            "position": {
+                                "start": {
+                                    "line": 4,
+                                    "column": 28
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "from itertools import chain\n",
+                "\n",
+                "from redash import models\n",
+                "from redash.wsgi import api\n",
+                "from redash.permissions import require_permission\n",
+                "from redash.handlers.base import BaseResource\n",
+                "\n",
+                "\n",
+                "class DashboardRecentAPI(BaseResource):\n",
+                "    def get(self):\n",
+                "        recent = [d.to_dict() for d in models.Dashboard.recent(current_user.id)]\n",
+                "\n",
+                "        global_recent = []\n",
+                "        if len(recent) < 10:\n",
+                "            global_recent = [d.to_dict() for d in models.Dashboard.recent()]\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return distinct(chain(recent, global_recent), key=lambda d: d['id'])\n"
+                ],
+                "after": [
+                    "        return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))\n"
+                ],
+                "parent_version_range": {
+                    "start": 21,
+                    "end": 22
+                },
+                "child_version_range": {
+                    "start": 21,
+                    "end": 22
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "DashboardRecentAPI",
+                        "signature": "class DashboardRecentAPI(BaseResource):",
+                        "at_line": 13
+                    },
+                    {
+                        "type": "function",
+                        "name": "get",
+                        "signature": "def get(self):",
+                        "at_line": 14
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: redash/handlers/dashboards.py\nCode:\n         class DashboardRecentAPI(BaseResource):\n             ...\n             def get(self):\n                 ...\n18 18            if len(recent) < 10:\n19 19                global_recent = [d.to_dict() for d in models.Dashboard.recent()]\n20 20    \n21     -         return distinct(chain(recent, global_recent), key=lambda d: d['id'])\n   21  +         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))\n22 22    \n23 23    \n24 24    class DashboardListAPI(BaseResource):\n       ...\n",
+                "file_path": "redash/handlers/dashboards.py",
+                "identifiers_before": [
+                    "chain",
+                    "d",
+                    "distinct",
+                    "global_recent",
+                    "key",
+                    "recent"
+                ],
+                "identifiers_after": [
+                    "chain",
+                    "d",
+                    "distinct",
+                    "global_recent",
+                    "key",
+                    "recent",
+                    "take"
+                ],
+                "prefix": [
+                    "        if len(recent) < 10:\n",
+                    "            global_recent = [d.to_dict() for d in models.Dashboard.recent()]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class DashboardListAPI(BaseResource):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "take",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/dashboards.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "\n",
+                "\n",
+                "class DashboardListAPI(BaseResource):\n",
+                "    def get(self):\n",
+                "        dashboards = [d.to_dict() for d in\n",
+                "                      models.Dashboard.select().where(models.Dashboard.is_archived==False)]\n",
+                "\n",
+                "        return dashboards\n",
+                "\n",
+                "    @require_permission('create_dashboard')\n",
+                "    def post(self):\n",
+                "        dashboard_properties = request.get_json(force=True)\n",
+                "        dashboard = models.Dashboard(name=dashboard_properties['name'],\n",
+                "                                     user=self.current_user,\n",
+                "                                     layout='[]')\n",
+                "        dashboard.save()\n",
+                "        return dashboard.to_dict()\n",
+                "\n",
+                "\n",
+                "class DashboardAPI(BaseResource):\n",
+                "    def get(self, dashboard_slug=None):\n",
+                "        try:\n",
+                "            dashboard = models.Dashboard.get_by_slug(dashboard_slug)\n",
+                "        except models.Dashboard.DoesNotExist:\n",
+                "            abort(404)\n",
+                "\n",
+                "        return dashboard.to_dict(with_widgets=True)\n",
+                "\n",
+                "    @require_permission('edit_dashboard')\n",
+                "    def post(self, dashboard_slug):\n",
+                "        dashboard_properties = request.get_json(force=True)\n",
+                "        # TODO: either convert all requests to use slugs or ids\n",
+                "        dashboard = models.Dashboard.get_by_id(dashboard_slug)\n",
+                "        dashboard.layout = dashboard_properties['layout']\n",
+                "        dashboard.name = dashboard_properties['name']\n",
+                "        dashboard.save()\n",
+                "\n",
+                "        return dashboard.to_dict(with_widgets=True)\n",
+                "\n",
+                "    @require_permission('edit_dashboard')\n",
+                "    def delete(self, dashboard_slug):\n",
+                "        dashboard = models.Dashboard.get_by_slug(dashboard_slug)\n",
+                "        dashboard.is_archived = True\n",
+                "        dashboard.save()\n",
+                "\n",
+                "        return dashboard.to_dict(with_widgets=True)\n",
+                "\n",
+                "api.add_resource(DashboardListAPI, '/api/dashboards', endpoint='dashboards')\n",
+                "api.add_resource(DashboardRecentAPI, '/api/dashboards/recent', endpoint='recent_dashboards')\n",
+                "api.add_resource(DashboardAPI, '/api/dashboards/<dashboard_slug>', endpoint='dashboard')\n",
+                ""
+            ]
+        ],
+        "redash/handlers/queries.py": [
+            [
+                "from flask import request, redirect\n",
+                "from flask.ext.restful import abort\n",
+                "from flask_login import current_user, login_required\n",
+                "import sqlparse\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from funcy import distinct\n"
+                ],
+                "after": [
+                    "from funcy import distinct, take\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: redash/handlers/queries.py\nCode:\n  ...\n2 2    from flask_login import current_user, login_required\n3 3    import sqlparse\n4 4    \n5    - from funcy import distinct\n  5  + from funcy import distinct, take\n6 6    from itertools import chain\n7 7    \n8 8    from redash import models\n     ...\n",
+                "file_path": "redash/handlers/queries.py",
+                "identifiers_before": [
+                    "distinct",
+                    "funcy"
+                ],
+                "identifiers_after": [
+                    "distinct",
+                    "funcy",
+                    "take"
+                ],
+                "prefix": [
+                    "from flask_login import current_user, login_required\n",
+                    "import sqlparse\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from itertools import chain\n",
+                    "\n",
+                    "from redash import models\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 18
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "take",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 28
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from itertools import chain\n",
+                "\n",
+                "from redash import models\n",
+                "from redash.wsgi import app, api\n",
+                "from redash.permissions import require_permission\n",
+                "from redash.handlers.base import BaseResource\n",
+                "\n",
+                "\n",
+                "@app.route('/api/queries/format', methods=['POST'])\n",
+                "@login_required\n",
+                "def format_sql_query():\n",
+                "    arguments = request.get_json(force=True)\n",
+                "    query = arguments.get(\"query\", \"\")\n",
+                "\n",
+                "    return sqlparse.format(query, reindent=True, keyword_case='upper')\n",
+                "\n",
+                "\n",
+                "@app.route('/queries/new', methods=['POST'])\n",
+                "@login_required\n",
+                "def create_query_route():\n",
+                "    query = request.form.get('query', None)\n",
+                "    data_source_id = request.form.get('data_source_id', None)\n",
+                "\n",
+                "    if query is None or data_source_id is None:\n",
+                "        abort(400)\n",
+                "\n",
+                "    query = models.Query.create(name=\"New Query\",\n",
+                "                                query=query,\n",
+                "                                data_source=data_source_id,\n",
+                "                                user=current_user._get_current_object(),\n",
+                "                                schedule=None)\n",
+                "\n",
+                "    return redirect('/queries/{}'.format(query.id), 303)\n",
+                "\n",
+                "\n",
+                "class QuerySearchAPI(BaseResource):\n",
+                "    @require_permission('view_query')\n",
+                "    def get(self):\n",
+                "        term = request.args.get('q', '')\n",
+                "\n",
+                "        return [q.to_dict() for q in models.Query.search(term)]\n",
+                "\n",
+                "\n",
+                "class QueryRecentAPI(BaseResource):\n",
+                "    @require_permission('view_query')\n",
+                "    def get(self):\n",
+                "        recent = [d.to_dict() for d in models.Query.recent(current_user.id)]\n",
+                "\n",
+                "        global_recent = []\n",
+                "        if len(recent) < 10:\n",
+                "            global_recent = [d.to_dict() for d in models.Query.recent()]\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return distinct(chain(recent, global_recent), key=lambda d: d['id'])\n"
+                ],
+                "after": [
+                    "        return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))\n"
+                ],
+                "parent_version_range": {
+                    "start": 58,
+                    "end": 59
+                },
+                "child_version_range": {
+                    "start": 58,
+                    "end": 59
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "QueryRecentAPI",
+                        "signature": "class QueryRecentAPI(BaseResource):",
+                        "at_line": 49
+                    },
+                    {
+                        "type": "function",
+                        "name": "get",
+                        "signature": "def get(self):",
+                        "at_line": 51
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: redash/handlers/queries.py\nCode:\n         class QueryRecentAPI(BaseResource):\n             ...\n             def get(self):\n                 ...\n55 55            if len(recent) < 10:\n56 56                global_recent = [d.to_dict() for d in models.Query.recent()]\n57 57    \n58     -         return distinct(chain(recent, global_recent), key=lambda d: d['id'])\n   58  +         return take(20, distinct(chain(recent, global_recent), key=lambda d: d['id']))\n59 59    \n60 60    \n61 61    class QueryListAPI(BaseResource):\n       ...\n",
+                "file_path": "redash/handlers/queries.py",
+                "identifiers_before": [
+                    "chain",
+                    "d",
+                    "distinct",
+                    "global_recent",
+                    "key",
+                    "recent"
+                ],
+                "identifiers_after": [
+                    "chain",
+                    "d",
+                    "distinct",
+                    "global_recent",
+                    "key",
+                    "recent",
+                    "take"
+                ],
+                "prefix": [
+                    "        if len(recent) < 10:\n",
+                    "            global_recent = [d.to_dict() for d in models.Query.recent()]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class QueryListAPI(BaseResource):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "distinct",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "take",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/redash/redash/handlers/queries.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "\n",
+                "\n",
+                "class QueryListAPI(BaseResource):\n",
+                "    @require_permission('create_query')\n",
+                "    def post(self):\n",
+                "        query_def = request.get_json(force=True)\n",
+                "        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'last_modified_by']:\n",
+                "            query_def.pop(field, None)\n",
+                "\n",
+                "        query_def['user'] = self.current_user\n",
+                "        query_def['data_source'] = query_def.pop('data_source_id')\n",
+                "        query = models.Query(**query_def)\n",
+                "        query.save()\n",
+                "\n",
+                "        return query.to_dict()\n",
+                "\n",
+                "    @require_permission('view_query')\n",
+                "    def get(self):\n",
+                "        return [q.to_dict(with_stats=True) for q in models.Query.all_queries()]\n",
+                "\n",
+                "\n",
+                "class QueryAPI(BaseResource):\n",
+                "    @require_permission('edit_query')\n",
+                "    def post(self, query_id):\n",
+                "        query = models.Query.get_by_id(query_id)\n",
+                "\n",
+                "        query_def = request.get_json(force=True)\n",
+                "        for field in ['id', 'created_at', 'api_key', 'visualizations', 'latest_query_data', 'user', 'last_modified_by']:\n",
+                "            query_def.pop(field, None)\n",
+                "\n",
+                "        if 'latest_query_data_id' in query_def:\n",
+                "            query_def['latest_query_data'] = query_def.pop('latest_query_data_id')\n",
+                "\n",
+                "        if 'data_source_id' in query_def:\n",
+                "            query_def['data_source'] = query_def.pop('data_source_id')\n",
+                "\n",
+                "        query_def['last_modified_by'] = self.current_user\n",
+                "\n",
+                "        # TODO: use #save() with #dirty_fields.\n",
+                "        models.Query.update_instance(query_id, **query_def)\n",
+                "\n",
+                "        query = models.Query.get_by_id(query_id)\n",
+                "\n",
+                "        return query.to_dict(with_visualizations=True)\n",
+                "\n",
+                "    @require_permission('view_query')\n",
+                "    def get(self, query_id):\n",
+                "        q = models.Query.get(models.Query.id == query_id)\n",
+                "        if q:\n",
+                "            return q.to_dict(with_visualizations=True)\n",
+                "        else:\n",
+                "            abort(404, message=\"Query not found.\")\n",
+                "\n",
+                "    # TODO: move to resource of its own? (POST /queries/{id}/archive)\n",
+                "    def delete(self, query_id):\n",
+                "        q = models.Query.get(models.Query.id == query_id)\n",
+                "\n",
+                "        if q:\n",
+                "            if q.user.id == self.current_user.id or self.current_user.has_permission('admin'):\n",
+                "                q.archive()\n",
+                "            else:\n",
+                "                abort(403)\n",
+                "        else:\n",
+                "            abort(404, message=\"Query not found.\")\n",
+                "\n",
+                "api.add_resource(QuerySearchAPI, '/api/queries/search', endpoint='queries_search')\n",
+                "api.add_resource(QueryRecentAPI, '/api/queries/recent', endpoint='recent_queries')\n",
+                "api.add_resource(QueryListAPI, '/api/queries', endpoint='queries')\n",
+                "api.add_resource(QueryAPI, '/api/queries/<query_id>', endpoint='query')"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            1,
+            0,
+            2,
+            3
+        ],
+        [
+            3,
+            2,
+            0,
+            1
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                1,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import use",
+            "scenario of 0 -> 1": "user may first use `take` in edit 0, then driven by error, import it in edit 1",
+            "scenario of 1 -> 0": "user may first import `take` in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import use",
+            "scenario of 0 -> 1": "user may first use `take` in edit 0, then driven by error, import it in edit 1",
+            "scenario of 1 -> 0": "user may first import `take` in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        }
+    ]
+}

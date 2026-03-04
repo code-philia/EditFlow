@@ -1,0 +1,69 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 changes the parameter name from 'extra_blank_rects' to 'tab_bar_rects' in the Borders.__call__ method signature. Edit 1 updates the call site in Tab.relayout_borders to use the new parameter name 'tab_bar_rects' instead of 'extra_blank_rects'. These edits reference the exact same parameter symbol - the changed lines in both edits involve the same parameter being renamed in the function signature and its corresponding call site. This creates a direct code dependency where either edit prompts the other as the immediate next step to maintain consistency between the method signature and its usage."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 changes the parameter name from 'extra_blank_rects' to 'tab_bar_rects' in the Borders.__call__ method signature. Edit 1 updates the call site in Tab.relayout_borders to use the new parameter name 'tab_bar_rects' instead of 'extra_blank_rects'. These edits reference the exact same parameter symbol - the changed lines in both edits involve the same parameter being renamed in the function signature and its corresponding call site. This creates a direct code dependency where either edit prompts the other as the immediate next step to maintain consistency between the method signature and its usage."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes the parameter name from 'extra_blank_rects' to 'tab_bar_rects' in the function signature. Edit 1 uses this exact same parameter 'tab_bar_rects' in the function body by iterating over it. The changed lines reference the exact same symbol - the parameter 'tab_bar_rects'. This creates a direct code dependency where the parameter definition in edit 0 and its usage in edit 1 are mechanically linked. Either edit can be staged first since Python allows referencing parameters in function bodies regardless of order, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes the parameter name from 'extra_blank_rects' to 'tab_bar_rects' in the function signature. Edit 1 uses this exact same parameter 'tab_bar_rects' in the function body by iterating over it. The changed lines reference the exact same symbol - the parameter 'tab_bar_rects'. This creates a direct code dependency where the parameter definition in edit 0 and its usage in edit 1 are mechanically linked. Either edit can be staged first since Python allows referencing parameters in function bodies regardless of order, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'chain' from itertools, while Edit 1 removes the usage of 'chain' in the code. These edits reference the exact same symbol 'chain' - one removes its import and the other removes its usage. In Python, removing the usage before removing the import would work fine (no parse error), but removing the import before removing the usage would cause a NameError at runtime when the code tries to use 'chain'. However, since both edits can be written and parsed in either order (the error is only at runtime, not parse time), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the unused import."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'chain' from itertools, while Edit 1 removes the usage of 'chain' in the code. These edits reference the exact same symbol 'chain' - one removes its import and the other removes its usage. In Python, removing the usage before removing the import would work fine (no parse error), but removing the import before removing the usage would cause a NameError at runtime when the code tries to use 'chain'. However, since both edits can be written and parsed in either order (the error is only at runtime, not parse time), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the unused import."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "These edits are bi-directional neighbours because they represent a synchronized parameter rename operation. Edit 0 removes the usage of 'extra_blank_rects' parameter from the Borders.__call__ method implementation, while Edit 1 changes the call site to pass 'tab_bar_rects' instead of 'extra_blank_rects' to the same method. Both edits reference the exact same method call relationship - the borders() method call in Tab.relayout_borders() that calls Borders.__call__(). This is a signature-caller synchronization where the parameter name is being changed from 'extra_blank_rects' to 'tab_bar_rects', requiring both the method implementation and its call site to be updated together. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they represent a synchronized parameter rename operation. Edit 0 removes the usage of 'extra_blank_rects' parameter from the Borders.__call__ method implementation, while Edit 1 changes the call site to pass 'tab_bar_rects' instead of 'extra_blank_rects' to the same method. Both edits reference the exact same method call relationship - the borders() method call in Tab.relayout_borders() that calls Borders.__call__(). This is a signature-caller synchronization where the parameter name is being changed from 'extra_blank_rects' to 'tab_bar_rects', requiring both the method implementation and its call site to be updated together. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to maintain consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same parameter symbol 'extra_blank_rects' in the same function. Edit 0 renames the parameter from 'extra_blank_rects' to 'tab_bar_rects' in the function signature, while Edit 1 removes the usage of 'extra_blank_rects' from the function body. After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the parameter, you must update its usage, and if you remove the usage, you should rename/remove the parameter. This creates a direct, mechanically obvious code dependency between the changed lines referencing the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same parameter symbol 'extra_blank_rects' in the same function. Edit 0 renames the parameter from 'extra_blank_rects' to 'tab_bar_rects' in the function signature, while Edit 1 removes the usage of 'extra_blank_rects' from the function body. After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the parameter, you must update its usage, and if you remove the usage, you should rename/remove the parameter. This creates a direct, mechanically obvious code dependency between the changed lines referencing the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "These edits show a direct definition-usage relationship for the exact same symbol. Edit 1 renames the method from 'blank_rects' to 'tab_bar_rects' in the TabManager class, while Edit 0 updates the usage of this method from 'tm.blank_rects' to 'tm.tab_bar_rects' in the Tab class. The changed lines reference the exact same symbol - the method being renamed. After making either edit, the other becomes the immediate next step to maintain code consistency, as one edit would leave a reference to a non-existent method name. Both edits can be parsed and staged in either order (Python allows referencing undefined attributes at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "These edits show a direct definition-usage relationship for the exact same symbol. Edit 1 renames the method from 'blank_rects' to 'tab_bar_rects' in the TabManager class, while Edit 0 updates the usage of this method from 'tm.blank_rects' to 'tm.tab_bar_rects' in the Tab class. The changed lines reference the exact same symbol - the method being renamed. After making either edit, the other becomes the immediate next step to maintain code consistency, as one edit would leave a reference to a non-existent method name. Both edits can be parsed and staged in either order (Python allows referencing undefined attributes at parse time), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        0,
+        5
+    ]
+}

@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 creates a new variable 'y_store_unique_indices' and Edit 1 uses that exact same variable in the next line. The changed lines reference the same symbol - 'y_store_unique_indices' is defined in Edit 0 and then immediately used in Edit 1. This creates a direct code dependency where making Edit 0 creates an immediate prompt for Edit 1 as the next contiguous action. Both edits can be staged in either order (no parser error), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 creates a new variable 'y_store_unique_indices' and Edit 1 uses that exact same variable in the next line. The changed lines reference the same symbol - 'y_store_unique_indices' is defined in Edit 0 and then immediately used in Edit 1. This creates a direct code dependency where making Edit 0 creates an immediate prompt for Edit 1 as the next contiguous action. Both edits can be staged in either order (no parser error), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 assigns the result of np.unique() to y_store_unique_indices[:, k] instead of y[:, k], creating a new variable y_store_unique_indices that stores the unique indices. Edit 1 then assigns this y_store_unique_indices back to y. The changed lines reference the exact same symbol y_store_unique_indices - edit 0 creates/assigns to it, and edit 1 uses it. This creates an immediate, mechanically obvious code dependency where after making edit 0, edit 1 becomes the next logical step to utilize the stored indices. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 assigns the result of np.unique() to y_store_unique_indices[:, k] instead of y[:, k], creating a new variable y_store_unique_indices that stores the unique indices. Edit 1 then assigns this y_store_unique_indices back to y. The changed lines reference the exact same symbol y_store_unique_indices - edit 0 creates/assigns to it, and edit 1 uses it. This creates an immediate, mechanically obvious code dependency where after making edit 0, edit 1 becomes the next logical step to utilize the stored indices. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'y[:, k]' to 'y_store_unique_indices[:, k]' on the right side of the assignment from np.unique(). The substitution targets the same syntactic construct (assignment from np.unique function call) and applies the exact same before\u2192after pattern. This appears to be part of a single, contiguous refactor or search-and-replace operation across multiple files to rename a variable consistently. Both edits can be applied in either order since they are independent changes to different files."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'y[:, k]' to 'y_store_unique_indices[:, k]' on the right side of the assignment from np.unique(). The substitution targets the same syntactic construct (assignment from np.unique function call) and applies the exact same before\u2192after pattern. This appears to be part of a single, contiguous refactor or search-and-replace operation across multiple files to rename a variable consistently. Both edits can be applied in either order since they are independent changes to different files."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits add the identical line 'y = y_store_unique_indices' immediately after lines that append to 'self.n_classes_' using 'classes_k.shape[0]'. This represents a bulk-edit pattern where the same structural substitution (adding the same assignment statement in the same relative position) is being applied to the same type of syntactic construct (both are within class methods that handle class validation). The edits appear to be part of a single, contiguous refactor applying the same fix to similar code patterns across different files in the sklearn codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits add the identical line 'y = y_store_unique_indices' immediately after lines that append to 'self.n_classes_' using 'classes_k.shape[0]'. This represents a bulk-edit pattern where the same structural substitution (adding the same assignment statement in the same relative position) is being applied to the same type of syntactic construct (both are within class methods that handle class validation). The edits appear to be part of a single, contiguous refactor applying the same fix to similar code patterns across different files in the sklearn codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 creates a new variable 'y_store_unique_indices' and Edit 1 uses that exact same variable in the changed line. After making Edit 0, the next immediate mechanical step would be to use this newly created variable, which is exactly what Edit 1 does. The changed lines reference the exact same symbol 'y_store_unique_indices' - Edit 0 defines it and Edit 1 uses it. This creates a direct code dependency where either edit naturally prompts the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 creates a new variable 'y_store_unique_indices' and Edit 1 uses that exact same variable in the changed line. After making Edit 0, the next immediate mechanical step would be to use this newly created variable, which is exactly what Edit 1 does. The changed lines reference the exact same symbol 'y_store_unique_indices' - Edit 0 defines it and Edit 1 uses it. This creates a direct code dependency where either edit naturally prompts the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 creates a variable 'y_store_unique_indices' and Edit 1 uses that exact same variable. The changed lines reference the same symbol - Edit 0 assigns to 'y_store_unique_indices' and Edit 1 reads from 'y_store_unique_indices'. After making Edit 0, Edit 1 becomes the immediate next step to use the newly created variable. After making Edit 1, Edit 0 becomes necessary to define the variable being used. Both edits can be parsed in either order (Edit 1 would cause a runtime NameError if staged first, but no parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 creates a variable 'y_store_unique_indices' and Edit 1 uses that exact same variable. The changed lines reference the same symbol - Edit 0 assigns to 'y_store_unique_indices' and Edit 1 reads from 'y_store_unique_indices'. After making Edit 0, Edit 1 becomes the immediate next step to use the newly created variable. After making Edit 1, Edit 0 becomes necessary to define the variable being used. Both edits can be parsed in either order (Edit 1 would cause a runtime NameError if staged first, but no parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 introduces a new variable 'y_store_unique_indices' by changing the assignment target from 'y[:, k]' to 'y_store_unique_indices[:, k]'. Edit 1 then uses this exact same variable 'y_store_unique_indices' by assigning it back to 'y'. The changed lines reference the exact same symbol 'y_store_unique_indices', and making edit 0 creates an immediate, mechanically obvious prompt for edit 1 as the next step - after storing the unique indices in the new variable, the natural next action is to assign it back to y. This represents a clear definition-usage relationship for the same symbol within the same function context."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable 'y_store_unique_indices' by changing the assignment target from 'y[:, k]' to 'y_store_unique_indices[:, k]'. Edit 1 then uses this exact same variable 'y_store_unique_indices' by assigning it back to 'y'. The changed lines reference the exact same symbol 'y_store_unique_indices', and making edit 0 creates an immediate, mechanically obvious prompt for edit 1 as the next step - after storing the unique indices in the new variable, the natural next action is to assign it back to y. This represents a clear definition-usage relationship for the same symbol within the same function context."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a variable 'y_store_unique_indices' by assigning it a numpy array, and Edit 1 uses that exact same variable by assigning it to 'y'. Both edits are within the same function '_validate_y_class_weight' and the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly created variable. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'y_store_unique_indices' by assigning it a numpy array, and Edit 1 uses that exact same variable by assigning it to 'y'. Both edits are within the same function '_validate_y_class_weight' and the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly created variable. This is a classic definition-usage pattern within the same function scope."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4
+    ]
+}

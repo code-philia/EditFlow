@@ -1,0 +1,178 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new class REDIRECTION in lib/core/enums.py, and Edit 1 imports that exact same REDIRECTION class in lib/request/connect.py. This is a classic definition-usage relationship where both edits reference the exact same symbol (REDIRECTION). In Python, imports can be written before the symbol is defined (it would only fail at import time, not parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-usage pair."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class REDIRECTION in lib/core/enums.py, and Edit 1 imports that exact same REDIRECTION class in lib/request/connect.py. This is a classic definition-usage relationship where both edits reference the exact same symbol (REDIRECTION). In Python, imports can be written before the symbol is defined (it would only fail at import time, not parse time), so either edit can be staged first. After making either edit, the other becomes the immediate next step to complete the definition-usage pair."
+        },
+        {
+            "src": 0,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new enum class REDIRECTION with an ORIGINAL attribute in lib/core/enums.py. Edit 1 uses this exact same symbol (REDIRECTION.ORIGINAL) in lib/request/connect.py. The changed lines reference the exact same symbol - REDIRECTION.ORIGINAL - where edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where defining the enum naturally prompts its usage, and using the enum requires its definition. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime/import), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new enum class REDIRECTION with an ORIGINAL attribute in lib/core/enums.py. Edit 1 uses this exact same symbol (REDIRECTION.ORIGINAL) in lib/request/connect.py. The changed lines reference the exact same symbol - REDIRECTION.ORIGINAL - where edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where defining the enum naturally prompts its usage, and using the enum requires its definition. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (only failing at runtime/import), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new enum class REDIRECTION with an IGNORE attribute, while Edit 1 uses that exact same REDIRECTION.IGNORE symbol in a conditional statement. The changed lines reference the exact same symbol - REDIRECTION.IGNORE - where Edit 0 creates the definition and Edit 1 uses it. This creates an immediate code dependency where defining the enum naturally prompts its usage, and using the enum requires its definition. Both edits can be staged in either order in Python (usage before definition only causes runtime NameError, not parse error), making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new enum class REDIRECTION with an IGNORE attribute, while Edit 1 uses that exact same REDIRECTION.IGNORE symbol in a conditional statement. The changed lines reference the exact same symbol - REDIRECTION.IGNORE - where Edit 0 creates the definition and Edit 1 uses it. This creates an immediate code dependency where defining the enum naturally prompts its usage, and using the enum requires its definition. Both edits can be staged in either order in Python (usage before definition only causes runtime NameError, not parse error), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 removes the line that sets kb.alwaysRedirect = None, while Edit 1 removes code that references kb.alwaysRedirect and replaces it with kb.redirectChoice == REDIRECTION.IGNORE. Both edits reference the exact same symbol (kb.alwaysRedirect) - one removes its initialization and the other removes its usage. This appears to be part of a refactoring where kb.alwaysRedirect is being replaced with a different redirection mechanism. The edits reference the same symbol and are part of the same logical change to remove the old redirection system."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 removes the line that sets kb.alwaysRedirect = None, while Edit 1 removes code that references kb.alwaysRedirect and replaces it with kb.redirectChoice == REDIRECTION.IGNORE. Both edits reference the exact same symbol (kb.alwaysRedirect) - one removes its initialization and the other removes its usage. This appears to be part of a refactoring where kb.alwaysRedirect is being replaced with a different redirection mechanism. The edits reference the same symbol and are part of the same logical change to remove the old redirection system."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 initializes kb.redirectChoice to None in what appears to be a reset/initialization function, while Edit 1 assigns a value to kb.redirectChoice in what appears to be user input handling code. These edits are part of a refactoring where kb.alwaysRedirect is being replaced with kb.redirectChoice. The changed lines in both edits directly reference the same symbol, creating a direct code dependency where both edits work together to implement the new redirectChoice attribute."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 initializes kb.redirectChoice to None in what appears to be a reset/initialization function, while Edit 1 assigns a value to kb.redirectChoice in what appears to be user input handling code. These edits are part of a refactoring where kb.alwaysRedirect is being replaced with kb.redirectChoice. The changed lines in both edits directly reference the same symbol, creating a direct code dependency where both edits work together to implement the new redirectChoice attribute."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Edit 0 initializes kb.redirectChoice to None in a function that sets knowledge base attributes. Edit 1 uses kb.redirectChoice in a conditional check to determine URL redirection behavior. The changed lines reference the exact same symbol (kb.redirectChoice) - one edit defines/initializes it and the other uses it. This creates a direct code dependency where the initialization naturally prompts the usage as the next step in implementing redirection logic. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Edit 0 initializes kb.redirectChoice to None in a function that sets knowledge base attributes. Edit 1 uses kb.redirectChoice in a conditional check to determine URL redirection behavior. The changed lines reference the exact same symbol (kb.redirectChoice) - one edit defines/initializes it and the other uses it. This creates a direct code dependency where the initialization naturally prompts the usage as the next step in implementing redirection logic. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 initializes this attribute to None in the knowledge base setup function, while Edit 1 uses this same attribute in a conditional check. This creates a direct code dependency where the attribute must be defined before it can be used. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. Both edits can be written and parsed in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 initializes this attribute to None in the knowledge base setup function, while Edit 1 uses this same attribute in a conditional check. This creates a direct code dependency where the attribute must be defined before it can be used. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. Both edits can be written and parsed in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 initializes kb.redirectChoice to None in the __setKnowledgeBaseAttributes function, while Edit 1 uses kb.redirectChoice in a conditional check (kb.redirectChoice == REDIRECTION.IGNORE). Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 creates the attribute initialization and Edit 1 uses that attribute in logic. This creates a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1. However, in Python, referencing an undefined attribute would only cause a runtime AttributeError, not a parse-time error, so both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step when working with this attribute."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 initializes kb.redirectChoice to None in the __setKnowledgeBaseAttributes function, while Edit 1 uses kb.redirectChoice in a conditional check (kb.redirectChoice == REDIRECTION.IGNORE). Both edits reference the exact same symbol 'kb.redirectChoice'. Edit 0 creates the attribute initialization and Edit 1 uses that attribute in logic. This creates a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1. However, in Python, referencing an undefined attribute would only cause a runtime AttributeError, not a parse-time error, so both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step when working with this attribute."
+        },
+        {
+            "src": 3,
+            "tgt": 8,
+            "reason": "Edit 0 imports the REDIRECTION symbol from lib.core.enums, and Edit 1 uses that exact same REDIRECTION symbol in a conditional expression (kb.redirectChoice == REDIRECTION.ORIGINAL). The changed lines reference the exact same symbol - REDIRECTION - where Edit 0 makes it available via import and Edit 1 uses it. This creates an immediate code dependency where importing REDIRECTION enables its usage in the conditional logic. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 3,
+            "reason": "Edit 0 imports the REDIRECTION symbol from lib.core.enums, and Edit 1 uses that exact same REDIRECTION symbol in a conditional expression (kb.redirectChoice == REDIRECTION.ORIGINAL). The changed lines reference the exact same symbol - REDIRECTION - where Edit 0 makes it available via import and Edit 1 uses it. This creates an immediate code dependency where importing REDIRECTION enables its usage in the conditional logic. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits change references to the exact same symbol 'kb.alwaysRedirect' to 'kb.redirectChoice' within the same function. This is a uniform substitution pattern where the same variable is being renamed consistently. Edit 0 changes the conditional check from 'kb.alwaysRedirect is None' to 'kb.redirectChoice is None', and Edit 1 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice'. Both edits reference the exact same symbol and represent a coordinated refactoring that would naturally occur as part of a single micro-task. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits change references to the exact same symbol 'kb.alwaysRedirect' to 'kb.redirectChoice' within the same function. This is a uniform substitution pattern where the same variable is being renamed consistently. Edit 0 changes the conditional check from 'kb.alwaysRedirect is None' to 'kb.redirectChoice is None', and Edit 1 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice'. Both edits reference the exact same symbol and represent a coordinated refactoring that would naturally occur as part of a single micro-task. Either edit can be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 imports the symbol REDIRECTION from lib.core.enums, and Edit 1 uses that exact same symbol REDIRECTION in a comparison expression (kb.redirectChoice == REDIRECTION.IGNORE). The changed lines reference the exact same symbol - Edit 0 makes REDIRECTION available through import, and Edit 1 uses that imported REDIRECTION symbol. This creates an immediate code dependency where importing REDIRECTION enables its usage in the conditional check. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 imports the symbol REDIRECTION from lib.core.enums, and Edit 1 uses that exact same symbol REDIRECTION in a comparison expression (kb.redirectChoice == REDIRECTION.IGNORE). The changed lines reference the exact same symbol - Edit 0 makes REDIRECTION available through import, and Edit 1 uses that imported REDIRECTION symbol. This creates an immediate code dependency where importing REDIRECTION enables its usage in the conditional check. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice' in their changed lines. Edit 0 changes a conditional check from 'kb.alwaysRedirect' to 'kb.redirectChoice', and Edit 1 adds code that uses 'kb.redirectChoice' in a comparison. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where both edits are part of implementing the same redirectChoice functionality. Either edit could be made first and would naturally prompt the other as the next step in completing the redirect choice implementation."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice' in their changed lines. Edit 0 changes a conditional check from 'kb.alwaysRedirect' to 'kb.redirectChoice', and Edit 1 adds code that uses 'kb.redirectChoice' in a comparison. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where both edits are part of implementing the same redirectChoice functionality. Either edit could be made first and would naturally prompt the other as the next step in completing the redirect choice implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice' in their changed lines. Edit 0 changes 'kb.alwaysRedirect' to 'kb.redirectChoice' and Edit 1 changes 'kb.alwaysRedirect' to 'kb.redirectChoice == REDIRECTION.IGNORE'. This appears to be part of a single refactoring operation where the attribute name is being changed from 'alwaysRedirect' to 'redirectChoice' throughout the codebase. Both edits are mechanically updating references to the same symbol and would naturally occur as part of the same contiguous micro-task. Either edit can be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'kb.redirectChoice' in their changed lines. Edit 0 changes 'kb.alwaysRedirect' to 'kb.redirectChoice' and Edit 1 changes 'kb.alwaysRedirect' to 'kb.redirectChoice == REDIRECTION.IGNORE'. This appears to be part of a single refactoring operation where the attribute name is being changed from 'alwaysRedirect' to 'redirectChoice' throughout the codebase. Both edits are mechanically updating references to the same symbol and would naturally occur as part of the same contiguous micro-task. Either edit can be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits modify the same code block handling redirect logic in the same function. Edit 0 changes the user prompt from a Y/n choice to a numbered menu (1/2/3), and Edit 1 changes how the user's choice is stored from a boolean 'alwaysRedirect' to storing the raw choice as 'redirectChoice'. The variable 'choice' that is assigned in Edit 0 is the exact same variable that is used in Edit 1. This creates a direct code dependency where the new choice format from Edit 0 requires the corresponding change in Edit 1 to handle the new choice values properly. Either edit can be made first as both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain consistent behavior."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits modify the same code block handling redirect logic in the same function. Edit 0 changes the user prompt from a Y/n choice to a numbered menu (1/2/3), and Edit 1 changes how the user's choice is stored from a boolean 'alwaysRedirect' to storing the raw choice as 'redirectChoice'. The variable 'choice' that is assigned in Edit 0 is the exact same variable that is used in Edit 1. This creates a direct code dependency where the new choice format from Edit 0 requires the corresponding change in Edit 1 to handle the new choice values properly. Either edit can be made first as both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain consistent behavior."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice', introducing a new attribute 'kb.redirectChoice'. Edit 1 then uses this exact same attribute 'kb.redirectChoice' in a conditional check 'if kb.redirectChoice == REDIRECTION.IGNORE:' while removing the old 'kb.alwaysRedirect' usage. The changed lines reference the exact same symbol 'kb.redirectChoice' - one edit defines/assigns it, the other uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the mechanically obvious next step to update the usage of the newly introduced attribute."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice', introducing a new attribute 'kb.redirectChoice'. Edit 1 then uses this exact same attribute 'kb.redirectChoice' in a conditional check 'if kb.redirectChoice == REDIRECTION.IGNORE:' while removing the old 'kb.alwaysRedirect' usage. The changed lines reference the exact same symbol 'kb.redirectChoice' - one edit defines/assigns it, the other uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the mechanically obvious next step to update the usage of the newly introduced attribute."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice', introducing a new attribute 'kb.redirectChoice'. Edit 1 then uses this exact same attribute 'kb.redirectChoice' in a conditional expression 'kb.redirectChoice == REDIRECTION.ORIGINAL'. The changed lines reference the exact same symbol (kb.redirectChoice), where edit 0 defines/assigns to it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly introduced attribute. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 changes the assignment from 'kb.alwaysRedirect = choice not in (\"n\", \"N\")' to 'kb.redirectChoice = choice', introducing a new attribute 'kb.redirectChoice'. Edit 1 then uses this exact same attribute 'kb.redirectChoice' in a conditional expression 'kb.redirectChoice == REDIRECTION.ORIGINAL'. The changed lines reference the exact same symbol (kb.redirectChoice), where edit 0 defines/assigns to it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly introduced attribute. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "These edits are part of a single refactoring that replaces a simple boolean check (kb.alwaysRedirect) with a more complex enum-based redirection logic (kb.redirectChoice). Edit 0 removes the old if-else structure and replaces the condition with 'kb.redirectChoice == REDIRECTION.IGNORE', while Edit 1 adds the corresponding else clause that handles the other redirection cases. The edits are structurally dependent - Edit 0 creates an incomplete if-else structure that needs the else clause added in Edit 1 to be syntactically complete and logically correct. Both edits reference the same control flow structure and kb.redirectChoice enum, making them part of a single contiguous refactoring task."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "These edits are part of a single refactoring that replaces a simple boolean check (kb.alwaysRedirect) with a more complex enum-based redirection logic (kb.redirectChoice). Edit 0 removes the old if-else structure and replaces the condition with 'kb.redirectChoice == REDIRECTION.IGNORE', while Edit 1 adds the corresponding else clause that handles the other redirection cases. The edits are structurally dependent - Edit 0 creates an incomplete if-else structure that needs the else clause added in Edit 1 to be syntactically complete and logically correct. Both edits reference the same control flow structure and kb.redirectChoice enum, making them part of a single contiguous refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5
+    ]
+}

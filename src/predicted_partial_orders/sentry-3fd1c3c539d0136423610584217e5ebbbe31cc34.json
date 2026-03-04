@@ -1,0 +1,94 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports 'organization_service' from the hybrid cloud module, and Edit 1 uses that exact same 'organization_service' symbol in the changed lines by calling 'organization_service.add_organization_member()'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1's changed lines. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'organization_service' from the hybrid cloud module, and Edit 1 uses that exact same 'organization_service' symbol in the changed lines by calling 'organization_service.add_organization_member()'. This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1's changed lines. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'rpc_org_member' by assigning it the result of 'organization_service.add_organization_member()'. Edit 1 then immediately uses this exact same variable 'rpc_org_member' in the expression 'rpc_org_member.id' to retrieve an OrganizationMember object. The changed lines reference the exact same symbol - the variable 'rpc_org_member' that is defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code dependency where edit 0 must occur before edit 1, as edit 1 cannot be parsed or executed without the variable definition from edit 0. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports HybridCloudTestMixin and edit 1 adds HybridCloudTestMixin as a base class to OrganizationJoinRequestTest. The changed lines reference the exact same symbol (HybridCloudTestMixin). This is a classic import-usage pattern where the import creates the symbol availability and the class inheritance uses that exact symbol. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next mechanical step to complete the functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports HybridCloudTestMixin and edit 1 adds HybridCloudTestMixin as a base class to OrganizationJoinRequestTest. The changed lines reference the exact same symbol (HybridCloudTestMixin). This is a classic import-usage pattern where the import creates the symbol availability and the class inheritance uses that exact symbol. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the immediate next mechanical step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 imports 'outbox_runner' from 'sentry.testutils.outbox', and edit 1 uses 'outbox_runner()' in a context manager. The changed lines reference the exact same symbol - 'outbox_runner' is imported in edit 0 and then used in edit 1. This creates an immediate code dependency where importing the symbol naturally prompts its usage as the next mechanical step, or vice versa. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 imports 'outbox_runner' from 'sentry.testutils.outbox', and edit 1 uses 'outbox_runner()' in a context manager. The changed lines reference the exact same symbol - 'outbox_runner' is imported in edit 0 and then used in edit 1. This creates an immediate code dependency where importing the symbol naturally prompts its usage as the next mechanical step, or vice versa. Both edits can be staged in either order since Python allows usage of undefined symbols at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the class inheritance, while Edit 1 calls self.assert_org_member_mapping() which is a method provided by HybridCloudTestMixin. The changed line in Edit 1 references a method that becomes available only after Edit 0 adds the mixin to the class. This creates a direct code dependency where Edit 0 must occur before Edit 1 for the method call to be valid."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the class inheritance, while Edit 1 calls self.assert_org_member_mapping() which is a method provided by HybridCloudTestMixin. The changed line in Edit 1 references a method that becomes available only after Edit 0 adds the mixin to the class. This creates a direct code dependency where Edit 0 must occur before Edit 1 for the method call to be valid."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the test class inheritance, while Edit 1 uses outbox_runner() context manager in a test method. The HybridCloudTestMixin provides the outbox_runner() method that is being used in Edit 1. This creates a direct code dependency where the class must inherit from HybridCloudTestMixin before the outbox_runner() method can be used. However, in Python, the method call in Edit 1 would not cause a parse error if staged before Edit 0 - it would only fail at runtime with an AttributeError. Since both edits can be written and parsed in either order, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the test class inheritance, while Edit 1 uses outbox_runner() context manager in a test method. The HybridCloudTestMixin provides the outbox_runner() method that is being used in Edit 1. This creates a direct code dependency where the class must inherit from HybridCloudTestMixin before the outbox_runner() method can be used. However, in Python, the method call in Edit 1 would not cause a parse error if staged before Edit 0 - it would only fail at runtime with an AttributeError. Since both edits can be written and parsed in either order, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the class inheritance, which provides the assert_org_member_mapping method. Edit 1 calls this exact method (self.assert_org_member_mapping). The changed lines reference the exact same symbol - the assert_org_member_mapping method that becomes available through the mixin. After adding the mixin inheritance, calling the method becomes the immediate next step to utilize the newly available functionality. This is a definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 adds HybridCloudTestMixin to the class inheritance, which provides the assert_org_member_mapping method. Edit 1 calls this exact method (self.assert_org_member_mapping). The changed lines reference the exact same symbol - the assert_org_member_mapping method that becomes available through the mixin. After adding the mixin inheritance, calling the method becomes the immediate next step to utilize the newly available functionality. This is a definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits add identical calls to `self.assert_org_member_mapping()` in different test methods within the same test class. The changed lines reference the exact same method symbol and follow an identical pattern of adding the same assertion call. This represents a synchronized addition of the same test assertion across related test methods, which constitutes a mirrored structural substitution within the same testing context."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits add identical calls to `self.assert_org_member_mapping()` in different test methods within the same test class. The changed lines reference the exact same method symbol and follow an identical pattern of adding the same assertion call. This represents a synchronized addition of the same test assertion across related test methods, which constitutes a mirrored structural substitution within the same testing context."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits add identical lines calling `self.assert_org_member_mapping(org_member=join_request)` in different test methods within the same test class. This represents a synchronized pattern addition where the same assertion is being added to multiple test methods that likely test similar functionality. The edits involve identical code being added to similar contexts (both test methods dealing with join requests), making this a bulk-edit pattern where either edit could be made first and would naturally prompt adding the same assertion to other similar test methods."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits add identical lines calling `self.assert_org_member_mapping(org_member=join_request)` in different test methods within the same test class. This represents a synchronized pattern addition where the same assertion is being added to multiple test methods that likely test similar functionality. The edits involve identical code being added to similar contexts (both test methods dealing with join requests), making this a bulk-edit pattern where either edit could be made first and would naturally prompt adding the same assertion to other similar test methods."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        2
+    ]
+}

@@ -1,0 +1,38 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the implementation of async_set_cover_position to invert the position calculation (100 - kwargs[ATTR_POSITION]), while Edit 1 updates a test assertion to expect a different lift value (60 instead of 50). These edits are testing the same cover functionality - the test is verifying the behavior of the position setting method that was modified in Edit 0. The test assertion change directly corresponds to the implementation change, as the position inversion would affect what value gets passed to the device. Both edits reference the same cover position functionality and the test update is the immediate next step after changing the implementation logic."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the implementation of async_set_cover_position to invert the position calculation (100 - kwargs[ATTR_POSITION]), while Edit 1 updates a test assertion to expect a different lift value (60 instead of 50). These edits are testing the same cover functionality - the test is verifying the behavior of the position setting method that was modified in Edit 0. The test assertion change directly corresponds to the implementation change, as the position inversion would affect what value gets passed to the device. Both edits reference the same cover position functionality and the test update is the immediate next step after changing the implementation logic."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution (changing ATTR_POSITION from 50 to 40) on the same type of syntactic construct (service call parameter dictionaries). This appears to be part of a single, contiguous refactor to update test position values across multiple test cases. The edits target the exact same parameter (ATTR_POSITION) with the same before\u2192after pattern (50\u219240) in structurally identical contexts (hass.services.async_call for cover position setting). This fits the bulk-edit pattern synchronization criteria where both edits can be made in either order as part of the same uniform substitution."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution (changing ATTR_POSITION from 50 to 40) on the same type of syntactic construct (service call parameter dictionaries). This appears to be part of a single, contiguous refactor to update test position values across multiple test cases. The edits target the exact same parameter (ATTR_POSITION) with the same before\u2192after pattern (50\u219240) in structurally identical contexts (hass.services.async_call for cover position setting). This fits the bulk-edit pattern synchronization criteria where both edits can be made in either order as part of the same uniform substitution."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 changes the position calculation in the DeconzCover.async_set_cover_position method from directly using kwargs[ATTR_POSITION] to using 100 - kwargs[ATTR_POSITION]. Edit 1 updates a test assertion that verifies the brightness value sent to the device API from 127 to 152. These edits are related because the position calculation change in the production code affects the expected brightness value in the test. The test is verifying the exact same method behavior that was modified in edit 0. When the position calculation changes from direct usage to (100 - position), this affects the brightness value that gets sent to the device, which the test assertion needs to reflect. Both edits reference the same underlying functionality - the position-to-brightness conversion in the DeconzCover implementation."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 changes the position calculation in the DeconzCover.async_set_cover_position method from directly using kwargs[ATTR_POSITION] to using 100 - kwargs[ATTR_POSITION]. Edit 1 updates a test assertion that verifies the brightness value sent to the device API from 127 to 152. These edits are related because the position calculation change in the production code affects the expected brightness value in the test. The test is verifying the exact same method behavior that was modified in edit 0. When the position calculation changes from direct usage to (100 - position), this affects the brightness value that gets sent to the device, which the test assertion needs to reflect. Both edits reference the same underlying functionality - the position-to-brightness conversion in the DeconzCover implementation."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2
+    ]
+}

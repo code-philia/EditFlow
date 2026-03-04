@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the instance variable `self._sw_v = None` in the constructor, and Edit 1 uses this exact same instance variable `self._sw_v` in the device_info method's return dictionary. The changed lines reference the exact same symbol (the instance variable `self._sw_v`), creating a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1. Either edit can be staged first without causing parse errors, but they form a natural definition-usage pair for the same symbol within the same class."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 initializes the instance variable `self._sw_v = None` in the constructor, and Edit 1 uses this exact same instance variable `self._sw_v` in the device_info method's return dictionary. The changed lines reference the exact same symbol (the instance variable `self._sw_v`), creating a direct code dependency where the initialization in Edit 0 enables the usage in Edit 1. Either edit can be staged first without causing parse errors, but they form a natural definition-usage pair for the same symbol within the same class."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new instance variable `self._model = \"Asus Router\"` in the constructor, and Edit 1 changes the device_info method to use `self._model` instead of the hardcoded string \"Asus Router\". The changed lines reference the exact same symbol `self._model` - Edit 0 defines it and Edit 1 uses it. This creates an immediate code dependency where after making either edit, the other becomes the mechanically obvious next step to maintain consistency. Both edits can be staged in either order without parser errors (the usage before definition would only cause a runtime AttributeError), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new instance variable `self._model = \"Asus Router\"` in the constructor, and Edit 1 changes the device_info method to use `self._model` instead of the hardcoded string \"Asus Router\". The changed lines reference the exact same symbol `self._model` - Edit 0 defines it and Edit 1 uses it. This creates an immediate code dependency where after making either edit, the other becomes the mechanically obvious next step to maintain consistency. Both edits can be staged in either order without parser errors (the usage before definition would only cause a runtime AttributeError), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 calls the function `_get_nvram_info` twice in lines 229 and 232, while Edit 1 defines this exact same function. The changed lines in Edit 0 explicitly reference the same symbol that is being defined in Edit 1. This creates a direct code dependency where defining the function (Edit 1) and using it (Edit 0) are mechanically linked. Since Python allows function calls to be written before the function definition (they only fail at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 calls the function `_get_nvram_info` twice in lines 229 and 232, while Edit 1 defines this exact same function. The changed lines in Edit 0 explicitly reference the same symbol that is being defined in Edit 1. This creates a direct code dependency where defining the function (Edit 1) and using it (Edit 0) are mechanically linked. Since Python allows function calls to be written before the function definition (they only fail at runtime), either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 assigns a value to self._sw_v (setting it to a formatted firmware version string), and Edit 1 uses self._sw_v in the device_info method's return dictionary. The changed lines reference the exact same symbol (self._sw_v), creating a direct definition-usage relationship. After making Edit 0, Edit 1 becomes the natural next step to utilize the newly set attribute. Both edits can be staged in either order without parser errors (the usage in Edit 1 would only cause a runtime AttributeError if self._sw_v doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 assigns a value to self._sw_v (setting it to a formatted firmware version string), and Edit 1 uses self._sw_v in the device_info method's return dictionary. The changed lines reference the exact same symbol (self._sw_v), creating a direct definition-usage relationship. After making Edit 0, Edit 1 becomes the natural next step to utilize the newly set attribute. Both edits can be staged in either order without parser errors (the usage in Edit 1 would only cause a runtime AttributeError if self._sw_v doesn't exist), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 initializes instance variables `self._model` and `self._sw_v` in the constructor with default values. Edit 1 updates these exact same instance variables in the setup method with values retrieved from the API. The changed lines in both edits reference the exact same symbols (`self._model` and `self._sw_v`). After making edit 0, the setup method in edit 1 becomes the natural next step to populate these initialized variables with actual data. This represents a definition-usage pattern where the same symbols are being initialized and then assigned new values."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 initializes instance variables `self._model` and `self._sw_v` in the constructor with default values. Edit 1 updates these exact same instance variables in the setup method with values retrieved from the API. The changed lines in both edits reference the exact same symbols (`self._model` and `self._sw_v`). After making edit 0, the setup method in edit 1 becomes the natural next step to populate these initialized variables with actual data. This represents a definition-usage pattern where the same symbols are being initialized and then assigned new values."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds code that sets `self._model` from NVRAM info in the setup method, while Edit 1 changes the device_info method to use `self._model` instead of the hardcoded string 'Asus Router'. The changed lines reference the exact same symbol `self._model` - Edit 0 assigns to it and Edit 1 reads from it. After making Edit 0, using the newly populated `self._model` in Edit 1 becomes the immediate next step to utilize the retrieved model information. This creates a direct code dependency where both edits reference the same instance variable."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds code that sets `self._model` from NVRAM info in the setup method, while Edit 1 changes the device_info method to use `self._model` instead of the hardcoded string 'Asus Router'. The changed lines reference the exact same symbol `self._model` - Edit 0 assigns to it and Edit 1 reads from it. After making Edit 0, using the newly populated `self._model` in Edit 1 becomes the immediate next step to utilize the retrieved model information. This creates a direct code dependency where both edits reference the same instance variable."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new function `_get_nvram_info` that calls `api.async_get_nvram(info_type)` on line 425. Edit 1 adds a mock for `async_get_nvram` method in the test setup on line 58. Both edits reference the exact same method `async_get_nvram` - one calls it in production code and the other mocks it in test code. This creates a direct code linkage where the test mock is set up to support the production code that calls this method. Either edit could be made first and would naturally prompt the other as the next step in a development session."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new function `_get_nvram_info` that calls `api.async_get_nvram(info_type)` on line 425. Edit 1 adds a mock for `async_get_nvram` method in the test setup on line 58. Both edits reference the exact same method `async_get_nvram` - one calls it in production code and the other mocks it in test code. This creates a direct code linkage where the test mock is set up to support the production code that calls this method. Either edit could be made first and would naturally prompt the other as the next step in a development session."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

@@ -1,0 +1,1654 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/locustio/locust/commit/747a55eb23364d2b89a867d2b5914026c4a2790f",
+    "commit_message": "rename start_timestamp to start_perf_counter to differentiate it from \"start_time\"",
+    "commit_snapshots": {
+        "locust/clients.py": [
+            [
+                "import re\n",
+                "import time\n",
+                "\n",
+                "import requests\n",
+                "from requests import Request, Response\n",
+                "from requests.auth import HTTPBasicAuth\n",
+                "from requests.exceptions import InvalidSchema, InvalidURL, MissingSchema, RequestException\n",
+                "from contextlib import contextmanager\n",
+                "\n",
+                "from urllib.parse import urlparse, urlunparse\n",
+                "\n",
+                "from .exception import CatchResponseError, ResponseError\n",
+                "\n",
+                "absolute_http_url_regexp = re.compile(r\"^https?://\", re.I)\n",
+                "\n",
+                "\n",
+                "class LocustResponse(Response):\n",
+                "    def raise_for_status(self):\n",
+                "        if hasattr(self, \"error\") and self.error:\n",
+                "            raise self.error\n",
+                "        Response.raise_for_status(self)\n",
+                "\n",
+                "\n",
+                "class HttpSession(requests.Session):\n",
+                "    \"\"\"\n",
+                "    Class for performing web requests and holding (session-) cookies between requests (in order\n",
+                "    to be able to log in and out of websites). Each request is logged so that locust can display\n",
+                "    statistics.\n",
+                "\n",
+                "    This is a slightly extended version of `python-request <http://python-requests.org>`_'s\n",
+                "    :py:class:`requests.Session` class and mostly this class works exactly the same. However\n",
+                "    the methods for making requests (get, post, delete, put, head, options, patch, request)\n",
+                "    can now take a *url* argument that's only the path part of the URL, in which case the host\n",
+                "    part of the URL will be prepended with the HttpSession.base_url which is normally inherited\n",
+                "    from a User class' host property.\n",
+                "\n",
+                "    Each of the methods for making requests also takes two additional optional arguments which\n",
+                "    are Locust specific and doesn't exist in python-requests. These are:\n",
+                "\n",
+                "    :param name: (optional) An argument that can be specified to use as label in Locust's statistics instead of the URL path.\n",
+                "                 This can be used to group different URL's that are requested into a single entry in Locust's statistics.\n",
+                "    :param catch_response: (optional) Boolean argument that, if set, can be used to make a request return a context manager\n",
+                "                           to work as argument to a with statement. This will allow the request to be marked as a fail based on the content of the\n",
+                "                           response, even if the response code is ok (2xx). The opposite also works, one can use catch_response to catch a request\n",
+                "                           and then mark it as successful even if the response code was not (i.e 500 or 404).\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, base_url, request_event, user, *args, **kwargs):\n",
+                "        super().__init__(*args, **kwargs)\n",
+                "\n",
+                "        self.base_url = base_url\n",
+                "        self.request_event = request_event\n",
+                "        self.user = user\n",
+                "\n",
+                "        # User can group name, or use the group context manager to gather performance statistics under a specific name\n",
+                "        # This is an alternative to passing in the \"name\" parameter to the requests function\n",
+                "        self.request_name = None\n",
+                "\n",
+                "        # Check for basic authentication\n",
+                "        parsed_url = urlparse(self.base_url)\n",
+                "        if parsed_url.username and parsed_url.password:\n",
+                "            netloc = parsed_url.hostname\n",
+                "            if parsed_url.port:\n",
+                "                netloc += \":%d\" % parsed_url.port\n",
+                "\n",
+                "            # remove username and password from the base_url\n",
+                "            self.base_url = urlunparse(\n",
+                "                (parsed_url.scheme, netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment)\n",
+                "            )\n",
+                "            # configure requests to use basic auth\n",
+                "            self.auth = HTTPBasicAuth(parsed_url.username, parsed_url.password)\n",
+                "\n",
+                "    def _build_url(self, path):\n",
+                "        \"\"\"prepend url with hostname unless it's already an absolute URL\"\"\"\n",
+                "        if absolute_http_url_regexp.match(path):\n",
+                "            return path\n",
+                "        else:\n",
+                "            return \"%s%s\" % (self.base_url, path)\n",
+                "\n",
+                "    @contextmanager\n",
+                "    def rename_request(self, name: str):\n",
+                "        \"\"\"Group requests using the \"with\" keyword\"\"\"\n",
+                "\n",
+                "        self.request_name = name\n",
+                "        try:\n",
+                "            yield\n",
+                "        finally:\n",
+                "            self.request_name = None\n",
+                "\n",
+                "    def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):\n",
+                "        \"\"\"\n",
+                "        Constructs and sends a :py:class:`requests.Request`.\n",
+                "        Returns :py:class:`requests.Response` object.\n",
+                "\n",
+                "        :param method: method for the new :class:`Request` object.\n",
+                "        :param url: URL for the new :class:`Request` object.\n",
+                "        :param name: (optional) An argument that can be specified to use as label in Locust's statistics instead of the URL path.\n",
+                "          This can be used to group different URL's that are requested into a single entry in Locust's statistics.\n",
+                "        :param catch_response: (optional) Boolean argument that, if set, can be used to make a request return a context manager\n",
+                "          to work as argument to a with statement. This will allow the request to be marked as a fail based on the content of the\n",
+                "          response, even if the response code is ok (2xx). The opposite also works, one can use catch_response to catch a request\n",
+                "          and then mark it as successful even if the response code was not (i.e 500 or 404).\n",
+                "        :param params: (optional) Dictionary or bytes to be sent in the query string for the :class:`Request`.\n",
+                "        :param data: (optional) Dictionary or bytes to send in the body of the :class:`Request`.\n",
+                "        :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.\n",
+                "        :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.\n",
+                "        :param files: (optional) Dictionary of ``'filename': file-like-objects`` for multipart encoding upload.\n",
+                "        :param auth: (optional) Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth.\n",
+                "        :param timeout: (optional) How long in seconds to wait for the server to send data before giving up, as a float,\n",
+                "            or a (`connect timeout, read timeout <user/advanced.html#timeouts>`_) tuple.\n",
+                "        :type timeout: float or tuple\n",
+                "        :param allow_redirects: (optional) Set to True by default.\n",
+                "        :type allow_redirects: bool\n",
+                "        :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.\n",
+                "        :param stream: (optional) whether to immediately download the response content. Defaults to ``False``.\n",
+                "        :param verify: (optional) if ``True``, the SSL cert will be verified. A CA_BUNDLE path can also be provided.\n",
+                "        :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.\n",
+                "        \"\"\"\n",
+                "\n",
+                "        # if group name has been set and no name parameter has been passed in; set the name parameter to group_name\n",
+                "        if self.request_name and not name:\n",
+                "            name = self.request_name\n",
+                "\n",
+                "        # prepend url with hostname unless it's already an absolute URL\n",
+                "        url = self._build_url(url)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        start_timestamp = time.perf_counter()  # high precision timestamp\n",
+                    "        start_time = time.time()  # seconds since epoch\n",
+                    "\n"
+                ],
+                "after": [
+                    "        \n",
+                    "        start_time = time.time()\n",
+                    "        start_perf_counter = time.perf_counter()\n"
+                ],
+                "parent_version_range": {
+                    "start": 125,
+                    "end": 128
+                },
+                "child_version_range": {
+                    "start": 125,
+                    "end": 128
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HttpSession",
+                        "signature": "class HttpSession(requests.Session):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):",
+                        "at_line": 89
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: locust/clients.py\nCode:\n           class HttpSession(requests.Session):\n               ...\n               def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):\n                   ...\n122 122    \n123 123            # prepend url with hostname unless it's already an absolute URL\n124 124            url = self._build_url(url)\n125      -         start_timestamp = time.perf_counter()  # high precision timestamp\n126      -         start_time = time.time()  # seconds since epoch\n127      - \n    125  +         \n    126  +         start_time = time.time()\n    127  +         start_perf_counter = time.perf_counter()\n128 128            response = self._send_request_safe_mode(method, url, **kwargs)\n         ...\n",
+                "file_path": "locust/clients.py",
+                "identifiers_before": [
+                    "perf_counter",
+                    "start_time",
+                    "start_timestamp",
+                    "time"
+                ],
+                "identifiers_after": [
+                    "perf_counter",
+                    "start_perf_counter",
+                    "start_time",
+                    "time"
+                ],
+                "prefix": [
+                    "\n",
+                    "        # prepend url with hostname unless it's already an absolute URL\n",
+                    "        url = self._build_url(url)\n"
+                ],
+                "suffix": [
+                    "        response = self._send_request_safe_mode(method, url, **kwargs)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 125,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 125,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 127,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 127,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        response = self._send_request_safe_mode(method, url, **kwargs)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        response_time = (time.perf_counter() - start_perf_counter) * 1000\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 129,
+                    "end": 129
+                },
+                "child_version_range": {
+                    "start": 129,
+                    "end": 131
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HttpSession",
+                        "signature": "class HttpSession(requests.Session):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):",
+                        "at_line": 89
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: locust/clients.py\nCode:\n           class HttpSession(requests.Session):\n               ...\n               def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):\n                   ...\n128 128            response = self._send_request_safe_mode(method, url, **kwargs)\n    129  +         response_time = (time.perf_counter() - start_perf_counter) * 1000\n    130  + \n129 131            url_after_redirect = (response.history and response.history[0] or response).request.path_url\n130 132    \n131 133            if self.user:\n         ...\n",
+                "file_path": "locust/clients.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "perf_counter",
+                    "response_time",
+                    "start_perf_counter",
+                    "time"
+                ],
+                "prefix": [
+                    "        response = self._send_request_safe_mode(method, url, **kwargs)\n"
+                ],
+                "suffix": [
+                    "        url_after_redirect = (response.history and response.history[0] or response).request.path_url\n",
+                    "\n",
+                    "        if self.user:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 129,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 129,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "response_time",
+                            "position": {
+                                "start": {
+                                    "line": 129,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 129,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        url_after_redirect = (response.history and response.history[0] or response).request.path_url\n",
+                "\n",
+                "        if self.user:\n",
+                "            context = {**self.user.context(), **context}\n",
+                "\n",
+                "        # store meta data that is used when reporting the request to locust's statistics\n",
+                "        request_meta = {\n",
+                "            \"request_type\": method,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            \"response_time\": (time.perf_counter() - start_timestamp) * 1000,\n"
+                ],
+                "after": [
+                    "            \"response_time\": response_time,\n"
+                ],
+                "parent_version_range": {
+                    "start": 137,
+                    "end": 138
+                },
+                "child_version_range": {
+                    "start": 139,
+                    "end": 140
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "HttpSession",
+                        "signature": "class HttpSession(requests.Session):",
+                        "at_line": 23
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):",
+                        "at_line": 89
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: locust/clients.py\nCode:\n           class HttpSession(requests.Session):\n               ...\n               def request(self, method, url, name=None, catch_response=False, context={}, **kwargs):\n                   ...\n134 136            # store meta data that is used when reporting the request to locust's statistics\n135 137            request_meta = {\n136 138                \"request_type\": method,\n137      -             \"response_time\": (time.perf_counter() - start_timestamp) * 1000,\n    139  +             \"response_time\": response_time,\n138 140                \"name\": name or url_after_redirect,\n139 141                \"context\": context,\n140 142                \"response\": response,\n         ...\n",
+                "file_path": "locust/clients.py",
+                "identifiers_before": [
+                    "perf_counter",
+                    "start_timestamp",
+                    "time"
+                ],
+                "identifiers_after": [
+                    "response_time"
+                ],
+                "prefix": [
+                    "        # store meta data that is used when reporting the request to locust's statistics\n",
+                    "        request_meta = {\n",
+                    "            \"request_type\": method,\n"
+                ],
+                "suffix": [
+                    "            \"name\": name or url_after_redirect,\n",
+                    "            \"context\": context,\n",
+                    "            \"response\": response,\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 137,
+                                    "column": 52
+                                },
+                                "end": {
+                                    "line": 137,
+                                    "column": 67
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "response_time",
+                            "position": {
+                                "start": {
+                                    "line": 139,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 139,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/clients.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            \"name\": name or url_after_redirect,\n",
+                "            \"context\": context,\n",
+                "            \"response\": response,\n",
+                "            \"exception\": None,\n",
+                "            \"start_time\": start_time,\n",
+                "            \"url\": url_after_redirect,\n",
+                "        }\n",
+                "\n",
+                "        # get the length of the content, but if the argument stream is set to True, we take\n",
+                "        # the size from the content-length header, in order to not trigger fetching of the body\n",
+                "        if kwargs.get(\"stream\", False):\n",
+                "            request_meta[\"response_length\"] = int(response.headers.get(\"content-length\") or 0)\n",
+                "        else:\n",
+                "            request_meta[\"response_length\"] = len(response.content or b\"\")\n",
+                "\n",
+                "        if catch_response:\n",
+                "            return ResponseContextManager(response, request_event=self.request_event, request_meta=request_meta)\n",
+                "        else:\n",
+                "            if name:\n",
+                "                # Since we use the Exception message when grouping failures, in order to not get\n",
+                "                # multiple failure entries for different URLs for the same name argument, we need\n",
+                "                # to temporarily override the response.url attribute\n",
+                "                orig_url = response.url\n",
+                "                response.url = name\n",
+                "\n",
+                "            try:\n",
+                "                response.raise_for_status()\n",
+                "            except RequestException as e:\n",
+                "                while (\n",
+                "                    isinstance(\n",
+                "                        e,\n",
+                "                        (\n",
+                "                            requests.exceptions.ConnectionError,\n",
+                "                            requests.packages.urllib3.exceptions.ProtocolError,\n",
+                "                            requests.packages.urllib3.exceptions.MaxRetryError,\n",
+                "                            requests.packages.urllib3.exceptions.NewConnectionError,\n",
+                "                        ),\n",
+                "                    )\n",
+                "                    and e.__context__  # Not sure if the above exceptions can ever be the lowest level, but it is good to be sure\n",
+                "                ):\n",
+                "                    e = e.__context__\n",
+                "                request_meta[\"exception\"] = e\n",
+                "\n",
+                "            self.request_event.fire(**request_meta)\n",
+                "            if name:\n",
+                "                response.url = orig_url\n",
+                "            return response\n",
+                "\n",
+                "    def _send_request_safe_mode(self, method, url, **kwargs):\n",
+                "        \"\"\"\n",
+                "        Send an HTTP request, and catch any exception that might occur due to connection problems.\n",
+                "\n",
+                "        Safe mode has been removed from requests 1.x.\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            return super().request(method, url, **kwargs)\n",
+                "        except (MissingSchema, InvalidSchema, InvalidURL):\n",
+                "            raise\n",
+                "        except RequestException as e:\n",
+                "            r = LocustResponse()\n",
+                "            r.error = e\n",
+                "            r.status_code = 0  # with this status_code, content returns None\n",
+                "            r.request = Request(method, url).prepare()\n",
+                "            return r\n",
+                "\n",
+                "\n",
+                "class ResponseContextManager(LocustResponse):\n",
+                "    \"\"\"\n",
+                "    A Response class that also acts as a context manager that provides the ability to manually\n",
+                "    control if an HTTP request should be marked as successful or a failure in Locust's statistics\n",
+                "\n",
+                "    This class is a subclass of :py:class:`Response <requests.Response>` with two additional\n",
+                "    methods: :py:meth:`success <locust.clients.ResponseContextManager.success>` and\n",
+                "    :py:meth:`failure <locust.clients.ResponseContextManager.failure>`.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    _manual_result = None\n",
+                "\n",
+                "    def __init__(self, response, request_event, request_meta):\n",
+                "        # copy data from response to this object\n",
+                "        self.__dict__ = response.__dict__\n",
+                "        self._request_event = request_event\n",
+                "        self.request_meta = request_meta\n",
+                "\n",
+                "    def __enter__(self):\n",
+                "        return self\n",
+                "\n",
+                "    def __exit__(self, exc, value, traceback):\n",
+                "        # if the user has already manually marked this response as failure or success\n",
+                "        # we can ignore the default behaviour of letting the response code determine the outcome\n",
+                "        if self._manual_result is not None:\n",
+                "            if self._manual_result is True:\n",
+                "                self.request_meta[\"exception\"] = None\n",
+                "            elif isinstance(self._manual_result, Exception):\n",
+                "                self.request_meta[\"exception\"] = self._manual_result\n",
+                "            self._report_request()\n",
+                "            return exc is None\n",
+                "\n",
+                "        if exc:\n",
+                "            if isinstance(value, ResponseError):\n",
+                "                self.request_meta[\"exception\"] = value\n",
+                "                self._report_request()\n",
+                "            else:\n",
+                "                # we want other unknown exceptions to be raised\n",
+                "                return False\n",
+                "        else:\n",
+                "            try:\n",
+                "                self.raise_for_status()\n",
+                "            except requests.exceptions.RequestException as e:\n",
+                "                self.request_meta[\"exception\"] = e\n",
+                "\n",
+                "            self._report_request()\n",
+                "\n",
+                "        return True\n",
+                "\n",
+                "    def _report_request(self, exc=None):\n",
+                "        self._request_event.fire(**self.request_meta)\n",
+                "\n",
+                "    def success(self):\n",
+                "        \"\"\"\n",
+                "        Report the response as successful\n",
+                "\n",
+                "        Example::\n",
+                "\n",
+                "            with self.client.get(\"/does/not/exist\", catch_response=True) as response:\n",
+                "                if response.status_code == 404:\n",
+                "                    response.success()\n",
+                "        \"\"\"\n",
+                "        self._manual_result = True\n",
+                "\n",
+                "    def failure(self, exc):\n",
+                "        \"\"\"\n",
+                "        Report the response as a failure.\n",
+                "\n",
+                "        if exc is anything other than a python exception (like a string) it will\n",
+                "        be wrapped inside a CatchResponseError.\n",
+                "\n",
+                "        Example::\n",
+                "\n",
+                "            with self.client.get(\"/\", catch_response=True) as response:\n",
+                "                if response.content == b\"\":\n",
+                "                    response.failure(\"No data\")\n",
+                "        \"\"\"\n",
+                "        if not isinstance(exc, Exception):\n",
+                "            exc = CatchResponseError(exc)\n",
+                "        self._manual_result = exc"
+            ]
+        ],
+        "locust/contrib/fasthttp.py": [
+            [
+                "import re\n",
+                "import socket\n",
+                "import json\n",
+                "import json as unshadowed_json  # some methods take a named parameter called json\n",
+                "from base64 import b64encode\n",
+                "from urllib.parse import urlparse, urlunparse\n",
+                "from ssl import SSLError\n",
+                "import time\n",
+                "\n",
+                "from http.cookiejar import CookieJar\n",
+                "\n",
+                "import gevent\n",
+                "from gevent.timeout import Timeout\n",
+                "from geventhttpclient._parser import HTTPParseError\n",
+                "from geventhttpclient.useragent import UserAgent, CompatRequest, CompatResponse, ConnectionError\n",
+                "from geventhttpclient.response import HTTPConnectionClosed\n",
+                "\n",
+                "from locust.user import User\n",
+                "from locust.exception import LocustError, CatchResponseError, ResponseError\n",
+                "from locust.env import Environment\n",
+                "from locust.util.deprecation import DeprecatedFastHttpLocustClass as FastHttpLocust\n",
+                "\n",
+                "# Monkey patch geventhttpclient.useragent.CompatRequest so that Cookiejar works with Python >= 3.3\n",
+                "# More info: https://github.com/requests/requests/pull/871\n",
+                "CompatRequest.unverifiable = False\n",
+                "\n",
+                "# Workaround for AttributeError: 'CompatRequest' object has no attribute 'type' in Cookiejar\n",
+                "# https://github.com/locustio/locust/issues/1138\n",
+                "# Might allow secure cookies over non-secure connections but that is a minor concern in a load testing tool\n",
+                "CompatRequest.type = \"https\"\n",
+                "\n",
+                "# Regexp for checking if an absolute URL was specified\n",
+                "absolute_http_url_regexp = re.compile(r\"^https?://\", re.I)\n",
+                "\n",
+                "# List of exceptions that can be raised by geventhttpclient when sending an HTTP request,\n",
+                "# and that should result in a Locust failure\n",
+                "FAILURE_EXCEPTIONS = (\n",
+                "    ConnectionError,\n",
+                "    ConnectionRefusedError,\n",
+                "    ConnectionResetError,\n",
+                "    socket.error,\n",
+                "    SSLError,\n",
+                "    Timeout,\n",
+                "    HTTPConnectionClosed,\n",
+                ")\n",
+                "\n",
+                "\n",
+                "def _construct_basic_auth_str(username, password):\n",
+                "    \"\"\"Construct Authorization header value to be used in HTTP Basic Auth\"\"\"\n",
+                "    if isinstance(username, str):\n",
+                "        username = username.encode(\"latin1\")\n",
+                "    if isinstance(password, str):\n",
+                "        password = password.encode(\"latin1\")\n",
+                "    return \"Basic \" + b64encode(b\":\".join((username, password))).strip().decode(\"ascii\")\n",
+                "\n",
+                "\n",
+                "def insecure_ssl_context_factory():\n",
+                "    context = gevent.ssl.create_default_context()\n",
+                "    context.check_hostname = False\n",
+                "    context.verify_mode = gevent.ssl.CERT_NONE\n",
+                "    return context\n",
+                "\n",
+                "\n",
+                "class FastHttpSession:\n",
+                "    auth_header = None\n",
+                "\n",
+                "    def __init__(self, environment: Environment, base_url: str, user: \"FastHttpUser\", insecure=True, **kwargs):\n",
+                "        self.environment = environment\n",
+                "        self.base_url = base_url\n",
+                "        self.cookiejar = CookieJar()\n",
+                "        self.user = user\n",
+                "        if insecure:\n",
+                "            ssl_context_factory = insecure_ssl_context_factory\n",
+                "        else:\n",
+                "            ssl_context_factory = gevent.ssl.create_default_context\n",
+                "        self.client = LocustUserAgent(\n",
+                "            cookiejar=self.cookiejar,\n",
+                "            ssl_context_factory=ssl_context_factory,\n",
+                "            insecure=insecure,\n",
+                "            **kwargs,\n",
+                "        )\n",
+                "\n",
+                "        # Check for basic authentication\n",
+                "        parsed_url = urlparse(self.base_url)\n",
+                "        if parsed_url.username and parsed_url.password:\n",
+                "            netloc = parsed_url.hostname\n",
+                "            if parsed_url.port:\n",
+                "                netloc += \":%d\" % parsed_url.port\n",
+                "\n",
+                "            # remove username and password from the base_url\n",
+                "            self.base_url = urlunparse(\n",
+                "                (parsed_url.scheme, netloc, parsed_url.path, parsed_url.params, parsed_url.query, parsed_url.fragment)\n",
+                "            )\n",
+                "            # store authentication header (we construct this by using _basic_auth_str() function from requests.auth)\n",
+                "            self.auth_header = _construct_basic_auth_str(parsed_url.username, parsed_url.password)\n",
+                "\n",
+                "    def _build_url(self, path):\n",
+                "        \"\"\"prepend url with hostname unless it's already an absolute URL\"\"\"\n",
+                "        if absolute_http_url_regexp.match(path):\n",
+                "            return path\n",
+                "        else:\n",
+                "            return \"%s%s\" % (self.base_url, path)\n",
+                "\n",
+                "    def _send_request_safe_mode(self, method, url, **kwargs):\n",
+                "        \"\"\"\n",
+                "        Send an HTTP request, and catch any exception that might occur due to either\n",
+                "        connection problems, or invalid HTTP status codes\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            return self.client.urlopen(url, method=method, **kwargs)\n",
+                "        except FAILURE_EXCEPTIONS as e:\n",
+                "            if hasattr(e, \"response\"):\n",
+                "                r = e.response\n",
+                "            else:\n",
+                "                r = ErrorResponse()\n",
+                "            r.error = e\n",
+                "            return r\n",
+                "\n",
+                "    def request(\n",
+                "        self,\n",
+                "        method: str,\n",
+                "        path: str,\n",
+                "        name: str = None,\n",
+                "        data: str = None,\n",
+                "        catch_response: bool = False,\n",
+                "        stream: bool = False,\n",
+                "        headers: dict = None,\n",
+                "        auth=None,\n",
+                "        json: dict = None,\n",
+                "        allow_redirects=True,\n",
+                "        context: dict = {},\n",
+                "        **kwargs,\n",
+                "    ):\n",
+                "        \"\"\"\n",
+                "        Send and HTTP request\n",
+                "        Returns :py:class:`locust.contrib.fasthttp.FastResponse` object.\n",
+                "\n",
+                "        :param method: method for the new :class:`Request` object.\n",
+                "        :param path: Path that will be concatenated with the base host URL that has been specified.\n",
+                "            Can also be a full URL, in which case the full URL will be requested, and the base host\n",
+                "            is ignored.\n",
+                "        :param name: (optional) An argument that can be specified to use as label in Locust's\n",
+                "            statistics instead of the URL path. This can be used to group different URL's\n",
+                "            that are requested into a single entry in Locust's statistics.\n",
+                "        :param catch_response: (optional) Boolean argument that, if set, can be used to make a request\n",
+                "            return a context manager to work as argument to a with statement. This will allow the\n",
+                "            request to be marked as a fail based on the content of the response, even if the response\n",
+                "            code is ok (2xx). The opposite also works, one can use catch_response to catch a request\n",
+                "            and then mark it as successful even if the response code was not (i.e 500 or 404).\n",
+                "        :param data: (optional) String/bytes to send in the body of the request.\n",
+                "        :param json: (optional) Dictionary to send in the body of the request.\n",
+                "            Automatically sets Content-Type and Accept headers to \"application/json\".\n",
+                "            Only used if data is not set.\n",
+                "        :param headers: (optional) Dictionary of HTTP Headers to send with the request.\n",
+                "        :param auth: (optional) Auth (username, password) tuple to enable Basic HTTP Auth.\n",
+                "        :param stream: (optional) If set to true the response body will not be consumed immediately\n",
+                "            and can instead be consumed by accessing the stream attribute on the Response object.\n",
+                "            Another side effect of setting stream to True is that the time for downloading the response\n",
+                "            content will not be accounted for in the request time that is reported by Locust.\n",
+                "        \"\"\"\n",
+                "        # prepend url with hostname unless it's already an absolute URL\n",
+                "        url = self._build_url(path)\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        start_timestamp = time.perf_counter()  # high precision timestamp\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 163,
+                    "end": 164
+                },
+                "child_version_range": {
+                    "start": 163,
+                    "end": 163
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FastHttpSession",
+                        "signature": "class FastHttpSession:",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):",
+                        "at_line": 118
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: locust/contrib/fasthttp.py\nCode:\n           class FastHttpSession:\n               ...\n               def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):\n                   ...\n160 160            # prepend url with hostname unless it's already an absolute URL\n161 161            url = self._build_url(path)\n162 162    \n163      -         start_timestamp = time.perf_counter()  # high precision timestamp\n164 163            start_time = time.time()  # seconds since epoch\n165 164    \n166 165            if self.user:\n         ...\n",
+                "file_path": "locust/contrib/fasthttp.py",
+                "identifiers_before": [
+                    "perf_counter",
+                    "start_timestamp",
+                    "time"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        # prepend url with hostname unless it's already an absolute URL\n",
+                    "        url = self._build_url(path)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        start_time = time.time()  # seconds since epoch\n",
+                    "\n",
+                    "        if self.user:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 163,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 163,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 163,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 163,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        start_time = time.time()  # seconds since epoch\n",
+                "\n",
+                "        if self.user:\n",
+                "            context = {**self.user.context(), **context}\n",
+                "\n",
+                "        headers = headers or {}\n",
+                "        if auth:\n",
+                "            headers[\"Authorization\"] = _construct_basic_auth_str(auth[0], auth[1])\n",
+                "        elif self.auth_header:\n",
+                "            headers[\"Authorization\"] = self.auth_header\n",
+                "        if \"Accept-Encoding\" not in headers and \"accept-encoding\" not in headers:\n",
+                "            headers[\"Accept-Encoding\"] = \"gzip, deflate\"\n",
+                "\n",
+                "        if not data and json is not None:\n",
+                "            data = unshadowed_json.dumps(json)\n",
+                "            if \"Content-Type\" not in headers and \"content-type\" not in headers:\n",
+                "                headers[\"Content-Type\"] = \"application/json\"\n",
+                "            if \"Accept\" not in headers and \"accept\" not in headers:\n",
+                "                headers[\"Accept\"] = \"application/json\"\n",
+                "\n",
+                "        if not allow_redirects:\n",
+                "            old_redirect_response_codes = self.client.redirect_resonse_codes\n",
+                "            self.client.redirect_resonse_codes = []\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        start_perf_counter = time.perf_counter()\n"
+                ],
+                "parent_version_range": {
+                    "start": 188,
+                    "end": 188
+                },
+                "child_version_range": {
+                    "start": 187,
+                    "end": 188
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FastHttpSession",
+                        "signature": "class FastHttpSession:",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):",
+                        "at_line": 118
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: locust/contrib/fasthttp.py\nCode:\n           class FastHttpSession:\n               ...\n               def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):\n                   ...\n185 184                old_redirect_response_codes = self.client.redirect_resonse_codes\n186 185                self.client.redirect_resonse_codes = []\n187 186    \n    187  +         start_perf_counter = time.perf_counter()\n188 188            # send request, and catch any exceptions\n189 189            response = self._send_request_safe_mode(method, url, payload=data, headers=headers, **kwargs)\n         ...\n",
+                "file_path": "locust/contrib/fasthttp.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "perf_counter",
+                    "start_perf_counter",
+                    "time"
+                ],
+                "prefix": [
+                    "            old_redirect_response_codes = self.client.redirect_resonse_codes\n",
+                    "            self.client.redirect_resonse_codes = []\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        # send request, and catch any exceptions\n",
+                    "        response = self._send_request_safe_mode(method, url, payload=data, headers=headers, **kwargs)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 187,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 187,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 187,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 187,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        # send request, and catch any exceptions\n",
+                "        response = self._send_request_safe_mode(method, url, payload=data, headers=headers, **kwargs)\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        # store meta data that is used when reporting the request to locust's statistics\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 190,
+                    "end": 191
+                },
+                "child_version_range": {
+                    "start": 190,
+                    "end": 190
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FastHttpSession",
+                        "signature": "class FastHttpSession:",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):",
+                        "at_line": 118
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: locust/contrib/fasthttp.py\nCode:\n           class FastHttpSession:\n               ...\n               def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):\n                   ...\n188 188            # send request, and catch any exceptions\n189 189            response = self._send_request_safe_mode(method, url, payload=data, headers=headers, **kwargs)\n190      -         # store meta data that is used when reporting the request to locust's statistics\n191 190            request_meta = {\n192 191                \"request_type\": method,\n193 192                \"name\": name or path,\n         ...\n",
+                "file_path": "locust/contrib/fasthttp.py",
+                "identifiers_before": [],
+                "identifiers_after": [],
+                "prefix": [
+                    "        # send request, and catch any exceptions\n",
+                    "        response = self._send_request_safe_mode(method, url, payload=data, headers=headers, **kwargs)\n"
+                ],
+                "suffix": [
+                    "        request_meta = {\n",
+                    "            \"request_type\": method,\n",
+                    "            \"name\": name or path,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        request_meta = {\n",
+                "            \"request_type\": method,\n",
+                "            \"name\": name or path,\n",
+                "            \"context\": context,\n",
+                "            \"response\": response,\n",
+                "            \"exception\": None,\n",
+                "            \"start_time\": start_time,\n",
+                "            \"url\": path,  # this is a small deviation from HttpSession, which gets the final (possibly redirected) URL\n",
+                "        }\n",
+                "\n",
+                "        if not allow_redirects:\n",
+                "            self.client.redirect_resonse_codes = old_redirect_response_codes\n",
+                "\n",
+                "        # get the length of the content, but if the argument stream is set to True, we take\n",
+                "        # the size from the content-length header, in order to not trigger fetching of the body\n",
+                "        if stream:\n",
+                "            request_meta[\"response_length\"] = int(response.headers.get(\"response_length\") or 0)\n",
+                "        else:\n",
+                "            try:\n",
+                "                request_meta[\"response_length\"] = len(response.content or \"\")\n",
+                "            except HTTPParseError as e:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                request_meta[\"response_time\"] = (time.perf_counter() - start_timestamp) * 1000\n"
+                ],
+                "after": [
+                    "                request_meta[\"response_time\"] = (time.perf_counter() - start_perf_counter) * 1000\n"
+                ],
+                "parent_version_range": {
+                    "start": 212,
+                    "end": 213
+                },
+                "child_version_range": {
+                    "start": 211,
+                    "end": 212
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if stream:",
+                        "start_line": 206,
+                        "end_line": 216
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 208,
+                        "end_line": 216
+                    },
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 209,
+                        "end_line": 216
+                    },
+                    {
+                        "type": "except_clause",
+                        "statement": "except HTTPParseError as e:",
+                        "start_line": 211,
+                        "end_line": 216
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FastHttpSession",
+                        "signature": "class FastHttpSession:",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):",
+                        "at_line": 118
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: locust/contrib/fasthttp.py\nCode:\n           class FastHttpSession:\n               ...\n               def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):\n                   ...\n209 208                try:\n210 209                    request_meta[\"response_length\"] = len(response.content or \"\")\n211 210                except HTTPParseError as e:\n212      -                 request_meta[\"response_time\"] = (time.perf_counter() - start_timestamp) * 1000\n    211  +                 request_meta[\"response_time\"] = (time.perf_counter() - start_perf_counter) * 1000\n213 212                    request_meta[\"response_length\"] = 0\n214 213                    request_meta[\"exception\"] = e\n215 214                    self.environment.events.request.fire(**request_meta)\n         ...\n",
+                "file_path": "locust/contrib/fasthttp.py",
+                "identifiers_before": [
+                    "perf_counter",
+                    "request_meta",
+                    "start_timestamp",
+                    "time"
+                ],
+                "identifiers_after": [
+                    "perf_counter",
+                    "request_meta",
+                    "start_perf_counter",
+                    "time"
+                ],
+                "prefix": [
+                    "            try:\n",
+                    "                request_meta[\"response_length\"] = len(response.content or \"\")\n",
+                    "            except HTTPParseError as e:\n"
+                ],
+                "suffix": [
+                    "                request_meta[\"response_length\"] = 0\n",
+                    "                request_meta[\"exception\"] = e\n",
+                    "                self.environment.events.request.fire(**request_meta)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 212,
+                                    "column": 71
+                                },
+                                "end": {
+                                    "line": 212,
+                                    "column": 86
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 211,
+                                    "column": 71
+                                },
+                                "end": {
+                                    "line": 211,
+                                    "column": 89
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    7
+                ]
+            },
+            [
+                "                request_meta[\"response_length\"] = 0\n",
+                "                request_meta[\"exception\"] = e\n",
+                "                self.environment.events.request.fire(**request_meta)\n",
+                "                return response\n",
+                "\n",
+                "        # Record the consumed time\n",
+                "        # Note: This is intentionally placed after we record the content_size above, since\n",
+                "        # we'll then trigger fetching of the body (unless stream=True)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        request_meta[\"response_time\"] = int((time.perf_counter() - start_timestamp) * 1000)\n"
+                ],
+                "after": [
+                    "        request_meta[\"response_time\"] = int((time.perf_counter() - start_perf_counter) * 1000)\n"
+                ],
+                "parent_version_range": {
+                    "start": 221,
+                    "end": 222
+                },
+                "child_version_range": {
+                    "start": 220,
+                    "end": 221
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "FastHttpSession",
+                        "signature": "class FastHttpSession:",
+                        "at_line": 63
+                    },
+                    {
+                        "type": "function",
+                        "name": "request",
+                        "signature": "def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):",
+                        "at_line": 118
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: locust/contrib/fasthttp.py\nCode:\n           class FastHttpSession:\n               ...\n               def request(\n        self,\n        method: str,\n        path: str,\n        name: str = None,\n        data: str = None,\n        catch_response: bool = False,\n        stream: bool = False,\n        headers: dict = None,\n        auth=None,\n        json: dict = None,\n        allow_redirects=True,\n        context: dict = {},\n        **kwargs,\n    ):\n                   ...\n218 217            # Record the consumed time\n219 218            # Note: This is intentionally placed after we record the content_size above, since\n220 219            # we'll then trigger fetching of the body (unless stream=True)\n221      -         request_meta[\"response_time\"] = int((time.perf_counter() - start_timestamp) * 1000)\n    220  +         request_meta[\"response_time\"] = int((time.perf_counter() - start_perf_counter) * 1000)\n222 221    \n223 222            if catch_response:\n224 223                return ResponseContextManager(response, environment=self.environment, request_meta=request_meta)\n         ...\n",
+                "file_path": "locust/contrib/fasthttp.py",
+                "identifiers_before": [
+                    "int",
+                    "perf_counter",
+                    "request_meta",
+                    "start_timestamp",
+                    "time"
+                ],
+                "identifiers_after": [
+                    "int",
+                    "perf_counter",
+                    "request_meta",
+                    "start_perf_counter",
+                    "time"
+                ],
+                "prefix": [
+                    "        # Record the consumed time\n",
+                    "        # Note: This is intentionally placed after we record the content_size above, since\n",
+                    "        # we'll then trigger fetching of the body (unless stream=True)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if catch_response:\n",
+                    "            return ResponseContextManager(response, environment=self.environment, request_meta=request_meta)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "start_timestamp",
+                            "position": {
+                                "start": {
+                                    "line": 221,
+                                    "column": 67
+                                },
+                                "end": {
+                                    "line": 221,
+                                    "column": 82
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "start_perf_counter",
+                            "position": {
+                                "start": {
+                                    "line": 220,
+                                    "column": 67
+                                },
+                                "end": {
+                                    "line": 220,
+                                    "column": 85
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/locust/locust/contrib/fasthttp.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "\n",
+                "        if catch_response:\n",
+                "            return ResponseContextManager(response, environment=self.environment, request_meta=request_meta)\n",
+                "        else:\n",
+                "            try:\n",
+                "                response.raise_for_status()\n",
+                "            except FAILURE_EXCEPTIONS as e:\n",
+                "                request_meta[\"exception\"] = e\n",
+                "\n",
+                "            self.environment.events.request.fire(**request_meta)\n",
+                "            return response\n",
+                "\n",
+                "    def delete(self, path, **kwargs):\n",
+                "        return self.request(\"DELETE\", path, **kwargs)\n",
+                "\n",
+                "    def get(self, path, **kwargs):\n",
+                "        \"\"\"Sends a GET request\"\"\"\n",
+                "        return self.request(\"GET\", path, **kwargs)\n",
+                "\n",
+                "    def head(self, path, **kwargs):\n",
+                "        \"\"\"Sends a HEAD request\"\"\"\n",
+                "        return self.request(\"HEAD\", path, **kwargs)\n",
+                "\n",
+                "    def options(self, path, **kwargs):\n",
+                "        \"\"\"Sends a OPTIONS request\"\"\"\n",
+                "        return self.request(\"OPTIONS\", path, **kwargs)\n",
+                "\n",
+                "    def patch(self, path, data=None, **kwargs):\n",
+                "        \"\"\"Sends a POST request\"\"\"\n",
+                "        return self.request(\"PATCH\", path, data=data, **kwargs)\n",
+                "\n",
+                "    def post(self, path, data=None, **kwargs):\n",
+                "        \"\"\"Sends a POST request\"\"\"\n",
+                "        return self.request(\"POST\", path, data=data, **kwargs)\n",
+                "\n",
+                "    def put(self, path, data=None, **kwargs):\n",
+                "        \"\"\"Sends a PUT request\"\"\"\n",
+                "        return self.request(\"PUT\", path, data=data, **kwargs)\n",
+                "\n",
+                "\n",
+                "class FastHttpUser(User):\n",
+                "    \"\"\"\n",
+                "    FastHttpUser uses a different HTTP client (geventhttpclient) compared to HttpUser (python-requests).\n",
+                "    It's significantly faster, but not as capable.\n",
+                "\n",
+                "    The behaviour of this user is defined by it's tasks. Tasks can be declared either directly on the\n",
+                "    class by using the :py:func:`@task decorator <locust.task>` on the methods, or by setting\n",
+                "    the :py:attr:`tasks attribute <locust.User.tasks>`.\n",
+                "\n",
+                "    This class creates a *client* attribute on instantiation which is an HTTP client with support\n",
+                "    for keeping a user session between requests.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    client: FastHttpSession = None\n",
+                "    \"\"\"\n",
+                "    Instance of HttpSession that is created upon instantiation of User.\n",
+                "    The client support cookies, and therefore keeps the session between HTTP requests.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    # Below are various UserAgent settings. Change these in your subclass to alter FastHttpUser's behaviour.\n",
+                "    # It needs to be done before FastHttpUser is instantiated, changing them later will have no effect\n",
+                "\n",
+                "    network_timeout: float = 60.0\n",
+                "    \"\"\"Parameter passed to FastHttpSession\"\"\"\n",
+                "\n",
+                "    connection_timeout: float = 60.0\n",
+                "    \"\"\"Parameter passed to FastHttpSession\"\"\"\n",
+                "\n",
+                "    max_redirects: int = 5\n",
+                "    \"\"\"Parameter passed to FastHttpSession. Default 5, meaning 4 redirects.\"\"\"\n",
+                "\n",
+                "    max_retries: int = 1\n",
+                "    \"\"\"Parameter passed to FastHttpSession. Default 1, meaning zero retries.\"\"\"\n",
+                "\n",
+                "    insecure: bool = True\n",
+                "    \"\"\"Parameter passed to FastHttpSession. Default True, meaning no SSL verification.\"\"\"\n",
+                "\n",
+                "    concurrency: int = 1\n",
+                "    \"\"\"Parameter passed to FastHttpSession. Describes number of concurrent requests allowed by the FastHttpSession. Default 1.\"\"\"\n",
+                "\n",
+                "    abstract = True\n",
+                "    \"\"\"Dont register this as a User class that can be run by itself\"\"\"\n",
+                "\n",
+                "    def __init__(self, environment):\n",
+                "        super().__init__(environment)\n",
+                "        if self.host is None:\n",
+                "            raise LocustError(\n",
+                "                \"You must specify the base host. Either in the host attribute in the User class, or on the command line using the --host option.\"\n",
+                "            )\n",
+                "        if not re.match(r\"^https?://[^/]+\", self.host, re.I):\n",
+                "            raise LocustError(\"Invalid host (`%s`), must be a valid base URL. E.g. http://example.com\" % self.host)\n",
+                "\n",
+                "        self.client = FastHttpSession(\n",
+                "            self.environment,\n",
+                "            base_url=self.host,\n",
+                "            network_timeout=self.network_timeout,\n",
+                "            connection_timeout=self.connection_timeout,\n",
+                "            max_redirects=self.max_redirects,\n",
+                "            max_retries=self.max_retries,\n",
+                "            insecure=self.insecure,\n",
+                "            concurrency=self.concurrency,\n",
+                "            user=self,\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "class FastResponse(CompatResponse):\n",
+                "    headers = None\n",
+                "    \"\"\"Dict like object containing the response headers\"\"\"\n",
+                "\n",
+                "    _response = None\n",
+                "\n",
+                "    encoding: str = None\n",
+                "    \"\"\"In some cases setting the encoding explicitly is needed. If so, do it before calling .text\"\"\"\n",
+                "\n",
+                "    @property\n",
+                "    def text(self) -> str:\n",
+                "        \"\"\"\n",
+                "        Returns the text content of the response as a decoded string\n",
+                "        \"\"\"\n",
+                "        if self.content is None:\n",
+                "            return None\n",
+                "        if self.encoding is None:\n",
+                "            if self.headers is None:\n",
+                "                self.encoding = \"utf-8\"\n",
+                "            else:\n",
+                "                self.encoding = self.headers.get(\"content-type\", \"\").partition(\"charset=\")[2] or \"utf-8\"\n",
+                "        return str(self.content, self.encoding, errors=\"replace\")\n",
+                "\n",
+                "    def json(self) -> dict:\n",
+                "        \"\"\"\n",
+                "        Parses the response as json and returns a dict\n",
+                "        \"\"\"\n",
+                "        return json.loads(self.text)\n",
+                "\n",
+                "    def raise_for_status(self):\n",
+                "        \"\"\"Raise any connection errors that occurred during the request\"\"\"\n",
+                "        if hasattr(self, \"error\") and self.error:\n",
+                "            raise self.error\n",
+                "\n",
+                "    @property\n",
+                "    def status_code(self) -> int:\n",
+                "        \"\"\"\n",
+                "        We override status_code in order to return None if no valid response was\n",
+                "        returned. E.g. in the case of connection errors\n",
+                "        \"\"\"\n",
+                "        return self._response is not None and self._response.get_code() or 0\n",
+                "\n",
+                "    def _content(self):\n",
+                "        if self.headers is None:\n",
+                "            return None\n",
+                "        return super()._content()\n",
+                "\n",
+                "\n",
+                "class ErrorResponse:\n",
+                "    \"\"\"\n",
+                "    This is used as a dummy response object when geventhttpclient raises an error\n",
+                "    that doesn't have a real Response object attached. E.g. a socket error or similar\n",
+                "    \"\"\"\n",
+                "\n",
+                "    headers = None\n",
+                "    content = None\n",
+                "    status_code = 0\n",
+                "    error = None\n",
+                "    text = None\n",
+                "\n",
+                "    def raise_for_status(self):\n",
+                "        raise self.error\n",
+                "\n",
+                "\n",
+                "class LocustUserAgent(UserAgent):\n",
+                "    response_type = FastResponse\n",
+                "    valid_response_codes = frozenset([200, 201, 202, 203, 204, 205, 206, 207, 208, 226, 301, 302, 303, 307])\n",
+                "\n",
+                "    def __init__(self, **kwargs):\n",
+                "        super().__init__(**kwargs)\n",
+                "\n",
+                "    def _urlopen(self, request):\n",
+                "        \"\"\"Override _urlopen() in order to make it use the response_type attribute\"\"\"\n",
+                "        client = self.clientpool.get_client(request.url_split)\n",
+                "        resp = client.request(\n",
+                "            request.method, request.url_split.request_uri, body=request.payload, headers=request.headers\n",
+                "        )\n",
+                "        return self.response_type(resp, request=request, sent_request=resp._sent_request)\n",
+                "\n",
+                "\n",
+                "class ResponseContextManager(FastResponse):\n",
+                "    \"\"\"\n",
+                "    A Response class that also acts as a context manager that provides the ability to manually\n",
+                "    control if an HTTP request should be marked as successful or a failure in Locust's statistics\n",
+                "\n",
+                "    This class is a subclass of :py:class:`FastResponse <locust.contrib.fasthttp.FastResponse>`\n",
+                "    with two additional methods: :py:meth:`success <locust.contrib.fasthttp.ResponseContextManager.success>`\n",
+                "    and :py:meth:`failure <locust.contrib.fasthttp.ResponseContextManager.failure>`.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    _manual_result = None\n",
+                "\n",
+                "    def __init__(self, response, environment, request_meta):\n",
+                "        # copy data from response to this object\n",
+                "        self.__dict__ = response.__dict__\n",
+                "        self._cached_content = response.content\n",
+                "        # store reference to locust Environment\n",
+                "        self._environment = environment\n",
+                "        self.request_meta = request_meta\n",
+                "\n",
+                "    def __enter__(self):\n",
+                "        return self\n",
+                "\n",
+                "    def __exit__(self, exc, value, traceback):\n",
+                "        # if the user has already manually marked this response as failure or success\n",
+                "        # we can ignore the default behaviour of letting the response code determine the outcome\n",
+                "        if self._manual_result is not None:\n",
+                "            if self._manual_result is True:\n",
+                "                self._report_request()\n",
+                "            elif isinstance(self._manual_result, Exception):\n",
+                "                self.request_meta[\"exception\"] = self._manual_result\n",
+                "                self._report_request()\n",
+                "\n",
+                "            return exc is None\n",
+                "\n",
+                "        if exc:\n",
+                "            if isinstance(value, ResponseError):\n",
+                "                self.request_meta[\"exception\"] = value\n",
+                "                self._report_request()\n",
+                "            else:\n",
+                "                return False\n",
+                "        else:\n",
+                "            try:\n",
+                "                self.raise_for_status()\n",
+                "            except FAILURE_EXCEPTIONS as e:\n",
+                "                self.request_meta[\"exception\"] = e\n",
+                "            self._report_request()\n",
+                "\n",
+                "        return True\n",
+                "\n",
+                "    def _report_request(self):\n",
+                "        self._environment.events.request.fire(**self.request_meta)\n",
+                "\n",
+                "    def success(self):\n",
+                "        \"\"\"\n",
+                "        Report the response as successful\n",
+                "\n",
+                "        Example::\n",
+                "\n",
+                "            with self.client.get(\"/does/not/exist\", catch_response=True) as response:\n",
+                "                if response.status_code == 404:\n",
+                "                    response.success()\n",
+                "        \"\"\"\n",
+                "        self._manual_result = True\n",
+                "\n",
+                "    def failure(self, exc):\n",
+                "        \"\"\"\n",
+                "        Report the response as a failure.\n",
+                "\n",
+                "        if exc is anything other than a python exception (like a string) it will\n",
+                "        be wrapped inside a CatchResponseError.\n",
+                "\n",
+                "        Example::\n",
+                "\n",
+                "            with self.client.get(\"/\", catch_response=True) as response:\n",
+                "                if response.content == \"\":\n",
+                "                    response.failure(\"No data\")\n",
+                "        \"\"\"\n",
+                "        if not isinstance(exc, Exception):\n",
+                "            exc = CatchResponseError(exc)\n",
+                "        self._manual_result = exc"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "0 before 1",
+            "reason": "move"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

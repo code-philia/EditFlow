@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 assigns a value to the instance variable `self._unique_id` in the constructor, while Edit 1 creates a property method that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` - Edit 0 defines/assigns it and Edit 1 uses it. This creates a direct code dependency where the property method in Edit 1 depends on the instance variable being initialized in Edit 0. However, since Python allows referencing undefined attributes (resulting in AttributeError at runtime, not parse error), both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in implementing the unique_id functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 assigns a value to the instance variable `self._unique_id` in the constructor, while Edit 1 creates a property method that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` - Edit 0 defines/assigns it and Edit 1 uses it. This creates a direct code dependency where the property method in Edit 1 depends on the instance variable being initialized in Edit 0. However, since Python allows referencing undefined attributes (resulting in AttributeError at runtime, not parse error), both edits can be staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in implementing the unique_id functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation (`return self._unique_id`) and identical docstrings to different classes (RfxtrxDevice and RfxtrxSensor). This represents a bulk-edit pattern where the same structural change is being applied to multiple classes of the same type (Entity subclasses). The edits perform identical textual and structural substitution on the same type of syntactic construct (property method definitions). This appears to be part of a single, contiguous refactor to add unique_id properties across related Entity classes in the rfxtrx component."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation (`return self._unique_id`) and identical docstrings to different classes (RfxtrxDevice and RfxtrxSensor). This represents a bulk-edit pattern where the same structural change is being applied to multiple classes of the same type (Entity subclasses). The edits perform identical textual and structural substitution on the same type of syntactic construct (property method definitions). This appears to be part of a single, contiguous refactor to add unique_id properties across related Entity classes in the rfxtrx component."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits add identical lines that assign the same expression to `self._unique_id` using the same pattern: `f\"{slugify(self._event.device.type_string.lower())}_{slugify(self._event.device.id_string.lower())}\"`(edit 0) and `f\"{slugify(self.event.device.type_string.lower())}_{slugify(self.event.device.id_string.lower())}\"`(edit 1). This represents a bulk-edit pattern where the same structural substitution is being applied to multiple classes in the same codebase. Both are adding the same `_unique_id` attribute initialization in constructor methods of related classes (RfxtrxDevice and RfxtrxBinarySensor). This is a synchronized addition of identical functionality across related classes, making either edit a natural prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits add identical lines that assign the same expression to `self._unique_id` using the same pattern: `f\"{slugify(self._event.device.type_string.lower())}_{slugify(self._event.device.id_string.lower())}\"`(edit 0) and `f\"{slugify(self.event.device.type_string.lower())}_{slugify(self.event.device.id_string.lower())}\"`(edit 1). This represents a bulk-edit pattern where the same structural substitution is being applied to multiple classes in the same codebase. Both are adding the same `_unique_id` attribute initialization in constructor methods of related classes (RfxtrxDevice and RfxtrxBinarySensor). This is a synchronized addition of identical functionality across related classes, making either edit a natural prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a `_unique_id` attribute to the `RfxtrxDevice` class constructor, while Edit 1 adds a `unique_id` property method to the `RfxtrxBinarySensor` class that returns `self._unique_id`. These edits reference the exact same symbol (`_unique_id`) and create a direct code dependency - the property method in Edit 1 depends on the attribute being defined in Edit 0. However, since `RfxtrxBinarySensor` likely inherits from `RfxtrxDevice` (based on the naming pattern and the fact that Edit 1 references `self._unique_id` without defining it), both edits can be staged in either order without causing parse errors. The property method will simply reference an undefined attribute until the constructor is updated, which is allowed in Python and only causes runtime errors. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a `_unique_id` attribute to the `RfxtrxDevice` class constructor, while Edit 1 adds a `unique_id` property method to the `RfxtrxBinarySensor` class that returns `self._unique_id`. These edits reference the exact same symbol (`_unique_id`) and create a direct code dependency - the property method in Edit 1 depends on the attribute being defined in Edit 0. However, since `RfxtrxBinarySensor` likely inherits from `RfxtrxDevice` (based on the naming pattern and the fact that Edit 1 references `self._unique_id` without defining it), both edits can be staged in either order without causing parse errors. The property method will simply reference an undefined attribute until the constructor is updated, which is allowed in Python and only causes runtime errors. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 assigns a value to `self._unique_id` in the constructor, and Edit 1 creates a property method that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` on the same class instance. After adding the assignment in the constructor, the natural next step would be to create the property method to expose this value, or vice versa. This is a classic definition-usage pattern where both edits are part of implementing the same feature and either can be done first since both are syntactically valid independently."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 assigns a value to `self._unique_id` in the constructor, and Edit 1 creates a property method that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` on the same class instance. After adding the assignment in the constructor, the natural next step would be to create the property method to expose this value, or vice versa. This is a classic definition-usage pattern where both edits are part of implementing the same feature and either can be done first since both are syntactically valid independently."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation pattern to different classes (RfxtrxBinarySensor and RfxtrxSensor). This represents a bulk-edit pattern where the same structural change is being applied to multiple related classes in the same component. The edits involve identical before\u2192after patterns (adding the same property method) on the same type of syntactic construct (class property methods). This appears to be part of a single, contiguous refactor to add unique_id support across related sensor classes in the rfxtrx component."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation pattern to different classes (RfxtrxBinarySensor and RfxtrxSensor). This represents a bulk-edit pattern where the same structural change is being applied to multiple related classes in the same component. The edits involve identical before\u2192after patterns (adding the same property method) on the same type of syntactic construct (class property methods). This appears to be part of a single, contiguous refactor to add unique_id support across related sensor classes in the rfxtrx component."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds an instance variable `self._unique_id` in the constructor, and Edit 1 adds a property method `unique_id` that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` - Edit 0 assigns to it and Edit 1 reads from it. This creates a direct code dependency where the property method cannot function correctly without the instance variable being initialized. However, in Python, both edits can be written and parsed in either order since accessing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. After making either edit, the other becomes the immediate next step to complete the unique_id functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds an instance variable `self._unique_id` in the constructor, and Edit 1 adds a property method `unique_id` that returns `self._unique_id`. Both edits reference the exact same symbol `_unique_id` - Edit 0 assigns to it and Edit 1 reads from it. This creates a direct code dependency where the property method cannot function correctly without the instance variable being initialized. However, in Python, both edits can be written and parsed in either order since accessing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. After making either edit, the other becomes the immediate next step to complete the unique_id functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation (`return self._unique_id`) to different classes in the same codebase. This represents a bulk-edit pattern where the same structural change is being applied uniformly across multiple classes. The edits involve identical before\u2192after patterns (adding the same property method) on the same type of syntactic construct (class property methods). This appears to be part of a single, contiguous refactor to add unique_id properties across related classes in the rfxtrx component."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add identical `unique_id` property methods with the same implementation (`return self._unique_id`) to different classes in the same codebase. This represents a bulk-edit pattern where the same structural change is being applied uniformly across multiple classes. The edits involve identical before\u2192after patterns (adding the same property method) on the same type of syntactic construct (class property methods). This appears to be part of a single, contiguous refactor to add unique_id properties across related classes in the rfxtrx component."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

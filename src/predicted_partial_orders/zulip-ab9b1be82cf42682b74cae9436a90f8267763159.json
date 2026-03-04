@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 imports `settings` from `django.conf`, and Edit 1 uses `settings.LOCALSERVER` in line 59. The import in Edit 0 makes the `settings` symbol available, which is then directly referenced in Edit 1's changed lines. This creates an immediate code dependency where the import enables the usage. Both edits reference the exact same symbol (`settings`) and would naturally occur in the same development session when adding functionality that requires Django settings."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 imports `settings` from `django.conf`, and Edit 1 uses `settings.LOCALSERVER` in line 59. The import in Edit 0 makes the `settings` symbol available, which is then directly referenced in Edit 1's changed lines. This creates an immediate code dependency where the import enables the usage. Both edits reference the exact same symbol (`settings`) and would naturally occur in the same development session when adding functionality that requires Django settings."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports the `settings` module from django.conf, and Edit 1 uses `settings.LOCALSERVER` in line 77. The import in Edit 0 makes the `settings` symbol available for use in Edit 1. This is a classic import-usage relationship where the exact same symbol (`settings`) is being imported in one edit and referenced in another edit within the same file. After making Edit 0, the usage of `settings` in Edit 1 becomes immediately available and mechanically prompted. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports the `settings` module from django.conf, and Edit 1 uses `settings.LOCALSERVER` in line 77. The import in Edit 0 makes the `settings` symbol available for use in Edit 1. This is a classic import-usage relationship where the exact same symbol (`settings`) is being imported in one edit and referenced in another edit within the same file. After making Edit 0, the usage of `settings` in Edit 1 becomes immediately available and mechanically prompted. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 imports the Deployment class from zilencer.models, and Edit 1 uses that exact same Deployment class in multiple places (lines 73 and 78). The import in Edit 0 makes the Deployment symbol available for use in Edit 1. This is a classic import-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 imports the Deployment class from zilencer.models, and Edit 1 uses that exact same Deployment class in multiple places (lines 73 and 78). The import in Edit 0 makes the Deployment symbol available for use in Edit 1. This is a classic import-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new command-line option '--deployment' with dest='deployment_id' to the option parser. Edit 1 then uses options['deployment_id'] in validation logic within the handle method. The changed lines in edit 1 explicitly reference the exact same symbol (deployment_id) that was defined in edit 0's changed lines. This creates a direct definition-usage relationship where adding the option parameter naturally prompts the need to handle that parameter in the command logic. Both edits reference the same symbol and either could be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new command-line option '--deployment' with dest='deployment_id' to the option parser. Edit 1 then uses options['deployment_id'] in validation logic within the handle method. The changed lines in edit 1 explicitly reference the exact same symbol (deployment_id) that was defined in edit 0's changed lines. This creates a direct definition-usage relationship where adding the option parameter naturally prompts the need to handle that parameter in the command logic. Both edits reference the same symbol and either could be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new command-line option '--deployment' with dest='deployment_id', and Edit 1 uses that exact same option by accessing options['deployment_id'] in the handle method. The changed lines in Edit 1 directly reference the 'deployment_id' option that was defined in Edit 0. This creates an immediate code dependency where defining the option naturally prompts its usage in the handler, and both edits reference the exact same symbol ('deployment_id'). Either edit can be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new command-line option '--deployment' with dest='deployment_id', and Edit 1 uses that exact same option by accessing options['deployment_id'] in the handle method. The changed lines in Edit 1 directly reference the 'deployment_id' option that was defined in Edit 0. This creates an immediate code dependency where defining the option naturally prompts its usage in the handler, and both edits reference the exact same symbol ('deployment_id'). Either edit can be staged first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'options[\"deployment_id\"]' in their changed lines. Edit 0 adds validation logic that checks if deployment_id is not None, while Edit 1 adds implementation logic that uses deployment_id when it's not None. These edits are part of the same feature implementation - adding deployment_id support to the create_realm command. The validation in Edit 0 creates an immediate code-driven prompt for the implementation in Edit 1, as adding validation for a parameter naturally leads to implementing the functionality that uses that parameter. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'options[\"deployment_id\"]' in their changed lines. Edit 0 adds validation logic that checks if deployment_id is not None, while Edit 1 adds implementation logic that uses deployment_id when it's not None. These edits are part of the same feature implementation - adding deployment_id support to the create_realm command. The validation in Edit 0 creates an immediate code-driven prompt for the implementation in Edit 1, as adding validation for a parameter naturally leads to implementing the functionality that uses that parameter. Both edits can be staged in either order without parser errors, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

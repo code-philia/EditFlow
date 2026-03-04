@@ -1,0 +1,113 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'spectator_requested_language' to the function signature of fetch_initial_state_data. Edit 1 passes this same parameter when calling fetch_initial_state_data from within do_events_register. The changed lines reference the exact same symbol (the spectator_requested_language parameter), creating a direct code dependency where adding the parameter to the function signature creates an immediate prompt to pass it at the call site. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'spectator_requested_language' to the function signature of fetch_initial_state_data. Edit 1 passes this same parameter when calling fetch_initial_state_data from within do_events_register. The changed lines reference the exact same symbol (the spectator_requested_language parameter), creating a direct code dependency where adding the parameter to the function signature creates an immediate prompt to pass it at the call site. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language'. Edit 0 adds this parameter to the function signature, and Edit 1 uses this parameter in the function body. After adding the parameter in the signature, using it in the body becomes the immediate next step. Since this is Python, the parameter can be referenced in the body even before it's defined in the signature (no parse error), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language'. Edit 0 adds this parameter to the function signature, and Edit 1 uses this parameter in the function body. After adding the parameter in the signature, using it in the body becomes the immediate next step. Since this is Python, the parameter can be referenced in the body even before it's defined in the signature (no parse error), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language' within the same function. Edit 0 adds an assertion that spectator_requested_language is not None, and Edit 1 uses that same variable to set the default_language parameter. The assertion in Edit 0 creates an immediate code-driven prompt for using the variable in Edit 1, as it establishes the precondition that the variable is safe to use. Both edits are part of the same micro-task of handling spectator language settings, and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language' within the same function. Edit 0 adds an assertion that spectator_requested_language is not None, and Edit 1 uses that same variable to set the default_language parameter. The assertion in Edit 0 creates an immediate code-driven prompt for using the variable in Edit 1, as it establishes the precondition that the variable is safe to use. Both edits are part of the same micro-task of handling spectator language settings, and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 1 defines a variable `spectator_requested_language` by extracting it from request cookies, and edit 0 adds an assertion that this exact same variable is not None. The assertion in edit 0 directly references the variable defined in edit 1, creating an immediate code dependency. However, both edits can be written and parsed independently - the assertion would simply fail at runtime if the variable doesn't exist, but there's no parse-time syntax error. This represents a definition-usage relationship where either edit can be staged first."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 1 defines a variable `spectator_requested_language` by extracting it from request cookies, and edit 0 adds an assertion that this exact same variable is not None. The assertion in edit 0 directly references the variable defined in edit 1, creating an immediate code dependency. However, both edits can be written and parsed independently - the assertion would simply fail at runtime if the variable doesn't exist, but there's no parse-time syntax error. This represents a definition-usage relationship where either edit can be staged first."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 1 defines a variable `spectator_requested_language` that is then used in Edit 0 as a parameter `default_language=spectator_requested_language`. The changed lines reference the exact same symbol - `spectator_requested_language` is defined in Edit 1 and referenced in Edit 0. This creates a direct code dependency where Edit 1 must come before Edit 0, as Edit 0 cannot be parsed/executed without the variable being defined first."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language'. Edit 0 adds this parameter to the function signature, and Edit 1 passes this parameter to a function call within the same function body. This creates a direct code dependency where the parameter defined in the signature is being used in the function body. Either edit can be made first since both are syntactically valid in Python - adding a parameter without using it, or referencing a parameter that will be defined. This is a classic parameter threading pattern within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language'. Edit 0 adds this parameter to the function signature, and Edit 1 passes this parameter to a function call within the same function body. This creates a direct code dependency where the parameter defined in the signature is being used in the function body. Either edit can be made first since both are syntactically valid in Python - adding a parameter without using it, or referencing a parameter that will be defined. This is a classic parameter threading pattern within the same function scope."
+        },
+        {
+            "src": 3,
+            "tgt": 8,
+            "reason": "Edit 0 adds a new parameter 'spectator_requested_language' to the function signature of do_events_register. Edit 1 adds the same parameter to the function call of do_events_register in events_register_backend. The changed lines reference the exact same symbol (spectator_requested_language parameter) - one defines it in the function signature and the other passes it in the function call. This creates an immediate code dependency where after adding the parameter to the signature, the call site needs to be updated to pass the parameter, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows function calls with extra parameters to be written before the function signature is updated), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new parameter 'spectator_requested_language' to the function signature of do_events_register. Edit 1 adds the same parameter to the function call of do_events_register in events_register_backend. The changed lines reference the exact same symbol (spectator_requested_language parameter) - one defines it in the function signature and the other passes it in the function call. This creates an immediate code dependency where after adding the parameter to the signature, the call site needs to be updated to pass the parameter, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows function calls with extra parameters to be written before the function signature is updated), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 imports `settings` from `django.conf`, and Edit 1 uses `settings.LANGUAGE_COOKIE_NAME` in the changed lines. This creates a direct import-usage relationship where the imported symbol `settings` is explicitly referenced in the usage edit. Both edits reference the exact same symbol `settings`, and after making the import edit, using `settings.LANGUAGE_COOKIE_NAME` becomes the immediate next step. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 imports `settings` from `django.conf`, and Edit 1 uses `settings.LANGUAGE_COOKIE_NAME` in the changed lines. This creates a direct import-usage relationship where the imported symbol `settings` is explicitly referenced in the usage edit. Both edits reference the exact same symbol `settings`, and after making the import edit, using `settings.LANGUAGE_COOKIE_NAME` becomes the immediate next step. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 introduces a new variable `spectator_requested_language = None` and Edit 1 uses that exact same variable as a parameter in the `do_events_register` function call. The changed lines reference the exact same symbol - `spectator_requested_language`. After making Edit 0, the variable is available for use in Edit 1, and after making Edit 1, there's a clear need for the variable to be defined in Edit 0. This creates an immediate, mechanically obvious code-driven prompt between the two edits within the same function context."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable `spectator_requested_language = None` and Edit 1 uses that exact same variable as a parameter in the `do_events_register` function call. The changed lines reference the exact same symbol - `spectator_requested_language`. After making Edit 0, the variable is available for use in Edit 1, and after making Edit 1, there's a clear need for the variable to be defined in Edit 0. This creates an immediate, mechanically obvious code-driven prompt between the two edits within the same function context."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 defines the variable `spectator_requested_language` by assigning it a value from `request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, realm.default_language)`. Edit 1 uses this exact same variable by passing it as a parameter `spectator_requested_language=spectator_requested_language` to the `do_events_register` function call. The changed lines reference the exact same symbol - the variable `spectator_requested_language` defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code-driven prompt where defining the variable naturally leads to using it in the function call as the next contiguous action within the same function scope."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 defines the variable `spectator_requested_language` by assigning it a value from `request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME, realm.default_language)`. Edit 1 uses this exact same variable by passing it as a parameter `spectator_requested_language=spectator_requested_language` to the `do_events_register` function call. The changed lines reference the exact same symbol - the variable `spectator_requested_language` defined in edit 0 and used in edit 1. This creates an immediate, mechanically obvious code-driven prompt where defining the variable naturally leads to using it in the function call as the next contiguous action within the same function scope."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language' within the same function. Edit 0 adds this parameter to the function signature, and Edit 1 uses this parameter in an assertion within the function body. After adding the parameter in the signature, using it in the function body becomes the immediate next step. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'spectator_requested_language' within the same function. Edit 0 adds this parameter to the function signature, and Edit 1 uses this parameter in an assertion within the function body. After adding the parameter in the signature, using it in the function body becomes the immediate next step. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6
+    ]
+}

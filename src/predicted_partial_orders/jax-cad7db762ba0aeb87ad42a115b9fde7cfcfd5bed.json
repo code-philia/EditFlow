@@ -1,0 +1,108 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits apply the same structural pattern: wrapping a shape dimension access with `onp.array(..., dtype)` to ensure type consistency. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`, and in edit 1, `a.shape[axis]` becomes `onp.array(a.shape[axis], _dtype(indices))`. This is a uniform substitution pattern applied to the same type of syntactic construct (shape dimension access in modular arithmetic operations), indicating a coordinated refactoring to address dtype compatibility issues across the codebase."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits apply the same structural pattern: wrapping a shape dimension access with `onp.array(..., dtype)` to ensure type consistency. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`, and in edit 1, `a.shape[axis]` becomes `onp.array(a.shape[axis], _dtype(indices))`. This is a uniform substitution pattern applied to the same type of syntactic construct (shape dimension access in modular arithmetic operations), indicating a coordinated refactoring to address dtype compatibility issues across the codebase."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits apply the same pattern: wrapping array shape access with `onp.array(..., dtype)` to ensure consistent dtype handling. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`. In edit 1, `arr.shape[i]` becomes `onp.array(arr.shape[i], _dtype(x))`. This is a uniform substitution pattern applied to the same type of syntactic construct (shape access expressions) across different files, indicating a systematic refactoring to fix dtype consistency issues."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits apply the same pattern: wrapping array shape access with `onp.array(..., dtype)` to ensure consistent dtype handling. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`. In edit 1, `arr.shape[i]` becomes `onp.array(arr.shape[i], _dtype(x))`. This is a uniform substitution pattern applied to the same type of syntactic construct (shape access expressions) across different files, indicating a systematic refactoring to fix dtype consistency issues."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: they replace direct usage of `operand.shape[axis]` or `arr.shape[axis]` with `onp.array(operand.shape[axis], dtype)` or `onp.array(arr.shape[axis], _dtype(idx))`. This is a uniform refactoring pattern applied to the same type of syntactic construct (shape indexing operations) across different files. The changes follow the same before\u2192after transformation pattern and target the same kind of code structure, making this a bulk-edit synchronization where both edits are part of a single contiguous refactor to ensure dtype consistency when using shape values."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural substitution pattern: they replace direct usage of `operand.shape[axis]` or `arr.shape[axis]` with `onp.array(operand.shape[axis], dtype)` or `onp.array(arr.shape[axis], _dtype(idx))`. This is a uniform refactoring pattern applied to the same type of syntactic construct (shape indexing operations) across different files. The changes follow the same before\u2192after transformation pattern and target the same kind of code structure, making this a bulk-edit synchronization where both edits are part of a single contiguous refactor to ensure dtype consistency when using shape values."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution pattern: wrapping a shape dimension access with `onp.array(..., dtype)` to ensure type consistency. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`, and in edit 1, `arr_sliced.shape[i]` becomes `onp.array(arr_sliced.shape[i], _dtype(x))`. This represents a uniform refactoring pattern applied to the same type of syntactic construct (shape dimension access) with identical before\u2192after transformation logic, indicating both edits are part of a single contiguous refactor to address dtype consistency issues."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural substitution pattern: wrapping a shape dimension access with `onp.array(..., dtype)` to ensure type consistency. In edit 0, `operand.shape[axis]` becomes `onp.array(operand.shape[axis], start_index.dtype)`, and in edit 1, `arr_sliced.shape[i]` becomes `onp.array(arr_sliced.shape[i], _dtype(x))`. This represents a uniform refactoring pattern applied to the same type of syntactic construct (shape dimension access) with identical before\u2192after transformation logic, indicating both edits are part of a single contiguous refactor to address dtype consistency issues."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution pattern: they change `mod(indices/x, shape_value)` to `mod(indices/x, onp.array(shape_value, _dtype(indices/x)))`. This is a uniform refactoring that applies the same before\u2192after transformation to the same type of syntactic construct (mod function calls with shape parameters). Both edits are part of a single, contiguous refactor to ensure proper dtype handling in modulo operations with array shapes."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical structural substitution pattern: they change `mod(indices/x, shape_value)` to `mod(indices/x, onp.array(shape_value, _dtype(indices/x)))`. This is a uniform refactoring that applies the same before\u2192after transformation to the same type of syntactic construct (mod function calls with shape parameters). Both edits are part of a single, contiguous refactor to ensure proper dtype handling in modulo operations with array shapes."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. They both change 'mod(variable, arr.shape[axis])' to 'mod(variable, onp.array(arr.shape[axis], _dtype(variable)))' where the variable is either 'indices' or 'idx'. This is a uniform refactoring pattern applied to two similar function calls within the same file, representing a single contiguous micro-task of updating the mod function calls to use a consistent dtype conversion pattern. The edits are structurally identical substitutions that would naturally be made together as part of the same refactoring sweep."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern on the same type of syntactic construct. They both change 'mod(variable, arr.shape[axis])' to 'mod(variable, onp.array(arr.shape[axis], _dtype(variable)))' where the variable is either 'indices' or 'idx'. This is a uniform refactoring pattern applied to two similar function calls within the same file, representing a single contiguous micro-task of updating the mod function calls to use a consistent dtype conversion pattern. The edits are structurally identical substitutions that would naturally be made together as part of the same refactoring sweep."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change `mod(x, arr.shape[axis/i])` to `mod(x, onp.array(arr.shape[axis/i], _dtype(x/idx)))`. This is a uniform pattern-based refactoring where the same transformation is applied to similar code constructs (both are `mod` calls with `arr.shape` as the second argument). The edits are part of a single, contiguous refactoring task to ensure type consistency in modulo operations. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change `mod(x, arr.shape[axis/i])` to `mod(x, onp.array(arr.shape[axis/i], _dtype(x/idx)))`. This is a uniform pattern-based refactoring where the same transformation is applied to similar code constructs (both are `mod` calls with `arr.shape` as the second argument). The edits are part of a single, contiguous refactoring task to ensure type consistency in modulo operations. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits apply the identical transformation pattern to the `mod` function calls: wrapping the second argument with `onp.array(..., _dtype(...))`. In edit 0, `a.shape[axis]` becomes `onp.array(a.shape[axis], _dtype(indices))`, and in edit 1, `arr.shape[i]` becomes `onp.array(arr.shape[i], _dtype(x))`. This is a uniform substitution pattern applied to the same type of syntactic construct (mod function calls) within the same file, clearly part of a single refactoring operation to ensure consistent dtype handling in modulo operations."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits apply the identical transformation pattern to the `mod` function calls: wrapping the second argument with `onp.array(..., _dtype(...))`. In edit 0, `a.shape[axis]` becomes `onp.array(a.shape[axis], _dtype(indices))`, and in edit 1, `arr.shape[i]` becomes `onp.array(arr.shape[i], _dtype(x))`. This is a uniform substitution pattern applied to the same type of syntactic construct (mod function calls) within the same file, clearly part of a single refactoring operation to ensure consistent dtype handling in modulo operations."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change the pattern `mod(ravel(x), arr.shape[i])` to `mod(ravel(x), onp.array(arr.shape[i], _dtype(x)))` and `mod(ravel(x), arr_sliced.shape[i])` to `mod(ravel(x), onp.array(arr_sliced.shape[i], _dtype(x)))` respectively. This is a uniform refactoring pattern where the same transformation is being applied to similar code constructs within the same function. Both edits involve wrapping shape indexing with `onp.array(..., _dtype(x))` in identical `mod(ravel(x), ...)` expressions. This represents a bulk-edit pattern synchronization where both changes are part of the same contiguous refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change the pattern `mod(ravel(x), arr.shape[i])` to `mod(ravel(x), onp.array(arr.shape[i], _dtype(x)))` and `mod(ravel(x), arr_sliced.shape[i])` to `mod(ravel(x), onp.array(arr_sliced.shape[i], _dtype(x)))` respectively. This is a uniform refactoring pattern where the same transformation is being applied to similar code constructs within the same function. Both edits involve wrapping shape indexing with `onp.array(..., _dtype(x))` in identical `mod(ravel(x), ...)` expressions. This represents a bulk-edit pattern synchronization where both changes are part of the same contiguous refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change calls to `mod(x, shape_value)` to `mod(x, onp.array(shape_value, _dtype(x)))`, applying the exact same transformation pattern to the same type of syntactic construct (mod function calls with shape indexing). This represents a uniform refactoring operation where the same fix is being applied consistently across multiple locations in the same function. The edits are mechanically linked by the identical before\u2192after pattern and would naturally be performed as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution within the same function `_rewriting_take`. They both change calls to `mod(x, shape_value)` to `mod(x, onp.array(shape_value, _dtype(x)))`, applying the exact same transformation pattern to the same type of syntactic construct (mod function calls with shape indexing). This represents a uniform refactoring operation where the same fix is being applied consistently across multiple locations in the same function. The edits are mechanically linked by the identical before\u2192after pattern and would naturally be performed as part of a single, contiguous refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2
+    ]
+}

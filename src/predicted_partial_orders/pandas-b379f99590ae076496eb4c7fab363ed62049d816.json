@@ -1,0 +1,81 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new method `_values_for_json` in the ExtensionArray class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same symbol `_values_for_json` - Edit 0 creates the method definition and Edit 1 uses that method. This creates an immediate code dependency where defining the method in Edit 0 enables the usage in Edit 1, making them part of the same micro-task of implementing JSON serialization functionality. Both edits can be staged in either order since Python allows method calls to undefined methods at parse time (they only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `_values_for_json` in the ExtensionArray class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same symbol `_values_for_json` - Edit 0 creates the method definition and Edit 1 uses that method. This creates an immediate code dependency where defining the method in Edit 0 enables the usage in Edit 1, making them part of the same micro-task of implementing JSON serialization functionality. Both edits can be staged in either order since Python allows method calls to undefined methods at parse time (they only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the `_values_for_json` method in the base `ExtensionArray` class, while Edit 1 overrides this same method in the `TimelikeOps` class and explicitly calls `super()._values_for_json()` on line 2208. The changed lines reference the exact same symbol - the `_values_for_json` method. Edit 1's implementation depends on the base method defined in Edit 0, as it calls the superclass implementation. However, both edits can be written and parsed independently - Edit 1 would simply have a runtime AttributeError if Edit 0 doesn't exist, but this doesn't prevent parsing or staging. Since both edits reference the same symbol and either could prompt the other as the next logical step in implementing this method hierarchy, this is a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the `_values_for_json` method in the base `ExtensionArray` class, while Edit 1 overrides this same method in the `TimelikeOps` class and explicitly calls `super()._values_for_json()` on line 2208. The changed lines reference the exact same symbol - the `_values_for_json` method. Edit 1's implementation depends on the base method defined in Edit 0, as it calls the superclass implementation. However, both edits can be written and parsed independently - Edit 1 would simply have a runtime AttributeError if Edit 0 doesn't exist, but this doesn't prevent parsing or staging. Since both edits reference the same symbol and either could prompt the other as the next logical step in implementing this method hierarchy, this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 removes the `values_for_json` method definition from the Block class, while Edit 1 changes a call site from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same symbol (`values_for_json`) - one removes the method definition and the other updates the usage to call a different method. This creates a direct code dependency where removing the method definition makes the original call invalid, prompting the need to update the call site. However, since the usage is being changed to call a different method entirely (`array_values._values_for_json()`), both edits can be staged in either order without causing parse errors - the method removal and the call site update are independent operations that together accomplish the refactoring."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 removes the `values_for_json` method definition from the Block class, while Edit 1 changes a call site from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same symbol (`values_for_json`) - one removes the method definition and the other updates the usage to call a different method. This creates a direct code dependency where removing the method definition makes the original call invalid, prompting the need to update the call site. However, since the usage is being changed to call a different method entirely (`array_values._values_for_json()`), both edits can be staged in either order without causing parse errors - the method removal and the call site update are independent operations that together accomplish the refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 removes the `values_for_json()` method from the `EABackedBlock` class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol (`values_for_json`) - one removes the method definition and the other updates the call site to use a different implementation. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site. Both edits are part of refactoring the same method interface."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 removes the `values_for_json()` method from the `EABackedBlock` class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol (`values_for_json`) - one removes the method definition and the other updates the call site to use a different implementation. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site. Both edits are part of refactoring the same method interface."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 removes the `values_for_json()` method from the NumpyBlock class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol (`values_for_json`) - one removes the method definition and the other updates the call site to use a different implementation. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site. Both edits are part of refactoring the same method interface."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 removes the `values_for_json()` method from the NumpyBlock class, while Edit 1 changes a call from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol (`values_for_json`) - one removes the method definition and the other updates the call site to use a different implementation. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site. Both edits are part of refactoring the same method interface."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the `values_for_json()` method from the `DatetimeLikeBlock` class, while Edit 1 changes a call site from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol `values_for_json()` - one removes the method definition and the other updates the call site to use a different implementation path. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site to use an alternative implementation. Both edits are part of the same refactoring to change how JSON values are accessed."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the `values_for_json()` method from the `DatetimeLikeBlock` class, while Edit 1 changes a call site from `blk.values_for_json()` to `blk.array_values._values_for_json()`. These edits reference the exact same method symbol `values_for_json()` - one removes the method definition and the other updates the call site to use a different implementation path. This creates a direct code dependency where removing the method (Edit 0) makes the original call in Edit 1 invalid, prompting the need to update the call site to use an alternative implementation. Both edits are part of the same refactoring to change how JSON values are accessed."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the `values_for_json` method from the `DatetimeLikeBlock` class, while Edit 1 removes a comment and assignment that explicitly references `values_for_json` from `DatetimeLikeBlock` in the `DatetimeTZBlock` subclass. The comment in Edit 1 specifically states 'Don't use values_for_json from DatetimeLikeBlock' and the assignment `values_for_json = NDArrayBackedExtensionBlock.values_for_json` was overriding the parent method. Since Edit 0 removes the parent method that Edit 1's code was explicitly avoiding/overriding, these edits reference the exact same symbol (`values_for_json` method in `DatetimeLikeBlock`) and are part of a coordinated refactoring. Either edit can be applied first without causing parse errors, and both are mechanically linked through the same method symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes the `values_for_json` method from the `DatetimeLikeBlock` class, while Edit 1 removes a comment and assignment that explicitly references `values_for_json` from `DatetimeLikeBlock` in the `DatetimeTZBlock` subclass. The comment in Edit 1 specifically states 'Don't use values_for_json from DatetimeLikeBlock' and the assignment `values_for_json = NDArrayBackedExtensionBlock.values_for_json` was overriding the parent method. Since Edit 0 removes the parent method that Edit 1's code was explicitly avoiding/overriding, these edits reference the exact same symbol (`values_for_json` method in `DatetimeLikeBlock`) and are part of a coordinated refactoring. Either edit can be applied first without causing parse errors, and both are mechanically linked through the same method symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2,
+        3,
+        4,
+        6
+    ]
+}

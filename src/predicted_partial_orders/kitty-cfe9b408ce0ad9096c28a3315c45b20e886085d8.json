@@ -1,0 +1,92 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 removes the `os_window_id` parameter from the Boss class constructor signature, while Edit 1 updates the Boss constructor call to remove the `window_id` argument and instead passes it to the `start()` method. These edits reference the exact same Boss constructor and represent a signature change with its corresponding call-site update. The edits are mechanically linked - after removing the parameter from the constructor signature, the call site must be updated to match, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows mismatched function signatures and calls at parse time, only failing at runtime)."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 removes the `os_window_id` parameter from the Boss class constructor signature, while Edit 1 updates the Boss constructor call to remove the `window_id` argument and instead passes it to the `start()` method. These edits reference the exact same Boss constructor and represent a signature change with its corresponding call-site update. The edits are mechanically linked - after removing the parameter from the constructor signature, the call site must be updated to match, and vice versa. Both edits can be staged in either order without causing parse errors (Python allows mismatched function signatures and calls at parse time, only failing at runtime)."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes a line that calls `create_sessions(opts, args, default_session=opts.startup_session)` from the `__init__` method. Edit 1 adds a new method `startup_first_child` and moves the exact same `create_sessions` call (with identical parameters but using `self.opts` and `self.args` instead of `opts` and `args`) into this new method. This is a cut-and-paste move operation where the code is being relocated from one location to another. The removal must occur before the relocation can be completed, as both edits involve the exact same logical line of code being moved from the constructor to a new method."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new method `startup_first_child` in the Boss class, and Edit 1 calls this exact same method (`self.startup_first_child(first_os_window_id)`). The changed lines reference the exact same symbol - the `startup_first_child` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Since Python allows method calls to be written before method definitions (they would only fail at runtime, not at parse time), either edit can be staged first, making this a bi-directional relationship where each edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `startup_first_child` in the Boss class, and Edit 1 calls this exact same method (`self.startup_first_child(first_os_window_id)`). The changed lines reference the exact same symbol - the `startup_first_child` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Since Python allows method calls to be written before method definitions (they would only fail at runtime, not at parse time), either edit can be staged first, making this a bi-directional relationship where each edit creates an immediate prompt for the other."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "These edits are part of a signature change refactor for the Boss class. Edit 1 changes the Boss constructor call by removing the window_id parameter from the first position and Edit 0 shows the Boss constructor implementation using self.args instead of args, indicating the constructor signature was changed to remove the window_id parameter. The changed lines reference the exact same Boss constructor - one edit modifies how it's called and the other shows the updated implementation. This creates a direct code dependency where changing the constructor signature requires updating all call sites."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "These edits are part of a signature change refactor for the Boss class. Edit 1 changes the Boss constructor call by removing the window_id parameter from the first position and Edit 0 shows the Boss constructor implementation using self.args instead of args, indicating the constructor signature was changed to remove the window_id parameter. The changed lines reference the exact same Boss constructor - one edit modifies how it's called and the other shows the updated implementation. This creates a direct code dependency where changing the constructor signature requires updating all call sites."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits change references to the same parameter 'args.start_as' to 'self.args.start_as' within the same function (__init__). This is a uniform substitution pattern where the exact same symbol reference is being modified in both edits - changing from accessing the parameter directly to accessing it as an instance attribute. The edits are part of a single refactoring operation to consistently use self.args instead of the parameter args throughout the method. Either edit can be made first, and after making either edit, the other becomes an obvious next step to maintain consistency in the same refactoring pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits change references to the same parameter 'args.start_as' to 'self.args.start_as' within the same function (__init__). This is a uniform substitution pattern where the exact same symbol reference is being modified in both edits - changing from accessing the parameter directly to accessing it as an instance attribute. The edits are part of a single refactoring operation to consistently use self.args instead of the parameter args throughout the method. Either edit can be made first, and after making either edit, the other becomes an obvious next step to maintain consistency in the same refactoring pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a 'first_os_window_id' parameter to the start() method signature. Edit 1 uses that exact same parameter by passing it to self.startup_first_child(first_os_window_id) within the same method body. Both edits reference the exact same symbol 'first_os_window_id' - one defines it as a parameter, the other uses it. After adding the parameter in edit 0, the natural next step is to use that parameter in the method body (edit 1). This is a classic definition-usage relationship within the same function scope."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'first_os_window_id' parameter to the start() method signature. Edit 1 uses that exact same parameter by passing it to self.startup_first_child(first_os_window_id) within the same method body. Both edits reference the exact same symbol 'first_os_window_id' - one defines it as a parameter, the other uses it. After adding the parameter in edit 0, the natural next step is to use that parameter in the method body (edit 1). This is a classic definition-usage relationship within the same function scope."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "These edits are part of a signature change refactor for the Boss class. Edit 1 changes the Boss constructor call by removing the window_id parameter from the first position and passing it to boss.start() instead. Edit 0 shows code inside the Boss.__init__ method that references self.args.start_as, which suggests the args parameter is being stored as self.args. For this refactor to work correctly, both the constructor signature and its call site need to be updated together - the constructor needs to be modified to not expect window_id as the first parameter, and the call site needs to pass window_id to start() instead. These edits reference the same Boss class and constructor, making them part of the same mechanical refactoring operation."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "These edits are part of a signature change refactor for the Boss class. Edit 1 changes the Boss constructor call by removing the window_id parameter from the first position and passing it to boss.start() instead. Edit 0 shows code inside the Boss.__init__ method that references self.args.start_as, which suggests the args parameter is being stored as self.args. For this refactor to work correctly, both the constructor signature and its call site need to be updated together - the constructor needs to be modified to not expect window_id as the first parameter, and the call site needs to pass window_id to start() instead. These edits reference the same Boss class and constructor, making them part of the same mechanical refactoring operation."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 changes the signature of the `start` method in the Boss class by adding a `first_os_window_id: int` parameter. Edit 1 updates the call site of this exact same `start` method to pass the `window_id` argument that corresponds to the new parameter. The changed lines reference the exact same symbol (the `start` method of the Boss class), and making either edit creates an immediate, mechanically obvious prompt for the other - changing the signature requires updating the call site, and vice versa. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 changes the signature of the `start` method in the Boss class by adding a `first_os_window_id: int` parameter. Edit 1 updates the call site of this exact same `start` method to pass the `window_id` argument that corresponds to the new parameter. The changed lines reference the exact same symbol (the `start` method of the Boss class), and making either edit creates an immediate, mechanically obvious prompt for the other - changing the signature requires updating the call site, and vice versa. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "These edits show a refactoring where the Boss constructor signature is being changed and the start() method is being modified to accept the window_id parameter. In edit 1, the Boss constructor call is changed from Boss(window_id, opts, args, cached_values, new_os_window_trigger) to Boss(opts, args, cached_values, new_os_window_trigger), removing the window_id parameter. The start() method call is then changed from boss.start() to boss.start(window_id). In edit 0, the start() method is modified to call self.startup_first_child(first_os_window_id), suggesting it now handles the window_id internally. This is a coordinated refactoring where the Boss class interface is being changed - the window_id parameter is moved from the constructor to the start() method. Both edits reference the exact same Boss class and its start() method, creating a direct code dependency where changing the constructor signature requires updating the caller, and vice versa."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "These edits show a refactoring where the Boss constructor signature is being changed and the start() method is being modified to accept the window_id parameter. In edit 1, the Boss constructor call is changed from Boss(window_id, opts, args, cached_values, new_os_window_trigger) to Boss(opts, args, cached_values, new_os_window_trigger), removing the window_id parameter. The start() method call is then changed from boss.start() to boss.start(window_id). In edit 0, the start() method is modified to call self.startup_first_child(first_os_window_id), suggesting it now handles the window_id internally. This is a coordinated refactoring where the Boss class interface is being changed - the window_id parameter is moved from the constructor to the start() method. Both edits reference the exact same Boss class and its start() method, creating a direct code dependency where changing the constructor signature requires updating the caller, and vice versa."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

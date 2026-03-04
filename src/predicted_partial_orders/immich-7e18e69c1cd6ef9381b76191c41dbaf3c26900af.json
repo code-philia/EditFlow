@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds code that calls `ort.capi._pybind_state.get_available_openvino_device_ids()` in the production code. Edit 1 adds a mock for this exact same method call (`mocker.patch(\"app.models.base.ort.capi._pybind_state\")`) and sets up its return value in a test. The test is specifically testing the OpenVINO provider functionality that was added in edit 0. Both edits reference the exact same symbol (`ort.capi._pybind_state.get_available_openvino_device_ids`) - one calling it in production code and the other mocking it in the corresponding test. This creates a direct code dependency where the test mock needs to match the production code call, making them bi-directional neighbours in the same development session."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds code that calls `ort.capi._pybind_state.get_available_openvino_device_ids()` in the production code. Edit 1 adds a mock for this exact same method call (`mocker.patch(\"app.models.base.ort.capi._pybind_state\")`) and sets up its return value in a test. The test is specifically testing the OpenVINO provider functionality that was added in edit 0. Both edits reference the exact same symbol (`ort.capi._pybind_state.get_available_openvino_device_ids`) - one calling it in production code and the other mocking it in the corresponding test. This creates a direct code dependency where the test mock needs to match the production code call, making them bi-directional neighbours in the same development session."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits add the same parameter 'mocker: MockerFixture' to test method signatures within the same test class, and both use identical mocking patterns with 'mocker.patch(\"app.models.base.ort.capi._pybind_state\")'. This represents a synchronized parameter addition pattern where both methods require the same testing infrastructure. The edits perform structurally identical modifications (adding the same parameter type to test methods) and use the same mocking approach, making them part of a single, contiguous refactoring task to add mocking capabilities to related test methods."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits add the same parameter 'mocker: MockerFixture' to test method signatures within the same test class, and both use identical mocking patterns with 'mocker.patch(\"app.models.base.ort.capi._pybind_state\")'. This represents a synchronized parameter addition pattern where both methods require the same testing infrastructure. The edits perform structurally identical modifications (adding the same parameter type to test methods) and use the same mocking approach, making them part of a single, contiguous refactoring task to add mocking capabilities to related test methods."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits add the same parameter 'mocker: MockerFixture' to different test method signatures within the same test class. This is a synchronized parameter addition pattern where both methods need the same mocking capability. The edits perform identical structural changes (adding the same parameter with the same type annotation) to the same type of syntactic construct (test method signatures). This represents a bulk-edit pattern where both methods are being updated to support mocking functionality as part of a single refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits add the same parameter 'mocker: MockerFixture' to different test method signatures within the same test class. This is a synchronized parameter addition pattern where both methods need the same mocking capability. The edits perform identical structural changes (adding the same parameter with the same type annotation) to the same type of syntactic construct (test method signatures). This represents a bulk-edit pattern where both methods are being updated to support mocking functionality as part of a single refactoring task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds new logic to check for GPU devices in OpenVINO and remove the OpenVINO provider if no GPU is found. Edit 1 adds a test that specifically tests this new behavior by mocking the OpenVINO device detection to return only CPU devices and asserting that the encoder falls back to CPU providers. The test directly validates the exact code path and logic introduced in edit 0 - it mocks the same method (get_available_openvino_device_ids) and tests the same conditional behavior (falling back when no GPU devices are available). This is a clear test-production code synchronization where the test is written to validate the specific implementation added in the production code."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds new logic to check for GPU devices in OpenVINO and remove the OpenVINO provider if no GPU is found. Edit 1 adds a test that specifically tests this new behavior by mocking the OpenVINO device detection to return only CPU devices and asserting that the encoder falls back to CPU providers. The test directly validates the exact code path and logic introduced in edit 0 - it mocks the same method (get_available_openvino_device_ids) and tests the same conditional behavior (falling back when no GPU devices are available). This is a clear test-production code synchronization where the test is written to validate the specific implementation added in the production code."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        5
+    ]
+}

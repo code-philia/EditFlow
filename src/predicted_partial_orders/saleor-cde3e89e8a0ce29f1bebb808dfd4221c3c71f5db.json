@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the `quantize_price` function from `...core.taxes`, and Edit 1 uses that exact same `quantize_price` function in a return statement. The changed lines reference the exact same symbol - `quantize_price`. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use it. Conversely, if Edit 1 were made first, it would create an undefined symbol error that would prompt the import in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the identical symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the `quantize_price` function from `...core.taxes`, and Edit 1 uses that exact same `quantize_price` function in a return statement. The changed lines reference the exact same symbol - `quantize_price`. After importing the function in Edit 0, Edit 1 becomes the immediate next step to use it. Conversely, if Edit 1 were made first, it would create an undefined symbol error that would prompt the import in Edit 0. This is a classic import-usage relationship within the same file where both edits reference the identical symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits apply the same transformation pattern - wrapping return values with quantize_price() function calls. Edit 0 changes 'return max(total, zero_taxed_money(total.currency))' to 'total = max(...); return quantize_price(total, total.currency)', and Edit 1 changes 'return TaxedMoney(...)' to 'return quantize_price(TaxedMoney(...), currency)'. This represents a bulk uniform substitution where both edits apply the identical before\u2192after pattern (adding quantize_price wrapper to return statements) on the same type of syntactic construct (return statements in similar methods). Both are part of the same refactoring operation to ensure price quantization across the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits apply the same transformation pattern - wrapping return values with quantize_price() function calls. Edit 0 changes 'return max(total, zero_taxed_money(total.currency))' to 'total = max(...); return quantize_price(total, total.currency)', and Edit 1 changes 'return TaxedMoney(...)' to 'return quantize_price(TaxedMoney(...), currency)'. This represents a bulk uniform substitution where both edits apply the identical before\u2192after pattern (adding quantize_price wrapper to return statements) on the same type of syntactic construct (return statements in similar methods). Both are part of the same refactoring operation to ensure price quantization across the codebase."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits apply the same pattern of wrapping return values with quantize_price() function calls. Edit 0 changes 'return max(total, zero_taxed_money(total.currency))' to first assign the max result to total, then 'return quantize_price(total, total.currency)'. Edit 1 changes 'return TaxedMoney(net=shipping_net, gross=shipping_gross)' to 'return quantize_price(TaxedMoney(net=shipping_net, gross=shipping_gross), currency)'. This represents a bulk uniform substitution where both edits apply the identical structural pattern of adding quantize_price wrapping to return statements that return TaxedMoney objects. Both are part of the same refactoring operation to ensure price quantization across the codebase."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits apply the same pattern of wrapping return values with quantize_price() function calls. Edit 0 changes 'return max(total, zero_taxed_money(total.currency))' to first assign the max result to total, then 'return quantize_price(total, total.currency)'. Edit 1 changes 'return TaxedMoney(net=shipping_net, gross=shipping_gross)' to 'return quantize_price(TaxedMoney(net=shipping_net, gross=shipping_gross), currency)'. This represents a bulk uniform substitution where both edits apply the identical structural pattern of adding quantize_price wrapping to return statements that return TaxedMoney objects. Both are part of the same refactoring operation to ensure price quantization across the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural substitution pattern: wrapping a TaxedMoney constructor call with quantize_price function and adding the currency parameter. The before\u2192after pattern is exactly the same (return TaxedMoney(...) \u2192 return quantize_price(TaxedMoney(...), currency)), and both target the same type of syntactic construct (return statements with TaxedMoney constructors). This represents a bulk refactoring operation where the same transformation is being applied uniformly across multiple similar code locations within the same class."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution pattern: wrapping a TaxedMoney constructor call with quantize_price function and adding the currency parameter. The before\u2192after pattern is exactly the same (return TaxedMoney(...) \u2192 return quantize_price(TaxedMoney(...), currency)), and both target the same type of syntactic construct (return statements with TaxedMoney constructors). This represents a bulk refactoring operation where the same transformation is being applied uniformly across multiple similar code locations within the same class."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports the symbol 'quantize_price' from the taxes module, and Edit 1 uses that exact same 'quantize_price' symbol in a function call. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After making the import edit, the usage edit becomes the immediate next step to utilize the newly imported function. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'quantize_price' from the taxes module, and Edit 1 uses that exact same 'quantize_price' symbol in a function call. This is a classic import-usage pattern where the changed lines reference the exact same symbol. After making the import edit, the usage edit becomes the immediate next step to utilize the newly imported function. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the symbol 'quantize_price' from the taxes module, and Edit 1 uses that exact same 'quantize_price' symbol in a function call. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to use the newly imported function. The changed lines reference the exact same symbol - 'quantize_price' - making this a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the symbol 'quantize_price' from the taxes module, and Edit 1 uses that exact same 'quantize_price' symbol in a function call. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to use the newly imported function. The changed lines reference the exact same symbol - 'quantize_price' - making this a classic import-usage relationship within the same file."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        5
+    ]
+}

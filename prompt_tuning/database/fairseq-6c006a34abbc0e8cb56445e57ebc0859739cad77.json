@@ -1,0 +1,1419 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/facebookresearch/fairseq/commit/6c006a34abbc0e8cb56445e57ebc0859739cad77",
+    "commit_message": "Take a dummy train step under OOM to keep multiprocessing in sync\n\nSummary: This is not a guaranteed solution (since processes may still get out of sync if OOM happens after an all_gather/all_reduce has been done) - but should still make multiprocessing training more robust in practice since it seems we usually OOM early enough.\n\nReviewed By: myleott\n\nDifferential Revision: D13086018\n\nfbshipit-source-id: feb1b01c2eb8818797cfdabc0faac8056ba1b4ee",
+    "commit_snapshots": {
+        "fairseq/trainer.py": [
+            [
+                "# Copyright (c) 2017-present, Facebook, Inc.\n",
+                "# All rights reserved.\n",
+                "#\n",
+                "# This source code is licensed under the license found in the LICENSE file in\n",
+                "# the root directory of this source tree. An additional grant of patent rights\n",
+                "# can be found in the PATENTS file in the same directory.\n",
+                "\n",
+                "\"\"\"\n",
+                "Train a network across multiple GPUs.\n",
+                "\"\"\"\n",
+                "\n",
+                "from collections import OrderedDict\n",
+                "from itertools import chain\n",
+                "\n",
+                "import torch\n",
+                "\n",
+                "from fairseq import distributed_utils, models, optim, utils\n",
+                "from fairseq.meters import AverageMeter, StopwatchMeter, TimeMeter\n",
+                "from fairseq.optim import lr_scheduler\n",
+                "\n",
+                "\n",
+                "class Trainer(object):\n",
+                "    \"\"\"Main class for data parallel training.\n",
+                "\n",
+                "    This class supports synchronous distributed data parallel training,\n",
+                "    where multiple workers each have a full model replica and gradients\n",
+                "    are accumulated across workers before each update. We use\n",
+                "    :class:`~torch.nn.parallel.DistributedDataParallel` to handle\n",
+                "    communication of the gradients across workers.\n",
+                "    \"\"\"\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def __init__(self, args, task, model, criterion, dummy_batch):\n"
+                ],
+                "after": [
+                    "    def __init__(self, args, task, model, criterion, dummy_batch, oom_batch=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "child_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Trainer",
+                        "signature": "class Trainer(object):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, args, task, model, criterion, dummy_batch):",
+                        "at_line": 31
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: fairseq/trainer.py\nCode:\n         class Trainer(object):\n             ...\n28 28        communication of the gradients across workers.\n29 29        \"\"\"\n30 30    \n31     -     def __init__(self, args, task, model, criterion, dummy_batch):\n   31  +     def __init__(self, args, task, model, criterion, dummy_batch, oom_batch=None):\n32 32    \n33 33            if not torch.cuda.is_available():\n34 34                raise NotImplementedError('Training on CPU is not supported')\n       ...\n",
+                "file_path": "fairseq/trainer.py",
+                "identifiers_before": [
+                    "__init__",
+                    "args",
+                    "criterion",
+                    "dummy_batch",
+                    "model",
+                    "self",
+                    "task"
+                ],
+                "identifiers_after": [
+                    "__init__",
+                    "args",
+                    "criterion",
+                    "dummy_batch",
+                    "model",
+                    "oom_batch",
+                    "self",
+                    "task"
+                ],
+                "prefix": [
+                    "    communication of the gradients across workers.\n",
+                    "    \"\"\"\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if not torch.cuda.is_available():\n",
+                    "            raise NotImplementedError('Training on CPU is not supported')\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 66
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 75
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if not torch.cuda.is_available():\n",
+                "            raise NotImplementedError('Training on CPU is not supported')\n",
+                "\n",
+                "        self.args = args\n",
+                "        self.task = task\n",
+                "\n",
+                "        # copy model and criterion to current device\n",
+                "        self.criterion = criterion.cuda()\n",
+                "        if args.fp16:\n",
+                "            self._model = model.half().cuda()\n",
+                "        else:\n",
+                "            self._model = model.cuda()\n",
+                "\n",
+                "        self._dummy_batch = dummy_batch\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self._oom_batch = oom_batch\n"
+                ],
+                "parent_version_range": {
+                    "start": 47,
+                    "end": 47
+                },
+                "child_version_range": {
+                    "start": 47,
+                    "end": 48
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Trainer",
+                        "signature": "class Trainer(object):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, args, task, model, criterion, dummy_batch):",
+                        "at_line": 31
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: fairseq/trainer.py\nCode:\n         class Trainer(object):\n             ...\n             def __init__(self, args, task, model, criterion, dummy_batch):\n                 ...\n44 44                self._model = model.cuda()\n45 45    \n46 46            self._dummy_batch = dummy_batch\n   47  +         self._oom_batch = oom_batch\n47 48            self._num_updates = 0\n48 49            self._optim_history = None\n49 50            self._optimizer = None\n       ...\n",
+                "file_path": "fairseq/trainer.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_oom_batch",
+                    "oom_batch",
+                    "self"
+                ],
+                "prefix": [
+                    "            self._model = model.cuda()\n",
+                    "\n",
+                    "        self._dummy_batch = dummy_batch\n"
+                ],
+                "suffix": [
+                    "        self._num_updates = 0\n",
+                    "        self._optim_history = None\n",
+                    "        self._optimizer = None\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "_oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "_oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 47,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 47,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        self._num_updates = 0\n",
+                "        self._optim_history = None\n",
+                "        self._optimizer = None\n",
+                "        self._wrapped_model = None\n",
+                "\n",
+                "        self.init_meters(args)\n",
+                "\n",
+                "    def init_meters(self, args):\n",
+                "        self.meters = OrderedDict()\n",
+                "        self.meters['train_loss'] = AverageMeter()\n",
+                "        self.meters['train_nll_loss'] = AverageMeter()\n",
+                "        self.meters['valid_loss'] = AverageMeter()\n",
+                "        self.meters['valid_nll_loss'] = AverageMeter()\n",
+                "        self.meters['wps'] = TimeMeter()       # words per second\n",
+                "        self.meters['ups'] = TimeMeter()       # updates per second\n",
+                "        self.meters['wpb'] = AverageMeter()    # words per batch\n",
+                "        self.meters['bsz'] = AverageMeter()    # sentences per batch\n",
+                "        self.meters['gnorm'] = AverageMeter()  # gradient norm\n",
+                "        self.meters['clip'] = AverageMeter()   # % of updates clipped\n",
+                "        self.meters['oom'] = AverageMeter()    # out of memory\n",
+                "        if args.fp16:\n",
+                "            self.meters['loss_scale'] = AverageMeter()  # dynamic loss scale\n",
+                "        self.meters['wall'] = TimeMeter()      # wall time in seconds\n",
+                "        self.meters['train_wall'] = StopwatchMeter()  # train wall time in seconds\n",
+                "\n",
+                "\n",
+                "    @property\n",
+                "    def model(self):\n",
+                "        if self._wrapped_model is None:\n",
+                "            if self.args.distributed_world_size > 1:\n",
+                "                self._wrapped_model = models.DistributedFairseqModel(\n",
+                "                    self.args, self._model,\n",
+                "                )\n",
+                "            else:\n",
+                "                self._wrapped_model = self._model\n",
+                "        return self._wrapped_model\n",
+                "\n",
+                "    @property\n",
+                "    def optimizer(self):\n",
+                "        if self._optimizer is None:\n",
+                "            self._build_optimizer()\n",
+                "        return self._optimizer\n",
+                "\n",
+                "    def _build_optimizer(self):\n",
+                "        if self.args.fp16:\n",
+                "            if torch.cuda.get_device_capability(0)[0] < 7:\n",
+                "                print('| WARNING: your device does NOT support faster training with --fp16, '\n",
+                "                      'please switch to FP32 which is likely to be faster')\n",
+                "            params = list(filter(lambda p: p.requires_grad, self.model.parameters()))\n",
+                "            self._optimizer = optim.FP16Optimizer.build_optimizer(self.args, params)\n",
+                "        else:\n",
+                "            if torch.cuda.get_device_capability(0)[0] >= 7:\n",
+                "                print('| NOTICE: your device may support faster training with --fp16')\n",
+                "            self._optimizer = optim.build_optimizer(self.args, self.model.parameters())\n",
+                "\n",
+                "        self.lr_scheduler = lr_scheduler.build_lr_scheduler(self.args, self._optimizer)\n",
+                "\n",
+                "    def save_checkpoint(self, filename, extra_state):\n",
+                "        \"\"\"Save all training state in a checkpoint file.\"\"\"\n",
+                "        if distributed_utils.is_master(self.args):  # only save one checkpoint\n",
+                "            extra_state['train_meters'] = self.meters\n",
+                "            utils.save_state(\n",
+                "                filename, self.args, self.get_model(), self.criterion, self.optimizer,\n",
+                "                self.lr_scheduler, self._num_updates, self._optim_history, extra_state,\n",
+                "            )\n",
+                "\n",
+                "    def load_checkpoint(self, filename, reset_optimizer=False, reset_lr_scheduler=False, optimizer_overrides=None):\n",
+                "        \"\"\"Load all training state from a checkpoint file.\"\"\"\n",
+                "        extra_state, self._optim_history, last_optim_state = \\\n",
+                "            utils.load_model_state(filename, self.get_model())\n",
+                "        if last_optim_state is not None and not reset_optimizer:\n",
+                "            # rebuild optimizer after loading model, since params may have changed\n",
+                "            self._build_optimizer()\n",
+                "\n",
+                "            # only reload optimizer and lr_scheduler if they match\n",
+                "            last_optim = self._optim_history[-1]\n",
+                "            assert last_optim['criterion_name'] == self.criterion.__class__.__name__, \\\n",
+                "                'criterion does not match; please reset the optimizer (--reset-optimizer)'\n",
+                "            assert last_optim['optimizer_name'] == self.optimizer.__class__.__name__, \\\n",
+                "                'optimizer does not match; please reset the optimizer (--reset-optimizer)'\n",
+                "\n",
+                "            if not reset_lr_scheduler:\n",
+                "                self.lr_scheduler.load_state_dict(last_optim['lr_scheduler_state'])\n",
+                "            self.optimizer.load_state_dict(last_optim_state, optimizer_overrides)\n",
+                "\n",
+                "            self._num_updates = last_optim['num_updates']\n",
+                "\n",
+                "        if extra_state is not None and 'train_meters' in extra_state:\n",
+                "            self.meters.update(extra_state['train_meters'])\n",
+                "            del extra_state['train_meters']\n",
+                "\n",
+                "            # reset TimeMeters, since their start times don't make sense anymore\n",
+                "            for meter in self.meters.values():\n",
+                "                if isinstance(meter, TimeMeter):\n",
+                "                    meter.reset()\n",
+                "\n",
+                "        return extra_state\n",
+                "\n",
+                "    def train_step(self, samples, dummy_batch=False):\n",
+                "        \"\"\"Do forward, backward and parameter update.\"\"\"\n",
+                "        # Set seed based on args.seed and the update number so that we get\n",
+                "        # reproducible results when resuming from checkpoints\n",
+                "        seed = self.args.seed + self.get_num_updates()\n",
+                "        torch.manual_seed(seed)\n",
+                "        torch.cuda.manual_seed(seed)\n",
+                "\n",
+                "        self.model.train()\n",
+                "        self.zero_grad()\n",
+                "\n",
+                "        if not dummy_batch:\n",
+                "            self.meters['train_wall'].start()\n",
+                "\n",
+                "        # forward and backward pass\n",
+                "        logging_outputs, sample_sizes, ooms = [], [], 0\n",
+                "        for i, sample in enumerate(samples):\n",
+                "            sample = self._prepare_sample(sample)\n",
+                "            if sample is None:\n",
+                "                # when sample is None, run forward/backward on a dummy batch\n",
+                "                # and ignore the resulting gradients\n",
+                "                sample = self._prepare_sample(self._dummy_batch)\n",
+                "                ignore_grad = True\n",
+                "            else:\n",
+                "                ignore_grad = False\n",
+                "\n",
+                "            try:\n",
+                "                if self.args.distributed_world_size > 1:\n",
+                "                    # Whenever *samples* contains more than one mini-batch, we\n",
+                "                    # want to accumulate gradients locally and only call\n",
+                "                    # all-reduce in the last backwards pass. Currently the\n",
+                "                    # *need_reduction* flag is only supported by\n",
+                "                    # LegacyDistributedDataParallel.\n",
+                "                    if i < len(samples) - 1:\n",
+                "                        self.model.accumulate_grads = True\n",
+                "                    else:\n",
+                "                        self.model.accumulate_grads = False\n",
+                "\n",
+                "                # forward and backward\n",
+                "                loss, sample_size, logging_output = self.task.train_step(\n",
+                "                    sample, self.model, self.criterion, self.optimizer,\n",
+                "                    ignore_grad\n",
+                "                )\n",
+                "\n",
+                "                if not ignore_grad:\n",
+                "                    logging_outputs.append(logging_output)\n",
+                "                    sample_sizes.append(sample_size)\n",
+                "            except RuntimeError as e:\n",
+                "                if 'out of memory' in str(e):\n",
+                "                    print('| WARNING: ran out of memory, skipping batch')\n",
+                "                    ooms += 1\n",
+                "                    self.zero_grad()\n",
+                "                else:\n",
+                "                    raise e\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if ooms > 0 and self._oom_batch is not None:\n",
+                    "            self.handle_ooms(ooms)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 200,
+                    "end": 200
+                },
+                "child_version_range": {
+                    "start": 201,
+                    "end": 204
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Trainer",
+                        "signature": "class Trainer(object):",
+                        "at_line": 21
+                    },
+                    {
+                        "type": "function",
+                        "name": "train_step",
+                        "signature": "def train_step(self, samples, dummy_batch=False):",
+                        "at_line": 145
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: fairseq/trainer.py\nCode:\n           class Trainer(object):\n               ...\n               def train_step(self, samples, dummy_batch=False):\n                   ...\n197 198                    else:\n198 199                        raise e\n199 200    \n    201  +         if ooms > 0 and self._oom_batch is not None:\n    202  +             self.handle_ooms(ooms)\n    203  + \n200 204            if dummy_batch:\n201 205                return None\n202 206    \n         ...\n",
+                "file_path": "fairseq/trainer.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_oom_batch",
+                    "handle_ooms",
+                    "ooms",
+                    "self"
+                ],
+                "prefix": [
+                    "                else:\n",
+                    "                    raise e\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        if dummy_batch:\n",
+                    "            return None\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 201,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 201,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "handle_ooms",
+                            "position": {
+                                "start": {
+                                    "line": 202,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 202,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        if dummy_batch:\n",
+                "            return None\n",
+                "\n",
+                "        # gather logging outputs from all replicas\n",
+                "        if self.args.distributed_world_size > 1:\n",
+                "            logging_outputs, sample_sizes, ooms = zip(*distributed_utils.all_gather_list(\n",
+                "                [logging_outputs, sample_sizes, ooms],\n",
+                "            ))\n",
+                "            logging_outputs = list(chain.from_iterable(logging_outputs))\n",
+                "            sample_sizes = list(chain.from_iterable(sample_sizes))\n",
+                "            ooms = sum(ooms)\n",
+                "\n",
+                "        if ooms == self.args.distributed_world_size * len(samples):\n",
+                "            print('| WARNING: OOM in all workers, skipping update')\n",
+                "            self.zero_grad()\n",
+                "            return None\n",
+                "\n",
+                "        # aggregate logging outputs and sample sizes\n",
+                "        logging_output = self.task.aggregate_logging_outputs(\n",
+                "            logging_outputs, self.criterion\n",
+                "        )\n",
+                "        sample_size = self.task.grad_denom(sample_sizes, self.criterion)\n",
+                "\n",
+                "        if not all(k in logging_output for k in ['ntokens', 'nsentences']):\n",
+                "            raise Exception((\n",
+                "                'Please update the {}.aggregate_logging_outputs() method to '\n",
+                "                'return ntokens and nsentences'\n",
+                "            ).format(self.task.__class__.__name__))\n",
+                "\n",
+                "        try:\n",
+                "            # normalize grads by sample size\n",
+                "            self.optimizer.multiply_grads(self.args.distributed_world_size / float(sample_size))\n",
+                "\n",
+                "            # clip grads\n",
+                "            grad_norm = self.optimizer.clip_grad_norm(self.args.clip_norm)\n",
+                "\n",
+                "            # take an optimization step\n",
+                "            self.optimizer.step()\n",
+                "            self._num_updates += 1\n",
+                "\n",
+                "            # update learning rate\n",
+                "            self.lr_scheduler.step_update(self._num_updates)\n",
+                "\n",
+                "            # update meters\n",
+                "            ntokens = logging_output.get('ntokens', 0)\n",
+                "            nsentences = logging_output.get('nsentences', 0)\n",
+                "            self.meters['wps'].update(ntokens)\n",
+                "            self.meters['ups'].update(1.)\n",
+                "            self.meters['wpb'].update(ntokens)\n",
+                "            self.meters['bsz'].update(nsentences)\n",
+                "            self.meters['gnorm'].update(grad_norm)\n",
+                "            self.meters['clip'].update(\n",
+                "                1. if grad_norm > self.args.clip_norm and self.args.clip_norm > 0 else 0.\n",
+                "            )\n",
+                "            self.meters['oom'].update(ooms)\n",
+                "            self.meters['train_loss'].update(logging_output.get('loss', 0), sample_size)\n",
+                "            if 'nll_loss' in logging_output:\n",
+                "                self.meters['train_nll_loss'].update(logging_output.get('nll_loss', 0), ntokens)\n",
+                "        except OverflowError as e:\n",
+                "            print('| WARNING: overflow detected, ' + str(e))\n",
+                "            self.zero_grad()\n",
+                "            logging_output = None\n",
+                "\n",
+                "        if self.args.fp16:\n",
+                "            self.meters['loss_scale'].reset()\n",
+                "            self.meters['loss_scale'].update(self.optimizer.scaler.loss_scale)\n",
+                "\n",
+                "        self.meters['train_wall'].stop()\n",
+                "\n",
+                "        return logging_output\n",
+                "\n",
+                "    def valid_step(self, sample, raise_oom=False):\n",
+                "        \"\"\"Do forward pass in evaluation mode.\"\"\"\n",
+                "        with torch.no_grad():\n",
+                "            self.model.eval()\n",
+                "\n",
+                "            sample = self._prepare_sample(sample)\n",
+                "            if sample is None:\n",
+                "                sample = self._prepare_sample(self._dummy_batch)\n",
+                "                ignore_results = True\n",
+                "            else:\n",
+                "                ignore_results = False\n",
+                "\n",
+                "            try:\n",
+                "                _loss, sample_size, logging_output = self.task.valid_step(\n",
+                "                    sample, self.model, self.criterion\n",
+                "                )\n",
+                "            except RuntimeError as e:\n",
+                "                if 'out of memory' in str(e) and not raise_oom:\n",
+                "                    print('| WARNING: ran out of memory, retrying batch')\n",
+                "                    for p in self.model.parameters():\n",
+                "                        if p.grad is not None:\n",
+                "                            del p.grad  # free some memory\n",
+                "                    torch.cuda.empty_cache()\n",
+                "                    return self.valid_step(sample, raise_oom=True)\n",
+                "                else:\n",
+                "                    raise e\n",
+                "\n",
+                "            if ignore_results:\n",
+                "                logging_output, sample_size = {}, 0\n",
+                "\n",
+                "        # gather logging outputs from all replicas\n",
+                "        if self.args.distributed_world_size > 1:\n",
+                "            logging_output, sample_size = zip(*distributed_utils.all_gather_list(\n",
+                "                [logging_output, sample_size],\n",
+                "            ))\n",
+                "            logging_output = list(logging_output)\n",
+                "            sample_size = list(sample_size)\n",
+                "        else:\n",
+                "            logging_output = [logging_output]\n",
+                "            sample_size = [sample_size]\n",
+                "\n",
+                "        # aggregate logging outputs and sample sizes\n",
+                "        logging_output = self.task.aggregate_logging_outputs(\n",
+                "            logging_output, self.criterion\n",
+                "        )\n",
+                "        sample_size = self.task.grad_denom(\n",
+                "            sample_size, self.criterion\n",
+                "        )\n",
+                "\n",
+                "        # update meters for validation\n",
+                "        ntokens = logging_output.get('ntokens', 0)\n",
+                "        self.meters['valid_loss'].update(logging_output.get('loss', 0), sample_size)\n",
+                "        if 'nll_loss' in logging_output:\n",
+                "            self.meters['valid_nll_loss'].update(logging_output.get('nll_loss', 0), ntokens)\n",
+                "\n",
+                "        return logging_output\n",
+                "\n",
+                "    def dummy_train_step(self, dummy_batch):\n",
+                "        \"\"\"Dummy training step for warming caching allocator.\"\"\"\n",
+                "        self.train_step(dummy_batch, dummy_batch=True)\n",
+                "        self.zero_grad()\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def handle_ooms(self, number_of_ooms):\n",
+                    "        \"\"\"\n",
+                    "        c10d accumulates/syncs gradients between gpus during backward pass.\n",
+                    "        In case of OOMs, gpus may fail to sync, so we manually iterate\n",
+                    "        extra to make sure each gpu makes same number of iterations.\n",
+                    "        \"\"\"\n",
+                    "        for _ in range(number_of_ooms):\n",
+                    "            self.train_step([self._oom_batch], True)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 333,
+                    "end": 333
+                },
+                "child_version_range": {
+                    "start": 337,
+                    "end": 346
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Trainer",
+                        "signature": "class Trainer(object):",
+                        "at_line": 21
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: fairseq/trainer.py\nCode:\n           class Trainer(object):\n               ...\n330 334            self.train_step(dummy_batch, dummy_batch=True)\n331 335            self.zero_grad()\n332 336    \n    337  +     def handle_ooms(self, number_of_ooms):\n    338  +         \"\"\"\n    339  +         c10d accumulates/syncs gradients between gpus during backward pass.\n    340  +         In case of OOMs, gpus may fail to sync, so we manually iterate\n    341  +         extra to make sure each gpu makes same number of iterations.\n    342  +         \"\"\"\n    343  +         for _ in range(number_of_ooms):\n    344  +             self.train_step([self._oom_batch], True)\n    345  + \n333 346        def zero_grad(self):\n334 347            self.optimizer.zero_grad()\n335 348    \n         ...\n",
+                "file_path": "fairseq/trainer.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_",
+                    "_oom_batch",
+                    "handle_ooms",
+                    "number_of_ooms",
+                    "range",
+                    "self",
+                    "train_step"
+                ],
+                "prefix": [
+                    "        self.train_step(dummy_batch, dummy_batch=True)\n",
+                    "        self.zero_grad()\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def zero_grad(self):\n",
+                    "        self.optimizer.zero_grad()\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 344,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 344,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "handle_ooms",
+                            "position": {
+                                "start": {
+                                    "line": 337,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 337,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/trainer.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    def zero_grad(self):\n",
+                "        self.optimizer.zero_grad()\n",
+                "\n",
+                "    def lr_step(self, epoch, val_loss=None):\n",
+                "        \"\"\"Adjust the learning rate based on the validation loss.\"\"\"\n",
+                "        return self.lr_scheduler.step(epoch, val_loss)\n",
+                "\n",
+                "    def lr_step_update(self, num_updates):\n",
+                "        \"\"\"Update the learning rate after each update.\"\"\"\n",
+                "        return self.lr_scheduler.step_update(num_updates)\n",
+                "\n",
+                "    def get_lr(self):\n",
+                "        \"\"\"Get the current learning rate.\"\"\"\n",
+                "        return self.optimizer.get_lr()\n",
+                "\n",
+                "    def get_model(self):\n",
+                "        \"\"\"Get the (non-wrapped) model instance.\"\"\"\n",
+                "        return self._model\n",
+                "\n",
+                "    def get_meter(self, name):\n",
+                "        \"\"\"Get a specific meter by name.\"\"\"\n",
+                "        if name not in self.meters:\n",
+                "            return None\n",
+                "        return self.meters[name]\n",
+                "\n",
+                "    def get_num_updates(self):\n",
+                "        \"\"\"Get the number of parameters updates.\"\"\"\n",
+                "        return self._num_updates\n",
+                "\n",
+                "    def _prepare_sample(self, sample):\n",
+                "        if sample is None or len(sample) == 0:\n",
+                "            return None\n",
+                "        return utils.move_to_cuda(sample)"
+            ]
+        ],
+        "train.py": [
+            [
+                "#!/usr/bin/env python3 -u\n",
+                "# Copyright (c) 2017-present, Facebook, Inc.\n",
+                "# All rights reserved.\n",
+                "#\n",
+                "# This source code is licensed under the license found in the LICENSE file in\n",
+                "# the root directory of this source tree. An additional grant of patent rights\n",
+                "# can be found in the PATENTS file in the same directory.\n",
+                "\"\"\"\n",
+                "Train a new model on one or across multiple GPUs.\n",
+                "\"\"\"\n",
+                "\n",
+                "import collections\n",
+                "import itertools\n",
+                "import os\n",
+                "import math\n",
+                "import torch\n",
+                "\n",
+                "from fairseq import distributed_utils, options, progress_bar, tasks, utils\n",
+                "from fairseq.data import iterators\n",
+                "from fairseq.trainer import Trainer\n",
+                "from fairseq.meters import AverageMeter, StopwatchMeter\n",
+                "\n",
+                "\n",
+                "def main(args):\n",
+                "    if args.max_tokens is None:\n",
+                "        args.max_tokens = 6000\n",
+                "    print(args)\n",
+                "\n",
+                "    if not torch.cuda.is_available():\n",
+                "        raise NotImplementedError('Training on CPU is not supported')\n",
+                "    torch.cuda.set_device(args.device_id)\n",
+                "    torch.manual_seed(args.seed)\n",
+                "\n",
+                "    # Setup task, e.g., translation, language modeling, etc.\n",
+                "    task = tasks.setup_task(args)\n",
+                "\n",
+                "    # Load dataset splits\n",
+                "    load_dataset_splits(task, ['train', 'valid'])\n",
+                "\n",
+                "    # Build model and criterion\n",
+                "    model = task.build_model(args)\n",
+                "    criterion = task.build_criterion(args)\n",
+                "    print('| model {}, criterion {}'.format(args.arch, criterion.__class__.__name__))\n",
+                "    print('| num. model params: {}'.format(sum(p.numel() for p in model.parameters())))\n",
+                "\n",
+                "    # Make a dummy batch to (i) warm the caching allocator and (ii) as a\n",
+                "    # placeholder DistributedDataParallel when there's an uneven number of\n",
+                "    # batches per worker.\n",
+                "    max_positions = utils.resolve_max_positions(\n",
+                "        task.max_positions(),\n",
+                "        model.max_positions(),\n",
+                "    )\n",
+                "    dummy_batch = task.dataset('train').get_dummy_batch(args.max_tokens, max_positions)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    oom_batch = task.dataset('train').get_dummy_batch(1, max_positions)\n"
+                ],
+                "parent_version_range": {
+                    "start": 53,
+                    "end": 53
+                },
+                "child_version_range": {
+                    "start": 53,
+                    "end": 54
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main(args):",
+                        "at_line": 23
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: train.py\nCode:\n         def main(args):\n             ...\n50 50            model.max_positions(),\n51 51        )\n52 52        dummy_batch = task.dataset('train').get_dummy_batch(args.max_tokens, max_positions)\n   53  +     oom_batch = task.dataset('train').get_dummy_batch(1, max_positions)\n53 54    \n54 55        # Build trainer\n       ...\n",
+                "file_path": "train.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "dataset",
+                    "get_dummy_batch",
+                    "max_positions",
+                    "oom_batch",
+                    "task"
+                ],
+                "prefix": [
+                    "        model.max_positions(),\n",
+                    "    )\n",
+                    "    dummy_batch = task.dataset('train').get_dummy_batch(args.max_tokens, max_positions)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    # Build trainer\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 53,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 53,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/train.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    # Build trainer\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    trainer = Trainer(args, task, model, criterion, dummy_batch)\n"
+                ],
+                "after": [
+                    "    trainer = Trainer(args, task, model, criterion, dummy_batch, oom_batch)\n"
+                ],
+                "parent_version_range": {
+                    "start": 55,
+                    "end": 56
+                },
+                "child_version_range": {
+                    "start": 56,
+                    "end": 57
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main(args):",
+                        "at_line": 23
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: train.py\nCode:\n         def main(args):\n             ...\n53 54    \n54 55        # Build trainer\n55     -     trainer = Trainer(args, task, model, criterion, dummy_batch)\n   56  +     trainer = Trainer(args, task, model, criterion, dummy_batch, oom_batch)\n56 57        print('| training on {} GPUs'.format(args.distributed_world_size))\n57 58        print('| max tokens per GPU = {} and max sentences per GPU = {}'.format(\n58 59            args.max_tokens,\n       ...\n",
+                "file_path": "train.py",
+                "identifiers_before": [
+                    "Trainer",
+                    "args",
+                    "criterion",
+                    "dummy_batch",
+                    "model",
+                    "task",
+                    "trainer"
+                ],
+                "identifiers_after": [
+                    "Trainer",
+                    "args",
+                    "criterion",
+                    "dummy_batch",
+                    "model",
+                    "oom_batch",
+                    "task",
+                    "trainer"
+                ],
+                "prefix": [
+                    "\n",
+                    "    # Build trainer\n"
+                ],
+                "suffix": [
+                    "    print('| training on {} GPUs'.format(args.distributed_world_size))\n",
+                    "    print('| max tokens per GPU = {} and max sentences per GPU = {}'.format(\n",
+                    "        args.max_tokens,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "oom_batch",
+                            "position": {
+                                "start": {
+                                    "line": 56,
+                                    "column": 65
+                                },
+                                "end": {
+                                    "line": 56,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/train.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    print('| training on {} GPUs'.format(args.distributed_world_size))\n",
+                "    print('| max tokens per GPU = {} and max sentences per GPU = {}'.format(\n",
+                "        args.max_tokens,\n",
+                "        args.max_sentences,\n",
+                "    ))\n",
+                "\n",
+                "    # Initialize dataloader\n",
+                "    epoch_itr = task.get_batch_iterator(\n",
+                "        dataset=task.dataset(args.train_subset),\n",
+                "        max_tokens=args.max_tokens,\n",
+                "        max_sentences=args.max_sentences,\n",
+                "        max_positions=max_positions,\n",
+                "        ignore_invalid_inputs=True,\n",
+                "        required_batch_size_multiple=8,\n",
+                "        seed=args.seed,\n",
+                "        num_shards=args.distributed_world_size,\n",
+                "        shard_id=args.distributed_rank,\n",
+                "    )\n",
+                "\n",
+                "    # Load the latest checkpoint if one is available\n",
+                "    if not load_checkpoint(args, trainer, epoch_itr):\n",
+                "        trainer.dummy_train_step([dummy_batch])\n",
+                "\n",
+                "    # Train until the learning rate gets too small\n",
+                "    max_epoch = args.max_epoch or math.inf\n",
+                "    max_update = args.max_update or math.inf\n",
+                "    lr = trainer.get_lr()\n",
+                "    train_meter = StopwatchMeter()\n",
+                "    train_meter.start()\n",
+                "    valid_losses = [None]\n",
+                "    valid_subsets = args.valid_subset.split(',')\n",
+                "    while lr > args.min_lr and epoch_itr.epoch < max_epoch and trainer.get_num_updates() < max_update:\n",
+                "        # train for one epoch\n",
+                "        train(args, trainer, task, epoch_itr)\n",
+                "\n",
+                "        if epoch_itr.epoch % args.validate_interval == 0:\n",
+                "            valid_losses = validate(args, trainer, task, epoch_itr, valid_subsets)\n",
+                "\n",
+                "        # only use first validation loss to update the learning rate\n",
+                "        lr = trainer.lr_step(epoch_itr.epoch, valid_losses[0])\n",
+                "\n",
+                "        # save checkpoint\n",
+                "        if epoch_itr.epoch % args.save_interval == 0:\n",
+                "            save_checkpoint(args, trainer, epoch_itr, valid_losses[0])\n",
+                "    train_meter.stop()\n",
+                "    print('| done training in {:.1f} seconds'.format(train_meter.sum))\n",
+                "\n",
+                "\n",
+                "def train(args, trainer, task, epoch_itr):\n",
+                "    \"\"\"Train the model for one epoch.\"\"\"\n",
+                "\n",
+                "    # Update parameters every N batches\n",
+                "    if epoch_itr.epoch <= len(args.update_freq):\n",
+                "        update_freq = args.update_freq[epoch_itr.epoch - 1]\n",
+                "    else:\n",
+                "        update_freq = args.update_freq[-1]\n",
+                "\n",
+                "    # Initialize data iterator\n",
+                "    itr = epoch_itr.next_epoch_itr(fix_batches_to_gpus=args.fix_batches_to_gpus)\n",
+                "    itr = iterators.GroupedIterator(itr, update_freq)\n",
+                "    progress = progress_bar.build_progress_bar(\n",
+                "        args, itr, epoch_itr.epoch, no_progress_bar='simple',\n",
+                "    )\n",
+                "\n",
+                "    extra_meters = collections.defaultdict(lambda: AverageMeter())\n",
+                "    first_valid = args.valid_subset.split(',')[0]\n",
+                "    max_update = args.max_update or math.inf\n",
+                "    for i, samples in enumerate(progress, start=epoch_itr.iterations_in_epoch):\n",
+                "        log_output = trainer.train_step(samples)\n",
+                "        if log_output is None:\n",
+                "            continue\n",
+                "\n",
+                "        # log mid-epoch stats\n",
+                "        stats = get_training_stats(trainer)\n",
+                "        for k, v in log_output.items():\n",
+                "            if k in ['loss', 'nll_loss', 'ntokens', 'nsentences', 'sample_size']:\n",
+                "                continue  # these are already logged above\n",
+                "            if 'loss' in k:\n",
+                "                extra_meters[k].update(v, log_output['sample_size'])\n",
+                "            else:\n",
+                "                extra_meters[k].update(v)\n",
+                "            stats[k] = extra_meters[k].avg\n",
+                "        progress.log(stats)\n",
+                "\n",
+                "        # ignore the first mini-batch in words-per-second calculation\n",
+                "        if i == 0:\n",
+                "            trainer.get_meter('wps').reset()\n",
+                "\n",
+                "        num_updates = trainer.get_num_updates()\n",
+                "        if args.save_interval_updates > 0 and num_updates % args.save_interval_updates == 0 and num_updates > 0:\n",
+                "            valid_losses = validate(args, trainer, task, epoch_itr, [first_valid])\n",
+                "            save_checkpoint(args, trainer, epoch_itr, valid_losses[0])\n",
+                "\n",
+                "        if num_updates >= max_update:\n",
+                "            break\n",
+                "\n",
+                "    # log end-of-epoch stats\n",
+                "    stats = get_training_stats(trainer)\n",
+                "    for k, meter in extra_meters.items():\n",
+                "        stats[k] = meter.avg\n",
+                "    progress.print(stats)\n",
+                "\n",
+                "    # reset training meters\n",
+                "    for k in [\n",
+                "        'train_loss', 'train_nll_loss', 'wps', 'ups', 'wpb', 'bsz', 'gnorm', 'clip',\n",
+                "    ]:\n",
+                "        meter = trainer.get_meter(k)\n",
+                "        if meter is not None:\n",
+                "            meter.reset()\n",
+                "\n",
+                "\n",
+                "def get_training_stats(trainer):\n",
+                "    stats = collections.OrderedDict()\n",
+                "    stats['loss'] = '{:.3f}'.format(trainer.get_meter('train_loss').avg)\n",
+                "    if trainer.get_meter('train_nll_loss').count > 0:\n",
+                "        nll_loss = trainer.get_meter('train_nll_loss').avg\n",
+                "        stats['nll_loss'] = '{:.3f}'.format(nll_loss)\n",
+                "    else:\n",
+                "        nll_loss = trainer.get_meter('train_loss').avg\n",
+                "    stats['ppl'] = get_perplexity(nll_loss)\n",
+                "    stats['wps'] = round(trainer.get_meter('wps').avg)\n",
+                "    stats['ups'] = '{:.1f}'.format(trainer.get_meter('ups').avg)\n",
+                "    stats['wpb'] = round(trainer.get_meter('wpb').avg)\n",
+                "    stats['bsz'] = round(trainer.get_meter('bsz').avg)\n",
+                "    stats['num_updates'] = trainer.get_num_updates()\n",
+                "    stats['lr'] = trainer.get_lr()\n",
+                "    stats['gnorm'] = '{:.3f}'.format(trainer.get_meter('gnorm').avg)\n",
+                "    stats['clip'] = '{:.0%}'.format(trainer.get_meter('clip').avg)\n",
+                "    stats['oom'] = trainer.get_meter('oom').avg\n",
+                "    if trainer.get_meter('loss_scale') is not None:\n",
+                "        stats['loss_scale'] = '{:.3f}'.format(trainer.get_meter('loss_scale').avg)\n",
+                "    stats['wall'] = round(trainer.get_meter('wall').elapsed_time)\n",
+                "    stats['train_wall'] = round(trainer.get_meter('train_wall').sum)\n",
+                "    return stats\n",
+                "\n",
+                "\n",
+                "def validate(args, trainer, task, epoch_itr, subsets):\n",
+                "    \"\"\"Evaluate the model on the validation set(s) and return the losses.\"\"\"\n",
+                "    valid_losses = []\n",
+                "    for subset in subsets:\n",
+                "        # Initialize data iterator\n",
+                "        itr = task.get_batch_iterator(\n",
+                "            dataset=task.dataset(subset),\n",
+                "            max_tokens=args.max_tokens,\n",
+                "            max_sentences=args.max_sentences_valid,\n",
+                "            max_positions=utils.resolve_max_positions(\n",
+                "                task.max_positions(),\n",
+                "                trainer.get_model().max_positions(),\n",
+                "            ),\n",
+                "            ignore_invalid_inputs=args.skip_invalid_size_inputs_valid_test,\n",
+                "            required_batch_size_multiple=8,\n",
+                "            seed=args.seed,\n",
+                "            num_shards=args.distributed_world_size,\n",
+                "            shard_id=args.distributed_rank,\n",
+                "        ).next_epoch_itr(shuffle=False)\n",
+                "        progress = progress_bar.build_progress_bar(\n",
+                "            args, itr, epoch_itr.epoch,\n",
+                "            prefix='valid on \\'{}\\' subset'.format(subset),\n",
+                "            no_progress_bar='simple'\n",
+                "        )\n",
+                "\n",
+                "        # reset validation loss meters\n",
+                "        for k in ['valid_loss', 'valid_nll_loss']:\n",
+                "            meter = trainer.get_meter(k)\n",
+                "            if meter is not None:\n",
+                "                meter.reset()\n",
+                "        extra_meters = collections.defaultdict(lambda: AverageMeter())\n",
+                "\n",
+                "        for sample in progress:\n",
+                "            log_output = trainer.valid_step(sample)\n",
+                "\n",
+                "            for k, v in log_output.items():\n",
+                "                if k in ['loss', 'nll_loss', 'ntokens', 'nsentences', 'sample_size']:\n",
+                "                    continue\n",
+                "                extra_meters[k].update(v)\n",
+                "\n",
+                "        # log validation stats\n",
+                "        stats = get_valid_stats(trainer)\n",
+                "        for k, meter in extra_meters.items():\n",
+                "            stats[k] = meter.avg\n",
+                "        progress.print(stats)\n",
+                "\n",
+                "        valid_losses.append(stats['valid_loss'])\n",
+                "    return valid_losses\n",
+                "\n",
+                "\n",
+                "def get_valid_stats(trainer):\n",
+                "    stats = collections.OrderedDict()\n",
+                "    stats['valid_loss'] = trainer.get_meter('valid_loss').avg\n",
+                "    if trainer.get_meter('valid_nll_loss').count > 0:\n",
+                "        nll_loss = trainer.get_meter('valid_nll_loss').avg\n",
+                "        stats['valid_nll_loss'] = nll_loss\n",
+                "    else:\n",
+                "        nll_loss = trainer.get_meter('valid_loss').avg\n",
+                "    stats['valid_ppl'] = get_perplexity(nll_loss)\n",
+                "    stats['num_updates'] = trainer.get_num_updates()\n",
+                "    if hasattr(save_checkpoint, 'best'):\n",
+                "        stats['best'] = min(save_checkpoint.best, stats['valid_loss'])\n",
+                "    return stats\n",
+                "\n",
+                "\n",
+                "def get_perplexity(loss):\n",
+                "    try:\n",
+                "        return '{:.2f}'.format(math.pow(2, loss))\n",
+                "    except OverflowError:\n",
+                "        return float('inf')\n",
+                "\n",
+                "\n",
+                "def save_checkpoint(args, trainer, epoch_itr, val_loss):\n",
+                "    if args.no_save or not distributed_utils.is_master(args):\n",
+                "        return\n",
+                "    epoch = epoch_itr.epoch\n",
+                "    end_of_epoch = epoch_itr.end_of_epoch()\n",
+                "    updates = trainer.get_num_updates()\n",
+                "\n",
+                "    checkpoint_conds = collections.OrderedDict()\n",
+                "    checkpoint_conds['checkpoint{}.pt'.format(epoch)] = (\n",
+                "            end_of_epoch and not args.no_epoch_checkpoints and\n",
+                "            epoch % args.save_interval == 0\n",
+                "    )\n",
+                "    checkpoint_conds['checkpoint_{}_{}.pt'.format(epoch, updates)] = (\n",
+                "            not end_of_epoch and args.save_interval_updates > 0 and\n",
+                "            updates % args.save_interval_updates == 0\n",
+                "    )\n",
+                "    checkpoint_conds['checkpoint_best.pt'] = (\n",
+                "            val_loss is not None and\n",
+                "            (not hasattr(save_checkpoint, 'best') or val_loss < save_checkpoint.best)\n",
+                "    )\n",
+                "    checkpoint_conds['checkpoint_last.pt'] = True  # keep this last so that it's a symlink\n",
+                "\n",
+                "    prev_best = getattr(save_checkpoint, 'best', val_loss)\n",
+                "    if val_loss is not None:\n",
+                "        save_checkpoint.best = min(val_loss, prev_best)\n",
+                "    extra_state = {\n",
+                "        'train_iterator': epoch_itr.state_dict(),\n",
+                "        'val_loss': val_loss,\n",
+                "    }\n",
+                "    if hasattr(save_checkpoint, 'best'):\n",
+                "        extra_state.update({'best': save_checkpoint.best})\n",
+                "\n",
+                "    checkpoints = [os.path.join(args.save_dir, fn) for fn, cond in checkpoint_conds.items() if cond]\n",
+                "    if len(checkpoints) > 0:\n",
+                "        for cp in checkpoints:\n",
+                "            trainer.save_checkpoint(cp, extra_state)\n",
+                "\n",
+                "    if not end_of_epoch and args.keep_interval_updates > 0:\n",
+                "        # remove old checkpoints; checkpoints are sorted in descending order\n",
+                "        checkpoints = utils.checkpoint_paths(args.save_dir, pattern=r'checkpoint_\\d+_(\\d+)\\.pt')\n",
+                "        for old_chk in checkpoints[args.keep_interval_updates:]:\n",
+                "            os.remove(old_chk)\n",
+                "\n",
+                "\n",
+                "def load_checkpoint(args, trainer, epoch_itr):\n",
+                "    \"\"\"Load a checkpoint and replay dataloader to match.\"\"\"\n",
+                "    os.makedirs(args.save_dir, exist_ok=True)\n",
+                "    checkpoint_path = os.path.join(args.save_dir, args.restore_file)\n",
+                "    if os.path.isfile(checkpoint_path):\n",
+                "        extra_state = trainer.load_checkpoint(checkpoint_path, args.reset_optimizer, args.reset_lr_scheduler,\n",
+                "                                              eval(args.optimizer_overrides))\n",
+                "        if extra_state is not None:\n",
+                "            # replay train iterator to match checkpoint\n",
+                "            epoch_itr.load_state_dict(extra_state['train_iterator'])\n",
+                "\n",
+                "            print('| loaded checkpoint {} (epoch {} @ {} updates)'.format(\n",
+                "                checkpoint_path, epoch_itr.epoch, trainer.get_num_updates()))\n",
+                "\n",
+                "            trainer.lr_step(epoch_itr.epoch)\n",
+                "            trainer.lr_step_update(trainer.get_num_updates())\n",
+                "            if 'best' in extra_state:\n",
+                "                save_checkpoint.best = extra_state['best']\n",
+                "        return True\n",
+                "    return False\n",
+                "\n",
+                "\n",
+                "def load_dataset_splits(task, splits):\n",
+                "    for split in splits:\n",
+                "        if split == 'train':\n",
+                "            task.load_dataset(split, combine=True)\n",
+                "        else:\n",
+                "            for k in itertools.count():\n",
+                "                split_k = split + (str(k) if k > 0 else '')\n",
+                "                try:\n",
+                "                    task.load_dataset(split_k, combine=False)\n",
+                "                except FileNotFoundError as e:\n",
+                "                    if k > 0:\n",
+                "                        break\n",
+                "                    raise e\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    parser = options.get_training_parser()\n",
+                "    args = options.parse_args_and_arch(parser)\n",
+                "\n",
+                "    if args.distributed_port > 0 or args.distributed_init_method is not None:\n",
+                "        from distributed_train import main as distributed_main\n",
+                "\n",
+                "        distributed_main(args)\n",
+                "    elif args.distributed_world_size > 1:\n",
+                "        from multiprocessing_train import main as multiprocessing_main\n",
+                "\n",
+                "        multiprocessing_main(args)\n",
+                "    else:\n",
+                "        main(args)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "assign arg"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

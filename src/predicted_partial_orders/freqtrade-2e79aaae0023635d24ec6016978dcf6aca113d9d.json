@@ -1,0 +1,127 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring pattern within the same function, changing from accessing 'args' dictionary to accessing 'config' dictionary. However, they reference different keys ('targeted_trade_amount'/'minimum_trade_amount' vs 'strategy'/'strategy_list') and are separate, independent substitutions. While they follow the same pattern (args -> config), the changed lines reference different symbols and there is no direct code dependency between the specific keys being accessed. This is a bulk refactoring pattern but not on identical constructs - one deals with trade amounts, the other with strategy configuration."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits are part of the same refactoring pattern within the same function, changing from accessing 'args' dictionary to accessing 'config' dictionary. However, they reference different keys ('targeted_trade_amount'/'minimum_trade_amount' vs 'strategy'/'strategy_list') and are separate, independent substitutions. While they follow the same pattern (args -> config), the changed lines reference different symbols and there is no direct code dependency between the specific keys being accessed. This is a bulk refactoring pattern but not on identical constructs - one deals with trade amounts, the other with strategy configuration."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'strategy_list' within the same function. Edit 0 removes the initialization line 'strategy_list = []' and Edit 1 modifies the logic that assigns values to 'strategy_list'. After removing the initialization in Edit 0, the variable 'strategy_list' would be undefined when the assignment logic in Edit 1 tries to use it, creating an immediate code-driven prompt to update the assignment logic to handle the initialization. The changed lines in both edits directly reference the same symbol and create a mechanical dependency."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'strategy_list' within the same function. Edit 0 removes the initialization line 'strategy_list = []' and Edit 1 modifies the logic that assigns values to 'strategy_list'. After removing the initialization in Edit 0, the variable 'strategy_list' would be undefined when the assignment logic in Edit 1 tries to use it, creating an immediate code-driven prompt to update the assignment logic to handle the initialization. The changed lines in both edits directly reference the same symbol and create a mechanical dependency."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions changing 'args[' to 'config[' for the same parameter names ('minimum_trade_amount', 'targeted_trade_amount', and 'exportfilename'). This represents a uniform refactoring pattern where the same before\u2192after substitution (args\u2192config) is being applied to the same type of syntactic construct (dictionary key access) across multiple locations. Both edits are part of a single, contiguous refactor to change the source of these configuration parameters from args to config."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits perform identical textual substitutions changing 'args[' to 'config[' for the same parameter names ('minimum_trade_amount', 'targeted_trade_amount', and 'exportfilename'). This represents a uniform refactoring pattern where the same before\u2192after substitution (args\u2192config) is being applied to the same type of syntactic construct (dictionary key access) across multiple locations. Both edits are part of a single, contiguous refactor to change the source of these configuration parameters from args to config."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These edits are part of the same refactoring task where 'args' parameter is being replaced with 'config' parameter throughout the function. Edit 0 changes the strategy selection logic to use 'config' instead of 'args', and Edit 1 removes the 'args' parameter from a function call, passing only 'config' instead. Both edits reference the same variables ('config' and 'args') and are part of a uniform substitution pattern - replacing 'args' usage with 'config' usage. This represents a synchronized refactoring where both changes work together to eliminate the dependency on 'args' in favor of 'config'."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These edits are part of the same refactoring task where 'args' parameter is being replaced with 'config' parameter throughout the function. Edit 0 changes the strategy selection logic to use 'config' instead of 'args', and Edit 1 removes the 'args' parameter from a function call, passing only 'config' instead. Both edits reference the same variables ('config' and 'args') and are part of a uniform substitution pattern - replacing 'args' usage with 'config' usage. This represents a synchronized refactoring where both changes work together to eliminate the dependency on 'args' in favor of 'config'."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify the same function call and its corresponding definition by removing the 'args' parameter. Edit 0 removes 'args' from the call to 'initialize_single_lookahead_analysis', while Edit 1 removes 'args' from the constructor signature of 'LookaheadAnalysis'. These edits reference the exact same symbol (the args parameter) and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its usage. This is a classic signature-caller synchronization pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify the same function call and its corresponding definition by removing the 'args' parameter. Edit 0 removes 'args' from the call to 'initialize_single_lookahead_analysis', while Edit 1 removes 'args' from the constructor signature of 'LookaheadAnalysis'. These edits reference the exact same symbol (the args parameter) and create a direct code dependency - after making either edit, the other becomes the immediate next step to maintain consistency between the function signature and its usage. This is a classic signature-caller synchronization pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits are removing the 'args' parameter from calls to the same function/class. Edit 0 removes 'args' from the call to LookaheadAnalysisSubFunctions.initialize_single_lookahead_analysis(), and Edit 1 removes 'args' from the call to LookaheadAnalysis() within that same function. These are part of a coordinated parameter removal refactor where the 'args' parameter is being eliminated from the call chain. Both edits reference the same parameter being removed and are part of the same mechanical refactoring task - removing 'args' from the function signature chain. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt to make the other to maintain consistency in the parameter passing chain."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits are removing the 'args' parameter from calls to the same function/class. Edit 0 removes 'args' from the call to LookaheadAnalysisSubFunctions.initialize_single_lookahead_analysis(), and Edit 1 removes 'args' from the call to LookaheadAnalysis() within that same function. These are part of a coordinated parameter removal refactor where the 'args' parameter is being eliminated from the call chain. Both edits reference the same parameter being removed and are part of the same mechanical refactoring task - removing 'args' from the function signature chain. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt to make the other to maintain consistency in the parameter passing chain."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 removes the 'args' parameter from a function call to LookaheadAnalysisSubFunctions.initialize_single_lookahead_analysis(), while Edit 1 removes the 'args' parameter from the function signature of the same method. These edits reference the exact same symbol (the initialize_single_lookahead_analysis method) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the call site, you get a TypeError at runtime, and vice versa. Both edits can be written and parsed in either order since Python allows mismatched function signatures and calls at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 removes the 'args' parameter from a function call to LookaheadAnalysisSubFunctions.initialize_single_lookahead_analysis(), while Edit 1 removes the 'args' parameter from the function signature of the same method. These edits reference the exact same symbol (the initialize_single_lookahead_analysis method) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the call site, you get a TypeError at runtime, and vice versa. Both edits can be written and parsed in either order since Python allows mismatched function signatures and calls at parse time (only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are part of a single refactoring operation within the same __init__ method. Edit 0 removes the 'args' parameter from the method signature and changes 'strategy_obj' type from 'dict' to 'Dict'. Edit 1 updates the method body to use 'config' instead of the removed 'args' parameter for accessing the same dictionary keys. The changed lines in both edits reference the exact same symbols: the 'args' parameter is removed from the signature in edit 0 and its usages are replaced with 'config' in edit 1. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step in the same refactoring micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are part of a single refactoring operation within the same __init__ method. Edit 0 removes the 'args' parameter from the method signature and changes 'strategy_obj' type from 'dict' to 'Dict'. Edit 1 updates the method body to use 'config' instead of the removed 'args' parameter for accessing the same dictionary keys. The changed lines in both edits reference the exact same symbols: the 'args' parameter is removed from the signature in edit 0 and its usages are replaced with 'config' in edit 1. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step in the same refactoring micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 changes the constructor signature of LookaheadAnalysis by removing the 'args' parameter, and Edit 1 updates the call site to match by removing the 'args' argument. These edits reference the exact same symbol (the LookaheadAnalysis constructor) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 changes the constructor signature of LookaheadAnalysis by removing the 'args' parameter, and Edit 1 updates the call site to match by removing the 'args' argument. These edits reference the exact same symbol (the LookaheadAnalysis constructor) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits modify the exact same function `initialize_single_lookahead_analysis` by removing the `args` parameter. Edit 0 removes `args` from the function signature, and Edit 1 removes `args` from the function call to `LookaheadAnalysis`. These are part of the same micro-task of removing the unused parameter throughout the function. The changed lines reference the exact same symbol (the `args` parameter) and create a direct code dependency - after removing `args` from the signature, the call site must also be updated to match, or vice versa. Either edit can be made first and both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits modify the exact same function `initialize_single_lookahead_analysis` by removing the `args` parameter. Edit 0 removes `args` from the function signature, and Edit 1 removes `args` from the function call to `LookaheadAnalysis`. These are part of the same micro-task of removing the unused parameter throughout the function. The changed lines reference the exact same symbol (the `args` parameter) and create a direct code dependency - after removing `args` from the signature, the call site must also be updated to match, or vice versa. Either edit can be made first and both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 changes the LookaheadAnalysis constructor to read parameters from 'config' instead of 'args', removing the need for the 'args' parameter. Edit 1 updates the constructor call to match this change by removing the 'args' parameter. These edits reference the exact same constructor call - one modifies the signature and the other updates the call site. After making edit 0, edit 1 becomes immediately necessary to fix the constructor call, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 changes the LookaheadAnalysis constructor to read parameters from 'config' instead of 'args', removing the need for the 'args' parameter. Edit 1 updates the constructor call to match this change by removing the 'args' parameter. These edits reference the exact same constructor call - one modifies the signature and the other updates the call site. After making edit 0, edit 1 becomes immediately necessary to fix the constructor call, and vice versa. Both edits can be staged in either order without parser errors."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits are part of the same refactoring pattern - changing from using 'args' dictionary to using 'config' dictionary for accessing configuration values. Edit 0 changes from args['strategy'] to config['strategy'] and args['strategy_list'] to config.get('strategy_list', []), while Edit 1 changes from args['minimum_trade_amount'], args['targeted_trade_amount'], and args['exportfilename'] to their config equivalents. This represents a uniform substitution pattern (args[key] \u2192 config[key]) applied to the same type of syntactic construct (dictionary access) across related code. Both edits can be applied in either order as they involve different keys and don't create any parse-time dependencies."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring pattern - changing from using 'args' dictionary to using 'config' dictionary for accessing configuration values. Edit 0 changes from args['strategy'] to config['strategy'] and args['strategy_list'] to config.get('strategy_list', []), while Edit 1 changes from args['minimum_trade_amount'], args['targeted_trade_amount'], and args['exportfilename'] to their config equivalents. This represents a uniform substitution pattern (args[key] \u2192 config[key]) applied to the same type of syntactic construct (dictionary access) across related code. Both edits can be applied in either order as they involve different keys and don't create any parse-time dependencies."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

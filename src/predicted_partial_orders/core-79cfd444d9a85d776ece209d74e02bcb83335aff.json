@@ -1,0 +1,48 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new subscription request with id 6, and Edit 1 changes an unsubscribe operation to reference subscription 6 instead of 5. The changed lines reference the exact same symbol (the subscription ID 6) - Edit 0 creates subscription 6, and Edit 1 references subscription 6 in the unsubscribe call. This creates a direct code dependency where the subscription must be created before it can be unsubscribed from, making Edit 0 a prerequisite for Edit 1."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a second WebSocket subscription with id 6, and edit 1 adds an assertion that verifies the received message has id 6 (the new subscription). The changed lines reference the exact same symbol (the literal value 6 used as the subscription ID). Edit 0 creates the subscription with id 6, and edit 1 asserts that the received message corresponds to that same id 6. This creates an immediate, mechanically obvious code-driven prompt where after adding the subscription with id 6, the natural next step is to verify that messages are received on that subscription by checking the id field. Both edits can be staged in either order since they are syntactically valid independently, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a second WebSocket subscription with id 6, and edit 1 adds an assertion that verifies the received message has id 6 (the new subscription). The changed lines reference the exact same symbol (the literal value 6 used as the subscription ID). Edit 0 creates the subscription with id 6, and edit 1 asserts that the received message corresponds to that same id 6. This creates an immediate, mechanically obvious code-driven prompt where after adding the subscription with id 6, the natural next step is to verify that messages are received on that subscription by checking the id field. Both edits can be staged in either order since they are syntactically valid independently, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "These edits are part of the same test function and both involve incrementing ID values in WebSocket message calls. Edit 0 adds a new subscription with ID 6, and edit 1 changes an existing ID from 8 to 9. This appears to be a sequential ID adjustment pattern where adding a new message (edit 0) requires incrementing subsequent IDs to maintain uniqueness. The edits reference the same structural pattern (WebSocket message IDs) and the ID change in edit 1 is likely a direct consequence of adding the new ID 6 in edit 0, making this a mechanically driven sequence within the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits are changing ID values in JSON objects within the same test function, incrementing each ID by 1 (6\u21927 and 8\u21929). This appears to be part of a bulk pattern synchronization where sequential IDs are being adjusted uniformly. The edits involve identical structural substitutions (incrementing ID values) on the same type of syntactic construct (JSON 'id' fields in WebSocket messages). This represents a coordinated refactoring where both changes are part of the same mechanical operation to maintain sequential ID numbering."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits are changing ID values in JSON objects within the same test function, incrementing each ID by 1 (6\u21927 and 8\u21929). This appears to be part of a bulk pattern synchronization where sequential IDs are being adjusted uniformly. The edits involve identical structural substitutions (incrementing ID values) on the same type of syntactic construct (JSON 'id' fields in WebSocket messages). This represents a coordinated refactoring where both changes are part of the same mechanical operation to maintain sequential ID numbering."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol - the 'id' field in the WebSocket message within the same test function. Edit 0 adds an assertion checking that msg_result['id'] == 6, while Edit 1 changes the 'id' value in the unsubscribe message from 6 to 7. These edits are directly related because they both manipulate the same WebSocket message ID system within the same test context. After making either edit, the other becomes a natural next step to maintain consistency in the test's ID numbering scheme. The changed lines in both edits explicitly reference the same 'id' field concept in the WebSocket protocol flow."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol - the 'id' field in the WebSocket message within the same test function. Edit 0 adds an assertion checking that msg_result['id'] == 6, while Edit 1 changes the 'id' value in the unsubscribe message from 6 to 7. These edits are directly related because they both manipulate the same WebSocket message ID system within the same test context. After making either edit, the other becomes a natural next step to maintain consistency in the test's ID numbering scheme. The changed lines in both edits explicitly reference the same 'id' field concept in the WebSocket protocol flow."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        5
+    ]
+}

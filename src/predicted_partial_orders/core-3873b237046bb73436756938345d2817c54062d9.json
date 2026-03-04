@@ -1,0 +1,118 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 changes the import from 'dispatcher_send' to 'async_dispatcher_send', and Edit 1 changes the usage of 'dispatcher_send' to 'async_dispatcher_send' in the same file. Both edits reference the exact same symbol being renamed from 'dispatcher_send' to 'async_dispatcher_send'. This is a classic definition-usage relationship where the import change and the usage change are part of the same refactoring operation. Either edit can be made first since Python allows referencing undefined symbols at parse time (they only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 changes the import from 'dispatcher_send' to 'async_dispatcher_send', and Edit 1 changes the usage of 'dispatcher_send' to 'async_dispatcher_send' in the same file. Both edits reference the exact same symbol being renamed from 'dispatcher_send' to 'async_dispatcher_send'. This is a classic definition-usage relationship where the import change and the usage change are part of the same refactoring operation. Either edit can be made first since Python allows referencing undefined symbols at parse time (they only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits modify import statements for the same module (homeassistant.helpers.dispatcher) and both involve the async_dispatcher_send symbol. Edit 0 adds async_dispatcher_send to the import while removing dispatcher_send, and Edit 1 also imports async_dispatcher_send while removing dispatcher_send. This represents a synchronized, uniform substitution pattern where both files are being updated to use async_dispatcher_send instead of dispatcher_send. The edits involve identical before\u2192after patterns (removing dispatcher_send, keeping/adding async_dispatcher_send) on the same type of syntactic construct (import statements). This appears to be part of a single refactoring operation to standardize the dispatcher usage across multiple files."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits modify import statements for the same module (homeassistant.helpers.dispatcher) and both involve the async_dispatcher_send symbol. Edit 0 adds async_dispatcher_send to the import while removing dispatcher_send, and Edit 1 also imports async_dispatcher_send while removing dispatcher_send. This represents a synchronized, uniform substitution pattern where both files are being updated to use async_dispatcher_send instead of dispatcher_send. The edits involve identical before\u2192after patterns (removing dispatcher_send, keeping/adding async_dispatcher_send) on the same type of syntactic construct (import statements). This appears to be part of a single refactoring operation to standardize the dispatcher usage across multiple files."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes a function call from 'dispatcher_send' to 'async_dispatcher_send', while Edit 1 removes 'dispatcher_send' from the import statement and keeps only 'async_dispatcher_send'. These edits reference the exact same symbols - both the old 'dispatcher_send' and new 'async_dispatcher_send' functions. After making either edit, the other becomes immediately necessary: if you change the import first, the usage in Edit 0 needs to be updated to match; if you change the usage first, the import in Edit 1 needs to be cleaned up to remove the unused symbol. This is a classic definition-usage relationship where both edits reference the same symbols and create immediate code-driven prompts for each other."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes a function call from 'dispatcher_send' to 'async_dispatcher_send', while Edit 1 removes 'dispatcher_send' from the import statement and keeps only 'async_dispatcher_send'. These edits reference the exact same symbols - both the old 'dispatcher_send' and new 'async_dispatcher_send' functions. After making either edit, the other becomes immediately necessary: if you change the import first, the usage in Edit 0 needs to be updated to match; if you change the usage first, the import in Edit 1 needs to be cleaned up to remove the unused symbol. This is a classic definition-usage relationship where both edits reference the same symbols and create immediate code-driven prompts for each other."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports the 'callback' decorator from homeassistant.core, and Edit 1 uses that exact same 'callback' decorator to annotate the async_refresh_entity method. The changed lines reference the exact same symbol - the 'callback' decorator. After importing 'callback' in Edit 0, Edit 1 becomes the immediate next step to use that imported decorator. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'callback' decorator from homeassistant.core, and Edit 1 uses that exact same 'callback' decorator to annotate the async_refresh_entity method. The changed lines reference the exact same symbol - the 'callback' decorator. After importing 'callback' in Edit 0, Edit 1 becomes the immediate next step to use that imported decorator. This is a classic import-usage pattern where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are part of converting a synchronous method to an asynchronous one. Edit 0 changes the method signature from 'refresh_entity' to 'async_refresh_entity' and adds the @callback decorator. Edit 1 changes the dispatcher call from 'dispatcher_send' to 'async_dispatcher_send' within the same method body. These edits reference the exact same method and are mechanically linked - when converting a method to async, both the signature and any synchronous calls within it need to be updated to their async equivalents. This is a single, contiguous refactoring task where both changes are required for the async conversion to be complete and functional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are part of converting a synchronous method to an asynchronous one. Edit 0 changes the method signature from 'refresh_entity' to 'async_refresh_entity' and adds the @callback decorator. Edit 1 changes the dispatcher call from 'dispatcher_send' to 'async_dispatcher_send' within the same method body. These edits reference the exact same method and are mechanically linked - when converting a method to async, both the signature and any synchronous calls within it need to be updated to their async equivalents. This is a single, contiguous refactoring task where both changes are required for the async conversion to be complete and functional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes the implementation of refresh_entity from using dispatcher_send to async_dispatcher_send, making it an async operation. Edit 1 changes the call site from refresh_entity to async_refresh_entity. These edits reference the exact same method (refresh_entity/async_refresh_entity) and represent a signature change paired with a caller update. The method being called in edit 1 is the same method being modified in edit 0. This creates an immediate code-driven dependency where changing the method implementation to be async requires updating the call site to use the new async method name."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes the implementation of refresh_entity from using dispatcher_send to async_dispatcher_send, making it an async operation. Edit 1 changes the call site from refresh_entity to async_refresh_entity. These edits reference the exact same method (refresh_entity/async_refresh_entity) and represent a signature change paired with a caller update. The method being called in edit 1 is the same method being modified in edit 0. This creates an immediate code-driven dependency where changing the method implementation to be async requires updating the call site to use the new async method name."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 renames the method from 'refresh_entity' to 'async_refresh_entity' in the method definition. Edit 1 updates the call site to use the new method name 'async_refresh_entity'. Both edits reference the exact same symbol (the method refresh_entity/async_refresh_entity on the PlexServer class). After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the method definition, you must update all call sites, and vice versa. This is a classic definition-usage relationship where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 renames the method from 'refresh_entity' to 'async_refresh_entity' in the method definition. Edit 1 updates the call site to use the new method name 'async_refresh_entity'. Both edits reference the exact same symbol (the method refresh_entity/async_refresh_entity on the PlexServer class). After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the method definition, you must update all call sites, and vice versa. This is a classic definition-usage relationship where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of 'dispatcher_send' from the import statement, while Edit 1 changes the usage of 'dispatcher_send' to 'async_dispatcher_send' in the code. These edits reference the exact same symbol 'dispatcher_send' - one removes its import and the other changes its usage to a different function. This creates a direct code dependency where removing the import (Edit 0) makes the old usage invalid, and changing the usage (Edit 1) makes the import unnecessary. Both edits can be staged in either order without parser errors in Python, as the usage change doesn't require the import removal to be syntactically valid, and the import removal doesn't prevent the usage line from being parsed. Either edit naturally prompts the other as the next mechanical step in refactoring from sync to async dispatcher calls."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'dispatcher_send' from the import statement, while Edit 1 changes the usage of 'dispatcher_send' to 'async_dispatcher_send' in the code. These edits reference the exact same symbol 'dispatcher_send' - one removes its import and the other changes its usage to a different function. This creates a direct code dependency where removing the import (Edit 0) makes the old usage invalid, and changing the usage (Edit 1) makes the import unnecessary. Both edits can be staged in either order without parser errors in Python, as the usage change doesn't require the import removal to be syntactically valid, and the import removal doesn't prevent the usage line from being parsed. Either edit naturally prompts the other as the next mechanical step in refactoring from sync to async dispatcher calls."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 changes the method name from 'refresh_entity' to 'async_refresh_entity' in the method definition. Edit 1 updates the call site to use the new method name 'async_refresh_entity' instead of 'refresh_entity'. Both edits reference the exact same symbol (the method refresh_entity/async_refresh_entity) - one defines it and the other calls it. This creates an immediate, mechanically obvious code-driven prompt: after renaming the method definition, the call site must be updated to use the new name, and vice versa. Both edits can be staged in either order without causing parse errors (the old call would just result in a runtime AttributeError), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 changes the method name from 'refresh_entity' to 'async_refresh_entity' in the method definition. Edit 1 updates the call site to use the new method name 'async_refresh_entity' instead of 'refresh_entity'. Both edits reference the exact same symbol (the method refresh_entity/async_refresh_entity) - one defines it and the other calls it. This creates an immediate, mechanically obvious code-driven prompt: after renaming the method definition, the call site must be updated to use the new name, and vice versa. Both edits can be staged in either order without causing parse errors (the old call would just result in a runtime AttributeError), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'dispatcher_send' to 'async_dispatcher_send' in different files. This represents a bulk refactoring operation where the same function call is being updated across multiple locations to use the async version. The edits target the same type of syntactic construct (function calls) and apply the exact same before\u2192after pattern. This is a clear case of synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'dispatcher_send' to 'async_dispatcher_send' in different files. This represents a bulk refactoring operation where the same function call is being updated across multiple locations to use the async version. The edits target the same type of syntactic construct (function calls) and apply the exact same before\u2192after pattern. This is a clear case of synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.refresh_entity(' to 'self.async_refresh_entity(' within the same method (async_update_platforms) of the same class (PlexServer). This is a clear bulk-edit pattern where the same method name is being updated consistently across multiple call sites. The edits reference the exact same symbol (the refresh_entity method being renamed to async_refresh_entity) and represent a single, contiguous refactoring operation. Either edit could be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform method name change."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'self.refresh_entity(' to 'self.async_refresh_entity(' within the same method (async_update_platforms) of the same class (PlexServer). This is a clear bulk-edit pattern where the same method name is being updated consistently across multiple call sites. The edits reference the exact same symbol (the refresh_entity method being renamed to async_refresh_entity) and represent a single, contiguous refactoring operation. Either edit could be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform method name change."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        6
+    ]
+}

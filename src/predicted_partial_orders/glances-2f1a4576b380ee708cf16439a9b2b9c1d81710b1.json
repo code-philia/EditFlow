@@ -1,0 +1,107 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding procstat key to None. This represents a uniform substitution pattern where the same error-handling structure is being applied to different process attributes. The edits are part of the same micro-task of adding consistent error handling for process statistics collection, and either could be implemented first as they don't depend on each other."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding procstat key to None. This represents a uniform substitution pattern where the same error-handling structure is being applied to different process attributes. The edits are part of the same micro-task of adding consistent error handling for process statistics collection, and either could be implemented first as they don't depend on each other."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding procstat key to None. This represents a uniform substitution pattern where the same error-handling structure is being applied to different process attributes. The edits are part of the same micro-task of adding consistent error handling for platform-specific process attributes, and either could be implemented first as they don't depend on each other."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding procstat key to None. This represents a uniform substitution pattern where the same error-handling structure is being applied to different process attributes. The edits are part of the same micro-task of adding consistent error handling for platform-specific process attributes, and either could be implemented first as they don't depend on each other."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding key to None. The pattern is: try { procstat.update(proc.as_dict(attrs=[X])) } except AttributeError { procstat[X] = None }. This represents a uniform substitution pattern applied to the same type of syntactic construct (error handling for process attribute access) within the same method. Both edits are part of what appears to be a single refactoring task to add consistent error handling for process attributes."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes and handle AttributeError by setting the corresponding key to None. The pattern is: try { procstat.update(proc.as_dict(attrs=[X])) } except AttributeError { procstat[X] = None }. This represents a uniform substitution pattern applied to the same type of syntactic construct (error handling for process attribute access) within the same method. Both edits are part of what appears to be a single refactoring task to add consistent error handling for process attributes."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes ('memory_info_ex' vs 'num_fds'), handle AttributeError exceptions identically, and set the corresponding procstat key to None on failure. This represents a uniform substitution pattern applied to the same type of syntactic construct (error handling for proc.as_dict calls) within the same method context. The edits are clearly part of a single refactoring effort to add consistent error handling for multiple process attributes, making either edit a natural prompt for applying the same pattern to other similar attribute retrievals."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that call proc.as_dict() with different attributes ('memory_info_ex' vs 'num_fds'), handle AttributeError exceptions identically, and set the corresponding procstat key to None on failure. This represents a uniform substitution pattern applied to the same type of syntactic construct (error handling for proc.as_dict calls) within the same method context. The edits are clearly part of a single refactoring effort to add consistent error handling for multiple process attributes, making either edit a natural prompt for applying the same pattern to other similar attribute retrievals."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that attempt to update procstat with proc.as_dict() for different attributes, and set the attribute to None if AttributeError is raised. The pattern is: try procstat.update(proc.as_dict(attrs=[X])) except AttributeError: procstat[X] = None. This represents a uniform substitution pattern being applied to handle different process attributes in the same way. Both edits are part of the same micro-task of adding error handling for process attribute access, and either could be implemented first without creating any code dependency on the other."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits follow an identical structural pattern within the same function: they add try-except blocks that attempt to update procstat with proc.as_dict() for different attributes, and set the attribute to None if AttributeError is raised. The pattern is: try procstat.update(proc.as_dict(attrs=[X])) except AttributeError: procstat[X] = None. This represents a uniform substitution pattern being applied to handle different process attributes in the same way. Both edits are part of the same micro-task of adding error handling for process attribute access, and either could be implemented first without creating any code dependency on the other."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds error handling for 'cpu_affinity' attribute access, while Edit 1 removes 'cpu_affinity' from a bulk attribute access call and adds separate error handling for 'num_threads'. Both edits are refactoring the same method to handle AttributeError exceptions for process attributes that may not be available on all platforms. Edit 0 extracts 'cpu_affinity' from the bulk call and adds individual error handling, while Edit 1 removes the now-extracted attributes from the bulk call and adds error handling for 'num_threads'. The changed lines reference the exact same symbols ('cpu_affinity' in the attrs list) and represent a coordinated refactoring where individual attribute access is being separated from bulk access to add platform-specific error handling. Either edit could be applied first as both are syntactically valid, and after applying either, the other becomes the natural next step to complete the refactoring pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds error handling for 'cpu_affinity' attribute access, while Edit 1 removes 'cpu_affinity' from a bulk attribute access call and adds separate error handling for 'num_threads'. Both edits are refactoring the same method to handle AttributeError exceptions for process attributes that may not be available on all platforms. Edit 0 extracts 'cpu_affinity' from the bulk call and adds individual error handling, while Edit 1 removes the now-extracted attributes from the bulk call and adds error handling for 'num_threads'. The changed lines reference the exact same symbols ('cpu_affinity' in the attrs list) and represent a coordinated refactoring where individual attribute access is being separated from bulk access to add platform-specific error handling. Either edit could be applied first as both are syntactically valid, and after applying either, the other becomes the natural next step to complete the refactoring pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are part of the same refactoring pattern within the same method. Edit 0 extracts 'num_fds' from a bulk proc.as_dict() call and wraps it in individual try-catch error handling. Edit 1 removes the bulk proc.as_dict() call (which included 'num_fds' among other attributes) and extracts 'num_threads' with the same try-catch pattern. These edits represent a coordinated refactoring where the bulk operation is being decomposed into individual, error-handled operations. The changed lines reference the same proc object and use identical structural patterns (try-catch with proc.as_dict() calls), making this a synchronized bulk-edit pattern within the same function context."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are part of the same refactoring pattern within the same method. Edit 0 extracts 'num_fds' from a bulk proc.as_dict() call and wraps it in individual try-catch error handling. Edit 1 removes the bulk proc.as_dict() call (which included 'num_fds' among other attributes) and extracts 'num_threads' with the same try-catch pattern. These edits represent a coordinated refactoring where the bulk operation is being decomposed into individual, error-handled operations. The changed lines reference the same proc object and use identical structural patterns (try-catch with proc.as_dict() calls), making this a synchronized bulk-edit pattern within the same function context."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits follow an identical structural pattern within the same method: they add try-except blocks that call proc.as_dict() with different attributes ('num_ctx_switches' vs 'num_fds') and handle AttributeError by setting the corresponding procstat key to None. The edits are adjacent in the code and represent the same type of syntactic construct (error handling for process attribute retrieval). This appears to be part of a single, contiguous refactoring task to add consistent error handling for multiple process attributes. Since both edits can be applied in either order without creating parse errors or dependencies, and either edit naturally prompts consideration of applying the same pattern to other similar attribute retrievals in the vicinity, they are bi-directional neighbors."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits follow an identical structural pattern within the same method: they add try-except blocks that call proc.as_dict() with different attributes ('num_ctx_switches' vs 'num_fds') and handle AttributeError by setting the corresponding procstat key to None. The edits are adjacent in the code and represent the same type of syntactic construct (error handling for process attribute retrieval). This appears to be part of a single, contiguous refactoring task to add consistent error handling for multiple process attributes. Since both edits can be applied in either order without creating parse errors or dependencies, and either edit naturally prompts consideration of applying the same pattern to other similar attribute retrievals in the vicinity, they are bi-directional neighbors."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits are part of the same refactoring pattern within the same method, where a single proc.as_dict() call with multiple attributes is being split into individual try-catch blocks for each attribute. Edit 1 removes the original bulk call that included 'num_ctx_switches' and 'num_threads' among other attributes, while Edit 0 adds the individual try-catch block specifically for 'num_ctx_switches'. The edits reference the same symbols (proc.as_dict, procstat.update, 'num_ctx_switches') and are part of a synchronized structural transformation. Either edit can be applied first since both are syntactically valid, and after applying either edit, the other becomes the next logical step to complete the refactoring pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits are part of the same refactoring pattern within the same method, where a single proc.as_dict() call with multiple attributes is being split into individual try-catch blocks for each attribute. Edit 1 removes the original bulk call that included 'num_ctx_switches' and 'num_threads' among other attributes, while Edit 0 adds the individual try-catch block specifically for 'num_ctx_switches'. The edits reference the same symbols (proc.as_dict, procstat.update, 'num_ctx_switches') and are part of a synchronized structural transformation. Either edit can be applied first since both are syntactically valid, and after applying either edit, the other becomes the next logical step to complete the refactoring pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits are part of the same refactoring pattern within the same method - they are extracting individual attributes from a bulk proc.as_dict() call and wrapping them in individual try-except blocks for error handling. Edit 0 extracts 'memory_info_ex' into its own try-except block, while Edit 1 removes the bulk call and extracts 'num_threads' into its own try-except block. This represents a synchronized refactoring where the bulk approach is being replaced with individual attribute handling. The edits reference the same proc object and follow identical structural patterns (try-except with AttributeError handling), making them part of the same contiguous micro-task of refactoring attribute access patterns."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits are part of the same refactoring pattern within the same method - they are extracting individual attributes from a bulk proc.as_dict() call and wrapping them in individual try-except blocks for error handling. Edit 0 extracts 'memory_info_ex' into its own try-except block, while Edit 1 removes the bulk call and extracts 'num_threads' into its own try-except block. This represents a synchronized refactoring where the bulk approach is being replaced with individual attribute handling. The edits reference the same proc object and follow identical structural patterns (try-except with AttributeError handling), making them part of the same contiguous micro-task of refactoring attribute access patterns."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

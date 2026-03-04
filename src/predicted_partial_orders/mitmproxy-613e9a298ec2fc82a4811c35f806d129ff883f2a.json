@@ -1,0 +1,93 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new method `load_flows` in the FlowMaster class, and Edit 0 calls that exact same method via `flow.FlowMaster.load_flows(self, fr)`. The changed lines reference the exact same symbol - the `load_flows` method. Edit 0 cannot be parsed/executed successfully without Edit 1 first defining the method, as calling an undefined method would result in an AttributeError. This creates a direct code dependency where Edit 1 must come before Edit 0."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the line that defines the variable 'data' (line 1129), while Edit 1 removes the line that uses this same variable 'data' (line 1133). Both edits reference the exact same symbol 'data' in their changed lines. After removing the definition in Edit 0, the usage in Edit 1 would reference an undefined variable, creating an immediate code-driven prompt to also remove the usage. Similarly, after removing the usage in Edit 1, the definition in Edit 1 becomes unused, prompting its removal. This is a bi-directional relationship where either edit naturally leads to the other as the next mechanical step within the same refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes the line that defines the variable 'data' (line 1129), while Edit 1 removes the line that uses this same variable 'data' (line 1133). Both edits reference the exact same symbol 'data' in their changed lines. After removing the definition in Edit 0, the usage in Edit 1 would reference an undefined variable, creating an immediate code-driven prompt to also remove the usage. Similarly, after removing the usage in Edit 1, the definition in Edit 1 becomes unused, prompting its removal. This is a bi-directional relationship where either edit naturally leads to the other as the next mechanical step within the same refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 changes a call from `self.state.load_flows(data)` to `flow.FlowMaster.load_flows(self, fr)`, which is calling a method on the FlowMaster class. Edit 1 adds a test method that creates a FlowMaster instance and calls `fm.load_flows(r)` to test this exact same method. The test is directly testing the `load_flows` method on FlowMaster that was modified in edit 0. Both edits reference the exact same symbol (`flow.FlowMaster.load_flows` / `FlowMaster.load_flows`) - one modifies how it's called in the implementation, the other adds a test for that method. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in the same development session."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 changes a call from `self.state.load_flows(data)` to `flow.FlowMaster.load_flows(self, fr)`, which is calling a method on the FlowMaster class. Edit 1 adds a test method that creates a FlowMaster instance and calls `fm.load_flows(r)` to test this exact same method. The test is directly testing the `load_flows` method on FlowMaster that was modified in edit 0. Both edits reference the exact same symbol (`flow.FlowMaster.load_flows` / `FlowMaster.load_flows`) - one modifies how it's called in the implementation, the other adds a test for that method. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in the same development session."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 calls `self.process_new_response(f)` on line 554, while Edit 1 defines the `process_new_response` method starting on line 576. The changed lines reference the exact same symbol - the `process_new_response` method of the FlowMaster class. Edit 0 creates a call to a method that doesn't exist yet, and Edit 1 provides the definition. This is a classic definition-usage relationship where the usage in Edit 0 creates an immediate, mechanically obvious prompt for the definition in Edit 1. In Python, both edits can be parsed and staged in either order (the call would just result in a runtime AttributeError if the method doesn't exist), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 calls `self.process_new_response(f)` on line 554, while Edit 1 defines the `process_new_response` method starting on line 576. The changed lines reference the exact same symbol - the `process_new_response` method of the FlowMaster class. Edit 0 creates a call to a method that doesn't exist yet, and Edit 1 provides the definition. This is a classic definition-usage relationship where the usage in Edit 0 creates an immediate, mechanically obvious prompt for the definition in Edit 1. In Python, both edits can be parsed and staged in either order (the call would just result in a runtime AttributeError if the method doesn't exist), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new method `load_flows` in the FlowMaster class, and Edit 1 creates a test that calls this exact same method (`fm.load_flows(r)`). The changed lines reference the exact same symbol - the `load_flows` method. After defining the method in Edit 0, the natural next step would be to test it (Edit 1), and conversely, if writing the test first, the method definition would be the immediate next requirement. Both edits can be staged in either order since Python allows referencing undefined methods at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `load_flows` in the FlowMaster class, and Edit 1 creates a test that calls this exact same method (`fm.load_flows(r)`). The changed lines reference the exact same symbol - the `load_flows` method. After defining the method in Edit 0, the natural next step would be to test it (Edit 1), and conversely, if writing the test first, the method definition would be the immediate next requirement. Both edits can be staged in either order since Python allows referencing undefined methods at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `load_flows` that calls `self.process_new_response(f)` on line 554. Edit 1 modifies the `handle_response` method to call `self.process_new_response(f)` on line 627, replacing the previous inline logic. Both edits reference the exact same method `process_new_response` - edit 0 introduces a new call to it, and edit 1 refactors existing code to use it instead of inline logic. This creates a direct code linkage where both edits involve calling the same method, suggesting they are part of a refactoring to consolidate response processing logic. Either edit could be made first since both are valid calls to an existing method, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `load_flows` that calls `self.process_new_response(f)` on line 554. Edit 1 modifies the `handle_response` method to call `self.process_new_response(f)` on line 627, replacing the previous inline logic. Both edits reference the exact same method `process_new_response` - edit 0 introduces a new call to it, and edit 1 refactors existing code to use it instead of inline logic. This creates a direct code linkage where both edits involve calling the same method, suggesting they are part of a refactoring to consolidate response processing logic. Either edit could be made first since both are valid calls to an existing method, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 defines a method `_treader` within the `uSerialize` class, and Edit 1 calls that exact same method via `self._treader()` in the `test_load_flows` method within the same class. The changed lines reference the exact same symbol - the `_treader` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Both edits can be staged in either order since Python allows method calls to be written before the method definition (it would only fail at runtime when the test is executed). This is a classic definition-usage relationship within the same class scope."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 defines a method `_treader` within the `uSerialize` class, and Edit 1 calls that exact same method via `self._treader()` in the `test_load_flows` method within the same class. The changed lines reference the exact same symbol - the `_treader` method. After defining the method in Edit 0, calling it in Edit 1 becomes a natural next step. Both edits can be staged in either order since Python allows method calls to be written before the method definition (it would only fail at runtime when the test is executed). This is a classic definition-usage relationship within the same class scope."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 calls `tutils.tflow_err()` on line 378, while Edit 1 defines the `tflow_err` function in the `tutils` module on line 34. The changed lines reference the exact same symbol - the `tflow_err` function. After defining the function in Edit 1, Edit 0 becomes the immediate next step to use it. Conversely, after calling the function in Edit 0, defining it in Edit 1 becomes necessary. Both edits can be written and parsed in either order (Python allows calling undefined functions at parse time, only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 calls `tutils.tflow_err()` on line 378, while Edit 1 defines the `tflow_err` function in the `tutils` module on line 34. The changed lines reference the exact same symbol - the `tflow_err` function. After defining the function in Edit 1, Edit 0 becomes the immediate next step to use it. Conversely, after calling the function in Edit 0, defining it in Edit 1 becomes necessary. Both edits can be written and parsed in either order (Python allows calling undefined functions at parse time, only failing at runtime), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `process_new_response` in the FlowMaster class, and Edit 1 calls that exact same method `self.process_new_response(f)` in the `handle_response` method. The changed lines reference the exact same symbol - the `process_new_response` method. This is a classic definition-usage pattern where defining the method creates an immediate prompt to use it, and using the method requires its definition. Since this is Python, both edits can be parsed and staged in either order (the call would just result in a runtime AttributeError if staged before the definition), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `process_new_response` in the FlowMaster class, and Edit 1 calls that exact same method `self.process_new_response(f)` in the `handle_response` method. The changed lines reference the exact same symbol - the `process_new_response` method. This is a classic definition-usage pattern where defining the method creates an immediate prompt to use it, and using the method requires its definition. Since this is Python, both edits can be parsed and staged in either order (the call would just result in a runtime AttributeError if staged before the definition), making this bi-directional rather than ordered."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        7
+    ]
+}

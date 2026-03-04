@@ -1,0 +1,1801 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/celery/celery/commit/e3d81687464cb44ded5dad217c162adf093aa2c0",
+    "commit_message": "Send traceback of errors in tasks when SEND_CELERY_TASK_ERROR_EMAILS is True or, if unset, DEBUG is False (as in production)",
+    "commit_snapshots": {
+        "celery/conf.py": [
+            [
+                "\"\"\"celery.conf\"\"\"\n",
+                "from django.conf import settings\n",
+                "import logging\n",
+                "\n",
+                "DEFAULT_AMQP_EXCHANGE = \"celery\"\n",
+                "DEFAULT_AMQP_PUBLISHER_ROUTING_KEY = \"celery\"\n",
+                "DEFAULT_AMQP_CONSUMER_ROUTING_KEY = \"celery\"\n",
+                "DEFAULT_AMQP_CONSUMER_QUEUE = \"celery\"\n",
+                "DEFAULT_AMQP_EXCHANGE_TYPE = \"direct\"\n",
+                "DEFAULT_DAEMON_CONCURRENCY = 10\n",
+                "DEFAULT_QUEUE_WAKEUP_AFTER = 0.3\n",
+                "DEFAULT_EMPTY_MSG_EMIT_EVERY = 5\n",
+                "DEFAULT_DAEMON_PID_FILE = \"celeryd.pid\"\n",
+                "DEFAULT_LOG_FMT = '[%(asctime)s: %(levelname)s/%(processName)s] %(message)s'\n",
+                "DEFAULT_DAEMON_LOG_LEVEL = \"INFO\"\n",
+                "DEFAULT_DAEMON_LOG_FILE = \"celeryd.log\"\n",
+                "DEFAULT_REAP_TIMEOUT = 30\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: LOG_LEVELS\n",
+                "\n",
+                "    Mapping of log level names to :mod:`logging` module constants.\n",
+                "\n",
+                "\"\"\"\n",
+                "LOG_LEVELS = {\n",
+                "    \"DEBUG\": logging.DEBUG,\n",
+                "    \"INFO\": logging.INFO,\n",
+                "    \"WARNING\": logging.WARNING,\n",
+                "    \"WARN\": logging.WARNING,\n",
+                "    \"ERROR\": logging.ERROR,\n",
+                "    \"CRITICAL\": logging.CRITICAL,\n",
+                "    \"FATAL\": logging.FATAL,\n",
+                "}\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: LOG_FORMAT\n",
+                "\n",
+                "    The format to use for log messages.\n",
+                "    Default is ``[%(asctime)s: %(levelname)s/%(processName)s] %(message)s``\n",
+                "\n",
+                "\"\"\"\n",
+                "LOG_FORMAT = getattr(settings, \"CELERYD_DAEMON_LOG_FORMAT\",\n",
+                "                     DEFAULT_LOG_FMT)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: DAEMON_LOG_FILE\n",
+                "\n",
+                "    The path to the deamon log file (if not set, ``stderr`` is used).\n",
+                "\n",
+                "\"\"\"\n",
+                "DAEMON_LOG_FILE = getattr(settings, \"CELERYD_LOG_FILE\",\n",
+                "                          DEFAULT_DAEMON_LOG_FILE)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: DAEMON_LOG_LEVEL\n",
+                "\n",
+                "    Celery daemon log level, can be any of ``DEBUG``, ``INFO``, ``WARNING``,\n",
+                "    ``ERROR``, ``CRITICAL``, or ``FATAL``. See the :mod:`logging` module\n",
+                "    for more information.\n",
+                "\n",
+                "\"\"\"\n",
+                "DAEMON_LOG_LEVEL = LOG_LEVELS[getattr(settings, \"CELERYD_DAEMON_LOG_LEVEL\",\n",
+                "                                      DEFAULT_DAEMON_LOG_LEVEL).upper()]\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: QUEUE_WAKEUP_AFTER\n",
+                "\n",
+                "    The time (in seconds) the celery worker should sleep when there's\n",
+                "    no messages left on the queue. After the time is slept, the worker\n",
+                "    wakes up and checks the queue again.\n",
+                "\n",
+                "\"\"\"\n",
+                "QUEUE_WAKEUP_AFTER = getattr(settings, \"CELERYD_QUEUE_WAKEUP_AFTER\",\n",
+                "                             DEFAULT_QUEUE_WAKEUP_AFTER)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: EMPTY_MSG_EMIT_EVERY\n",
+                "\n",
+                "    How often the celery daemon should write a log message saying there are no\n",
+                "    messages in the queue. If this is ``None`` or ``0``, it will never print\n",
+                "    this message.\n",
+                "\n",
+                "\"\"\"\n",
+                "EMPTY_MSG_EMIT_EVERY = getattr(settings, \"CELERYD_EMPTY_MSG_EMIT_EVERY\",\n",
+                "                               DEFAULT_EMPTY_MSG_EMIT_EVERY)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: DAEMON_PID_FILE\n",
+                "\n",
+                "    Full path to the daemon pidfile.\n",
+                "\n",
+                "\"\"\"\n",
+                "DAEMON_PID_FILE = getattr(settings, \"CELERYD_PID_FILE\",\n",
+                "                          DEFAULT_DAEMON_PID_FILE)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: DAEMON_CONCURRENCY\n",
+                "\n",
+                "    The number of concurrent worker processes, executing tasks simultaneously.\n",
+                "\n",
+                "\"\"\"\n",
+                "DAEMON_CONCURRENCY = getattr(settings, \"CELERYD_CONCURRENCY\",\n",
+                "                             DEFAULT_DAEMON_CONCURRENCY)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: AMQP_EXCHANGE\n",
+                "\n",
+                "    Name of the AMQP exchange.\n",
+                "\n",
+                "\"\"\"\n",
+                "AMQP_EXCHANGE = getattr(settings, \"CELERY_AMQP_EXCHANGE\",\n",
+                "                        DEFAULT_AMQP_EXCHANGE)\n",
+                "\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: AMQP_EXCHANGE_TYPE\n",
+                "\n",
+                "The type of exchange. If the exchange type is ``direct``, all messages\n",
+                "receives all tasks. However, if the exchange type is ``topic``, you can\n",
+                "route e.g. some tasks to one server, and others to the rest.\n",
+                "See `Exchange types and the effect of bindings`_.\n",
+                "\n",
+                ".. _`Exchange types and the effect of bindings:\n",
+                "    http://en.wikipedia.org/wiki/Advanced_Message_Queuing_Protocol\n",
+                "    #Exchange_types_and_the_effect_of_bindings\n",
+                "\n",
+                "\"\"\"\n",
+                "AMQP_EXCHANGE_TYPE = getattr(settings, \"CELERY_AMQP_EXCHANGE_TYPE\",\n",
+                "                        DEFAULT_AMQP_EXCHANGE_TYPE)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: AMQP_PUBLISHER_ROUTING_KEY\n",
+                "\n",
+                "    The default AMQP routing key used when publishing tasks.\n",
+                "\n",
+                "\"\"\"\n",
+                "AMQP_PUBLISHER_ROUTING_KEY = getattr(settings,\n",
+                "                                \"CELERY_AMQP_PUBLISHER_ROUTING_KEY\",\n",
+                "                                DEFAULT_AMQP_PUBLISHER_ROUTING_KEY)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: AMQP_CONSUMER_ROUTING_KEY\n",
+                "\n",
+                "    The AMQP routing key used when consuming tasks.\n",
+                "\n",
+                "\"\"\"\n",
+                "AMQP_CONSUMER_ROUTING_KEY = getattr(settings,\n",
+                "                                \"CELERY_AMQP_CONSUMER_ROUTING_KEY\",\n",
+                "                                DEFAULT_AMQP_CONSUMER_ROUTING_KEY)\n",
+                "\n",
+                "\"\"\"\n",
+                ".. data:: AMQP_CONSUMER_QUEUE\n",
+                "\n",
+                "    The name of the AMQP queue.\n",
+                "\n",
+                "\"\"\"\n",
+                "AMQP_CONSUMER_QUEUE = getattr(settings, \"CELERY_AMQP_CONSUMER_QUEUE\",\n",
+                "                              DEFAULT_AMQP_CONSUMER_QUEUE)\n",
+                "\n",
+                "REAP_TIMEOUT = DEFAULT_REAP_TIMEOUT\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "\"\"\"\n",
+                    ".. data:: SEND_CELERY_TASK_ERROR_EMAILS\n",
+                    "\n",
+                    "    If set to True, errors in tasks will be sent to admins by e-mail.\n",
+                    "    If unset, it will send the emails if DEBUG is False.\n",
+                    "\n",
+                    "\"\"\"\n",
+                    "SEND_CELERY_TASK_ERROR_EMAILS = getattr(settings, \"SEND_CELERY_TASK_ERROR_EMAILS\",\n",
+                    "                                        settings.DEBUG is False)"
+                ],
+                "parent_version_range": {
+                    "start": 160,
+                    "end": 160
+                },
+                "child_version_range": {
+                    "start": 160,
+                    "end": 170
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: celery/conf.py\nCode:\n  ...\n157 157                                  DEFAULT_AMQP_CONSUMER_QUEUE)\n158 158    \n159 159    REAP_TIMEOUT = DEFAULT_REAP_TIMEOUT\n    160  + \n    161  + \"\"\"\n    162  + .. data:: SEND_CELERY_TASK_ERROR_EMAILS\n    163  + \n    164  +     If set to True, errors in tasks will be sent to admins by e-mail.\n    165  +     If unset, it will send the emails if DEBUG is False.\n    166  + \n    167  + \"\"\"\n    168  + SEND_CELERY_TASK_ERROR_EMAILS = getattr(settings, \"SEND_CELERY_TASK_ERROR_EMAILS\",\n    169  +                                         settings.DEBUG is False)\n         ...\n",
+                "file_path": "celery/conf.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "DEBUG",
+                    "SEND_CELERY_TASK_ERROR_EMAILS",
+                    "getattr",
+                    "settings"
+                ],
+                "prefix": [
+                    "                              DEFAULT_AMQP_CONSUMER_QUEUE)\n",
+                    "\n",
+                    "REAP_TIMEOUT = DEFAULT_REAP_TIMEOUT\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 168,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 168,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/conf.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 168,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 168,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/conf.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            }
+        ],
+        "celery/datastructures.py": [
+            [
+                "\"\"\"\n",
+                "\n",
+                "Custom Datastructures\n",
+                "\n",
+                "\"\"\"\n",
+                "import multiprocessing\n",
+                "from multiprocessing.pool import RUN as POOL_STATE_RUN\n",
+                "import itertools\n",
+                "import threading\n",
+                "import time\n",
+                "import os\n",
+                "from UserList import UserList\n",
+                "from celery.timer import TimeoutTimer, TimeoutError\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from celery.conf import REAP_TIMEOUT\n"
+                ],
+                "after": [
+                    "from celery.conf import REAP_TIMEOUT, SEND_CELERY_TASK_ERROR_EMAILS\n",
+                    "\n",
+                    "from django.core.mail import mail_admins\n"
+                ],
+                "parent_version_range": {
+                    "start": 13,
+                    "end": 14
+                },
+                "child_version_range": {
+                    "start": 13,
+                    "end": 16
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: celery/datastructures.py\nCode:\n  ...\n10 10    import os\n11 11    from UserList import UserList\n12 12    from celery.timer import TimeoutTimer, TimeoutError\n13     - from celery.conf import REAP_TIMEOUT\n   13  + from celery.conf import REAP_TIMEOUT, SEND_CELERY_TASK_ERROR_EMAILS\n   14  + \n   15  + from django.core.mail import mail_admins\n14 16    \n15 17    \n16 18    class PositionQueue(UserList):\n       ...\n",
+                "file_path": "celery/datastructures.py",
+                "identifiers_before": [
+                    "REAP_TIMEOUT",
+                    "celery",
+                    "conf"
+                ],
+                "identifiers_after": [
+                    "REAP_TIMEOUT",
+                    "SEND_CELERY_TASK_ERROR_EMAILS",
+                    "celery",
+                    "conf",
+                    "core",
+                    "django",
+                    "mail",
+                    "mail_admins"
+                ],
+                "prefix": [
+                    "import os\n",
+                    "from UserList import UserList\n",
+                    "from celery.timer import TimeoutTimer, TimeoutError\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class PositionQueue(UserList):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 13,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 13,
+                                    "column": 67
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 13,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 13,
+                                    "column": 67
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class PositionQueue(UserList):\n",
+                "    \"\"\"A positional queue of a specific length, with slots that are either\n",
+                "    filled or unfilled. When all of the positions are filled, the queue\n",
+                "    is considered :meth:`full`.\n",
+                "\n",
+                "    :param length: see :attr:`length`.\n",
+                "\n",
+                "\n",
+                "    .. attribute:: length\n",
+                "\n",
+                "        The number of items required for the queue to be considered full.\n",
+                "\n",
+                "    \"\"\"\n",
+                "\n",
+                "    class UnfilledPosition(object):\n",
+                "        \"\"\"Describes an unfilled slot.\"\"\"\n",
+                "\n",
+                "        def __init__(self, position):\n",
+                "            self.position = position\n",
+                "\n",
+                "    def __init__(self, length):\n",
+                "        self.length = length\n",
+                "        self.data = map(self.UnfilledPosition, xrange(length))\n",
+                "\n",
+                "    def full(self):\n",
+                "        \"\"\"Returns ``True`` if all of the slots has been filled.\"\"\"\n",
+                "        return len(self) >= self.length\n",
+                "\n",
+                "    def __len__(self):\n",
+                "        \"\"\"``len(self)`` -> number of slots filled with real values.\"\"\"\n",
+                "        return len(self.filled)\n",
+                "\n",
+                "    @property\n",
+                "    def filled(self):\n",
+                "        \"\"\"Returns the filled slots as a list.\"\"\"\n",
+                "        return filter(lambda v: not isinstance(v, self.UnfilledPosition),\n",
+                "                      self.data)\n",
+                "\n",
+                "\n",
+                "class TaskProcessQueue(object):\n",
+                "    \"\"\"Queue of running child processes, which starts waiting for the\n",
+                "    processes to finish when the queue limit has been reached.\n",
+                "\n",
+                "    :param limit: see :attr:`limit` attribute.\n",
+                "\n",
+                "    :param logger: see :attr:`logger` attribute.\n",
+                "\n",
+                "    :param done_msg: see :attr:`done_msg` attribute.\n",
+                "\n",
+                "\n",
+                "    .. attribute:: limit\n",
+                "\n",
+                "        The number of processes that can run simultaneously until\n",
+                "        we start collecting results.\n",
+                "\n",
+                "    .. attribute:: logger\n",
+                "\n",
+                "        The logger used to print the :attr:`done_msg`.\n",
+                "\n",
+                "    .. attribute:: done_msg\n",
+                "\n",
+                "        Message logged when a tasks result has been collected.\n",
+                "        The message is logged with loglevel :const:`logging.INFO`.\n",
+                "\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, limit, reap_timeout=None,\n",
+                "            logger=None, done_msg=None):\n",
+                "        self.limit = limit\n",
+                "        self.logger = logger or multiprocessing.get_logger()\n",
+                "        self.done_msg = done_msg\n",
+                "        self.reap_timeout = reap_timeout\n",
+                "        self._process_counter = itertools.count(1)\n",
+                "        self._processed_total = 0\n",
+                "        self._data_lock = threading.Condition(threading.Lock())\n",
+                "        self._start()\n",
+                "\n",
+                "    def _start(self):\n",
+                "        self._processes = {}\n",
+                "        self._pool = multiprocessing.Pool(processes=self.limit)\n",
+                "\n",
+                "    def _terminate_and_restart(self):\n",
+                "        try:\n",
+                "            self._pool.terminate()\n",
+                "        except OSError:\n",
+                "            pass\n",
+                "        self._start()\n",
+                "\n",
+                "    def _restart(self):\n",
+                "        self.logger.info(\"Closing and restarting the pool...\")\n",
+                "        self._pool.close()\n",
+                "        timeout_thread = threading.Timer(30.0, self._terminate_and_restart)\n",
+                "        timeout_thread.start()\n",
+                "        self._pool.join()\n",
+                "        timeout_thread.cancel()\n",
+                "        self._start()\n",
+                "\n",
+                "    def _pool_is_running(self):\n",
+                "        return self._pool._state == POOL_STATE_RUN\n",
+                "\n",
+                "    def apply_async(self, target, args, kwargs, task_name, task_id):\n",
+                "\n",
+                "        if not self._pool_is_running():\n",
+                "            self._start()\n",
+                "\n",
+                "        self._processed_total = self._process_counter.next()\n",
+                "\n",
+                "        on_return = lambda r: self.on_return(r, task_name, task_id)\n",
+                "\n",
+                "        result = self._pool.apply_async(target, args, kwargs,\n",
+                "                                           callback=on_return)\n",
+                "        self.add(result, task_name, task_id)\n",
+                "\n",
+                "        return result\n",
+                "\n",
+                "    def on_return(self, ret_val, task_name, task_id):\n",
+                "        try:\n",
+                "            del(self._processes[task_id])\n",
+                "        except KeyError:\n",
+                "            pass\n",
+                "        else:\n",
+                "            self.on_ready(ret_val, task_name, task_id)\n",
+                "\n",
+                "    def add(self, result, task_name, task_id):\n",
+                "        \"\"\"Add a process to the queue.\n",
+                "\n",
+                "        If the queue is full, it will wait for the first task to finish,\n",
+                "        collects its result and remove it from the queue, so it's ready\n",
+                "        to accept new processes.\n",
+                "\n",
+                "        :param result: A :class:`multiprocessing.AsyncResult` instance, as\n",
+                "            returned by :meth:`multiprocessing.Pool.apply_async`.\n",
+                "\n",
+                "        :param task_name: Name of the task executed.\n",
+                "\n",
+                "        :param task_id: Id of the task executed.\n",
+                "\n",
+                "        \"\"\"\n",
+                "\n",
+                "        self._processes[task_id] = [result, task_name]\n",
+                "\n",
+                "        if self.full():\n",
+                "            self.wait_for_result()\n",
+                "\n",
+                "    def _is_alive(self, pid):\n",
+                "        \"\"\"Uses non-blocking ``waitpid`` to see if a process is still alive.\n",
+                "\n",
+                "        :param pid: The process id of the process.\n",
+                "\n",
+                "        :returns: ``True`` if the process is still running, ``False``\n",
+                "            otherwise.\n",
+                "\n",
+                "        :rtype: bool\n",
+                "\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            is_alive = os.waitpid(pid, os.WNOHANG) == (0, 0)\n",
+                "        except OSError, e:\n",
+                "            if e.errno != errno.ECHILD:\n",
+                "                raise\n",
+                "        return is_alive\n",
+                "\n",
+                "    def _reap_zombies(self):\n",
+                "        assert hasattr(self._pool, \"_pool\")\n",
+                "        self.logger.debug(\"Trying to find zombies...\")\n",
+                "        for process in self._pool._pool:\n",
+                "            pid = process.pid\n",
+                "            if not self._is_alive(pid):\n",
+                "                self.logger.error(\n",
+                "                        \"Process with pid %d is dead? Restarting pool\" % pid)\n",
+                "                self._restart()\n",
+                "\n",
+                "    def full(self):\n",
+                "        return len(self._processes.values()) >= self.limit\n",
+                "\n",
+                "    def wait_for_result(self):\n",
+                "        \"\"\"Waits for the first process in the pool to finish.\n",
+                "\n",
+                "        This operation is blocking.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        while True:\n",
+                "            if self.reap():\n",
+                "                break\n",
+                "            #self._reap_zombies()\n",
+                "\n",
+                "    def reap(self):\n",
+                "        self.logger.debug(\"Reaping processes...\")\n",
+                "        processes_reaped = 0\n",
+                "        for process_no, entry in enumerate(self._processes.items()):\n",
+                "            task_id, process_info = entry\n",
+                "            result, task_name = process_info\n",
+                "            try:\n",
+                "                ret_value = result.get(timeout=0.3)\n",
+                "            except multiprocessing.TimeoutError:\n",
+                "                continue\n",
+                "            else:\n",
+                "                self.on_return(ret_value, task_name, task_id)\n",
+                "                processes_reaped += 1\n",
+                "        return processes_reaped\n",
+                "\n",
+                "    def get_worker_pids(self):\n",
+                "        \"\"\"Returns the process id's of all the pool workers.\n",
+                "\n",
+                "        :rtype: list\n",
+                "\n",
+                "        \"\"\"\n",
+                "        return [process.pid for process in self._pool._pool]\n",
+                "\n",
+                "    def on_ready(self, ret_value, task_name, task_id):\n",
+                "        \"\"\"What to do when a worker returns with a result.\n",
+                "\n",
+                "        If :attr:`done_msg` is defined, it will log this\n",
+                "        format string, with level ``logging.INFO``,\n",
+                "        using these format variables:\n",
+                "\n",
+                "            * %(name)\n",
+                "\n",
+                "                The name of the task completed\n",
+                "\n",
+                "            * %(id)\n",
+                "\n",
+                "                The UUID of the task completed.\n",
+                "\n",
+                "            * %(return_value)\n",
+                "\n",
+                "                Return value of the task function.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        if self.done_msg:\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            from celery.worker import ExcInfo\n"
+                ],
+                "parent_version_range": {
+                    "start": 246,
+                    "end": 246
+                },
+                "child_version_range": {
+                    "start": 248,
+                    "end": 249
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.done_msg:",
+                        "start_line": 245,
+                        "end_line": 253
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TaskProcessQueue",
+                        "signature": "class TaskProcessQueue(object):",
+                        "at_line": 55
+                    },
+                    {
+                        "type": "function",
+                        "name": "on_ready",
+                        "signature": "def on_ready(self, ret_value, task_name, task_id):",
+                        "at_line": 225
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: celery/datastructures.py\nCode:\n           class TaskProcessQueue(object):\n               ...\n               def on_ready(self, ret_value, task_name, task_id):\n                   ...\n243 245    \n244 246            \"\"\"\n245 247            if self.done_msg:\n    248  +             from celery.worker import ExcInfo\n246 249                msg = self.done_msg % {\n247 250                        \"name\": task_name,\n248 251                        \"id\": task_id,\n         ...\n",
+                "file_path": "celery/datastructures.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ExcInfo",
+                    "celery",
+                    "worker"
+                ],
+                "prefix": [
+                    "\n",
+                    "        \"\"\"\n",
+                    "        if self.done_msg:\n"
+                ],
+                "suffix": [
+                    "            msg = self.done_msg % {\n",
+                    "                    \"name\": task_name,\n",
+                    "                    \"id\": task_id,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 248,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 248,
+                                    "column": 45
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 248,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 248,
+                                    "column": 45
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "            msg = self.done_msg % {\n",
+                "                    \"name\": task_name,\n",
+                "                    \"id\": task_id,\n",
+                "                    \"return_value\": ret_value}\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            if isinstance(ret_value, Exception):\n"
+                ],
+                "after": [
+                    "            if isinstance(ret_value, ExcInfo):\n"
+                ],
+                "parent_version_range": {
+                    "start": 250,
+                    "end": 251
+                },
+                "child_version_range": {
+                    "start": 253,
+                    "end": 254
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.done_msg:",
+                        "start_line": 245,
+                        "end_line": 253
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if isinstance(ret_value, Exception):",
+                        "start_line": 250,
+                        "end_line": 253
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TaskProcessQueue",
+                        "signature": "class TaskProcessQueue(object):",
+                        "at_line": 55
+                    },
+                    {
+                        "type": "function",
+                        "name": "on_ready",
+                        "signature": "def on_ready(self, ret_value, task_name, task_id):",
+                        "at_line": 225
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: celery/datastructures.py\nCode:\n           class TaskProcessQueue(object):\n               ...\n               def on_ready(self, ret_value, task_name, task_id):\n                   ...\n247 250                        \"name\": task_name,\n248 251                        \"id\": task_id,\n249 252                        \"return_value\": ret_value}\n250      -             if isinstance(ret_value, Exception):\n    253  +             if isinstance(ret_value, ExcInfo):\n251 254                    self.logger.error(msg)\n         ...\n",
+                "file_path": "celery/datastructures.py",
+                "identifiers_before": [
+                    "Exception",
+                    "isinstance",
+                    "ret_value"
+                ],
+                "identifiers_after": [
+                    "ExcInfo",
+                    "isinstance",
+                    "ret_value"
+                ],
+                "prefix": [
+                    "                    \"name\": task_name,\n",
+                    "                    \"id\": task_id,\n",
+                    "                    \"return_value\": ret_value}\n"
+                ],
+                "suffix": [
+                    "                self.logger.error(msg)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 253,
+                                    "column": 37
+                                },
+                                "end": {
+                                    "line": 253,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 253,
+                                    "column": 37
+                                },
+                                "end": {
+                                    "line": 253,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                self.logger.error(msg)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "                if SEND_CELERY_TASK_ERROR_EMAILS is True:\n",
+                    "                    mail_admins(msg, ret_value.traceback, fail_silently=True)\n"
+                ],
+                "parent_version_range": {
+                    "start": 252,
+                    "end": 252
+                },
+                "child_version_range": {
+                    "start": 255,
+                    "end": 257
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if self.done_msg:",
+                        "start_line": 245,
+                        "end_line": 253
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if isinstance(ret_value, Exception):",
+                        "start_line": 250,
+                        "end_line": 253
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TaskProcessQueue",
+                        "signature": "class TaskProcessQueue(object):",
+                        "at_line": 55
+                    },
+                    {
+                        "type": "function",
+                        "name": "on_ready",
+                        "signature": "def on_ready(self, ret_value, task_name, task_id):",
+                        "at_line": 225
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.logger.error",
+                        "signature": "self.logger.error(msg)",
+                        "at_line": 251,
+                        "argument": "msg"
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: celery/datastructures.py\nCode:\n           class TaskProcessQueue(object):\n               ...\n               def on_ready(self, ret_value, task_name, task_id):\n                   ...\n251 254                    self.logger.error(msg)\n    255  +                 if SEND_CELERY_TASK_ERROR_EMAILS is True:\n    256  +                     mail_admins(msg, ret_value.traceback, fail_silently=True)\n252 257                else:\n253 258                    self.logger.info(msg)\n         ...\n",
+                "file_path": "celery/datastructures.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "SEND_CELERY_TASK_ERROR_EMAILS",
+                    "fail_silently",
+                    "mail_admins",
+                    "msg",
+                    "ret_value",
+                    "traceback"
+                ],
+                "prefix": [
+                    "                self.logger.error(msg)\n"
+                ],
+                "suffix": [
+                    "            else:\n",
+                    "                self.logger.info(msg)"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 255,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 255,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "SEND_CELERY_TASK_ERROR_EMAILS",
+                            "position": {
+                                "start": {
+                                    "line": 255,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 255,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "traceback",
+                            "position": {
+                                "start": {
+                                    "line": 256,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 256,
+                                    "column": 56
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/datastructures.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            else:\n",
+                "                self.logger.info(msg)"
+            ]
+        ],
+        "celery/worker.py": [
+            [
+                "\"\"\"celery.worker\"\"\"\n",
+                "from carrot.connection import DjangoAMQPConnection\n",
+                "from celery.messaging import TaskConsumer\n",
+                "from celery.conf import DAEMON_CONCURRENCY, DAEMON_LOG_FILE\n",
+                "from celery.conf import QUEUE_WAKEUP_AFTER, EMPTY_MSG_EMIT_EVERY\n",
+                "from celery.log import setup_logger\n",
+                "from celery.registry import tasks\n",
+                "from celery.datastructures import TaskProcessQueue\n",
+                "from celery.models import PeriodicTaskMeta\n",
+                "from celery.backends import default_backend, default_periodic_status_backend\n",
+                "from celery.timer import EventTimer\n",
+                "import multiprocessing\n",
+                "import simplejson\n",
+                "import traceback\n",
+                "import logging\n",
+                "import time\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import sys\n",
+                    "import traceback\n"
+                ],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 16
+                },
+                "child_version_range": {
+                    "start": 16,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: celery/worker.py\nCode:\n  ...\n13 13    import traceback\n14 14    import logging\n15 15    import time\n   16  + import sys\n   17  + import traceback\n16 18    \n17 19    \n18 20    class EmptyQueue(Exception):\n       ...\n",
+                "file_path": "celery/worker.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "sys",
+                    "traceback"
+                ],
+                "prefix": [
+                    "import traceback\n",
+                    "import logging\n",
+                    "import time\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class EmptyQueue(Exception):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 10
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "traceback",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class EmptyQueue(Exception):\n",
+                "    \"\"\"The message queue is currently empty.\"\"\"\n",
+                "\n",
+                "\n",
+                "class UnknownTask(Exception):\n",
+                "    \"\"\"Got an unknown task in the queue. The message is requeued and\n",
+                "    ignored.\"\"\"\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "class ExcInfo(object):\n",
+                    "    \n",
+                    "    def __init__(self, exc_info):\n",
+                    "        type_, exception, tb = exc_info\n",
+                    "        self.exception = exception\n",
+                    "        self.traceback = '\\n'.join(traceback.format_exception(*exc_info))\n",
+                    "        \n",
+                    "    def __str__(self):\n",
+                    "        return str(self.exception)\n"
+                ],
+                "parent_version_range": {
+                    "start": 26,
+                    "end": 26
+                },
+                "child_version_range": {
+                    "start": 28,
+                    "end": 37
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: celery/worker.py\nCode:\n  ...\n23 25        \"\"\"Got an unknown task in the queue. The message is requeued and\n24 26        ignored.\"\"\"\n25 27    \n   28  + class ExcInfo(object):\n   29  +     \n   30  +     def __init__(self, exc_info):\n   31  +         type_, exception, tb = exc_info\n   32  +         self.exception = exception\n   33  +         self.traceback = '\\n'.join(traceback.format_exception(*exc_info))\n   34  +         \n   35  +     def __str__(self):\n   36  +         return str(self.exception)\n26 37    \n27 38    def jail(task_id, func, args, kwargs):\n28 39        \"\"\"Wraps the task in a jail, which catches all exceptions, and\n       ...\n",
+                "file_path": "celery/worker.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ExcInfo",
+                    "__init__",
+                    "__str__",
+                    "exc_info",
+                    "exception",
+                    "format_exception",
+                    "join",
+                    "object",
+                    "self",
+                    "str",
+                    "tb",
+                    "traceback",
+                    "type_"
+                ],
+                "prefix": [
+                    "    \"\"\"Got an unknown task in the queue. The message is requeued and\n",
+                    "    ignored.\"\"\"\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "def jail(task_id, func, args, kwargs):\n",
+                    "    \"\"\"Wraps the task in a jail, which catches all exceptions, and\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "traceback",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 28,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 28,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "class",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 28,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 28,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "class",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 28,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 28,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "class",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "traceback",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "def jail(task_id, func, args, kwargs):\n",
+                "    \"\"\"Wraps the task in a jail, which catches all exceptions, and\n",
+                "    saves the status and result of the task execution to the task\n",
+                "    meta backend.\n",
+                "\n",
+                "    If the call was successful, it saves the result to the task result\n",
+                "    backend, and sets the task status to ``\"DONE\"``.\n",
+                "\n",
+                "    If the call results in an exception, it saves the exception as the task\n",
+                "    result, and sets the task status to ``\"FAILURE\"``.\n",
+                "\n",
+                "    :param task_id: The id of the task.\n",
+                "    :param func: Callable object to execute.\n",
+                "    :param args: List of positional args to pass on to the function.\n",
+                "    :param kwargs: Keyword arguments mapping to pass on to the function.\n",
+                "\n",
+                "    :returns: the function return value on success, or\n",
+                "        the exception instance on failure.\n",
+                "\n",
+                "    \"\"\"\n",
+                "    # Convert any unicode keys in the keyword arguments to ascii.\n",
+                "    kwargs = dict([(k.encode(\"utf-8\"), v)\n",
+                "                        for k, v in kwargs.items()])\n",
+                "    try:\n",
+                "        result = func(*args, **kwargs)\n",
+                "    except Exception, exc:\n",
+                "        default_backend.mark_as_failure(task_id, exc)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return exc\n"
+                ],
+                "after": [
+                    "        return ExcInfo(sys.exc_info())\n"
+                ],
+                "parent_version_range": {
+                    "start": 54,
+                    "end": 55
+                },
+                "child_version_range": {
+                    "start": 65,
+                    "end": 66
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 50,
+                        "end_line": 57
+                    },
+                    {
+                        "type": "except_clause",
+                        "statement": "except Exception, exc:",
+                        "start_line": 52,
+                        "end_line": 54
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "jail",
+                        "signature": "def jail(task_id, func, args, kwargs):",
+                        "at_line": 27
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: celery/worker.py\nCode:\n         def jail(task_id, func, args, kwargs):\n             ...\n51 62            result = func(*args, **kwargs)\n52 63        except Exception, exc:\n53 64            default_backend.mark_as_failure(task_id, exc)\n54     -         return exc\n   65  +         return ExcInfo(sys.exc_info())\n55 66        else:\n56 67            default_backend.mark_as_done(task_id, result)\n57 68            return result\n       ...\n",
+                "file_path": "celery/worker.py",
+                "identifiers_before": [
+                    "exc"
+                ],
+                "identifiers_after": [
+                    "ExcInfo",
+                    "exc_info",
+                    "sys"
+                ],
+                "prefix": [
+                    "        result = func(*args, **kwargs)\n",
+                    "    except Exception, exc:\n",
+                    "        default_backend.mark_as_failure(task_id, exc)\n"
+                ],
+                "suffix": [
+                    "    else:\n",
+                    "        default_backend.mark_as_done(task_id, result)\n",
+                    "        return result\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "ExcInfo",
+                            "position": {
+                                "start": {
+                                    "line": 65,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 65,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 65,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 65,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/worker.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    else:\n",
+                "        default_backend.mark_as_done(task_id, result)\n",
+                "        return result\n",
+                "\n",
+                "\n",
+                "class TaskWrapper(object):\n",
+                "    \"\"\"Class wrapping a task to be run.\n",
+                "\n",
+                "    :param task_name: see :attr:`task_name`.\n",
+                "\n",
+                "    :param task_id: see :attr:`task_id`.\n",
+                "\n",
+                "    :param task_func: see :attr:`task_func`\n",
+                "\n",
+                "    :param args: see :attr:`args`\n",
+                "\n",
+                "    :param kwargs: see :attr:`kwargs`.\n",
+                "\n",
+                "    .. attribute:: task_name\n",
+                "\n",
+                "        Kind of task. Must be a name registered in the task registry.\n",
+                "\n",
+                "    .. attribute:: task_id\n",
+                "\n",
+                "        UUID of the task.\n",
+                "\n",
+                "    .. attribute:: task_func\n",
+                "\n",
+                "        The tasks callable object.\n",
+                "\n",
+                "    .. attribute:: args\n",
+                "\n",
+                "        List of positional arguments to apply to the task.\n",
+                "\n",
+                "    .. attribute:: kwargs\n",
+                "\n",
+                "        Mapping of keyword arguments to apply to the task.\n",
+                "\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, task_name, task_id, task_func, args, kwargs):\n",
+                "        self.task_name = task_name\n",
+                "        self.task_id = task_id\n",
+                "        self.task_func = task_func\n",
+                "        self.args = args\n",
+                "        self.kwargs = kwargs\n",
+                "\n",
+                "    def __repr__(self):\n",
+                "        return '<%s: {name:\"%s\", id:\"%s\", args:\"%s\", kwargs:\"%s\"}>' % (\n",
+                "                self.__class__.__name__,\n",
+                "                self.task_name, self.task_id,\n",
+                "                self.args, self.kwargs)\n",
+                "\n",
+                "    @classmethod\n",
+                "    def from_message(cls, message):\n",
+                "        \"\"\"Create a :class:`TaskWrapper` from a task message sent by\n",
+                "        :class:`celery.messaging.TaskPublisher`.\n",
+                "\n",
+                "        :raises UnknownTask: if the message does not describe a task,\n",
+                "            the message is also rejected.\n",
+                "\n",
+                "        :returns: :class:`TaskWrapper` instance.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        message_data = message.decode()\n",
+                "        task_name = message_data[\"task\"]\n",
+                "        task_id = message_data[\"id\"]\n",
+                "        args = message_data[\"args\"]\n",
+                "        kwargs = message_data[\"kwargs\"]\n",
+                "        if task_name not in tasks:\n",
+                "            raise UnknownTask(task_name)\n",
+                "        task_func = tasks[task_name]\n",
+                "        return cls(task_name, task_id, task_func, args, kwargs)\n",
+                "\n",
+                "    def extend_with_default_kwargs(self, loglevel, logfile):\n",
+                "        \"\"\"Extend the tasks keyword arguments with standard task arguments.\n",
+                "\n",
+                "        These are ``logfile``, ``loglevel``, ``task_id`` and ``task_name``.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        task_func_kwargs = {\"logfile\": logfile,\n",
+                "                            \"loglevel\": loglevel,\n",
+                "                            \"task_id\": self.task_id,\n",
+                "                            \"task_name\": self.task_name}\n",
+                "        task_func_kwargs.update(self.kwargs)\n",
+                "        return task_func_kwargs\n",
+                "\n",
+                "    def execute(self, loglevel=None, logfile=None):\n",
+                "        \"\"\"Execute the task in a :func:`jail` and store return value\n",
+                "        and status in the task meta backend.\n",
+                "\n",
+                "        :keyword loglevel: The loglevel used by the task.\n",
+                "\n",
+                "        :keyword logfile: The logfile used by the task.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        task_func_kwargs = self.extend_with_default_kwargs(loglevel, logfile)\n",
+                "        return jail(self.task_id, [\n",
+                "                        self.task_func, self.args, task_func_kwargs])\n",
+                "\n",
+                "    def execute_using_pool(self, pool, loglevel=None, logfile=None):\n",
+                "        \"\"\"Like :meth:`execute`, but using the :mod:`multiprocessing` pool.\n",
+                "\n",
+                "        :param pool: A :class:`multiprocessing.Pool` instance.\n",
+                "\n",
+                "        :keyword loglevel: The loglevel used by the task.\n",
+                "\n",
+                "        :keyword logfile: The logfile used by the task.\n",
+                "\n",
+                "        :returns :class:`multiprocessing.AsyncResult` instance.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        task_func_kwargs = self.extend_with_default_kwargs(loglevel, logfile)\n",
+                "        jail_args = [self.task_id, self.task_func,\n",
+                "                     self.args, task_func_kwargs]\n",
+                "        return pool.apply_async(jail, jail_args, {},\n",
+                "                                self.task_name, self.task_id)\n",
+                "\n",
+                "\n",
+                "class WorkController(object):\n",
+                "    \"\"\"Executes tasks waiting in the task queue.\n",
+                "\n",
+                "    :param concurrency: see :attr:`concurrency`.\n",
+                "\n",
+                "    :param logfile: see :attr:`logfile`.\n",
+                "\n",
+                "    :param loglevel: see :attr:`loglevel`.\n",
+                "\n",
+                "    :param queue_wakeup_after: see :attr:`queue_wakeup_after`.\n",
+                "\n",
+                "\n",
+                "    .. attribute:: concurrency\n",
+                "\n",
+                "        The number of simultaneous processes doing work (default:\n",
+                "        :const:`celery.conf.DAEMON_CONCURRENCY`)\n",
+                "\n",
+                "    .. attribute:: loglevel\n",
+                "\n",
+                "        The loglevel used (default: :const:`logging.INFO`)\n",
+                "\n",
+                "    .. attribute:: logfile\n",
+                "\n",
+                "        The logfile used, if no logfile is specified it uses ``stderr``\n",
+                "        (default: :const:`celery.conf.DAEMON_LOG_FILE`).\n",
+                "\n",
+                "    .. attribute:: queue_wakeup_after\n",
+                "\n",
+                "        The time it takes for the daemon to wake up after the queue is empty,\n",
+                "        so it can check for more work\n",
+                "        (default: :const:`celery.conf.QUEUE_WAKEUP_AFTER`).\n",
+                "\n",
+                "    .. attribute:: empty_msg_emit_every\n",
+                "\n",
+                "        How often the daemon emits the ``\"Waiting for queue...\"`` message.\n",
+                "        If this is ``None``, the message will never be logged.\n",
+                "        (default: :const:`celery.conf.EMPTY_MSG_EMIT_EVERY`)\n",
+                "\n",
+                "    .. attribute:: logger\n",
+                "\n",
+                "        The :class:`logging.Logger` instance used for logging.\n",
+                "\n",
+                "    .. attribute:: pool\n",
+                "\n",
+                "        The :class:`multiprocessing.Pool` instance used.\n",
+                "\n",
+                "    .. attribute:: task_consumer\n",
+                "\n",
+                "        The :class:`celery.messaging.TaskConsumer` instance used.\n",
+                "\n",
+                "    \"\"\"\n",
+                "    loglevel = logging.ERROR\n",
+                "    concurrency = DAEMON_CONCURRENCY\n",
+                "    logfile = DAEMON_LOG_FILE\n",
+                "    queue_wakeup_after = QUEUE_WAKEUP_AFTER\n",
+                "    empty_msg_emit_every = EMPTY_MSG_EMIT_EVERY\n",
+                "\n",
+                "    def __init__(self, concurrency=None, logfile=None, loglevel=None,\n",
+                "            queue_wakeup_after=None, is_detached=False):\n",
+                "        self.loglevel = loglevel or self.loglevel\n",
+                "        self.concurrency = concurrency or self.concurrency\n",
+                "        self.logfile = logfile or self.logfile\n",
+                "        self.queue_wakeup_after = queue_wakeup_after or \\\n",
+                "                                    self.queue_wakeup_after\n",
+                "        self.logger = setup_logger(loglevel, logfile)\n",
+                "        self.pool = TaskProcessQueue(self.concurrency, logger=self.logger,\n",
+                "                done_msg=\"Task %(name)s[%(id)s] processed: %(return_value)s\")\n",
+                "        self.task_consumer = None\n",
+                "        self.is_detached = is_detached\n",
+                "        self.reset_connection()\n",
+                "\n",
+                "    def reset_connection(self):\n",
+                "        \"\"\"Reset the AMQP connection, and reinitialize the\n",
+                "        :class:`celery.messaging.TaskConsumer` instance.\n",
+                "\n",
+                "        Resets the task consumer in :attr:`task_consumer`.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        if self.task_consumer:\n",
+                "            self.task_consumer.connection.close()\n",
+                "        amqp_connection = DjangoAMQPConnection()\n",
+                "        self.task_consumer = TaskConsumer(connection=amqp_connection)\n",
+                "\n",
+                "    def connection_diagnostics(self):\n",
+                "        \"\"\"Diagnose the AMQP connection, and reset connection if\n",
+                "        necessary.\"\"\"\n",
+                "        if hasattr(self.task_consumer, \"backend\"):\n",
+                "            connection = self.task_consumer.backend.channel.connection\n",
+                "        else:\n",
+                "            connection = self.task_consumer.channel.connection\n",
+                "\n",
+                "        if not connection:\n",
+                "            self.logger.info(\n",
+                "                    \"AMQP Connection has died, restoring connection.\")\n",
+                "            self.reset_connection()\n",
+                "\n",
+                "    def receive_message(self):\n",
+                "        \"\"\"Receive the next message from the message broker.\n",
+                "\n",
+                "        Tries to reset the AMQP connection if not available.\n",
+                "        Returns ``None`` if no message is waiting on the queue.\n",
+                "\n",
+                "        :rtype: :class:`carrot.messaging.Message` instance.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        #self.connection_diagnostics()\n",
+                "        self.logger.debug(\"Trying to fetch message from broker...\")\n",
+                "        message = self.task_consumer.fetch()\n",
+                "        if message is not None:\n",
+                "            self.logger.debug(\"Acknowledging message with delivery tag %s\" % (\n",
+                "                message.delivery_tag))\n",
+                "        return message\n",
+                "\n",
+                "    def fetch_next_task(self):\n",
+                "        \"\"\"Fetch the next task from the AMQP broker.\n",
+                "\n",
+                "        Raises :exc:`EmptyQueue` exception if there is no message\n",
+                "        waiting on the queue.\n",
+                "\n",
+                "        :returns: :class:`TaskWrapper` instance.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        message = self.receive_message()\n",
+                "        if message is None: # No messages waiting.\n",
+                "            raise EmptyQueue()\n",
+                "\n",
+                "        task = TaskWrapper.from_message(message)\n",
+                "        self.logger.info(\"Got task from broker: %s[%s]\" % (\n",
+                "                            task.task_name, task.task_id))\n",
+                "\n",
+                "        return task, message\n",
+                "\n",
+                "    def execute_next_task(self):\n",
+                "        \"\"\"Execute the next task on the queue using the multiprocessing pool.\n",
+                "\n",
+                "        Catches all exceptions and logs them with level\n",
+                "        :const:`logging.CRITICAL`.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        self.logger.debug(\"Trying to fetch a task.\")\n",
+                "        task, message = self.fetch_next_task()\n",
+                "        self.logger.debug(\"Got a task: %s. Trying to execute it...\" % task)\n",
+                "\n",
+                "        result = task.execute_using_pool(self.pool, self.loglevel,\n",
+                "                                         self.logfile)\n",
+                "\n",
+                "        self.logger.debug(\"Task %s has been executed asynchronously.\" % task)\n",
+                "\n",
+                "        return result, task.task_name, task.task_id\n",
+                "\n",
+                "    def run_periodic_tasks(self):\n",
+                "        \"\"\"Schedule all waiting periodic tasks for execution.\n",
+                "\n",
+                "        \"\"\"\n",
+                "        self.logger.debug(\"Looking for periodic tasks ready for execution...\")\n",
+                "        default_periodic_status_backend.run_periodic_tasks()\n",
+                "\n",
+                "    def schedule_retry_tasks(self):\n",
+                "        \"\"\"Reschedule all requeued tasks waiting for retry.\"\"\"\n",
+                "        pass\n",
+                "\n",
+                "    def run(self):\n",
+                "        \"\"\"Starts the workers main loop.\"\"\"\n",
+                "        log_wait = lambda: self.logger.info(\"Waiting for queue...\")\n",
+                "        ev_msg_waiting = EventTimer(log_wait, self.empty_msg_emit_every)\n",
+                "        events = [\n",
+                "            EventTimer(self.run_periodic_tasks, 1),\n",
+                "            EventTimer(self.schedule_retry_tasks, 2),\n",
+                "        ]\n",
+                "\n",
+                "        # If not running as daemon, and DEBUG logging level is enabled,\n",
+                "        # print pool PIDs and sleep for a second before we start.\n",
+                "        if self.logger.isEnabledFor(logging.DEBUG):\n",
+                "            self.logger.debug(\"Pool child processes: [%s]\" % (\n",
+                "                \"|\".join(map(str, self.pool.get_worker_pids()))))\n",
+                "            if not self.is_detached:\n",
+                "                time.sleep(1)\n",
+                "\n",
+                "        while True:\n",
+                "            [event.tick() for event in events]\n",
+                "            try:\n",
+                "                result, task_name, task_id = self.execute_next_task()\n",
+                "            except ValueError:\n",
+                "                # execute_next_task didn't return a r/name/id tuple,\n",
+                "                # probably because it got an exception.\n",
+                "                continue\n",
+                "            except EmptyQueue:\n",
+                "                ev_msg_waiting.tick()\n",
+                "                time.sleep(self.queue_wakeup_after)\n",
+                "                continue\n",
+                "            except UnknownTask, e:\n",
+                "                self.logger.info(\"Unknown task ignored: %s\" % (e))\n",
+                "                continue\n",
+                "            except Exception, e:\n",
+                "                self.logger.critical(\"Message queue raised %s: %s\\n%s\" % (\n",
+                "                             e.__class__, e, traceback.format_exc()))\n",
+                "                continue"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and define"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and define"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                7
+            ],
+            "edit_order": "no relation",
+            "reason": "no direct evidence"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "define and use"
+        }
+    ]
+}

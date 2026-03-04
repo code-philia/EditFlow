@@ -1,0 +1,1076 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/apache/airflow/commit/4f4f37c855d58f99c9b999fa0f19e0c0505274f4",
+    "commit_message": "Add `on_kill()` to kill Trino query if the task is killed (#24559)\n\nThis PR is a follow up to PR #24415.\nIt adds on_kill method to the TrinoOperator to kill Trino query if Airflow task is killed",
+    "commit_snapshots": {
+        "airflow/providers/trino/hooks/trino.py": [
+            [
+                "#\n",
+                "# Licensed to the Apache Software Foundation (ASF) under one\n",
+                "# or more contributor license agreements.  See the NOTICE file\n",
+                "# distributed with this work for additional information\n",
+                "# regarding copyright ownership.  The ASF licenses this file\n",
+                "# to you under the Apache License, Version 2.0 (the\n",
+                "# \"License\"); you may not use this file except in compliance\n",
+                "# with the License.  You may obtain a copy of the License at\n",
+                "#\n",
+                "#   http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing,\n",
+                "# software distributed under the License is distributed on an\n",
+                "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n",
+                "# KIND, either express or implied.  See the License for the\n",
+                "# specific language governing permissions and limitations\n",
+                "# under the License.\n",
+                "import json\n",
+                "import os\n",
+                "import warnings\n",
+                "from contextlib import closing\n",
+                "from itertools import chain\n",
+                "from typing import Any, Callable, Iterable, Optional, Tuple, overload\n",
+                "\n",
+                "import sqlparse\n",
+                "import trino\n",
+                "from trino.exceptions import DatabaseError\n",
+                "from trino.transaction import IsolationLevel\n",
+                "\n",
+                "from airflow import AirflowException\n",
+                "from airflow.configuration import conf\n",
+                "from airflow.hooks.dbapi import DbApiHook\n",
+                "from airflow.models import Connection\n",
+                "from airflow.utils.operator_helpers import AIRFLOW_VAR_NAME_FORMAT_MAPPING\n",
+                "\n",
+                "try:\n",
+                "    from airflow.utils.operator_helpers import DEFAULT_FORMAT_PREFIX\n",
+                "except ImportError:\n",
+                "    # This is from airflow.utils.operator_helpers,\n",
+                "    # For the sake of provider backward compatibility, this is hardcoded if import fails\n",
+                "    # https://github.com/apache/airflow/pull/22416#issuecomment-1075531290\n",
+                "    DEFAULT_FORMAT_PREFIX = 'airflow.ctx.'\n",
+                "\n",
+                "\n",
+                "def generate_trino_client_info() -> str:\n",
+                "    \"\"\"Return json string with dag_id, task_id, execution_date and try_number\"\"\"\n",
+                "    context_var = {\n",
+                "        format_map['default'].replace(DEFAULT_FORMAT_PREFIX, ''): os.environ.get(\n",
+                "            format_map['env_var_format'], ''\n",
+                "        )\n",
+                "        for format_map in AIRFLOW_VAR_NAME_FORMAT_MAPPING.values()\n",
+                "    }\n",
+                "    # try_number isn't available in context for airflow < 2.2.5\n",
+                "    # https://github.com/apache/airflow/issues/23059\n",
+                "    try_number = context_var.get('try_number', '')\n",
+                "    task_info = {\n",
+                "        'dag_id': context_var['dag_id'],\n",
+                "        'task_id': context_var['task_id'],\n",
+                "        'execution_date': context_var['execution_date'],\n",
+                "        'try_number': try_number,\n",
+                "        'dag_run_id': context_var['dag_run_id'],\n",
+                "        'dag_owner': context_var['dag_owner'],\n",
+                "    }\n",
+                "    return json.dumps(task_info, sort_keys=True)\n",
+                "\n",
+                "\n",
+                "class TrinoException(Exception):\n",
+                "    \"\"\"Trino exception\"\"\"\n",
+                "\n",
+                "\n",
+                "def _boolify(value):\n",
+                "    if isinstance(value, bool):\n",
+                "        return value\n",
+                "    if isinstance(value, str):\n",
+                "        if value.lower() == 'false':\n",
+                "            return False\n",
+                "        elif value.lower() == 'true':\n",
+                "            return True\n",
+                "    return value\n",
+                "\n",
+                "\n",
+                "class TrinoHook(DbApiHook):\n",
+                "    \"\"\"\n",
+                "    Interact with Trino through trino package.\n",
+                "\n",
+                "    >>> ph = TrinoHook()\n",
+                "    >>> sql = \"SELECT count(1) AS num FROM airflow.static_babynames\"\n",
+                "    >>> ph.get_records(sql)\n",
+                "    [[340698]]\n",
+                "    \"\"\"\n",
+                "\n",
+                "    conn_name_attr = 'trino_conn_id'\n",
+                "    default_conn_name = 'trino_default'\n",
+                "    conn_type = 'trino'\n",
+                "    hook_name = 'Trino'\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    query_id = ''\n"
+                ],
+                "parent_version_range": {
+                    "start": 95,
+                    "end": 95
+                },
+                "child_version_range": {
+                    "start": 95,
+                    "end": 96
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TrinoHook",
+                        "signature": "class TrinoHook(DbApiHook):",
+                        "at_line": 81
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: airflow/providers/trino/hooks/trino.py\nCode:\n         class TrinoHook(DbApiHook):\n             ...\n92 92        default_conn_name = 'trino_default'\n93 93        conn_type = 'trino'\n94 94        hook_name = 'Trino'\n   95  +     query_id = ''\n95 96    \n96 97        def get_conn(self) -> Connection:\n97 98            \"\"\"Returns a connection object\"\"\"\n       ...\n",
+                "file_path": "airflow/providers/trino/hooks/trino.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "query_id"
+                ],
+                "prefix": [
+                    "    default_conn_name = 'trino_default'\n",
+                    "    conn_type = 'trino'\n",
+                    "    hook_name = 'Trino'\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    def get_conn(self) -> Connection:\n",
+                    "        \"\"\"Returns a connection object\"\"\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    def get_conn(self) -> Connection:\n",
+                "        \"\"\"Returns a connection object\"\"\"\n",
+                "        db = self.get_connection(self.trino_conn_id)  # type: ignore[attr-defined]\n",
+                "        extra = db.extra_dejson\n",
+                "        auth = None\n",
+                "        user = db.login\n",
+                "        if db.password and extra.get('auth') == 'kerberos':\n",
+                "            raise AirflowException(\"Kerberos authorization doesn't support password.\")\n",
+                "        elif db.password:\n",
+                "            auth = trino.auth.BasicAuthentication(db.login, db.password)  # type: ignore[attr-defined]\n",
+                "        elif extra.get('auth') == 'jwt':\n",
+                "            auth = trino.auth.JWTAuthentication(token=extra.get('jwt__token'))\n",
+                "        elif extra.get('auth') == 'kerberos':\n",
+                "            auth = trino.auth.KerberosAuthentication(  # type: ignore[attr-defined]\n",
+                "                config=extra.get('kerberos__config', os.environ.get('KRB5_CONFIG')),\n",
+                "                service_name=extra.get('kerberos__service_name'),\n",
+                "                mutual_authentication=_boolify(extra.get('kerberos__mutual_authentication', False)),\n",
+                "                force_preemptive=_boolify(extra.get('kerberos__force_preemptive', False)),\n",
+                "                hostname_override=extra.get('kerberos__hostname_override'),\n",
+                "                sanitize_mutual_error_response=_boolify(\n",
+                "                    extra.get('kerberos__sanitize_mutual_error_response', True)\n",
+                "                ),\n",
+                "                principal=extra.get('kerberos__principal', conf.get('kerberos', 'principal')),\n",
+                "                delegate=_boolify(extra.get('kerberos__delegate', False)),\n",
+                "                ca_bundle=extra.get('kerberos__ca_bundle'),\n",
+                "            )\n",
+                "\n",
+                "        if _boolify(extra.get('impersonate_as_owner', False)):\n",
+                "            user = os.getenv('AIRFLOW_CTX_DAG_OWNER', None)\n",
+                "            if user is None:\n",
+                "                user = db.login\n",
+                "        http_headers = {\"X-Trino-Client-Info\": generate_trino_client_info()}\n",
+                "        trino_conn = trino.dbapi.connect(\n",
+                "            host=db.host,\n",
+                "            port=db.port,\n",
+                "            user=user,\n",
+                "            source=extra.get('source', 'airflow'),\n",
+                "            http_scheme=extra.get('protocol', 'http'),\n",
+                "            http_headers=http_headers,\n",
+                "            catalog=extra.get('catalog', 'hive'),\n",
+                "            schema=db.schema,\n",
+                "            auth=auth,\n",
+                "            # type: ignore[func-returns-value]\n",
+                "            isolation_level=self.get_isolation_level(),\n",
+                "            verify=_boolify(extra.get('verify', True)),\n",
+                "        )\n",
+                "\n",
+                "        return trino_conn\n",
+                "\n",
+                "    def get_isolation_level(self) -> Any:\n",
+                "        \"\"\"Returns an isolation level\"\"\"\n",
+                "        db = self.get_connection(self.trino_conn_id)  # type: ignore[attr-defined]\n",
+                "        isolation_level = db.extra_dejson.get('isolation_level', 'AUTOCOMMIT').upper()\n",
+                "        return getattr(IsolationLevel, isolation_level, IsolationLevel.AUTOCOMMIT)\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def _strip_sql(sql: str) -> str:\n",
+                "        return sql.strip().rstrip(';')\n",
+                "\n",
+                "    @overload\n",
+                "    def get_records(self, sql: str = \"\", parameters: Optional[dict] = None):\n",
+                "        \"\"\"Get a set of records from Trino\n",
+                "\n",
+                "        :param sql: SQL statement to be executed.\n",
+                "        :param parameters: The parameters to render the SQL query with.\n",
+                "        \"\"\"\n",
+                "\n",
+                "    @overload\n",
+                "    def get_records(self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\"):\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "\n",
+                "    def get_records(self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\"):\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "        if hql:\n",
+                "            warnings.warn(\n",
+                "                \"The hql parameter has been deprecated. You should pass the sql parameter.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "            sql = hql\n",
+                "\n",
+                "        try:\n",
+                "            return super().get_records(self._strip_sql(sql), parameters)\n",
+                "        except DatabaseError as e:\n",
+                "            raise TrinoException(e)\n",
+                "\n",
+                "    @overload\n",
+                "    def get_first(self, sql: str = \"\", parameters: Optional[dict] = None) -> Any:\n",
+                "        \"\"\"Returns only the first row, regardless of how many rows the query returns.\n",
+                "\n",
+                "        :param sql: SQL statement to be executed.\n",
+                "        :param parameters: The parameters to render the SQL query with.\n",
+                "        \"\"\"\n",
+                "\n",
+                "    @overload\n",
+                "    def get_first(self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\") -> Any:\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "\n",
+                "    def get_first(self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\") -> Any:\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "        if hql:\n",
+                "            warnings.warn(\n",
+                "                \"The hql parameter has been deprecated. You should pass the sql parameter.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "            sql = hql\n",
+                "\n",
+                "        try:\n",
+                "            return super().get_first(self._strip_sql(sql), parameters)\n",
+                "        except DatabaseError as e:\n",
+                "            raise TrinoException(e)\n",
+                "\n",
+                "    @overload\n",
+                "    def get_pandas_df(\n",
+                "        self, sql: str = \"\", parameters: Optional[dict] = None, **kwargs\n",
+                "    ):  # type: ignore[override]\n",
+                "        \"\"\"Get a pandas dataframe from a sql query.\n",
+                "\n",
+                "        :param sql: SQL statement to be executed.\n",
+                "        :param parameters: The parameters to render the SQL query with.\n",
+                "        \"\"\"\n",
+                "\n",
+                "    @overload\n",
+                "    def get_pandas_df(\n",
+                "        self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\", **kwargs\n",
+                "    ):  # type: ignore[override]\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "\n",
+                "    def get_pandas_df(\n",
+                "        self, sql: str = \"\", parameters: Optional[dict] = None, hql: str = \"\", **kwargs\n",
+                "    ):  # type: ignore[override]\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "        if hql:\n",
+                "            warnings.warn(\n",
+                "                \"The hql parameter has been deprecated. You should pass the sql parameter.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "            sql = hql\n",
+                "\n",
+                "        import pandas\n",
+                "\n",
+                "        cursor = self.get_cursor()\n",
+                "        try:\n",
+                "            cursor.execute(self._strip_sql(sql), parameters)\n",
+                "            data = cursor.fetchall()\n",
+                "        except DatabaseError as e:\n",
+                "            raise TrinoException(e)\n",
+                "        column_descriptions = cursor.description\n",
+                "        if data:\n",
+                "            df = pandas.DataFrame(data, **kwargs)\n",
+                "            df.columns = [c[0] for c in column_descriptions]\n",
+                "        else:\n",
+                "            df = pandas.DataFrame(**kwargs)\n",
+                "        return df\n",
+                "\n",
+                "    @overload\n",
+                "    def run(\n",
+                "        self,\n",
+                "        sql,\n",
+                "        autocommit: bool = False,\n",
+                "        parameters: Optional[Tuple] = None,\n",
+                "        handler: Optional[Callable] = None,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Execute the statement against Trino. Can be used to create views.\"\"\"\n",
+                "\n",
+                "    @overload\n",
+                "    def run(\n",
+                "        self,\n",
+                "        sql,\n",
+                "        autocommit: bool = False,\n",
+                "        parameters: Optional[Tuple] = None,\n",
+                "        handler: Optional[Callable] = None,\n",
+                "        hql: str = \"\",\n",
+                "    ) -> None:\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "\n",
+                "    def run(\n",
+                "        self,\n",
+                "        sql,\n",
+                "        autocommit: bool = False,\n",
+                "        parameters: Optional[Tuple] = None,\n",
+                "        handler: Optional[Callable] = None,\n",
+                "        hql: str = \"\",\n",
+                "    ):\n",
+                "        \"\"\":sphinx-autoapi-skip:\"\"\"\n",
+                "        if hql:\n",
+                "            warnings.warn(\n",
+                "                \"The hql parameter has been deprecated. You should pass the sql parameter.\",\n",
+                "                DeprecationWarning,\n",
+                "                stacklevel=2,\n",
+                "            )\n",
+                "            sql = hql\n",
+                "        scalar = isinstance(sql, str)\n",
+                "\n",
+                "        with closing(self.get_conn()) as conn:\n",
+                "            if self.supports_autocommit:\n",
+                "                self.set_autocommit(conn, autocommit)\n",
+                "\n",
+                "            if scalar:\n",
+                "                sql = sqlparse.split(sql)\n",
+                "\n",
+                "            with closing(conn.cursor()) as cur:\n",
+                "                results = []\n",
+                "                for sql_statement in sql:\n",
+                "                    self._run_command(cur, self._strip_sql(sql_statement), parameters)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "                    self.query_id = cur.stats[\"queryId\"]\n"
+                ],
+                "parent_version_range": {
+                    "start": 303,
+                    "end": 303
+                },
+                "child_version_range": {
+                    "start": 304,
+                    "end": 305
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with closing(self.get_conn()) as conn:",
+                        "start_line": 292,
+                        "end_line": 310
+                    },
+                    {
+                        "type": "with_statement",
+                        "statement": "with closing(conn.cursor()) as cur:",
+                        "start_line": 299,
+                        "end_line": 305
+                    },
+                    {
+                        "type": "for_statement",
+                        "statement": "for sql_statement in sql:",
+                        "start_line": 301,
+                        "end_line": 305
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TrinoHook",
+                        "signature": "class TrinoHook(DbApiHook):",
+                        "at_line": 81
+                    },
+                    {
+                        "type": "function",
+                        "name": "run",
+                        "signature": "def run(\n        self,\n        sql,\n        autocommit: bool = False,\n        parameters: Optional[Tuple] = None,\n        handler: Optional[Callable] = None,\n        hql: str = \"\",\n    ):",
+                        "at_line": 274
+                    },
+                    {
+                        "type": "call",
+                        "name": "self._run_command",
+                        "signature": "self._run_command(cur, self._strip_sql(sql_statement), parameters)",
+                        "at_line": 302,
+                        "argument": "cur"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: airflow/providers/trino/hooks/trino.py\nCode:\n           class TrinoHook(DbApiHook):\n               ...\n               def run(\n        self,\n        sql,\n        autocommit: bool = False,\n        parameters: Optional[Tuple] = None,\n        handler: Optional[Callable] = None,\n        hql: str = \"\",\n    ):\n                   ...\n300 301                    results = []\n301 302                    for sql_statement in sql:\n302 303                        self._run_command(cur, self._strip_sql(sql_statement), parameters)\n    304  +                     self.query_id = cur.stats[\"queryId\"]\n303 305                        if handler is not None:\n304 306                            result = handler(cur)\n305 307                            results.append(result)\n         ...\n",
+                "file_path": "airflow/providers/trino/hooks/trino.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "cur",
+                    "query_id",
+                    "self",
+                    "stats"
+                ],
+                "prefix": [
+                    "                results = []\n",
+                    "                for sql_statement in sql:\n",
+                    "                    self._run_command(cur, self._strip_sql(sql_statement), parameters)\n"
+                ],
+                "suffix": [
+                    "                    if handler is not None:\n",
+                    "                        result = handler(cur)\n",
+                    "                        results.append(result)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                    if handler is not None:\n",
+                "                        result = handler(cur)\n",
+                "                        results.append(result)\n",
+                "\n",
+                "            # If autocommit was set to False for db that supports autocommit,\n",
+                "            # or if db does not supports autocommit, we do a manual commit.\n",
+                "            if not self.get_autocommit(conn):\n",
+                "                conn.commit()\n",
+                "\n",
+                "        self.log.info(\"Query Execution Result: %s\", str(list(chain.from_iterable(results))))\n",
+                "\n",
+                "        if handler is None:\n",
+                "            return None\n",
+                "\n",
+                "        if scalar:\n",
+                "            return results[0]\n",
+                "\n",
+                "        return results\n",
+                "\n",
+                "    def insert_rows(\n",
+                "        self,\n",
+                "        table: str,\n",
+                "        rows: Iterable[tuple],\n",
+                "        target_fields: Optional[Iterable[str]] = None,\n",
+                "        commit_every: int = 0,\n",
+                "        replace: bool = False,\n",
+                "        **kwargs,\n",
+                "    ) -> None:\n",
+                "        \"\"\"\n",
+                "        A generic way to insert a set of tuples into a table.\n",
+                "\n",
+                "        :param table: Name of the target table\n",
+                "        :param rows: The rows to insert into the table\n",
+                "        :param target_fields: The names of the columns to fill in the table\n",
+                "        :param commit_every: The maximum number of rows to insert in one\n",
+                "            transaction. Set to 0 to insert all rows in one transaction.\n",
+                "        :param replace: Whether to replace instead of insert\n",
+                "        \"\"\"\n",
+                "        if self.get_isolation_level() == IsolationLevel.AUTOCOMMIT:\n",
+                "            self.log.info(\n",
+                "                'Transactions are not enable in trino connection. '\n",
+                "                'Please use the isolation_level property to enable it. '\n",
+                "                'Falling back to insert all rows in one transaction.'\n",
+                "            )\n",
+                "            commit_every = 0\n",
+                "\n",
+                "        super().insert_rows(table, rows, target_fields, commit_every, replace)"
+            ]
+        ],
+        "airflow/providers/trino/operators/trino.py": [
+            [
+                "#\n",
+                "# Licensed to the Apache Software Foundation (ASF) under one\n",
+                "# or more contributor license agreements.  See the NOTICE file\n",
+                "# distributed with this work for additional information\n",
+                "# regarding copyright ownership.  The ASF licenses this file\n",
+                "# to you under the Apache License, Version 2.0 (the\n",
+                "# \"License\"); you may not use this file except in compliance\n",
+                "# with the License.  You may obtain a copy of the License at\n",
+                "#\n",
+                "#   http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing,\n",
+                "# software distributed under the License is distributed on an\n",
+                "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n",
+                "# KIND, either express or implied.  See the License for the\n",
+                "# specific language governing permissions and limitations\n",
+                "# under the License.\n",
+                "\"\"\"This module contains the Trino operator.\"\"\"\n",
+                "\n",
+                "from typing import TYPE_CHECKING, Any, Callable, List, Optional, Sequence, Union\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from trino.exceptions import TrinoQueryError\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 21,
+                    "end": 21
+                },
+                "child_version_range": {
+                    "start": 21,
+                    "end": 23
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: airflow/providers/trino/operators/trino.py\nCode:\n  ...\n18 18    \n19 19    from typing import TYPE_CHECKING, Any, Callable, List, Optional, Sequence, Union\n20 20    \n   21  + from trino.exceptions import TrinoQueryError\n   22  + \n21 23    from airflow.models import BaseOperator\n22 24    from airflow.providers.trino.hooks.trino import TrinoHook\n23 25    \n       ...\n",
+                "file_path": "airflow/providers/trino/operators/trino.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "TrinoQueryError",
+                    "exceptions",
+                    "trino"
+                ],
+                "prefix": [
+                    "\n",
+                    "from typing import TYPE_CHECKING, Any, Callable, List, Optional, Sequence, Union\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from airflow.models import BaseOperator\n",
+                    "from airflow.providers.trino.hooks.trino import TrinoHook\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from airflow.models import BaseOperator\n",
+                "from airflow.providers.trino.hooks.trino import TrinoHook\n",
+                "\n",
+                "if TYPE_CHECKING:\n",
+                "    from airflow.utils.context import Context\n",
+                "\n",
+                "\n",
+                "class TrinoOperator(BaseOperator):\n",
+                "    \"\"\"\n",
+                "    Executes sql code using a specific Trino query Engine.\n",
+                "\n",
+                "    .. seealso::\n",
+                "        For more information on how to use this operator, take a look at the guide:\n",
+                "        :ref:`howto/operator:TrinoOperator`\n",
+                "\n",
+                "    :param sql: the SQL code to be executed as a single string, or\n",
+                "        a list of str (sql statements), or a reference to a template file.\n",
+                "    :param trino_conn_id: id of the connection config for the target Trino\n",
+                "        environment\n",
+                "    :param autocommit: What to set the connection's autocommit setting to\n",
+                "        before executing the query\n",
+                "    :param handler: The result handler which is called with the result of each statement.\n",
+                "    :param parameters: (optional) the parameters to render the SQL query with.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    template_fields: Sequence[str] = ('sql',)\n",
+                "    template_fields_renderers = {'sql': 'sql'}\n",
+                "    template_ext: Sequence[str] = ('.sql',)\n",
+                "    ui_color = '#ededed'\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        *,\n",
+                "        sql: Union[str, List[str]],\n",
+                "        trino_conn_id: str = \"trino_default\",\n",
+                "        autocommit: bool = False,\n",
+                "        parameters: Optional[tuple] = None,\n",
+                "        handler: Optional[Callable] = None,\n",
+                "        **kwargs: Any,\n",
+                "    ) -> None:\n",
+                "        super().__init__(**kwargs)\n",
+                "        self.sql = sql\n",
+                "        self.trino_conn_id = trino_conn_id\n",
+                "        self.hook: Optional[TrinoHook] = None\n",
+                "        self.autocommit = autocommit\n",
+                "        self.parameters = parameters\n",
+                "        self.handler = handler\n",
+                "\n",
+                "    def get_hook(self) -> TrinoHook:\n",
+                "        \"\"\"Get Trino hook\"\"\"\n",
+                "        return TrinoHook(\n",
+                "            trino_conn_id=self.trino_conn_id,\n",
+                "        )\n",
+                "\n",
+                "    def execute(self, context: 'Context') -> None:\n",
+                "        \"\"\"Execute Trino SQL\"\"\"\n",
+                "        self.hook = self.get_hook()\n",
+                "        self.hook.run(\n",
+                "            sql=self.sql, autocommit=self.autocommit, parameters=self.parameters, handler=self.handler\n",
+                "        )\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "\n",
+                    "    def on_kill(self) -> None:\n",
+                    "        if self.hook is not None and isinstance(self.hook, TrinoHook):\n",
+                    "            query_id = \"'\" + self.hook.query_id + \"'\"\n",
+                    "            try:\n",
+                    "                self.log.info(\"Stopping query run with queryId - %s\", self.hook.query_id)\n",
+                    "                self.hook.run(\n",
+                    "                    sql=f\"CALL system.runtime.kill_query(query_id => {query_id},message => 'Job \"\n",
+                    "                    f\"killed by \"\n",
+                    "                    f\"user');\",\n",
+                    "                    handler=list,\n",
+                    "                )\n",
+                    "            except TrinoQueryError as e:\n",
+                    "                self.log.info(str(e))\n",
+                    "            self.log.info(\"Trino query (%s) terminated\", query_id)"
+                ],
+                "parent_version_range": {
+                    "start": 81,
+                    "end": 81
+                },
+                "child_version_range": {
+                    "start": 83,
+                    "end": 98
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TrinoOperator",
+                        "signature": "class TrinoOperator(BaseOperator):",
+                        "at_line": 28
+                    },
+                    {
+                        "type": "function",
+                        "name": "execute",
+                        "signature": "def execute(self, context: 'Context')->None:",
+                        "at_line": 75
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.hook.run",
+                        "signature": "self.hook.run(\n            sql=self.sql, autocommit=self.autocommit, parameters=self.parameters, handler=self.handler\n        )",
+                        "at_line": 78
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: airflow/providers/trino/operators/trino.py\nCode:\n         class TrinoOperator(BaseOperator):\n             ...\n             def execute(self, context: 'Context')->None:\n                 ...\n78 80            self.hook.run(\n79 81                sql=self.sql, autocommit=self.autocommit, parameters=self.parameters, handler=self.handler\n80 82            )\n   83  + \n   84  +     def on_kill(self) -> None:\n   85  +         if self.hook is not None and isinstance(self.hook, TrinoHook):\n   86  +             query_id = \"'\" + self.hook.query_id + \"'\"\n   87  +             try:\n   88  +                 self.log.info(\"Stopping query run with queryId - %s\", self.hook.query_id)\n   89  +                 self.hook.run(\n   90  +                     sql=f\"CALL system.runtime.kill_query(query_id => {query_id},message => 'Job \"\n   91  +                     f\"killed by \"\n   92  +                     f\"user');\",\n   93  +                     handler=list,\n   94  +                 )\n   95  +             except TrinoQueryError as e:\n   96  +                 self.log.info(str(e))\n   97  +             self.log.info(\"Trino query (%s) terminated\", query_id)\n       ...\n",
+                "file_path": "airflow/providers/trino/operators/trino.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "TrinoHook",
+                    "TrinoQueryError",
+                    "e",
+                    "handler",
+                    "hook",
+                    "info",
+                    "isinstance",
+                    "list",
+                    "log",
+                    "on_kill",
+                    "query_id",
+                    "run",
+                    "self",
+                    "sql",
+                    "str"
+                ],
+                "prefix": [
+                    "        self.hook.run(\n",
+                    "            sql=self.sql, autocommit=self.autocommit, parameters=self.parameters, handler=self.handler\n",
+                    "        )\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            }
+        ],
+        "tests/system/providers/trino/example_trino.py": [
+            [
+                "#\n",
+                "# Licensed to the Apache Software Foundation (ASF) under one\n",
+                "# or more contributor license agreements.  See the NOTICE file\n",
+                "# distributed with this work for additional information\n",
+                "# regarding copyright ownership.  The ASF licenses this file\n",
+                "# to you under the Apache License, Version 2.0 (the\n",
+                "# \"License\"); you may not use this file except in compliance\n",
+                "# with the License.  You may obtain a copy of the License at\n",
+                "#\n",
+                "#   http://www.apache.org/licenses/LICENSE-2.0\n",
+                "#\n",
+                "# Unless required by applicable law or agreed to in writing,\n",
+                "# software distributed under the License is distributed on an\n",
+                "# \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n",
+                "# KIND, either express or implied.  See the License for the\n",
+                "# specific language governing permissions and limitations\n",
+                "# under the License.\n",
+                "\"\"\"\n",
+                "Example DAG using TrinoOperator.\n",
+                "\"\"\"\n",
+                "\n",
+                "from datetime import datetime\n",
+                "\n",
+                "from airflow import models\n",
+                "from airflow.providers.trino.operators.trino import TrinoOperator\n",
+                "\n",
+                "SCHEMA = \"hive.cities\"\n",
+                "TABLE = \"city\"\n",
+                "TABLE1 = \"city1\"\n",
+                "TABLE2 = \"city2\"\n",
+                "\n",
+                "# [START howto_operator_trino]\n",
+                "\n",
+                "with models.DAG(\n",
+                "    dag_id=\"example_trino\",\n",
+                "    schedule_interval='@once',  # Override to match your needs\n",
+                "    start_date=datetime(2022, 1, 1),\n",
+                "    catchup=False,\n",
+                "    tags=[\"example\"],\n",
+                ") as dag:\n",
+                "    trino_create_schema = TrinoOperator(\n",
+                "        task_id=\"trino_create_schema\",\n",
+                "        sql=f\"CREATE SCHEMA IF NOT EXISTS {SCHEMA} WITH (location = 's3://irisbkt/cities/');\",\n",
+                "        handler=list,\n",
+                "    )\n",
+                "    trino_create_table = TrinoOperator(\n",
+                "        task_id=\"trino_create_table\",\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE}(\n"
+                ],
+                "after": [
+                    "        sql=f\"\"\"CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}(\n"
+                ],
+                "parent_version_range": {
+                    "start": 47,
+                    "end": 48
+                },
+                "child_version_range": {
+                    "start": 47,
+                    "end": 48
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with models.DAG(\n    dag_id=\"example_trino\",\n    schedule_interval='@once',  # Override to match your needs\n    start_date=datetime(2022, 1, 1),\n    catchup=False,\n    tags=[\"example\"],\n) as dag:",
+                        "start_line": 33,
+                        "end_line": 91
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "TrinoOperator",
+                        "signature": "TrinoOperator(\n        task_id=\"trino_create_table\",\n        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE}(\n        cityid bigint,\n        cityname varchar\n        )\"\"\",\n        handler=list,\n    )",
+                        "at_line": 45,
+                        "argument": "sql=..."
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: tests/system/providers/trino/example_trino.py\nCode:\n44 44        )\n45 45        trino_create_table = TrinoOperator(\n46 46            task_id=\"trino_create_table\",\n47     -         sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE}(\n   47  +         sql=f\"\"\"CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE}(\n48 48            cityid bigint,\n49 49            cityname varchar\n50 50            )\"\"\",\n       ...\n",
+                "file_path": "tests/system/providers/trino/example_trino.py",
+                "identifiers_before": [
+                    "SCHEMA",
+                    "TABLE",
+                    "sql"
+                ],
+                "identifiers_after": [
+                    "SCHEMA",
+                    "TABLE",
+                    "sql"
+                ],
+                "prefix": [
+                    "    )\n",
+                    "    trino_create_table = TrinoOperator(\n",
+                    "        task_id=\"trino_create_table\",\n"
+                ],
+                "suffix": [
+                    "        cityid bigint,\n",
+                    "        cityname varchar\n",
+                    "        )\"\"\",\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        cityid bigint,\n",
+                "        cityname varchar\n",
+                "        )\"\"\",\n",
+                "        handler=list,\n",
+                "    )\n",
+                "\n",
+                "    trino_insert = TrinoOperator(\n",
+                "        task_id=\"trino_insert\",\n",
+                "        sql=f\"\"\"INSERT INTO {SCHEMA}.{TABLE} VALUES (1, 'San Francisco');\"\"\",\n",
+                "        handler=list,\n",
+                "    )\n",
+                "\n",
+                "    trino_multiple_queries = TrinoOperator(\n",
+                "        task_id=\"trino_multiple_queries\",\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n"
+                ],
+                "after": [
+                    "        sql=f\"\"\"CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n"
+                ],
+                "parent_version_range": {
+                    "start": 62,
+                    "end": 63
+                },
+                "child_version_range": {
+                    "start": 62,
+                    "end": 63
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with models.DAG(\n    dag_id=\"example_trino\",\n    schedule_interval='@once',  # Override to match your needs\n    start_date=datetime(2022, 1, 1),\n    catchup=False,\n    tags=[\"example\"],\n) as dag:",
+                        "start_line": 33,
+                        "end_line": 91
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "TrinoOperator",
+                        "signature": "TrinoOperator(\n        task_id=\"trino_multiple_queries\",\n        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n        CREATE TABLE {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n        handler=list,\n    )",
+                        "at_line": 60,
+                        "argument": "sql=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/system/providers/trino/example_trino.py\nCode:\n59 59    \n60 60        trino_multiple_queries = TrinoOperator(\n61 61            task_id=\"trino_multiple_queries\",\n62     -         sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n   62  +         sql=f\"\"\"CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n63 63            INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n       ...\n",
+                "file_path": "tests/system/providers/trino/example_trino.py",
+                "identifiers_before": [
+                    "SCHEMA",
+                    "TABLE1",
+                    "bigint",
+                    "cityid",
+                    "cityname",
+                    "sql",
+                    "varchar"
+                ],
+                "identifiers_after": [
+                    "SCHEMA",
+                    "TABLE1",
+                    "bigint",
+                    "cityid",
+                    "cityname",
+                    "sql",
+                    "varchar"
+                ],
+                "prefix": [
+                    "\n",
+                    "    trino_multiple_queries = TrinoOperator(\n",
+                    "        task_id=\"trino_multiple_queries\",\n"
+                ],
+                "suffix": [
+                    "        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4,
+                    6
+                ]
+            },
+            [
+                "        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        CREATE TABLE {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n"
+                ],
+                "after": [
+                    "        CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n"
+                ],
+                "parent_version_range": {
+                    "start": 64,
+                    "end": 65
+                },
+                "child_version_range": {
+                    "start": 64,
+                    "end": 65
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with models.DAG(\n    dag_id=\"example_trino\",\n    schedule_interval='@once',  # Override to match your needs\n    start_date=datetime(2022, 1, 1),\n    catchup=False,\n    tags=[\"example\"],\n) as dag:",
+                        "start_line": 33,
+                        "end_line": 91
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "TrinoOperator",
+                        "signature": "TrinoOperator(\n        task_id=\"trino_multiple_queries\",\n        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n        CREATE TABLE {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n        handler=list,\n    )",
+                        "at_line": 60,
+                        "argument": "sql=..."
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: tests/system/providers/trino/example_trino.py\nCode:\n         TrinoOperator(\n        task_id=\"trino_multiple_queries\",\n        sql=f\"\"\"CREATE TABLE {SCHEMA}.{TABLE1}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n        CREATE TABLE {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n        INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n        handler=list,\n    )\n             ...\n63 63            INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n64     -         CREATE TABLE {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n   64  +         CREATE TABLE IF NOT EXISTS {SCHEMA}.{TABLE2}(cityid bigint,cityname varchar);\n65 65            INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n66 66            handler=list,\n67 67        )\n       ...\n",
+                "file_path": "tests/system/providers/trino/example_trino.py",
+                "identifiers_before": [
+                    "CREATE",
+                    "SCHEMA",
+                    "TABLE",
+                    "TABLE2",
+                    "bigint",
+                    "cityid",
+                    "cityname",
+                    "varchar"
+                ],
+                "identifiers_after": [
+                    "CREATE",
+                    "EXISTS",
+                    "IF",
+                    "NOT",
+                    "SCHEMA",
+                    "TABLE",
+                    "TABLE2",
+                    "bigint",
+                    "cityid",
+                    "cityname",
+                    "varchar"
+                ],
+                "prefix": [
+                    "        INSERT INTO {SCHEMA}.{TABLE1} VALUES (2, 'San Jose');\n"
+                ],
+                "suffix": [
+                    "        INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n",
+                    "        handler=list,\n",
+                    "    )\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        INSERT INTO {SCHEMA}.{TABLE2} VALUES (3, 'San Diego');\"\"\",\n",
+                "        handler=list,\n",
+                "    )\n",
+                "\n",
+                "    trino_templated_query = TrinoOperator(\n",
+                "        task_id=\"trino_templated_query\",\n",
+                "        sql=\"SELECT * FROM {{ params.SCHEMA }}.{{ params.TABLE }}\",\n",
+                "        handler=list,\n",
+                "        params={'SCHEMA': SCHEMA, 'TABLE': TABLE1},\n",
+                "    )\n",
+                "    trino_parameterized_query = TrinoOperator(\n",
+                "        task_id=\"trino_parameterized_query\",\n",
+                "        sql=f\"select * from {SCHEMA}.{TABLE2} where cityname = ?\",\n",
+                "        parameters=(\"San Diego\",),\n",
+                "        handler=list,\n",
+                "    )\n",
+                "\n",
+                "    (\n",
+                "        trino_create_schema\n",
+                "        >> trino_create_table\n",
+                "        >> trino_insert\n",
+                "        >> trino_multiple_queries\n",
+                "        >> trino_templated_query\n",
+                "        >> trino_parameterized_query\n",
+                "    )\n",
+                "\n",
+                "    # [END howto_operator_trino]\n",
+                "\n",
+                "\n",
+                "from tests.system.utils import get_test_run  # noqa: E402\n",
+                "\n",
+                "# Needed to run the example DAG with pytest (see: tests/system/README.md#run_via_pytest)\n",
+                "test_run = get_test_run(dag)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

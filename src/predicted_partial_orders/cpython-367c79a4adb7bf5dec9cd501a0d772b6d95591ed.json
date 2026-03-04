@@ -1,0 +1,59 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'lib2to3args' with a specific string value, and Edit 1 uses that exact same variable 'lib2to3args' in a CustomAction tuple. The changed lines reference the exact same symbol - the variable 'lib2to3args'. After defining the variable in Edit 0, using it in Edit 1 becomes the immediate next step to complete the functionality. Both edits are within the same function scope and represent a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'lib2to3args' with a specific string value, and Edit 1 uses that exact same variable 'lib2to3args' in a CustomAction tuple. The changed lines reference the exact same symbol - the variable 'lib2to3args'. After defining the variable in Edit 0, using it in Edit 1 becomes the immediate next step to complete the functionality. Both edits are within the same function scope and represent a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits add the exact same line '(\"CompileGrammar\", \"COMPILEALL\", 6802),' to two different lists within the same function add_ui(). This is a clear case of bulk-edit pattern synchronization where identical textual substitution is being applied to the same type of syntactic construct (both are tuples being added to lists). The edits are part of a single, contiguous refactor to add the CompileGrammar step to both InstallExecuteSequence and AdminExecuteSequence lists. Either edit can be made first, and after making either one, the other becomes the immediate next step to maintain consistency between the two sequences."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits add the exact same line '(\"CompileGrammar\", \"COMPILEALL\", 6802),' to two different lists within the same function add_ui(). This is a clear case of bulk-edit pattern synchronization where identical textual substitution is being applied to the same type of syntactic construct (both are tuples being added to lists). The edits are part of a single, contiguous refactor to add the CompileGrammar step to both InstallExecuteSequence and AdminExecuteSequence lists. Either edit can be made first, and after making either one, the other becomes the immediate next step to maintain consistency between the two sequences."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits add a 'CompileGrammar' entry to different data structures within the same function (add_ui). Edit 0 adds it to the 'CustomAction' table and Edit 1 adds it to the 'InstallExecuteSequence' table. These are part of the same logical operation - defining a custom action and then scheduling its execution. The changed lines reference the exact same symbol 'CompileGrammar' and both edits are part of implementing the same feature. Either edit could be made first as both are syntactically valid independently, but making one naturally prompts adding the corresponding entry in the other table as the next mechanical step to complete the custom action setup."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits add a 'CompileGrammar' entry to different data structures within the same function (add_ui). Edit 0 adds it to the 'CustomAction' table and Edit 1 adds it to the 'InstallExecuteSequence' table. These are part of the same logical operation - defining a custom action and then scheduling its execution. The changed lines reference the exact same symbol 'CompileGrammar' and both edits are part of implementing the same feature. Either edit could be made first as both are syntactically valid independently, but making one naturally prompts adding the corresponding entry in the other table as the next mechanical step to complete the custom action setup."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add the same custom action 'CompileGrammar' to different tables in the MSI database. Edit 0 defines the custom action in the CustomAction table, while Edit 1 adds it to the AdminExecuteSequence table. The changed lines in both edits reference the exact same symbol 'CompileGrammar'. This creates a direct code dependency where defining the custom action and scheduling its execution are mechanically linked - you cannot schedule execution of a custom action that hasn't been defined. However, since both edits can be written and parsed independently (MSI table definitions don't create parse-time dependencies), and either edit naturally prompts the other as the next step in the same micro-task of adding a complete custom action, this is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add the same custom action 'CompileGrammar' to different tables in the MSI database. Edit 0 defines the custom action in the CustomAction table, while Edit 1 adds it to the AdminExecuteSequence table. The changed lines in both edits reference the exact same symbol 'CompileGrammar'. This creates a direct code dependency where defining the custom action and scheduling its execution are mechanically linked - you cannot schedule execution of a custom action that hasn't been defined. However, since both edits can be written and parsed independently (MSI table definitions don't create parse-time dependencies), and either edit naturally prompts the other as the next step in the same micro-task of adding a complete custom action, this is bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 1 defines a new method 'removefile' in the msilib module, and Edit 0 calls this exact same method using 'lib.removefile'. This creates a definition-usage relationship where the method must be defined before it can be called. However, in Python, method calls can be written before the method definition exists since Python allows referencing undefined symbols at parse time (they only fail at runtime). Both edits reference the exact same symbol 'removefile' and either edit naturally prompts the other as the next mechanical step in implementing this feature."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new method 'removefile' in the msilib module, and Edit 0 calls this exact same method using 'lib.removefile'. This creates a definition-usage relationship where the method must be defined before it can be called. However, in Python, method calls can be written before the method definition exists since Python allows referencing undefined symbols at parse time (they only fail at runtime). Both edits reference the exact same symbol 'removefile' and either edit naturally prompts the other as the next mechanical step in implementing this feature."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        5
+    ]
+}

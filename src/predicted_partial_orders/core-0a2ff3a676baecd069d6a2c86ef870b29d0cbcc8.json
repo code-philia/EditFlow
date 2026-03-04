@@ -1,0 +1,179 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, while Edit 1 adds a mock setup for the exact same method `async_generate_cert_if_missing` in the test code. Both edits reference the same symbol and are part of synchronizing test mocks with production code changes. The test mock setup is needed to support the new production code call, making these edits bi-directional neighbors - either could be implemented first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, while Edit 1 adds a mock setup for the exact same method `async_generate_cert_if_missing` in the test code. Both edits reference the same symbol and are part of synchronizing test mocks with production code changes. The test mock setup is needed to support the new production code call, making these edits bi-directional neighbors - either could be implemented first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits add the exact same line of code `mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)` to different test functions. This represents a bulk-edit pattern where identical mock setup is being added to multiple test functions that use the same mock_api fixture. The edits perform an identical textual addition to the same type of syntactic construct (mock setup lines within test functions), and both reference the exact same symbol `mock_api.async_generate_cert_if_missing`. This appears to be part of a single, contiguous refactor to add consistent mock behavior across related test functions."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits add the exact same line of code `mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)` to different test functions. This represents a bulk-edit pattern where identical mock setup is being added to multiple test functions that use the same mock_api fixture. The edits perform an identical textual addition to the same type of syntactic construct (mock setup lines within test functions), and both reference the exact same symbol `mock_api.async_generate_cert_if_missing`. This appears to be part of a single, contiguous refactor to add consistent mock behavior across related test functions."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' - edit 0 assigns a mock implementation to this method, while edit 1 asserts that this method was called. This creates a direct code dependency where both edits are working with the same mock method symbol. The edits appear to be part of synchronizing test setup and assertions for the same mock API method across different test functions. Either edit could be made first and would naturally prompt consideration of the other as part of maintaining consistent mock behavior across the test suite."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' - edit 0 assigns a mock implementation to this method, while edit 1 asserts that this method was called. This creates a direct code dependency where both edits are working with the same mock method symbol. The edits appear to be part of synchronizing test setup and assertions for the same mock API method across different test functions. Either edit could be made first and would naturally prompt consideration of the other as part of maintaining consistent mock behavior across the test suite."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds an assertion `mock_api.async_generate_cert_if_missing.assert_called()` in the test code. Both edits reference the exact same method `async_generate_cert_if_missing` on the `api`/`mock_api` object. This is a classic test-production code synchronization pattern where the production code adds a method call and the test code adds a corresponding assertion to verify that call. Either edit could be made first and would naturally prompt the other as the next mechanical step to maintain test coverage."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds an assertion `mock_api.async_generate_cert_if_missing.assert_called()` in the test code. Both edits reference the exact same method `async_generate_cert_if_missing` on the `api`/`mock_api` object. This is a classic test-production code synchronization pattern where the production code adds a method call and the test code adds a corresponding assertion to verify that call. Either edit could be made first and would naturally prompt the other as the next mechanical step to maintain test coverage."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a mock for that exact same method `mock_api.async_generate_cert_if_missing` in the test code. Both edits reference the same method symbol `async_generate_cert_if_missing` on the api object. The test mock is needed to support the new production code call, creating a direct code dependency where either edit naturally prompts the other as the next mechanical step. This is a classic test-production synchronization pattern where both changed lines reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a mock for that exact same method `mock_api.async_generate_cert_if_missing` in the test code. Both edits reference the same method symbol `async_generate_cert_if_missing` on the api object. The test mock is needed to support the new production code call, creating a direct code dependency where either edit naturally prompts the other as the next mechanical step. This is a classic test-production synchronization pattern where both changed lines reference the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method with 'AsyncMock(return_value=True)', and edit 1 adds an assertion to verify that this exact same method was called. This creates a direct code dependency where setting up the mock (edit 0) and asserting it was called (edit 1) are part of the same test pattern. Either edit can be staged first since both are syntactically valid independently, but they form a natural pair where one prompts the other as the next mechanical step in test development."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method with 'AsyncMock(return_value=True)', and edit 1 adds an assertion to verify that this exact same method was called. This creates a direct code dependency where setting up the mock (edit 0) and asserting it was called (edit 1) are part of the same test pattern. Either edit can be staged first since both are syntactically valid independently, but they form a natural pair where one prompts the other as the next mechanical step in test development."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a call to `await api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a test assertion `mock_api.async_generate_cert_if_missing.assert_called()` to verify that this exact same method was called. Both edits reference the exact same symbol `async_generate_cert_if_missing` on the `api`/`mock_api` object. The test assertion directly validates the behavior added in the production code, creating an immediate code-driven relationship where either edit naturally prompts the other as the next step in the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `await api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a test assertion `mock_api.async_generate_cert_if_missing.assert_called()` to verify that this exact same method was called. Both edits reference the exact same symbol `async_generate_cert_if_missing` on the `api`/`mock_api` object. The test assertion directly validates the behavior added in the production code, creating an immediate code-driven relationship where either edit naturally prompts the other as the next step in the same development session."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a mock for that exact same method `mock_api.async_generate_cert_if_missing` in the test code. Both edits reference the same symbol `async_generate_cert_if_missing` - one calling it and the other mocking it. This creates a direct code dependency where the test mock needs to be updated to match the new method call in the production code. Either edit can be made first and both would be parseable, but making either edit creates an immediate prompt for the other to maintain test coverage."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a mock for that exact same method `mock_api.async_generate_cert_if_missing` in the test code. Both edits reference the same symbol `async_generate_cert_if_missing` - one calling it and the other mocking it. This creates a direct code dependency where the test mock needs to be updated to match the new method call in the production code. Either edit can be made first and both would be parseable, but making either edit creates an immediate prompt for the other to maintain test coverage."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a call to `await api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a test assertion `mock_api.async_generate_cert_if_missing.assert_called()` to verify that this exact same method was called. Both edits reference the exact same symbol `async_generate_cert_if_missing` on the `api`/`mock_api` object. This is a classic test-production code synchronization pattern where the production code adds functionality and the test code verifies that functionality is called. Either edit could be made first and would naturally prompt the other as the next step - adding the call prompts adding the assertion, or adding the assertion prompts adding the call."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `await api.async_generate_cert_if_missing()` in the production code, and Edit 1 adds a test assertion `mock_api.async_generate_cert_if_missing.assert_called()` to verify that this exact same method was called. Both edits reference the exact same symbol `async_generate_cert_if_missing` on the `api`/`mock_api` object. This is a classic test-production code synchronization pattern where the production code adds functionality and the test code verifies that functionality is called. Either edit could be made first and would naturally prompt the other as the next step - adding the call prompts adding the assertion, or adding the assertion prompts adding the call."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits add the exact same line of code 'mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)' to different test functions. This is a bulk-edit pattern where identical code is being added to multiple test functions as part of a single refactoring task. The edits perform an identical structural addition (same mock setup) to the same type of syntactic construct (test function setup). This represents a uniform, synchronized multi-location change that would naturally be done in one contiguous editing session."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits add the exact same line of code 'mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)' to different test functions. This is a bulk-edit pattern where identical code is being added to multiple test functions as part of a single refactoring task. The edits perform an identical structural addition (same mock setup) to the same type of syntactic construct (test function setup). This represents a uniform, synchronized multi-location change that would naturally be done in one contiguous editing session."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions that use the same mock object. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). This appears to be part of a single, contiguous refactor to ensure all relevant tests verify that the `async_generate_cert_if_missing` method is called."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions that use the same mock object. The edits perform identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). This appears to be part of a single, contiguous refactor to ensure all relevant tests verify that the `async_generate_cert_if_missing` method is called."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method by assigning it an AsyncMock, and edit 1 asserts that this mocked method was called. This creates a direct code dependency where the mock setup in edit 0 enables the assertion in edit 1. Both edits are part of the same test method and would naturally occur in one contiguous micro-task. Either edit can be staged first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other as the next logical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method by assigning it an AsyncMock, and edit 1 asserts that this mocked method was called. This creates a direct code dependency where the mock setup in edit 0 enables the assertion in edit 1. Both edits are part of the same test method and would naturally occur in one contiguous micro-task. Either edit can be staged first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other as the next logical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions as part of a single refactoring task. The edits involve identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). Both reference the exact same symbol `mock_api.async_generate_cert_if_missing` and appear to be part of a contiguous update to ensure this method is properly tested across multiple test scenarios."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions as part of a single refactoring task. The edits involve identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). Both reference the exact same symbol `mock_api.async_generate_cert_if_missing` and appear to be part of a contiguous update to ensure this method is properly tested across multiple test scenarios."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions as part of a single refactoring task to ensure consistent test coverage. The edits involve identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). This appears to be part of a contiguous refactor to add the same assertion across multiple related test functions."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits add identical test assertions for the same method `mock_api.async_generate_cert_if_missing.assert_called()` in different test functions within the same test file. This represents a bulk-edit pattern where the same assertion is being added to multiple test functions as part of a single refactoring task to ensure consistent test coverage. The edits involve identical textual substitution (adding the same assertion line) and target the same type of syntactic construct (test assertions). This appears to be part of a contiguous refactor to add the same assertion across multiple related test functions."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method by assigning it an AsyncMock, and Edit 1 asserts that this mocked method was called. This is a classic test setup-assertion pattern where the setup creates the mock and the assertion verifies its usage. Both edits can be staged in either order since Python allows both the assignment and the assertion to be written without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in the test implementation."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' within the same test function. Edit 0 sets up a mock for this method by assigning it an AsyncMock, and Edit 1 asserts that this mocked method was called. This is a classic test setup-assertion pattern where the setup creates the mock and the assertion verifies its usage. Both edits can be staged in either order since Python allows both the assignment and the assertion to be written without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in the test implementation."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits add the exact same line of code 'mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)' to different test functions within the same test file. This represents a bulk-edit pattern where identical code is being added to multiple test functions as part of a single refactoring operation. The edits perform an identical structural addition (same mock setup) to the same type of syntactic construct (test function setup sections). This appears to be part of a contiguous refactor to add the same mock behavior across multiple related test functions, making either edit a natural prompt for the other as part of the same micro-task."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits add the exact same line of code 'mock_api.async_generate_cert_if_missing = AsyncMock(return_value=True)' to different test functions within the same test file. This represents a bulk-edit pattern where identical code is being added to multiple test functions as part of a single refactoring operation. The edits perform an identical structural addition (same mock setup) to the same type of syntactic construct (test function setup sections). This appears to be part of a contiguous refactor to add the same mock behavior across multiple related test functions, making either edit a natural prompt for the other as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' - edit 0 sets up a mock for this method with 'AsyncMock(return_value=True)', and edit 1 asserts that this same method was called with 'assert_called()'. This is a classic test setup-assertion pattern where both changed lines reference the identical symbol, creating a direct code dependency where setting up the mock naturally prompts the need for the corresponding assertion."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'mock_api.async_generate_cert_if_missing' - edit 0 sets up a mock for this method with 'AsyncMock(return_value=True)', and edit 1 asserts that this same method was called with 'assert_called()'. This is a classic test setup-assertion pattern where both changed lines reference the identical symbol, creating a direct code dependency where setting up the mock naturally prompts the need for the corresponding assertion."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        2,
+        5
+    ]
+}

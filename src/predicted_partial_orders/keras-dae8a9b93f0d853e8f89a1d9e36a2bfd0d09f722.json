@@ -1,0 +1,137 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes the return signature of predict_step from returning just 'outputs' to returning a tuple '(outputs, (trainable_variables, non_trainable_variables))'. Edit 1 updates the caller of one_predict_step (which calls predict_step) to unpack this new tuple return format with 'outputs, state = one_predict_step(state, data[:1])'. These edits reference the exact same function call chain - predict_step is called via one_predict_step, and the changed lines directly handle the same return value. After making edit 0, edit 1 becomes immediately necessary to handle the new tuple return format, and vice versa. This is a classic signature change with corresponding caller update pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes the return signature of predict_step from returning just 'outputs' to returning a tuple '(outputs, (trainable_variables, non_trainable_variables))'. Edit 1 updates the caller of one_predict_step (which calls predict_step) to unpack this new tuple return format with 'outputs, state = one_predict_step(state, data[:1])'. These edits reference the exact same function call chain - predict_step is called via one_predict_step, and the changed lines directly handle the same return value. After making edit 0, edit 1 becomes immediately necessary to handle the new tuple return format, and vice versa. This is a classic signature change with corresponding caller update pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits modify the same function `predict_step` and work with the exact same variables. Edit 0 changes the assignment to capture `non_trainable_variables` from the `stateless_call`, and Edit 1 modifies the return statement to include both `trainable_variables` and `non_trainable_variables` alongside the `outputs`. The `non_trainable_variables` captured in Edit 0 is directly used in the return statement of Edit 1. These edits represent a coordinated change to modify the function's behavior to return additional state information, where Edit 0 captures the needed variable and Edit 1 uses it in the return. Either edit can be made first without causing parse errors, and both reference the same symbols (`outputs`, `non_trainable_variables`, `trainable_variables`) within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits modify the same function `predict_step` and work with the exact same variables. Edit 0 changes the assignment to capture `non_trainable_variables` from the `stateless_call`, and Edit 1 modifies the return statement to include both `trainable_variables` and `non_trainable_variables` alongside the `outputs`. The `non_trainable_variables` captured in Edit 0 is directly used in the return statement of Edit 1. These edits represent a coordinated change to modify the function's behavior to return additional state information, where Edit 0 captures the needed variable and Edit 1 uses it in the return. Either edit can be made first without causing parse errors, and both reference the same symbols (`outputs`, `non_trainable_variables`, `trainable_variables`) within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes the return signature of predict_step to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 updates the call site of one_predict_step (which calls predict_step) to unpack the new tuple return format by assigning both step_outputs and state. The changed lines reference the exact same function call relationship - edit 0 modifies what predict_step returns, and edit 1 modifies how that return value is handled at the call site. This creates an immediate code-driven dependency where changing the return signature necessitates updating the call site to handle the new return format."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes the return signature of predict_step to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 updates the call site of one_predict_step (which calls predict_step) to unpack the new tuple return format by assigning both step_outputs and state. The changed lines reference the exact same function call relationship - edit 0 modifies what predict_step returns, and edit 1 modifies how that return value is handled at the call site. This creates an immediate code-driven dependency where changing the return signature necessitates updating the call site to handle the new return format."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `multi_predict_steps` to change its return signature from returning only `outputs` to returning `(outputs, state)`. Edit 0 changes the assignment from `one_predict_step` to unpack both `outputs` and `state`, while Edit 1 changes the function's return statement to return both values. These changes are mechanically linked - after making either edit, the function would have inconsistent behavior (either unpacking two values but only returning one, or returning two values but only unpacking one). The edits reference the exact same symbols (`outputs` and `state`) and form a cohesive signature change that must be applied together for the function to work correctly."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `multi_predict_steps` to change its return signature from returning only `outputs` to returning `(outputs, state)`. Edit 0 changes the assignment from `one_predict_step` to unpack both `outputs` and `state`, while Edit 1 changes the function's return statement to return both values. These changes are mechanically linked - after making either edit, the function would have inconsistent behavior (either unpacking two values but only returning one, or returning two values but only unpacking one). The edits reference the exact same symbols (`outputs` and `state`) and form a cohesive signature change that must be applied together for the function to work correctly."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 changes the return signature of predict_step method to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 modifies predict_on_batch method to call predict_function with the new signature, expecting it to return both batch_outputs and state. These edits reference the exact same function call pattern and state structure - the predict_function is being called in edit 1 and its implementation (predict_step) is being modified in edit 0. The changes are synchronized to maintain API compatibility between the caller and callee of the same function interface."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 changes the return signature of predict_step method to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 modifies predict_on_batch method to call predict_function with the new signature, expecting it to return both batch_outputs and state. These edits reference the exact same function call pattern and state structure - the predict_function is being called in edit 1 and its implementation (predict_step) is being modified in edit 0. The changes are synchronized to maintain API compatibility between the caller and callee of the same function interface."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "These edits modify the same predict_function call chain within the JAXTrainer class. Edit 0 changes the predict_step method to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 updates the caller in the predict method to handle this new return format by unpacking the tuple into batch_outputs and state. The changed lines reference the exact same function call relationship - predict_step's return value is consumed by predict_function which is called in the predict method. After making edit 0, the predict method would fail because it expects the old return format, making edit 1 the immediate next required step. Similarly, edit 1 assumes the new return format from edit 0. Both edits reference the same predict_function call chain and create a direct code dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "These edits modify the same predict_function call chain within the JAXTrainer class. Edit 0 changes the predict_step method to return a tuple (outputs, (trainable_variables, non_trainable_variables)) instead of just outputs. Edit 1 updates the caller in the predict method to handle this new return format by unpacking the tuple into batch_outputs and state. The changed lines reference the exact same function call relationship - predict_step's return value is consumed by predict_function which is called in the predict method. After making edit 0, the predict method would fail because it expects the old return format, making edit 1 the immediate next required step. Similarly, edit 1 assumes the new return format from edit 0. Both edits reference the same predict_function call chain and create a direct code dependency."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify calls to the same function `one_predict_step` within the same method `multi_predict_steps`. They apply an identical structural change pattern: changing from `outputs = one_predict_step(...)` to `outputs, state = one_predict_step(...)` and from `step_outputs = one_predict_step(...)` to `step_outputs, state = one_predict_step(...)`. This represents a uniform substitution where the same function's return value handling is being updated consistently across multiple call sites. The edits reference the exact same symbol (`one_predict_step`) and apply the same before\u2192after pattern to the same type of syntactic construct (function call assignments). This would naturally occur as part of a single, contiguous refactoring task to update all call sites of `one_predict_step` to handle its modified return signature."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify calls to the same function `one_predict_step` within the same method `multi_predict_steps`. They apply an identical structural change pattern: changing from `outputs = one_predict_step(...)` to `outputs, state = one_predict_step(...)` and from `step_outputs = one_predict_step(...)` to `step_outputs, state = one_predict_step(...)`. This represents a uniform substitution where the same function's return value handling is being updated consistently across multiple call sites. The edits reference the exact same symbol (`one_predict_step`) and apply the same before\u2192after pattern to the same type of syntactic construct (function call assignments). This would naturally occur as part of a single, contiguous refactoring task to update all call sites of `one_predict_step` to handle its modified return signature."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `multi_predict_steps` to change its return signature from returning only `outputs` to returning `(outputs, state)`. Edit 0 modifies the call to `one_predict_step` to unpack both `step_outputs` and `state`, while Edit 1 modifies the return statement to return both values. These changes are mechanically linked - after making Edit 0 where `state` is now being assigned from `one_predict_step`, Edit 1 becomes the immediate next step to return that `state` value. Similarly, after making Edit 1 to return `state`, Edit 0 becomes necessary to actually capture and use that `state` value. Both edits reference the same `state` symbol and work together to implement a consistent signature change."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify the same function `multi_predict_steps` to change its return signature from returning only `outputs` to returning `(outputs, state)`. Edit 0 modifies the call to `one_predict_step` to unpack both `step_outputs` and `state`, while Edit 1 modifies the return statement to return both values. These changes are mechanically linked - after making Edit 0 where `state` is now being assigned from `one_predict_step`, Edit 1 becomes the immediate next step to return that `state` value. Similarly, after making Edit 1 to return `state`, Edit 0 becomes necessary to actually capture and use that `state` value. Both edits reference the same `state` symbol and work together to implement a consistent signature change."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 changes the return statement of the `multi_predict_steps` function to return `(outputs, state)` instead of just `outputs`. Edit 1 updates the call site of `self.predict_function` to handle the new return format by unpacking both `batch_outputs` and `state`. The changed lines reference the exact same symbol - the predict function's return value. After making edit 0, the function returns a tuple, making edit 1 necessary to properly unpack the returned values. This creates an immediate, mechanically obvious code-driven prompt for the other edit."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 changes the return statement of the `multi_predict_steps` function to return `(outputs, state)` instead of just `outputs`. Edit 1 updates the call site of `self.predict_function` to handle the new return format by unpacking both `batch_outputs` and `state`. The changed lines reference the exact same symbol - the predict function's return value. After making edit 0, the function returns a tuple, making edit 1 necessary to properly unpack the returned values. This creates an immediate, mechanically obvious code-driven prompt for the other edit."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 changes the return statement of the `multi_predict_steps` function to return `(outputs, state)` instead of just `outputs`. Edit 1 updates the call site to unpack this new return value into `batch_outputs, state`. The changed lines reference the exact same function call - `self.predict_function` - where edit 0 modifies what this function returns and edit 1 modifies how the return value is handled. This creates an immediate, mechanically obvious code dependency: after changing the return signature in edit 0, the call site in edit 1 must be updated to handle the new return format, or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 changes the return statement of the `multi_predict_steps` function to return `(outputs, state)` instead of just `outputs`. Edit 1 updates the call site to unpack this new return value into `batch_outputs, state`. The changed lines reference the exact same function call - `self.predict_function` - where edit 0 modifies what this function returns and edit 1 modifies how the return value is handled. This creates an immediate, mechanically obvious code dependency: after changing the return signature in edit 0, the call site in edit 1 must be updated to handle the new return format, or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 creates a new variable 'state' by combining trainable_variables and non_trainable_variables. Edit 1 then uses this exact same 'state' variable in the predict_function call, replacing the previous inline list [trainable_variables, non_trainable_variables]. The changed lines reference the exact same symbol 'state' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly created state variable. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 creates a new variable 'state' by combining trainable_variables and non_trainable_variables. Edit 1 then uses this exact same 'state' variable in the predict_function call, replacing the previous inline list [trainable_variables, non_trainable_variables]. The changed lines reference the exact same symbol 'state' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to utilize the newly created state variable. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits involve creating a `state` variable by combining `trainable_variables` and `non_trainable_variables` into a tuple. This appears to be part of a refactoring to standardize how state is passed to prediction functions. Edit 0 creates the state tuple in the `predict` method, while Edit 1 creates the same state tuple in the `predict_on_batch` method and also updates the function call to use this new state format. Both edits reference the exact same variables (`trainable_variables` and `non_trainable_variables`) and apply an identical structural pattern (creating a state tuple), making this a synchronized refactoring across related methods in the same class."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits involve creating a `state` variable by combining `trainable_variables` and `non_trainable_variables` into a tuple. This appears to be part of a refactoring to standardize how state is passed to prediction functions. Edit 0 creates the state tuple in the `predict` method, while Edit 1 creates the same state tuple in the `predict_on_batch` method and also updates the function call to use this new state format. Both edits reference the exact same variables (`trainable_variables` and `non_trainable_variables`) and apply an identical structural pattern (creating a state tuple), making this a synchronized refactoring across related methods in the same class."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits modify calls to the exact same method `self.predict_function` within the same class `JAXTrainer`. They perform identical structural changes: converting from a pattern where `predict_function` takes `[trainable_variables, non_trainable_variables]` as the first argument to a pattern where it takes a `state` tuple and returns both `batch_outputs` and `state`. This represents a uniform refactoring of the same method signature across multiple call sites within the same class. The changes are mechanically identical and would naturally be done together as part of a single refactoring task to update all callers of `predict_function` to match a new signature."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits modify calls to the exact same method `self.predict_function` within the same class `JAXTrainer`. They perform identical structural changes: converting from a pattern where `predict_function` takes `[trainable_variables, non_trainable_variables]` as the first argument to a pattern where it takes a `state` tuple and returns both `batch_outputs` and `state`. This represents a uniform refactoring of the same method signature across multiple call sites within the same class. The changes are mechanically identical and would naturally be done together as part of a single refactoring task to update all callers of `predict_function` to match a new signature."
+        }
+    ],
+    "allowed_init_edits": [
+        8
+    ]
+}

@@ -1,0 +1,90 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits change references from 'spider.parse' to 'spider._parse', indicating they are referencing the exact same method on spider objects. Edit 0 changes the fallback callback assignment in the scraper core, while Edit 1 updates a test that calls the same method. Both changed lines reference the same symbol (the parse method on spider instances), creating a direct code dependency where renaming the method in one location requires updating all references to maintain consistency. This represents a synchronized refactoring of the same symbol across production and test code."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits change references from 'spider.parse' to 'spider._parse', indicating they are referencing the exact same method on spider objects. Edit 0 changes the fallback callback assignment in the scraper core, while Edit 1 updates a test that calls the same method. Both changed lines reference the same symbol (the parse method on spider instances), creating a direct code dependency where renaming the method in one location requires updating all references to maintain consistency. This represents a synchronized refactoring of the same symbol across production and test code."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new method `_parse` to the Spider class that calls `self.parse(response)`. Edit 1 changes a test to call `spider._parse(response)` instead of `spider.parse(response)`. Both edits reference the exact same symbol `_parse` - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where defining the `_parse` method enables the test to call it. Since this appears to be part of the same development session where a new method is being introduced and immediately tested, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new method `_parse` to the Spider class that calls `self.parse(response)`. Edit 1 changes a test to call `spider._parse(response)` instead of `spider.parse(response)`. Both edits reference the exact same symbol `_parse` - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where defining the `_parse` method enables the test to call it. Since this appears to be part of the same development session where a new method is being introduced and immediately tested, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 changes a call from 'spider.parse' to 'spider._parse' in the scraper module, while Edit 1 renames the method 'parse' to '_parse' in the spider class. These edits reference the exact same symbol - the parse method being renamed to _parse. Edit 0 updates the caller to use the new method name, while Edit 1 performs the actual method rename. This creates a direct code dependency where both edits must be made together for the code to function correctly, as the method call and method definition must match."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 changes a call from 'spider.parse' to 'spider._parse' in the scraper module, while Edit 1 renames the method 'parse' to '_parse' in the spider class. These edits reference the exact same symbol - the parse method being renamed to _parse. Edit 0 updates the caller to use the new method name, while Edit 1 performs the actual method rename. This creates a direct code dependency where both edits must be made together for the code to function correctly, as the method call and method definition must match."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 changes a reference from `spider.parse` to `spider._parse` in the changed line. Edit 1 adds the definition of the `_parse` method that is now being referenced in Edit 0. The changed lines reference the exact same symbol (`spider._parse`), where Edit 0 calls/references it and Edit 1 defines it. This creates an immediate code dependency - after making Edit 0, the code would have a runtime AttributeError until Edit 1 is applied to define the `_parse` method. However, since both edits can be written and parsed in either order (Python allows referencing undefined attributes at parse time), and the relationship is that either edit naturally prompts the other as the next mechanical step, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 changes a reference from `spider.parse` to `spider._parse` in the changed line. Edit 1 adds the definition of the `_parse` method that is now being referenced in Edit 0. The changed lines reference the exact same symbol (`spider._parse`), where Edit 0 calls/references it and Edit 1 defines it. This creates an immediate code dependency - after making Edit 0, the code would have a runtime AttributeError until Edit 1 is applied to define the `_parse` method. However, since both edits can be written and parsed in either order (Python allows referencing undefined attributes at parse time), and the relationship is that either edit naturally prompts the other as the next mechanical step, this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same method symbol - they both change 'parse' to '_parse' for the same XMLFeedSpider class method. Edit 0 renames the method definition in the XMLFeedSpider class, and Edit 1 updates the corresponding method call in the test code to use the new name. This creates a direct code dependency where both edits must reference the same symbol for the code to work correctly. After making either edit, the other becomes the immediate next step to maintain code consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same method symbol - they both change 'parse' to '_parse' for the same XMLFeedSpider class method. Edit 0 renames the method definition in the XMLFeedSpider class, and Edit 1 updates the corresponding method call in the test code to use the new name. This creates a direct code dependency where both edits must reference the same symbol for the code to work correctly. After making either edit, the other becomes the immediate next step to maintain code consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'def parse(self, response):' to 'def _parse(self, response):' in different classes (XMLFeedSpider and CSVFeedSpider). This is a uniform refactoring operation that renames the same method signature across multiple classes of the same type (feed spiders). The edits target the same syntactic construct (method definitions) with the exact same before\u2192after pattern, making them part of a single, contiguous refactor sweep. Either edit could be made first, and both are mechanically obvious parts of the same renaming operation."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'def parse(self, response):' to 'def _parse(self, response):' in different classes (XMLFeedSpider and CSVFeedSpider). This is a uniform refactoring operation that renames the same method signature across multiple classes of the same type (feed spiders). The edits target the same syntactic construct (method definitions) with the exact same before\u2192after pattern, making them part of a single, contiguous refactor sweep. Either edit could be made first, and both are mechanically obvious parts of the same renaming operation."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 renames the method `parse` to `_parse` in the CSVFeedSpider class. Edit 1 updates a test call from `spider.parse(response)` to `spider._parse(response)`. Both edits reference the exact same method symbol - the parse method being renamed to _parse. After renaming the method in edit 0, the test call in edit 1 must be updated to use the new method name, making this a direct definition-usage relationship where both changed lines reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 renames the method `parse` to `_parse` in the CSVFeedSpider class. Edit 1 updates a test call from `spider.parse(response)` to `spider._parse(response)`. Both edits reference the exact same method symbol - the parse method being renamed to _parse. After renaming the method in edit 0, the test call in edit 1 must be updated to use the new method name, making this a direct definition-usage relationship where both changed lines reference the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same method symbol - they both change from 'parse' to '_parse' for what appears to be the same spider class method. Edit 0 renames the method definition from 'parse' to '_parse' in the CrawlSpider class, and Edit 1 updates a test call from 'parse' to '_parse' for the same method. This creates a direct definition-usage relationship where both changed lines reference the exact same symbol. After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the method definition, you must update the call site, and vice versa. This is a classic signature-caller synchronization pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same method symbol - they both change from 'parse' to '_parse' for what appears to be the same spider class method. Edit 0 renames the method definition from 'parse' to '_parse' in the CrawlSpider class, and Edit 1 updates a test call from 'parse' to '_parse' for the same method. This creates a direct definition-usage relationship where both changed lines reference the exact same symbol. After making either edit, the other becomes the immediate next step to maintain code consistency - if you rename the method definition, you must update the call site, and vice versa. This is a classic signature-caller synchronization pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2,
+        3,
+        4
+    ]
+}

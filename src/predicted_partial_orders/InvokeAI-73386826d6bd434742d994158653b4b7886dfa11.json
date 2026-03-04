@@ -1,0 +1,88 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports RawModel from invokeai.backend.raw_model, and Edit 1 uses that exact same RawModel symbol as a base class for GroundingDinoPipeline. The changed lines reference the exact same symbol - RawModel. After importing RawModel in edit 0, edit 1 becomes the immediate next step to use it as a base class. This is a classic import-usage pattern within the same file where both edits reference the identical symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports RawModel from invokeai.backend.raw_model, and Edit 1 uses that exact same RawModel symbol as a base class for GroundingDinoPipeline. The changed lines reference the exact same symbol - RawModel. After importing RawModel in edit 0, edit 1 becomes the immediate next step to use it as a base class. This is a classic import-usage pattern within the same file where both edits reference the identical symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 changes the class definition to inherit from RawModel, while Edit 1 adds the import for RawModel. These edits reference the exact same symbol (RawModel) and have a direct code dependency - the class inheritance in Edit 0 requires the import in Edit 1 to be present. However, in Python, both edits can be written and parsed in either order since the inheritance reference won't cause a parse-time syntax error, only a runtime NameError when the module is imported. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 changes the class definition to inherit from RawModel, while Edit 1 adds the import for RawModel. These edits reference the exact same symbol (RawModel) and have a direct code dependency - the class inheritance in Edit 0 requires the import in Edit 1 to be present. However, in Python, both edits can be written and parsed in either order since the inheritance reference won't cause a parse-time syntax error, only a runtime NameError when the module is imported. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits modify the same method `to` within the same class `GroundingDinoPipeline`. Edit 0 removes the return type annotation `-> \"GroundingDinoPipeline\"` from the method signature, while Edit 1 removes the `return self` statement from the method body. These changes are directly related - removing the return type annotation suggests the method should no longer return a value, which makes removing the return statement the immediate next step. The changes reference the exact same method and form a coherent modification where both the signature and implementation are updated together to change the method from returning self to returning nothing."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits modify the same method `to` within the same class `GroundingDinoPipeline`. Edit 0 removes the return type annotation `-> \"GroundingDinoPipeline\"` from the method signature, while Edit 1 removes the `return self` statement from the method body. These changes are directly related - removing the return type annotation suggests the method should no longer return a value, which makes removing the return statement the immediate next step. The changes reference the exact same method and form a coherent modification where both the signature and implementation are updated together to change the method from returning self to returning nothing."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical structural substitution on the same type of syntactic construct - removing the return type annotation from method signatures. Both are changing `def to(...) -> \"ClassName\":` to `def to(...):` in different classes. This represents a uniform refactoring pattern applied to the same method signature across multiple classes, which constitutes a bulk edit with identical before\u2192after patterns on the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution on the same type of syntactic construct - removing the return type annotation from method signatures. Both are changing `def to(...) -> \"ClassName\":` to `def to(...):` in different classes. This represents a uniform refactoring pattern applied to the same method signature across multiple classes, which constitutes a bulk edit with identical before\u2192after patterns on the same construct type."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports RawModel from invokeai.backend.raw_model, and Edit 1 uses that exact same RawModel symbol as a base class for SegmentAnythingModel. The changed lines reference the exact same symbol - RawModel. After importing RawModel in Edit 0, using it as a base class in Edit 1 becomes the immediate next step. Conversely, if you add RawModel as a base class first, you would immediately need to import it. Both edits can be written and parsed in either order (the inheritance would just cause a NameError at runtime if the import is missing), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports RawModel from invokeai.backend.raw_model, and Edit 1 uses that exact same RawModel symbol as a base class for SegmentAnythingModel. The changed lines reference the exact same symbol - RawModel. After importing RawModel in Edit 0, using it as a base class in Edit 1 becomes the immediate next step. Conversely, if you add RawModel as a base class first, you would immediately need to import it. Both edits can be written and parsed in either order (the inheritance would just cause a NameError at runtime if the import is missing), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits modify the same method `to` in the `SegmentAnythingModel` class. Edit 0 removes the return type annotation `-> \"SegmentAnythingModel\"` from the method signature, while Edit 1 removes the `return self` statement from the method body. These changes are directly related - removing the return type annotation makes sense when also removing the return statement, as the method no longer returns anything. Both edits reference the exact same method and are part of converting this method from returning self to returning nothing (void). Either edit could be made first and would naturally prompt the other as the next mechanical step to maintain consistency."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits modify the same method `to` in the `SegmentAnythingModel` class. Edit 0 removes the return type annotation `-> \"SegmentAnythingModel\"` from the method signature, while Edit 1 removes the `return self` statement from the method body. These changes are directly related - removing the return type annotation makes sense when also removing the return statement, as the method no longer returns anything. Both edits reference the exact same method and are part of converting this method from returning self to returning nothing (void). Either edit could be made first and would naturally prompt the other as the next mechanical step to maintain consistency."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution - adding the exact same import line 'from invokeai.backend.raw_model import RawModel' in two different files. This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single, contiguous refactor. Both edits target the same type of syntactic construct (import statements) with identical before\u2192after patterns. This creates a bi-directional relationship where either edit can be made first, and both are part of the same mechanical import addition task."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution - adding the exact same import line 'from invokeai.backend.raw_model import RawModel' in two different files. This represents a bulk-edit pattern where the same import is being added to multiple files as part of a single, contiguous refactor. Both edits target the same type of syntactic construct (import statements) with identical before\u2192after patterns. This creates a bi-directional relationship where either edit can be made first, and both are part of the same mechanical import addition task."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution pattern: adding '(RawModel)' as a parent class to existing class definitions. The changes are syntactically identical (adding the same inheritance pattern) and target the same type of syntactic construct (class definitions). This represents a bulk refactoring operation where the same inheritance change is being applied uniformly across multiple classes, making it a synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern: adding '(RawModel)' as a parent class to existing class definitions. The changes are syntactically identical (adding the same inheritance pattern) and target the same type of syntactic construct (class definitions). This represents a bulk refactoring operation where the same inheritance change is being applied uniformly across multiple classes, making it a synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        7
+    ]
+}

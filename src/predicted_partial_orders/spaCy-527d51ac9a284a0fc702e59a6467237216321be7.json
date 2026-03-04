@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the __shortcuts__ variable from a dictionary to a URL string in spacy/about.py. Edit 1 adds a new function check_shortcut() that references about.__shortcuts__ in its implementation. The changed lines reference the exact same symbol (__shortcuts__), creating a direct code dependency where the usage in edit 1 depends on the definition change in edit 0. This represents a definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the __shortcuts__ variable from a dictionary to a URL string in spacy/about.py. Edit 1 adds a new function check_shortcut() that references about.__shortcuts__ in its implementation. The changed lines reference the exact same symbol (__shortcuts__), creating a direct code dependency where the usage in edit 1 depends on the definition change in edit 0. This represents a definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 changes line 19 to call a function `check_shortcut(model)`, while Edit 1 defines that exact same function `check_shortcut` on line 37. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making either edit, the other becomes the immediate next step to ensure the code works correctly - if you add the call without the definition, you get a NameError at runtime, and if you add the definition without updating the usage, the old logic remains. Since Python allows referencing undefined functions at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 changes line 19 to call a function `check_shortcut(model)`, while Edit 1 defines that exact same function `check_shortcut` on line 37. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making either edit, the other becomes the immediate next step to ensure the code works correctly - if you add the call without the definition, you get a NameError at runtime, and if you add the definition without updating the usage, the old logic remains. Since Python allows referencing undefined functions at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 renames the function from 'get_compatibility' to 'get_json' and changes its signature. Edit 1 creates a new 'get_compatibility' function that calls the renamed 'get_json' function. The changed lines reference the exact same symbol - the function that was renamed from 'get_compatibility' to 'get_json' in edit 0 is then called as 'get_json' in edit 1. This creates a direct code dependency where edit 0 must occur first to define the 'get_json' function before edit 1 can call it. Without edit 0, the call to 'get_json' in edit 1 would result in a NameError at runtime."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the function signature from `get_compatibility()` to `get_json(url, desc)`, adding a new parameter `desc`. Edit 1 then uses this new `desc` parameter in the function body by replacing `v=version` with `d=desc, v=about.__version__`. The changed lines reference the exact same symbol `desc` - edit 0 introduces it as a parameter, and edit 1 uses it in a format string. After making edit 0, the next immediate mechanical step would be to update the function body to use the new parameter, making edit 1 the natural next action. This represents a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the function signature from `get_compatibility()` to `get_json(url, desc)`, adding a new parameter `desc`. Edit 1 then uses this new `desc` parameter in the function body by replacing `v=version` with `d=desc, v=about.__version__`. The changed lines reference the exact same symbol `desc` - edit 0 introduces it as a parameter, and edit 1 uses it in a format string. After making edit 0, the next immediate mechanical step would be to update the function body to use the new parameter, making edit 1 the natural next action. This represents a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the function signature from 'get_compatibility()' to 'get_json(url, desc)' and introduces a variable 'r'. Edit 1 adds a return statement using the same 'r' variable and calls the newly renamed function 'get_json'. The changed lines in both edits reference the exact same symbols: the 'r' variable and the 'get_json' function. After making edit 0 (renaming the function and changing its signature), edit 1 becomes the immediate next step to complete the refactoring by adding the return statement and using the renamed function. This is a bi-directional relationship because both edits reference the same symbols and either could prompt the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes the function signature from 'get_compatibility()' to 'get_json(url, desc)' and introduces a variable 'r'. Edit 1 adds a return statement using the same 'r' variable and calls the newly renamed function 'get_json'. The changed lines in both edits reference the exact same symbols: the 'r' variable and the 'get_json' function. After making edit 0 (renaming the function and changing its signature), edit 1 becomes the immediate next step to complete the refactoring by adding the return statement and using the renamed function. This is a bi-directional relationship because both edits reference the same symbols and either could prompt the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 changes the function signature from 'get_compatibility()' to 'get_json(url, desc)' and removes the line that defines the 'version' variable. Edit 1 removes the dependency markup around 'version' in the return statement. However, these edits reference different aspects: Edit 0 removes the definition of the 'version' variable entirely, while Edit 1 only removes markup around an existing 'version' reference. The 'version' symbol in Edit 1's changed line would become undefined after Edit 0 is applied, since Edit 0 removes the line 'version = about.__version__'. This creates a direct code dependency where Edit 0 must be applied before Edit 1, as Edit 1 cannot function correctly without the 'version' variable that Edit 0 removes."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new function `get_json()` that returns `r.json()`, and Edit 1 modifies the `get_compatibility()` function to call `get_json(about.__compatibility__, \"compatibility table\")` instead of directly calling `r.json()`. The changed line in Edit 1 explicitly calls the `get_json` function that is defined in Edit 0. This creates a direct definition-usage relationship where the exact same symbol (`get_json`) is being defined in one edit and called in another. After adding the `get_json` function definition, using it in `get_compatibility()` becomes the natural next step in the refactoring process."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits are within the same function `get_compatibility()` and involve the exact same symbols. Edit 0 defines/assigns the variables `comp` and `version`, while Edit 1 uses both of these exact same variables in a return statement. The changed lines in both edits reference the identical symbols `comp` and `version`. After making Edit 0, the natural next step would be to update the return statement to use the newly defined `version` variable instead of the previous logic, making Edit 1 the immediate, mechanically obvious next action. This represents a clear definition-usage relationship within the same function scope."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 changes the `__shortcuts__` variable from a dictionary to a string URL in spacy/about.py. Edit 1 modifies code that previously accessed `about.__shortcuts__` as a dictionary (using bracket notation to check membership and retrieve values), replacing it with a `check_shortcut(model)` function call. These edits reference the exact same symbol (`about.__shortcuts__`) and are directly linked - after changing `__shortcuts__` from a dict to a string in edit 0, the dictionary access pattern in edit 1 would no longer work and needs to be updated to use the new function-based approach. Either edit could be made first since both are syntactically valid, but making either edit creates an immediate, mechanically obvious prompt for the other as the next step to maintain code functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 changes the `__shortcuts__` variable from a dictionary to a string URL in spacy/about.py. Edit 1 modifies code that previously accessed `about.__shortcuts__` as a dictionary (using bracket notation to check membership and retrieve values), replacing it with a `check_shortcut(model)` function call. These edits reference the exact same symbol (`about.__shortcuts__`) and are directly linked - after changing `__shortcuts__` from a dict to a string in edit 0, the dictionary access pattern in edit 1 would no longer work and needs to be updated to use the new function-based approach. Either edit could be made first since both are syntactically valid, but making either edit creates an immediate, mechanically obvious prompt for the other as the next step to maintain code functionality."
+        }
+    ],
+    "allowed_init_edits": [
+        7
+    ]
+}

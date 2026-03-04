@@ -1,0 +1,97 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the Complexity symbol from core.db.models.specification, and Edit 1 uses that exact same Complexity symbol in a comparison operation (Complexity.SIMPLE). The changed lines reference the exact same symbol - the import in Edit 0 makes the Complexity symbol available, and Edit 1's changed line directly references this imported symbol. This creates an immediate code dependency where the import enables the usage."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the Complexity symbol from core.db.models.specification, and Edit 1 uses that exact same Complexity symbol in a comparison operation (Complexity.SIMPLE). The changed lines reference the exact same symbol - the import in Edit 0 makes the Complexity symbol available, and Edit 1's changed line directly references this imported symbol. This creates an immediate code dependency where the import enables the usage."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 adds an import for 'Complexity' from 'core.db.models.specification' in developer.py, while Edit 1 removes code that references 'state.specification.complexity != Complexity.SIMPLE' in orchestrator.py. These edits reference the exact same symbol 'Complexity' - one imports it and the other removes its usage. However, since Edit 1 removes the usage of Complexity, Edit 0 (adding the import) would be unnecessary after Edit 1 is applied. The removal of usage naturally prompts removing the now-unused import. This creates a direct code dependency where the changed lines reference the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for 'Complexity' from 'core.db.models.specification' in developer.py, while Edit 1 removes code that references 'state.specification.complexity != Complexity.SIMPLE' in orchestrator.py. These edits reference the exact same symbol 'Complexity' - one imports it and the other removes its usage. However, since Edit 1 removes the usage of Complexity, Edit 0 (adding the import) would be unnecessary after Edit 1 is applied. The removal of usage naturally prompts removing the now-unused import. This creates a direct code dependency where the changed lines reference the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'self.current_state.docs' in their changed lines. Edit 0 adds a condition checking 'self.current_state.docs is None' to an existing if statement, while Edit 1 adds a new conditional block that also checks 'self.current_state.docs is None'. These edits appear to be part of the same micro-task implementing docs-related logic, where both changed lines explicitly reference the same attribute. After making either edit, the other would be a natural next step in implementing the complete docs checking functionality. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'self.current_state.docs' in their changed lines. Edit 0 adds a condition checking 'self.current_state.docs is None' to an existing if statement, while Edit 1 adds a new conditional block that also checks 'self.current_state.docs is None'. These edits appear to be part of the same micro-task implementing docs-related logic, where both changed lines explicitly reference the same attribute. After making either edit, the other would be a natural next step in implementing the complete docs checking functionality. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits involve the same conditional logic checking for external documentation requirements: `state.docs is None and state.specification.complexity != Complexity.SIMPLE`. Edit 0 adds this check in the Developer class's run method, while Edit 1 removes the identical check from the Orchestrator class's create_agent method. This appears to be a refactoring where the responsibility for checking external docs is being moved from the Orchestrator to the Developer. The edits reference the same logical condition and appear to be part of a single refactoring task to relocate this functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits involve the same conditional logic checking for external documentation requirements: `state.docs is None and state.specification.complexity != Complexity.SIMPLE`. Edit 0 adds this check in the Developer class's run method, while Edit 1 removes the identical check from the Orchestrator class's create_agent method. This appears to be a refactoring where the responsibility for checking external docs is being moved from the Orchestrator to the Developer. The edits reference the same logical condition and appear to be part of a single refactoring task to relocate this functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Edit 1 defines a new static method `external_docs_required` in the AgentResponse class, and Edit 0 calls this exact same method (`AgentResponse.external_docs_required(self)`). The changed lines reference the exact same symbol - the `external_docs_required` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use it, or vice versa. Both edits can be staged in either order since Python allows calling undefined methods (runtime AttributeError only, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Edit 1 defines a new static method `external_docs_required` in the AgentResponse class, and Edit 0 calls this exact same method (`AgentResponse.external_docs_required(self)`). The changed lines reference the exact same symbol - the `external_docs_required` method. After defining the method in Edit 1, Edit 0 becomes the immediate next step to use it, or vice versa. Both edits can be staged in either order since Python allows calling undefined methods (runtime AttributeError only, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 1 defines the enum value EXTERNAL_DOCS_REQUIRED in ResponseType, and Edit 0 references this exact same symbol in a conditional check (ResponseType.EXTERNAL_DOCS_REQUIRED). This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the definition without causing a parse error (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 1 defines the enum value EXTERNAL_DOCS_REQUIRED in ResponseType, and Edit 0 references this exact same symbol in a conditional check (ResponseType.EXTERNAL_DOCS_REQUIRED). This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. In Python, the usage can be written before the definition without causing a parse error (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'ResponseType.EXTERNAL_DOCS_REQUIRED'. Edit 0 uses this enum value in a conditional check, while Edit 1 creates a static method that returns an AgentResponse with this same enum type. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where one edit defines/uses the enum value and the other uses it in logic. This represents a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'ResponseType.EXTERNAL_DOCS_REQUIRED'. Edit 0 uses this enum value in a conditional check, while Edit 1 creates a static method that returns an AgentResponse with this same enum type. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where one edit defines/uses the enum value and the other uses it in logic. This represents a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the import of 'Complexity' from line 21, while Edit 1 removes code that references 'Complexity' on line 201. Both edits reference the exact same symbol 'Complexity' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, but since this is Python, the usage can be written and parsed even without the import (it would only fail at runtime with a NameError). Both edits are part of removing the Complexity enum entirely from this file, making either edit prompt the other as the next mechanical step in the same micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of 'Complexity' from line 21, while Edit 1 removes code that references 'Complexity' on line 201. Both edits reference the exact same symbol 'Complexity' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, but since this is Python, the usage can be written and parsed even without the import (it would only fail at runtime with a NameError). Both edits are part of removing the Complexity enum entirely from this file, making either edit prompt the other as the next mechanical step in the same micro-task."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 defines a new enum value EXTERNAL_DOCS_REQUIRED in ResponseType, and Edit 1 creates a static method that references this exact same enum value (ResponseType.EXTERNAL_DOCS_REQUIRED). The changed lines reference the exact same symbol - the EXTERNAL_DOCS_REQUIRED enum member. After defining the enum value in Edit 0, creating the static method that uses it becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new enum value EXTERNAL_DOCS_REQUIRED in ResponseType, and Edit 1 creates a static method that references this exact same enum value (ResponseType.EXTERNAL_DOCS_REQUIRED). The changed lines reference the exact same symbol - the EXTERNAL_DOCS_REQUIRED enum member. After defining the enum value in Edit 0, creating the static method that uses it becomes the immediate next step. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

@@ -1,0 +1,50 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 changes the implementation of linkage_tree function when affinity='precomputed', specifically changing from np.tril_indices to np.triu_indices and updating the comment. Edit 1 adds a test that specifically calls linkage_tree with affinity='precomputed' to verify the behavior. The test directly calls the exact same function (linkage_tree) with the exact same parameter value (affinity='precomputed') that was modified in edit 0. This creates a direct code dependency where the test validates the implementation change, making them part of the same micro-task of implementing and verifying the precomputed affinity functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 changes the implementation of linkage_tree function when affinity='precomputed', specifically changing from np.tril_indices to np.triu_indices and updating the comment. Edit 1 adds a test that specifically calls linkage_tree with affinity='precomputed' to verify the behavior. The test directly calls the exact same function (linkage_tree) with the exact same parameter value (affinity='precomputed') that was modified in edit 0. This creates a direct code dependency where the test validates the implementation change, making them part of the same micro-task of implementing and verifying the precomputed affinity functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 removes the line that forces affinity to 'euclidean' when X is a precomputed distance matrix, allowing the affinity parameter to be preserved. Edit 1 adds a test that specifically tests the linkage_tree function with affinity='precomputed' on a precomputed distance matrix. The test in edit 1 would fail before edit 0 is applied because the removed line would override the 'precomputed' affinity to 'euclidean'. Both edits reference the exact same function (linkage_tree) and the same parameter (affinity), with edit 1 testing the functionality that edit 0 enables. This is a classic test-production code synchronization where the test validates the exact behavior change implemented in the production code."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 removes the line that forces affinity to 'euclidean' when X is a precomputed distance matrix, allowing the affinity parameter to be preserved. Edit 1 adds a test that specifically tests the linkage_tree function with affinity='precomputed' on a precomputed distance matrix. The test in edit 1 would fail before edit 0 is applied because the removed line would override the 'precomputed' affinity to 'euclidean'. Both edits reference the exact same function (linkage_tree) and the same parameter (affinity), with edit 1 testing the functionality that edit 0 enables. This is a classic test-production code synchronization where the test validates the exact behavior change implemented in the production code."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports `cosine_distances` from `sklearn.metrics.pairwise`, and Edit 1 uses that exact same imported symbol `cosine_distances` in the test code. This is a classic import-usage relationship where the changed lines reference the exact same symbol. After importing `cosine_distances` in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage before import (resulting in a runtime NameError only, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports `cosine_distances` from `sklearn.metrics.pairwise`, and Edit 1 uses that exact same imported symbol `cosine_distances` in the test code. This is a classic import-usage relationship where the changed lines reference the exact same symbol. After importing `cosine_distances` in Edit 0, Edit 1 becomes the immediate next step to use that imported function. Both edits can be staged in either order since Python allows usage before import (resulting in a runtime NameError only, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 imports `assert_array_equal` from `sklearn.utils.testing`, and Edit 1 uses `assert_array_equal` in line 62. The changed lines reference the exact same symbol - `assert_array_equal`. Edit 0 makes the symbol available for use, and Edit 1 uses that exact symbol. This creates an immediate code-driven linkage where importing the function naturally prompts its usage, and using the function requires its import. Both edits can be staged in either order (the usage before import would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 imports `assert_array_equal` from `sklearn.utils.testing`, and Edit 1 uses `assert_array_equal` in line 62. The changed lines reference the exact same symbol - `assert_array_equal`. Edit 0 makes the symbol available for use, and Edit 1 uses that exact symbol. This creates an immediate code-driven linkage where importing the function naturally prompts its usage, and using the function requires its import. Both edits can be staged in either order (the usage before import would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        7,
+        8
+    ]
+}

@@ -1,0 +1,63 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 imports the 'six' module, and Edit 1 uses 'six.text_type' in the changed line. This creates a direct import-usage relationship where the exact same symbol 'six' is being imported in Edit 0 and referenced in Edit 1. In Python, usage before import is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 'six' module, and Edit 1 uses 'six.text_type' in the changed line. This creates a direct import-usage relationship where the exact same symbol 'six' is being imported in Edit 0 and referenced in Edit 1. In Python, usage before import is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a call to `om.get_audit_log_data()` in the OrganizationMemberDetailsEndpoint class, while Edit 1 modifies the implementation of the `get_audit_log_data()` method in the OrganizationMember class. These edits reference the exact same method symbol - `get_audit_log_data()` - where one edit calls the method and the other edit modifies its implementation. This creates a direct code dependency where either edit can be made first, and after making either edit, the other becomes a natural next step in the same development flow. The relationship is bi-directional because both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `om.get_audit_log_data()` in the OrganizationMemberDetailsEndpoint class, while Edit 1 modifies the implementation of the `get_audit_log_data()` method in the OrganizationMember class. These edits reference the exact same method symbol - `get_audit_log_data()` - where one edit calls the method and the other edit modifies its implementation. This creates a direct code dependency where either edit can be made first, and after making either edit, the other becomes a natural next step in the same development flow. The relationship is bi-directional because both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a call to create_audit_entry with event=AuditLogEntryEvent.MEMBER_EDIT, while Edit 1 modifies the get_note method's handling of AuditLogEntryEvent.MEMBER_EDIT events. Both edits reference the exact same symbol (AuditLogEntryEvent.MEMBER_EDIT) and appear to be part of enhancing the audit logging functionality for member edits. Edit 0 creates audit log entries that will be processed by the code modified in Edit 1. Either edit can be made first - the audit entries will be created regardless of the note format, and the note format can be updated regardless of when audit entries are created. This represents a bi-directional relationship where both edits work together to improve the member edit audit logging feature."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to create_audit_entry with event=AuditLogEntryEvent.MEMBER_EDIT, while Edit 1 modifies the get_note method's handling of AuditLogEntryEvent.MEMBER_EDIT events. Both edits reference the exact same symbol (AuditLogEntryEvent.MEMBER_EDIT) and appear to be part of enhancing the audit logging functionality for member edits. Edit 0 creates audit log entries that will be processed by the code modified in Edit 1. Either edit can be made first - the audit entries will be created regardless of the note format, and the note format can be updated regardless of when audit entries are created. This represents a bi-directional relationship where both edits work together to improve the member edit audit logging feature."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the format string to include placeholders for role and teams ('%s (role: %s, teams: %s)'), while Edit 1 adds the corresponding arguments to provide values for those new placeholders. The changed lines work together to complete a single string formatting operation - Edit 0 creates the template and Edit 1 provides the data. Both edits reference the same format string operation and self.data dictionary, making them part of one contiguous micro-task to expand the audit log message format."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the format string to include placeholders for role and teams ('%s (role: %s, teams: %s)'), while Edit 1 adds the corresponding arguments to provide values for those new placeholders. The changed lines work together to complete a single string formatting operation - Edit 0 creates the template and Edit 1 provides the data. Both edits reference the same format string operation and self.data dictionary, making them part of one contiguous micro-task to expand the audit log message format."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a call to `om.get_audit_log_data()` in the organization member details endpoint, while Edit 1 modifies the implementation of the `get_audit_log_data()` method by adding team data collection. These edits reference the exact same method symbol - `get_audit_log_data()` - where one edit calls the method and the other edit enhances its implementation. This creates a direct code linkage where both edits are part of improving the audit logging functionality for organization members. Either edit can be made independently without causing parse errors, making this a bi-directional relationship where both edits naturally complement each other in the same development task."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a call to `om.get_audit_log_data()` in the organization member details endpoint, while Edit 1 modifies the implementation of the `get_audit_log_data()` method by adding team data collection. These edits reference the exact same method symbol - `get_audit_log_data()` - where one edit calls the method and the other edit enhances its implementation. This creates a direct code linkage where both edits are part of improving the audit logging functionality for organization members. Either edit can be made independently without causing parse errors, making this a bi-directional relationship where both edits naturally complement each other in the same development task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a variable 'teams' that contains team data with 'id' and 'slug' fields. Edit 1 then uses this exact same 'teams' variable in two list comprehensions to extract the 'id' and 'slug' values. The changed lines in edit 1 directly reference the 'teams' variable that was defined in edit 0. This creates an immediate code dependency where edit 0 must come first to define the variable that edit 1 uses, making this an ordered relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        4
+    ]
+}

@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits remove the same parameters (kernel_name and kernel_regeneration_metadata) from related code structures. Edit 0 removes these parameters from the CustomCallBackendConfig class definition, while Edit 1 removes the same parameters from a CustomCallBackendConfig constructor call. The changed lines in both edits reference the exact same symbols (kernel_name and kernel_regeneration_metadata parameters), creating a direct code dependency where removing parameters from the class definition naturally prompts removing them from the constructor call, or vice versa. This represents a synchronized parameter removal across definition and usage of the same class."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits remove the same parameters (kernel_name and kernel_regeneration_metadata) from related code structures. Edit 0 removes these parameters from the CustomCallBackendConfig class definition, while Edit 1 removes the same parameters from a CustomCallBackendConfig constructor call. The changed lines in both edits reference the exact same symbols (kernel_name and kernel_regeneration_metadata parameters), creating a direct code dependency where removing parameters from the class definition naturally prompts removing them from the constructor call, or vice versa. This represents a synchronized parameter removal across definition and usage of the same class."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbols: `kernel_name` and `kernel_regeneration_metadata`. Edit 0 removes these attributes from the class definition, while Edit 1 removes the code that uses these same attributes in the `to_json` method. After removing the attributes in Edit 0, the references to them in Edit 1 would cause NameError at runtime, making Edit 1 the immediate next step to clean up the now-undefined attribute references. Similarly, if Edit 1 is done first, the attributes would be unused, prompting their removal in Edit 0. Both edits reference the exact same symbols and either naturally prompts the other as the next mechanical step in removing these attributes from the class."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbols: `kernel_name` and `kernel_regeneration_metadata`. Edit 0 removes these attributes from the class definition, while Edit 1 removes the code that uses these same attributes in the `to_json` method. After removing the attributes in Edit 0, the references to them in Edit 1 would cause NameError at runtime, making Edit 1 the immediate next step to clean up the now-undefined attribute references. Similarly, if Edit 1 is done first, the attributes would be unused, prompting their removal in Edit 0. Both edits reference the exact same symbols and either naturally prompts the other as the next mechanical step in removing these attributes from the class."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "These edits are bi-directional neighbours because they form a synchronized refactoring of how kernel_regeneration_metadata is stored and accessed. Edit 1 changes the storage mechanism by adding kernel_regeneration_metadata as a direct attribute on the custom call operation (line 174-176), while Edit 0 changes the retrieval mechanism to read from this new attribute location (lines 57-59) instead of parsing it from the backend_config JSON. Both edits reference the exact same symbol 'kernel_regeneration_metadata' and represent two sides of the same architectural change - one edit establishes the new storage format while the other adapts the reading logic to match. Either edit could be implemented first since both are syntactically valid independently, but together they form a complete, synchronized change to the data flow pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "These edits are bi-directional neighbours because they form a synchronized refactoring of how kernel_regeneration_metadata is stored and accessed. Edit 1 changes the storage mechanism by adding kernel_regeneration_metadata as a direct attribute on the custom call operation (line 174-176), while Edit 0 changes the retrieval mechanism to read from this new attribute location (lines 57-59) instead of parsing it from the backend_config JSON. Both edits reference the exact same symbol 'kernel_regeneration_metadata' and represent two sides of the same architectural change - one edit establishes the new storage format while the other adapts the reading logic to match. Either edit could be implemented first since both are syntactically valid independently, but together they form a complete, synchronized change to the data flow pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits remove references to the same parameters (kernel_name and kernel_regeneration_metadata) from the CustomCallBackendConfig class. Edit 0 removes the serialization logic for these parameters in the to_json method, while Edit 1 removes these parameters from the constructor call. Both edits reference the exact same symbols and are part of a coordinated removal of these parameters from the class interface. Either edit can be made first without causing parse errors, and after making either edit, the other becomes the natural next step to complete the parameter removal."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits remove references to the same parameters (kernel_name and kernel_regeneration_metadata) from the CustomCallBackendConfig class. Edit 0 removes the serialization logic for these parameters in the to_json method, while Edit 1 removes these parameters from the constructor call. Both edits reference the exact same symbols and are part of a coordinated removal of these parameters from the class interface. Either edit can be made first without causing parse errors, and after making either edit, the other becomes the natural next step to complete the parameter removal."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds two new parameters 'kernel_name' and 'kernel_regeneration_metadata' to the function signature. Edit 1 uses these exact same parameters in the function body to conditionally set attributes on a custom call operation. The changed lines in edit 1 directly reference the same symbols that were added as parameters in edit 0. This creates an immediate code dependency where adding the parameters (edit 0) enables their usage in the function body (edit 1). Both edits reference the exact same symbols and would naturally occur in the same micro-task of adding kernel metadata support to the function."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds two new parameters 'kernel_name' and 'kernel_regeneration_metadata' to the function signature. Edit 1 uses these exact same parameters in the function body to conditionally set attributes on a custom call operation. The changed lines in edit 1 directly reference the same symbols that were added as parameters in edit 0. This creates an immediate code dependency where adding the parameters (edit 0) enables their usage in the function body (edit 1). Both edits reference the exact same symbols and would naturally occur in the same micro-task of adding kernel metadata support to the function."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits add the exact same two parameters (kernel_name and kernel_regeneration_metadata) to function signatures that are directly related in a call chain. Edit 0 adds these parameters to the _tpu_custom_call_lowering function signature, while Edit 1 passes these same parameters to tpu_custom_call_p.bind() which ultimately calls the function modified in Edit 0. The changed lines reference the exact same symbols (kernel_name and kernel_regeneration_metadata parameters) and represent a signature-caller relationship where both edits must be made together for the parameter threading to work correctly. Either edit can be staged first since both are syntactically valid independently, but after making either edit, the other becomes the immediate next step to complete the parameter threading."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits add the exact same two parameters (kernel_name and kernel_regeneration_metadata) to function signatures that are directly related in a call chain. Edit 0 adds these parameters to the _tpu_custom_call_lowering function signature, while Edit 1 passes these same parameters to tpu_custom_call_p.bind() which ultimately calls the function modified in Edit 0. The changed lines reference the exact same symbols (kernel_name and kernel_regeneration_metadata parameters) and represent a signature-caller relationship where both edits must be made together for the parameter threading to work correctly. Either edit can be staged first since both are syntactically valid independently, but after making either edit, the other becomes the immediate next step to complete the parameter threading."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds handling for kernel_name and kernel_regeneration_metadata parameters in the _tpu_custom_call_lowering function, checking if they are not None and setting them as attributes on the custom call operation. Edit 1 passes these same parameters (kernel_name and kernel_regeneration_metadata) to the tpu_custom_call_p.bind call. The changed lines reference the exact same symbols - kernel_name and kernel_regeneration_metadata - where edit 1 provides the parameters that edit 0 consumes and processes. This creates a direct definition-usage relationship where the parameters passed in edit 1 are the ones being handled in edit 0, making them bi-directional neighbors in the same micro-task of adding kernel metadata support."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds handling for kernel_name and kernel_regeneration_metadata parameters in the _tpu_custom_call_lowering function, checking if they are not None and setting them as attributes on the custom call operation. Edit 1 passes these same parameters (kernel_name and kernel_regeneration_metadata) to the tpu_custom_call_p.bind call. The changed lines reference the exact same symbols - kernel_name and kernel_regeneration_metadata - where edit 1 provides the parameters that edit 0 consumes and processes. This creates a direct definition-usage relationship where the parameters passed in edit 1 are the ones being handled in edit 0, making them bi-directional neighbors in the same micro-task of adding kernel metadata support."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "These edits involve the exact same symbols (kernel_name and kernel_regeneration_metadata) being removed from one location (CustomCallBackendConfig constructor call) and added to another location (tpu_custom_call_p.bind call) within the same function scope. This appears to be a parameter migration where the parameters are being moved from one function call to another. Both edits reference the same symbols and appear to be part of a single refactoring operation to change where these parameters are passed. Either edit could be made first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other to complete the parameter migration."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "These edits involve the exact same symbols (kernel_name and kernel_regeneration_metadata) being removed from one location (CustomCallBackendConfig constructor call) and added to another location (tpu_custom_call_p.bind call) within the same function scope. This appears to be a parameter migration where the parameters are being moved from one function call to another. Both edits reference the same symbols and appear to be part of a single refactoring operation to change where these parameters are passed. Either edit could be made first without causing parse errors, making this a bi-directional relationship where making either edit creates an immediate prompt for the other to complete the parameter migration."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

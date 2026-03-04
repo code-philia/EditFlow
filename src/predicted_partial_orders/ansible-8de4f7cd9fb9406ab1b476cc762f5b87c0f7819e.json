@@ -1,0 +1,54 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 creates a new `templar` variable on line 274, and Edit 1 uses that exact same `templar` variable on lines 277, 278, and 279. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. After making Edit 0, the next immediate, mechanically obvious step would be to use the newly created `templar` variable, which is exactly what Edit 1 does. This creates a direct definition-usage relationship where both edits reference the exact same symbol within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 creates a new `templar` variable on line 274, and Edit 1 uses that exact same `templar` variable on lines 277, 278, and 279. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. After making Edit 0, the next immediate, mechanically obvious step would be to use the newly created `templar` variable, which is exactly what Edit 1 does. This creates a direct definition-usage relationship where both edits reference the exact same symbol within the same function scope."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'to_native' to the import statement from ansible.module_utils._text, and Edit 1 uses that exact same 'to_native' function in a new exception handling block. The changed line in Edit 0 imports the symbol, and the changed lines in Edit 1 reference and call that exact same symbol. This creates an immediate code dependency where importing to_native enables its usage in the exception handler. Either edit can be staged first (the import before usage would work, and usage before import would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'to_native' to the import statement from ansible.module_utils._text, and Edit 1 uses that exact same 'to_native' function in a new exception handling block. The changed line in Edit 0 imports the symbol, and the changed lines in Edit 1 reference and call that exact same symbol. This creates an immediate code dependency where importing to_native enables its usage in the exception handler. Either edit can be staged first (the import before usage would work, and usage before import would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are modifying the same code block within the same method (_run_loop) and are part of the same logical change to handle templating of loop control variables. Edit 0 adds templating calls to loop_var, index_var, and loop_pause, while Edit 1 modifies how the label variable is handled, specifically referencing the loop_var that was just modified in Edit 0. The changed lines in Edit 1 directly reference the loop_var symbol that was modified in Edit 0, creating an immediate code dependency. Both edits appear to be part of a single micro-task to fix templating issues in loop control handling."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are modifying the same code block within the same method (_run_loop) and are part of the same logical change to handle templating of loop control variables. Edit 0 adds templating calls to loop_var, index_var, and loop_pause, while Edit 1 modifies how the label variable is handled, specifically referencing the loop_var that was just modified in Edit 0. The changed lines in Edit 1 directly reference the loop_var symbol that was modified in Edit 0, creating an immediate code dependency. Both edits appear to be part of a single micro-task to fix templating issues in loop control handling."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes how loop_pause is assigned by wrapping it with templar.template(), which could change its type from the original value to a templated string. Edit 1 then uses this same loop_pause variable and adds explicit float() conversion with error handling. The changed lines in both edits reference the exact same symbol 'loop_pause' - edit 0 modifies how it's assigned and edit 1 modifies how it's used. This creates a direct code dependency where the templating change in edit 0 makes the type conversion in edit 1 necessary to handle potential string values from templating. Either edit could be made first since both are syntactically valid, but together they form a cohesive change to handle templated loop_pause values."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes how loop_pause is assigned by wrapping it with templar.template(), which could change its type from the original value to a templated string. Edit 1 then uses this same loop_pause variable and adds explicit float() conversion with error handling. The changed lines in both edits reference the exact same symbol 'loop_pause' - edit 0 modifies how it's assigned and edit 1 modifies how it's used. This creates a direct code dependency where the templating change in edit 0 makes the type conversion in edit 1 necessary to handle potential string values from templating. Either edit could be made first since both are syntactically valid, but together they form a cohesive change to handle templated loop_pause values."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a Templar object creation at line 274, while Edit 1 removes the same Templar object creation at line 328. This appears to be a refactoring where the Templar instantiation is being moved from inside a conditional block (line 328) to an earlier location in the function (line 274). The exact same symbol 'templar' is being created with identical parameters in both edits, and line 329 in Edit 1 shows that the templar variable is still being used after the removal. This is a classic cut-and-paste move operation where the symbol must first be removed from its original location before being added to the new location to avoid duplicate instantiation."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6,
+        7
+    ]
+}

@@ -1,0 +1,987 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/scikit-learn/scikit-learn/commit/1f333a36b9e26d60320b14435a39d4a38829869b",
+    "commit_message": "MAINT Remove the use of assert_raises and assert_raises_regex (#14674)",
+    "commit_snapshots": {
+        "sklearn/covariance/tests/test_covariance.py": [
+            [
+                "# Author: Alexandre Gramfort <alexandre.gramfort@inria.fr>\n",
+                "#         Gael Varoquaux <gael.varoquaux@normalesup.org>\n",
+                "#         Virgile Fritsch <virgile.fritsch@inria.fr>\n",
+                "#\n",
+                "# License: BSD 3 clause\n",
+                "\n",
+                "import numpy as np\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import pytest\n"
+                ],
+                "parent_version_range": {
+                    "start": 7,
+                    "end": 7
+                },
+                "child_version_range": {
+                    "start": 7,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: sklearn/covariance/tests/test_covariance.py\nCode:\n  ...\n 4  4    # License: BSD 3 clause\n 5  5    \n 6  6    import numpy as np\n    7  + import pytest\n 7  8    \n 8  9    from sklearn.utils.testing import assert_almost_equal\n 9 10    from sklearn.utils.testing import assert_array_almost_equal\n       ...\n",
+                "file_path": "sklearn/covariance/tests/test_covariance.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "pytest"
+                ],
+                "prefix": [
+                    "# License: BSD 3 clause\n",
+                    "\n",
+                    "import numpy as np\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from sklearn.utils.testing import assert_almost_equal\n",
+                    "from sklearn.utils.testing import assert_array_almost_equal\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 7,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_covariance.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "\n",
+                "from sklearn.utils.testing import assert_almost_equal\n",
+                "from sklearn.utils.testing import assert_array_almost_equal\n",
+                "from sklearn.utils.testing import assert_array_equal\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from sklearn.utils.testing import assert_raises\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 11,
+                    "end": 12
+                },
+                "child_version_range": {
+                    "start": 12,
+                    "end": 12
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: sklearn/covariance/tests/test_covariance.py\nCode:\n  ...\n 8  9    from sklearn.utils.testing import assert_almost_equal\n 9 10    from sklearn.utils.testing import assert_array_almost_equal\n10 11    from sklearn.utils.testing import assert_array_equal\n11     - from sklearn.utils.testing import assert_raises\n12 12    from sklearn.utils.testing import assert_warns\n13 13    \n14 14    from sklearn import datasets\n       ...\n",
+                "file_path": "sklearn/covariance/tests/test_covariance.py",
+                "identifiers_before": [
+                    "assert_raises",
+                    "sklearn",
+                    "testing",
+                    "utils"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "from sklearn.utils.testing import assert_almost_equal\n",
+                    "from sklearn.utils.testing import assert_array_almost_equal\n",
+                    "from sklearn.utils.testing import assert_array_equal\n"
+                ],
+                "suffix": [
+                    "from sklearn.utils.testing import assert_warns\n",
+                    "\n",
+                    "from sklearn import datasets\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_covariance.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "from sklearn.utils.testing import assert_warns\n",
+                "\n",
+                "from sklearn import datasets\n",
+                "from sklearn.covariance import empirical_covariance, EmpiricalCovariance, \\\n",
+                "    ShrunkCovariance, shrunk_covariance, \\\n",
+                "    LedoitWolf, ledoit_wolf, ledoit_wolf_shrinkage, OAS, oas\n",
+                "\n",
+                "X = datasets.load_diabetes().data\n",
+                "X_1d = X[:, 0]\n",
+                "n_samples, n_features = X.shape\n",
+                "\n",
+                "\n",
+                "def test_covariance():\n",
+                "    # Tests Covariance module on a simple dataset.\n",
+                "    # test covariance fit from data\n",
+                "    cov = EmpiricalCovariance()\n",
+                "    cov.fit(X)\n",
+                "    emp_cov = empirical_covariance(X)\n",
+                "    assert_array_almost_equal(emp_cov, cov.covariance_, 4)\n",
+                "    assert_almost_equal(cov.error_norm(emp_cov), 0)\n",
+                "    assert_almost_equal(\n",
+                "        cov.error_norm(emp_cov, norm='spectral'), 0)\n",
+                "    assert_almost_equal(\n",
+                "        cov.error_norm(emp_cov, norm='frobenius'), 0)\n",
+                "    assert_almost_equal(\n",
+                "        cov.error_norm(emp_cov, scaling=False), 0)\n",
+                "    assert_almost_equal(\n",
+                "        cov.error_norm(emp_cov, squared=False), 0)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    assert_raises(NotImplementedError,\n",
+                    "                  cov.error_norm, emp_cov, norm='foo')\n"
+                ],
+                "after": [
+                    "    with pytest.raises(NotImplementedError):\n",
+                    "        cov.error_norm(emp_cov, norm='foo')\n"
+                ],
+                "parent_version_range": {
+                    "start": 40,
+                    "end": 42
+                },
+                "child_version_range": {
+                    "start": 40,
+                    "end": 42
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_covariance",
+                        "signature": "def test_covariance():",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "call",
+                        "name": "assert_raises",
+                        "signature": "assert_raises(NotImplementedError,\n                  cov.error_norm, emp_cov, norm='foo')",
+                        "at_line": 40,
+                        "argument": "NotImplementedError"
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: sklearn/covariance/tests/test_covariance.py\nCode:\n         def test_covariance():\n             ...\n37 37            cov.error_norm(emp_cov, scaling=False), 0)\n38 38        assert_almost_equal(\n39 39            cov.error_norm(emp_cov, squared=False), 0)\n40     -     assert_raises(NotImplementedError,\n41     -                   cov.error_norm, emp_cov, norm='foo')\n   40  +     with pytest.raises(NotImplementedError):\n   41  +         cov.error_norm(emp_cov, norm='foo')\n42 42        # Mahalanobis distances computation test\n43 43        mahal_dist = cov.mahalanobis(X)\n44 44        assert np.amin(mahal_dist) > 0\n       ...\n",
+                "file_path": "sklearn/covariance/tests/test_covariance.py",
+                "identifiers_before": [
+                    "NotImplementedError",
+                    "assert_raises",
+                    "cov",
+                    "emp_cov",
+                    "error_norm",
+                    "norm"
+                ],
+                "identifiers_after": [
+                    "NotImplementedError",
+                    "cov",
+                    "emp_cov",
+                    "error_norm",
+                    "norm",
+                    "pytest",
+                    "raises"
+                ],
+                "prefix": [
+                    "        cov.error_norm(emp_cov, scaling=False), 0)\n",
+                    "    assert_almost_equal(\n",
+                    "        cov.error_norm(emp_cov, squared=False), 0)\n"
+                ],
+                "suffix": [
+                    "    # Mahalanobis distances computation test\n",
+                    "    mahal_dist = cov.mahalanobis(X)\n",
+                    "    assert np.amin(mahal_dist) > 0\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_covariance.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_covariance.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    # Mahalanobis distances computation test\n",
+                "    mahal_dist = cov.mahalanobis(X)\n",
+                "    assert np.amin(mahal_dist) > 0\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0].reshape((-1, 1))\n",
+                "    cov = EmpiricalCovariance()\n",
+                "    cov.fit(X_1d)\n",
+                "    assert_array_almost_equal(empirical_covariance(X_1d), cov.covariance_, 4)\n",
+                "    assert_almost_equal(cov.error_norm(empirical_covariance(X_1d)), 0)\n",
+                "    assert_almost_equal(\n",
+                "        cov.error_norm(empirical_covariance(X_1d), norm='spectral'), 0)\n",
+                "\n",
+                "    # test with one sample\n",
+                "    # Create X with 1 sample and 5 features\n",
+                "    X_1sample = np.arange(5).reshape(1, 5)\n",
+                "    cov = EmpiricalCovariance()\n",
+                "    assert_warns(UserWarning, cov.fit, X_1sample)\n",
+                "    assert_array_almost_equal(cov.covariance_,\n",
+                "                              np.zeros(shape=(5, 5), dtype=np.float64))\n",
+                "\n",
+                "    # test integer type\n",
+                "    X_integer = np.asarray([[0, 1], [1, 0]])\n",
+                "    result = np.asarray([[0.25, -0.25], [-0.25, 0.25]])\n",
+                "    assert_array_almost_equal(empirical_covariance(X_integer), result)\n",
+                "\n",
+                "    # test centered case\n",
+                "    cov = EmpiricalCovariance(assume_centered=True)\n",
+                "    cov.fit(X)\n",
+                "    assert_array_equal(cov.location_, np.zeros(X.shape[1]))\n",
+                "\n",
+                "\n",
+                "def test_shrunk_covariance():\n",
+                "    # Tests ShrunkCovariance module on a simple dataset.\n",
+                "    # compare shrunk covariance obtained from data and from MLE estimate\n",
+                "    cov = ShrunkCovariance(shrinkage=0.5)\n",
+                "    cov.fit(X)\n",
+                "    assert_array_almost_equal(\n",
+                "        shrunk_covariance(empirical_covariance(X), shrinkage=0.5),\n",
+                "        cov.covariance_, 4)\n",
+                "\n",
+                "    # same test with shrinkage not provided\n",
+                "    cov = ShrunkCovariance()\n",
+                "    cov.fit(X)\n",
+                "    assert_array_almost_equal(\n",
+                "        shrunk_covariance(empirical_covariance(X)), cov.covariance_, 4)\n",
+                "\n",
+                "    # same test with shrinkage = 0 (<==> empirical_covariance)\n",
+                "    cov = ShrunkCovariance(shrinkage=0.)\n",
+                "    cov.fit(X)\n",
+                "    assert_array_almost_equal(empirical_covariance(X), cov.covariance_, 4)\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0].reshape((-1, 1))\n",
+                "    cov = ShrunkCovariance(shrinkage=0.3)\n",
+                "    cov.fit(X_1d)\n",
+                "    assert_array_almost_equal(empirical_covariance(X_1d), cov.covariance_, 4)\n",
+                "\n",
+                "    # test shrinkage coeff on a simple data set (without saving precision)\n",
+                "    cov = ShrunkCovariance(shrinkage=0.5, store_precision=False)\n",
+                "    cov.fit(X)\n",
+                "    assert(cov.precision_ is None)\n",
+                "\n",
+                "\n",
+                "def test_ledoit_wolf():\n",
+                "    # Tests LedoitWolf module on a simple dataset.\n",
+                "    # test shrinkage coeff on a simple data set\n",
+                "    X_centered = X - X.mean(axis=0)\n",
+                "    lw = LedoitWolf(assume_centered=True)\n",
+                "    lw.fit(X_centered)\n",
+                "    shrinkage_ = lw.shrinkage_\n",
+                "\n",
+                "    score_ = lw.score(X_centered)\n",
+                "    assert_almost_equal(ledoit_wolf_shrinkage(X_centered,\n",
+                "                                              assume_centered=True),\n",
+                "                        shrinkage_)\n",
+                "    assert_almost_equal(ledoit_wolf_shrinkage(X_centered, assume_centered=True,\n",
+                "                                              block_size=6),\n",
+                "                        shrinkage_)\n",
+                "    # compare shrunk covariance obtained from data and from MLE estimate\n",
+                "    lw_cov_from_mle, lw_shrinkage_from_mle = ledoit_wolf(X_centered,\n",
+                "                                                         assume_centered=True)\n",
+                "    assert_array_almost_equal(lw_cov_from_mle, lw.covariance_, 4)\n",
+                "    assert_almost_equal(lw_shrinkage_from_mle, lw.shrinkage_)\n",
+                "    # compare estimates given by LW and ShrunkCovariance\n",
+                "    scov = ShrunkCovariance(shrinkage=lw.shrinkage_, assume_centered=True)\n",
+                "    scov.fit(X_centered)\n",
+                "    assert_array_almost_equal(scov.covariance_, lw.covariance_, 4)\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0].reshape((-1, 1))\n",
+                "    lw = LedoitWolf(assume_centered=True)\n",
+                "    lw.fit(X_1d)\n",
+                "    lw_cov_from_mle, lw_shrinkage_from_mle = ledoit_wolf(X_1d,\n",
+                "                                                         assume_centered=True)\n",
+                "    assert_array_almost_equal(lw_cov_from_mle, lw.covariance_, 4)\n",
+                "    assert_almost_equal(lw_shrinkage_from_mle, lw.shrinkage_)\n",
+                "    assert_array_almost_equal((X_1d ** 2).sum() / n_samples, lw.covariance_, 4)\n",
+                "\n",
+                "    # test shrinkage coeff on a simple data set (without saving precision)\n",
+                "    lw = LedoitWolf(store_precision=False, assume_centered=True)\n",
+                "    lw.fit(X_centered)\n",
+                "    assert_almost_equal(lw.score(X_centered), score_, 4)\n",
+                "    assert(lw.precision_ is None)\n",
+                "\n",
+                "    # Same tests without assuming centered data\n",
+                "    # test shrinkage coeff on a simple data set\n",
+                "    lw = LedoitWolf()\n",
+                "    lw.fit(X)\n",
+                "    assert_almost_equal(lw.shrinkage_, shrinkage_, 4)\n",
+                "    assert_almost_equal(lw.shrinkage_, ledoit_wolf_shrinkage(X))\n",
+                "    assert_almost_equal(lw.shrinkage_, ledoit_wolf(X)[1])\n",
+                "    assert_almost_equal(lw.score(X), score_, 4)\n",
+                "    # compare shrunk covariance obtained from data and from MLE estimate\n",
+                "    lw_cov_from_mle, lw_shrinkage_from_mle = ledoit_wolf(X)\n",
+                "    assert_array_almost_equal(lw_cov_from_mle, lw.covariance_, 4)\n",
+                "    assert_almost_equal(lw_shrinkage_from_mle, lw.shrinkage_)\n",
+                "    # compare estimates given by LW and ShrunkCovariance\n",
+                "    scov = ShrunkCovariance(shrinkage=lw.shrinkage_)\n",
+                "    scov.fit(X)\n",
+                "    assert_array_almost_equal(scov.covariance_, lw.covariance_, 4)\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0].reshape((-1, 1))\n",
+                "    lw = LedoitWolf()\n",
+                "    lw.fit(X_1d)\n",
+                "    lw_cov_from_mle, lw_shrinkage_from_mle = ledoit_wolf(X_1d)\n",
+                "    assert_array_almost_equal(lw_cov_from_mle, lw.covariance_, 4)\n",
+                "    assert_almost_equal(lw_shrinkage_from_mle, lw.shrinkage_)\n",
+                "    assert_array_almost_equal(empirical_covariance(X_1d), lw.covariance_, 4)\n",
+                "\n",
+                "    # test with one sample\n",
+                "    # warning should be raised when using only 1 sample\n",
+                "    X_1sample = np.arange(5).reshape(1, 5)\n",
+                "    lw = LedoitWolf()\n",
+                "    assert_warns(UserWarning, lw.fit, X_1sample)\n",
+                "    assert_array_almost_equal(lw.covariance_,\n",
+                "                              np.zeros(shape=(5, 5), dtype=np.float64))\n",
+                "\n",
+                "    # test shrinkage coeff on a simple data set (without saving precision)\n",
+                "    lw = LedoitWolf(store_precision=False)\n",
+                "    lw.fit(X)\n",
+                "    assert_almost_equal(lw.score(X), score_, 4)\n",
+                "    assert(lw.precision_ is None)\n",
+                "\n",
+                "\n",
+                "def _naive_ledoit_wolf_shrinkage(X):\n",
+                "    # A simple implementation of the formulas from Ledoit & Wolf\n",
+                "\n",
+                "    # The computation below achieves the following computations of the\n",
+                "    # \"O. Ledoit and M. Wolf, A Well-Conditioned Estimator for\n",
+                "    # Large-Dimensional Covariance Matrices\"\n",
+                "    # beta and delta are given in the beginning of section 3.2\n",
+                "    n_samples, n_features = X.shape\n",
+                "    emp_cov = empirical_covariance(X, assume_centered=False)\n",
+                "    mu = np.trace(emp_cov) / n_features\n",
+                "    delta_ = emp_cov.copy()\n",
+                "    delta_.flat[::n_features + 1] -= mu\n",
+                "    delta = (delta_ ** 2).sum() / n_features\n",
+                "    X2 = X ** 2\n",
+                "    beta_ = 1. / (n_features * n_samples) \\\n",
+                "        * np.sum(np.dot(X2.T, X2) / n_samples - emp_cov ** 2)\n",
+                "\n",
+                "    beta = min(beta_, delta)\n",
+                "    shrinkage = beta / delta\n",
+                "    return shrinkage\n",
+                "\n",
+                "\n",
+                "def test_ledoit_wolf_small():\n",
+                "    # Compare our blocked implementation to the naive implementation\n",
+                "    X_small = X[:, :4]\n",
+                "    lw = LedoitWolf()\n",
+                "    lw.fit(X_small)\n",
+                "    shrinkage_ = lw.shrinkage_\n",
+                "\n",
+                "    assert_almost_equal(shrinkage_, _naive_ledoit_wolf_shrinkage(X_small))\n",
+                "\n",
+                "\n",
+                "def test_ledoit_wolf_large():\n",
+                "    # test that ledoit_wolf doesn't error on data that is wider than block_size\n",
+                "    rng = np.random.RandomState(0)\n",
+                "    # use a number of features that is larger than the block-size\n",
+                "    X = rng.normal(size=(10, 20))\n",
+                "    lw = LedoitWolf(block_size=10).fit(X)\n",
+                "    # check that covariance is about diagonal (random normal noise)\n",
+                "    assert_almost_equal(lw.covariance_, np.eye(20), 0)\n",
+                "    cov = lw.covariance_\n",
+                "\n",
+                "    # check that the result is consistent with not splitting data into blocks.\n",
+                "    lw = LedoitWolf(block_size=25).fit(X)\n",
+                "    assert_almost_equal(lw.covariance_, cov)\n",
+                "\n",
+                "\n",
+                "def test_oas():\n",
+                "    # Tests OAS module on a simple dataset.\n",
+                "    # test shrinkage coeff on a simple data set\n",
+                "    X_centered = X - X.mean(axis=0)\n",
+                "    oa = OAS(assume_centered=True)\n",
+                "    oa.fit(X_centered)\n",
+                "    shrinkage_ = oa.shrinkage_\n",
+                "    score_ = oa.score(X_centered)\n",
+                "    # compare shrunk covariance obtained from data and from MLE estimate\n",
+                "    oa_cov_from_mle, oa_shrinkage_from_mle = oas(X_centered,\n",
+                "                                                 assume_centered=True)\n",
+                "    assert_array_almost_equal(oa_cov_from_mle, oa.covariance_, 4)\n",
+                "    assert_almost_equal(oa_shrinkage_from_mle, oa.shrinkage_)\n",
+                "    # compare estimates given by OAS and ShrunkCovariance\n",
+                "    scov = ShrunkCovariance(shrinkage=oa.shrinkage_, assume_centered=True)\n",
+                "    scov.fit(X_centered)\n",
+                "    assert_array_almost_equal(scov.covariance_, oa.covariance_, 4)\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0:1]\n",
+                "    oa = OAS(assume_centered=True)\n",
+                "    oa.fit(X_1d)\n",
+                "    oa_cov_from_mle, oa_shrinkage_from_mle = oas(X_1d, assume_centered=True)\n",
+                "    assert_array_almost_equal(oa_cov_from_mle, oa.covariance_, 4)\n",
+                "    assert_almost_equal(oa_shrinkage_from_mle, oa.shrinkage_)\n",
+                "    assert_array_almost_equal((X_1d ** 2).sum() / n_samples, oa.covariance_, 4)\n",
+                "\n",
+                "    # test shrinkage coeff on a simple data set (without saving precision)\n",
+                "    oa = OAS(store_precision=False, assume_centered=True)\n",
+                "    oa.fit(X_centered)\n",
+                "    assert_almost_equal(oa.score(X_centered), score_, 4)\n",
+                "    assert(oa.precision_ is None)\n",
+                "\n",
+                "    # Same tests without assuming centered data--------------------------------\n",
+                "    # test shrinkage coeff on a simple data set\n",
+                "    oa = OAS()\n",
+                "    oa.fit(X)\n",
+                "    assert_almost_equal(oa.shrinkage_, shrinkage_, 4)\n",
+                "    assert_almost_equal(oa.score(X), score_, 4)\n",
+                "    # compare shrunk covariance obtained from data and from MLE estimate\n",
+                "    oa_cov_from_mle, oa_shrinkage_from_mle = oas(X)\n",
+                "    assert_array_almost_equal(oa_cov_from_mle, oa.covariance_, 4)\n",
+                "    assert_almost_equal(oa_shrinkage_from_mle, oa.shrinkage_)\n",
+                "    # compare estimates given by OAS and ShrunkCovariance\n",
+                "    scov = ShrunkCovariance(shrinkage=oa.shrinkage_)\n",
+                "    scov.fit(X)\n",
+                "    assert_array_almost_equal(scov.covariance_, oa.covariance_, 4)\n",
+                "\n",
+                "    # test with n_features = 1\n",
+                "    X_1d = X[:, 0].reshape((-1, 1))\n",
+                "    oa = OAS()\n",
+                "    oa.fit(X_1d)\n",
+                "    oa_cov_from_mle, oa_shrinkage_from_mle = oas(X_1d)\n",
+                "    assert_array_almost_equal(oa_cov_from_mle, oa.covariance_, 4)\n",
+                "    assert_almost_equal(oa_shrinkage_from_mle, oa.shrinkage_)\n",
+                "    assert_array_almost_equal(empirical_covariance(X_1d), oa.covariance_, 4)\n",
+                "\n",
+                "    # test with one sample\n",
+                "    # warning should be raised when using only 1 sample\n",
+                "    X_1sample = np.arange(5).reshape(1, 5)\n",
+                "    oa = OAS()\n",
+                "    assert_warns(UserWarning, oa.fit, X_1sample)\n",
+                "    assert_array_almost_equal(oa.covariance_,\n",
+                "                              np.zeros(shape=(5, 5), dtype=np.float64))\n",
+                "\n",
+                "    # test shrinkage coeff on a simple data set (without saving precision)\n",
+                "    oa = OAS(store_precision=False)\n",
+                "    oa.fit(X)\n",
+                "    assert_almost_equal(oa.score(X), score_, 4)\n",
+                "    assert(oa.precision_ is None)"
+            ]
+        ],
+        "sklearn/covariance/tests/test_elliptic_envelope.py": [
+            [
+                "\"\"\"\n",
+                "Testing for Elliptic Envelope algorithm (sklearn.covariance.elliptic_envelope).\n",
+                "\"\"\"\n",
+                "\n",
+                "import numpy as np\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import pytest\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 5
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 7
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: sklearn/covariance/tests/test_elliptic_envelope.py\nCode:\n  ...\n2 2    \"\"\"\n3 3    \n4 4    import numpy as np\n  5  + import pytest\n  6  + \n5 7    from sklearn.covariance import EllipticEnvelope\n     ...\n",
+                "file_path": "sklearn/covariance/tests/test_elliptic_envelope.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "pytest"
+                ],
+                "prefix": [
+                    "\"\"\"\n",
+                    "\n",
+                    "import numpy as np\n"
+                ],
+                "suffix": [
+                    "from sklearn.covariance import EllipticEnvelope\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 13
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from sklearn.covariance import EllipticEnvelope\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from sklearn.utils.testing import assert_raises\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 6,
+                    "end": 7
+                },
+                "child_version_range": {
+                    "start": 8,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: sklearn/covariance/tests/test_elliptic_envelope.py\nCode:\n  ...\n 5  7    from sklearn.covariance import EllipticEnvelope\n 6     - from sklearn.utils.testing import assert_raises\n 7  8    from sklearn.utils.testing import assert_almost_equal\n 8  9    from sklearn.utils.testing import assert_array_almost_equal\n 9 10    from sklearn.utils.testing import assert_array_equal\n       ...\n",
+                "file_path": "sklearn/covariance/tests/test_elliptic_envelope.py",
+                "identifiers_before": [
+                    "assert_raises",
+                    "sklearn",
+                    "testing",
+                    "utils"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "from sklearn.covariance import EllipticEnvelope\n"
+                ],
+                "suffix": [
+                    "from sklearn.utils.testing import assert_almost_equal\n",
+                    "from sklearn.utils.testing import assert_array_almost_equal\n",
+                    "from sklearn.utils.testing import assert_array_equal\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 6,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 6,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 6,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 6,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "from sklearn.utils.testing import assert_almost_equal\n",
+                "from sklearn.utils.testing import assert_array_almost_equal\n",
+                "from sklearn.utils.testing import assert_array_equal\n",
+                "from sklearn.exceptions import NotFittedError\n",
+                "\n",
+                "\n",
+                "def test_elliptic_envelope():\n",
+                "    rnd = np.random.RandomState(0)\n",
+                "    X = rnd.randn(100, 10)\n",
+                "    clf = EllipticEnvelope(contamination=0.1)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    assert_raises(NotFittedError, clf.predict, X)\n",
+                    "    assert_raises(NotFittedError, clf.decision_function, X)\n"
+                ],
+                "after": [
+                    "    with pytest.raises(NotFittedError):\n",
+                    "        clf.predict(X)\n",
+                    "    with pytest.raises(NotFittedError):\n",
+                    "        clf.decision_function(X)\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 19
+                },
+                "child_version_range": {
+                    "start": 18,
+                    "end": 22
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_elliptic_envelope",
+                        "signature": "def test_elliptic_envelope():",
+                        "at_line": 13
+                    },
+                    {
+                        "type": "call",
+                        "name": "assert_raises",
+                        "signature": "assert_raises(NotFittedError, clf.predict, X)",
+                        "at_line": 17,
+                        "argument": "NotFittedError"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: sklearn/covariance/tests/test_elliptic_envelope.py\nCode:\n         def test_elliptic_envelope():\n             ...\n14 15        rnd = np.random.RandomState(0)\n15 16        X = rnd.randn(100, 10)\n16 17        clf = EllipticEnvelope(contamination=0.1)\n17     -     assert_raises(NotFittedError, clf.predict, X)\n18     -     assert_raises(NotFittedError, clf.decision_function, X)\n   18  +     with pytest.raises(NotFittedError):\n   19  +         clf.predict(X)\n   20  +     with pytest.raises(NotFittedError):\n   21  +         clf.decision_function(X)\n19 22        clf.fit(X)\n20 23        y_pred = clf.predict(X)\n21 24        scores = clf.score_samples(X)\n       ...\n",
+                "file_path": "sklearn/covariance/tests/test_elliptic_envelope.py",
+                "identifiers_before": [
+                    "NotFittedError",
+                    "X",
+                    "assert_raises",
+                    "clf",
+                    "decision_function",
+                    "predict"
+                ],
+                "identifiers_after": [
+                    "NotFittedError",
+                    "X",
+                    "clf",
+                    "decision_function",
+                    "predict",
+                    "pytest",
+                    "raises"
+                ],
+                "prefix": [
+                    "    rnd = np.random.RandomState(0)\n",
+                    "    X = rnd.randn(100, 10)\n",
+                    "    clf = EllipticEnvelope(contamination=0.1)\n"
+                ],
+                "suffix": [
+                    "    clf.fit(X)\n",
+                    "    y_pred = clf.predict(X)\n",
+                    "    scores = clf.score_samples(X)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "assert_raises",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "pytest",
+                            "position": {
+                                "start": {
+                                    "line": 20,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 20,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scikit-learn/sklearn/covariance/tests/test_elliptic_envelope.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    clf.fit(X)\n",
+                "    y_pred = clf.predict(X)\n",
+                "    scores = clf.score_samples(X)\n",
+                "    decisions = clf.decision_function(X)\n",
+                "\n",
+                "    assert_array_almost_equal(\n",
+                "        scores, -clf.mahalanobis(X))\n",
+                "    assert_array_almost_equal(clf.mahalanobis(X), clf.dist_)\n",
+                "    assert_almost_equal(clf.score(X, np.ones(100)),\n",
+                "                        (100 - y_pred[y_pred == -1].size) / 100.)\n",
+                "    assert(sum(y_pred == -1) == sum(decisions < 0))\n",
+                "\n",
+                "\n",
+                "def test_score_samples():\n",
+                "    X_train = [[1, 1], [1, 2], [2, 1]]\n",
+                "    clf1 = EllipticEnvelope(contamination=0.2).fit(X_train)\n",
+                "    clf2 = EllipticEnvelope().fit(X_train)\n",
+                "    assert_array_equal(clf1.score_samples([[2., 2.]]),\n",
+                "                       clf1.decision_function([[2., 2.]]) + clf1.offset_)\n",
+                "    assert_array_equal(clf2.score_samples([[2., 2.]]),\n",
+                "                       clf2.decision_function([[2., 2.]]) + clf2.offset_)\n",
+                "    assert_array_equal(clf1.score_samples([[2., 2.]]),\n",
+                "                       clf2.score_samples([[2., 2.]]))"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        }
+    ]
+}

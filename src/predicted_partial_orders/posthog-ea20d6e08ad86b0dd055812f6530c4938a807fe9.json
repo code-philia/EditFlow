@@ -1,0 +1,177 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, changing its signature from accepting two parameters (query_id and tags) to accepting only one parameter (query_id). Edit 0 changes the function call in the production code, while Edit 1 changes the function call in the test code. Both changed lines reference the exact same symbol `extra_settings` and represent synchronized updates to match a function signature change. This creates a bi-directional relationship where either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, changing its signature from accepting two parameters (query_id and tags) to accepting only one parameter (query_id). Edit 0 changes the function call in the production code, while Edit 1 changes the function call in the test code. Both changed lines reference the exact same symbol `extra_settings` and represent synchronized updates to match a function signature change. This creates a bi-directional relationship where either edit could be made first, and after making either edit, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 removes the 'tags' parameter from the extra_settings() function call, changing it from extra_settings(query_id, tags) to extra_settings(query_id). Edit 1 removes a test function that was testing extra_settings() with an empty tags parameter (extra_settings('some_query_id', {})). These edits reference the exact same function symbol 'extra_settings' and appear to be part of the same refactoring task - removing the tags parameter from the function signature and cleaning up the corresponding test. The test removal is directly related to the parameter removal in the production code, making either edit naturally prompt the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 removes the 'tags' parameter from the extra_settings() function call, changing it from extra_settings(query_id, tags) to extra_settings(query_id). Edit 1 removes a test function that was testing extra_settings() with an empty tags parameter (extra_settings('some_query_id', {})). These edits reference the exact same function symbol 'extra_settings' and appear to be part of the same refactoring task - removing the tags parameter from the function signature and cleaning up the corresponding test. The test removal is directly related to the parameter removal in the production code, making either edit naturally prompt the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates the call site to match by removing the `tags` argument. Both edits reference the exact same symbol (`extra_settings`) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the call site (or vice versa), you get a TypeError at runtime. This is a bi-directional relationship since both edits can be staged in either order (Python allows mismatched signatures at parse time)."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates the call site to match by removing the `tags` argument. Both edits reference the exact same symbol (`extra_settings`) and form a signature-caller relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the signature without updating the call site (or vice versa), you get a TypeError at runtime. This is a bi-directional relationship since both edits can be staged in either order (Python allows mismatched signatures at parse time)."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the second argument. Both edits reference the exact same symbol (`extra_settings` function) and there is a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 must be updated to match, or vice versa. This is a classic function signature change \u2194 call-site update pattern for the same function, making it bi-directional since either edit can be made first and both can be parsed independently (the mismatch would only cause a runtime TypeError, not a parse error)."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the second argument. Both edits reference the exact same symbol (`extra_settings` function) and there is a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 must be updated to match, or vice versa. This is a classic function signature change \u2194 call-site update pattern for the same function, making it bi-directional since either edit can be made first and both can be parsed independently (the mismatch would only cause a runtime TypeError, not a parse error)."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits modify calls to the exact same function `extra_settings` by removing the second parameter `tags` from the function calls. Edit 0 changes the call in the production code from `extra_settings(query_id, tags)` to `extra_settings(query_id)`, and Edit 1 changes the call in the test code from `extra_settings(\"some_query_id\", {\"kind\": \"celery\"})` to `extra_settings(\"some_query_id\")`. This represents a synchronized modification where both changed lines reference the exact same function symbol and apply the identical structural change (removing the second parameter). This is a clear case of bulk-edit pattern synchronization where both edits perform the same before\u2192after pattern on the same type of syntactic construct (function calls to the same function). Either edit could be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the exact same function `extra_settings` by removing the second parameter `tags` from the function calls. Edit 0 changes the call in the production code from `extra_settings(query_id, tags)` to `extra_settings(query_id)`, and Edit 1 changes the call in the test code from `extra_settings(\"some_query_id\", {\"kind\": \"celery\"})` to `extra_settings(\"some_query_id\")`. This represents a synchronized modification where both changed lines reference the exact same function symbol and apply the identical structural change (removing the second parameter). This is a clear case of bulk-edit pattern synchronization where both edits perform the same before\u2192after pattern on the same type of syntactic construct (function calls to the same function). Either edit could be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, while Edit 1 removes a test that was calling `extra_settings` with the old signature (including the `tags` parameter). Both edits reference the exact same symbol `extra_settings`. After making Edit 0, the test in Edit 1 would fail because it's calling the function with the wrong number of arguments. However, both edits can be written and parsed in either order - the test removal doesn't require the signature change to be done first, and the signature change doesn't require the test to be removed first. This is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, while Edit 1 removes a test that was calling `extra_settings` with the old signature (including the `tags` parameter). Both edits reference the exact same symbol `extra_settings`. After making Edit 0, the test in Edit 1 would fail because it's calling the function with the wrong number of arguments. However, both edits can be written and parsed in either order - the test removal doesn't require the signature change to be done first, and the signature change doesn't require the test to be removed first. This is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to that same function by removing the corresponding `tags` argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 becomes the immediate next mechanical step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError), making it bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to that same function by removing the corresponding `tags` argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 becomes the immediate next mechanical step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError), making it bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the second argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 must be updated to match, and vice versa. This is a classic function signature change with corresponding call-site update pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the second argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 must be updated to match, and vice versa. This is a classic function signature change with corresponding call-site update pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, removing the second parameter `tags` from the function calls. Edit 0 changes the call in the production code from `extra_settings(query_id, tags)` to `extra_settings(query_id)`, while Edit 1 changes the call in the test code from `extra_settings(\"some_query_id\", {\"kind\": \"celery\"})` to `extra_settings(\"some_query_id\")`. This represents a synchronized change to the same function signature across production and test code - both edits reference the exact same symbol `extra_settings` and apply the identical modification pattern (removing the second parameter). This is a bi-directional relationship because either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, removing the second parameter `tags` from the function calls. Edit 0 changes the call in the production code from `extra_settings(query_id, tags)` to `extra_settings(query_id)`, while Edit 1 changes the call in the test code from `extra_settings(\"some_query_id\", {\"kind\": \"celery\"})` to `extra_settings(\"some_query_id\")`. This represents a synchronized change to the same function signature across production and test code - both edits reference the exact same symbol `extra_settings` and apply the identical modification pattern (removing the second parameter). This is a bi-directional relationship because either edit can be made first, and after making either edit, the other becomes the immediate next step to maintain consistency across the codebase."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the `tags` argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 becomes the immediate next mechanical step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError)."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `extra_settings` by removing the `tags` parameter, and Edit 1 updates a call site to match this new signature by removing the `tags` argument. Both edits reference the exact same symbol (`extra_settings` function) and create a direct code dependency - after making the signature change in Edit 0, the call site in Edit 1 becomes the immediate next mechanical step to maintain code consistency. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError)."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, removing the second parameter `tags` from edit 0 and removing the second parameter `{\"kind\": \"celery\"}` from edit 1. This appears to be part of a signature change where `extra_settings` function signature was modified to remove the second parameter, and both call sites needed to be updated accordingly. The changed lines in both edits reference the exact same symbol `extra_settings` and represent synchronized updates to match a function signature change. Either edit could be made first since both are valid Python syntax, but after making either edit, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the exact same function `extra_settings`, removing the second parameter `tags` from edit 0 and removing the second parameter `{\"kind\": \"celery\"}` from edit 1. This appears to be part of a signature change where `extra_settings` function signature was modified to remove the second parameter, and both call sites needed to be updated accordingly. The changed lines in both edits reference the exact same symbol `extra_settings` and represent synchronized updates to match a function signature change. Either edit could be made first since both are valid Python syntax, but after making either edit, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They both remove the second parameter '{\"kind\": \"celery\"}' from calls to the exact same function 'extra_settings', changing from 2 parameters to 1 parameter. This represents a uniform refactoring pattern applied to multiple call sites of the same function within the same test file. The edits are clearly part of a single, contiguous refactor to simplify the extra_settings function signature across its usage sites."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They both remove the second parameter '{\"kind\": \"celery\"}' from calls to the exact same function 'extra_settings', changing from 2 parameters to 1 parameter. This represents a uniform refactoring pattern applied to multiple call sites of the same function within the same test file. The edits are clearly part of a single, contiguous refactor to simplify the extra_settings function signature across its usage sites."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They remove the second parameter {'kind': 'celery'} from extra_settings function calls in different test functions. This represents a uniform refactoring pattern where the same change is being applied to multiple call sites of the same function. The edits are part of a single, contiguous refactor to simplify the extra_settings function signature by removing an unused parameter."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They remove the second parameter {'kind': 'celery'} from extra_settings function calls in different test functions. This represents a uniform refactoring pattern where the same change is being applied to multiple call sites of the same function. The edits are part of a single, contiguous refactor to simplify the extra_settings function signature by removing an unused parameter."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where both changed lines reference the exact same function `extra_settings` and apply the same before\u2192after transformation (removing the second argument). This appears to be part of a single, contiguous refactor to simplify the function signature or remove an unused parameter across multiple test cases."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where both changed lines reference the exact same function `extra_settings` and apply the same before\u2192after transformation (removing the second argument). This appears to be part of a single, contiguous refactor to simplify the function signature or remove an unused parameter across multiple test cases."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where both changed lines reference the exact same function `extra_settings` and apply the same before\u2192after transformation (removing the second parameter). This appears to be part of a single, contiguous refactor to simplify the function signature or remove an unused parameter across multiple test cases."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where both changed lines reference the exact same function `extra_settings` and apply the same before\u2192after transformation (removing the second parameter). This appears to be part of a single, contiguous refactor to simplify the function signature or remove an unused parameter across multiple test cases."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They remove the second parameter {'kind': 'celery'} from extra_settings function calls in different test functions. This represents a uniform refactoring pattern where the same change is being applied to multiple call sites of the same function. The edits reference the exact same function symbol (extra_settings) and apply the identical before\u2192after pattern (removing the second parameter). This is a clear case of bulk-edit synchronization where both changes are part of a single, contiguous refactor to modify the function signature or usage pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (function calls to extra_settings). They remove the second parameter {'kind': 'celery'} from extra_settings function calls in different test functions. This represents a uniform refactoring pattern where the same change is being applied to multiple call sites of the same function. The edits reference the exact same function symbol (extra_settings) and apply the identical before\u2192after pattern (removing the second parameter). This is a clear case of bulk-edit synchronization where both changes are part of a single, contiguous refactor to modify the function signature or usage pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where the same before\u2192after change (removing the second parameter) is applied to multiple function calls of the same function within the same test file. Both edits reference the exact same function `extra_settings` and apply the identical modification pattern, making this a clear case of bulk-edit synchronization that would naturally occur in a single contiguous refactor operation."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct - they both remove the second parameter `{\"kind\": \"celery\"}` from calls to the `extra_settings` function. This is a uniform pattern substitution where the same before\u2192after change (removing the second parameter) is applied to multiple function calls of the same function within the same test file. Both edits reference the exact same function `extra_settings` and apply the identical modification pattern, making this a clear case of bulk-edit synchronization that would naturally occur in a single contiguous refactor operation."
+        }
+    ],
+    "allowed_init_edits": [
+        6
+    ]
+}

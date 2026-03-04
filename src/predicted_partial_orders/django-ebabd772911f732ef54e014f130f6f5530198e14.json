@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base database wrapper class, while Edit 1 uses that exact same method via `self.temporary_connection()` in a subclass. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in the base class, using it in the subclass becomes the immediate next step. This is a classic definition-usage relationship where both edits can be staged in either order (the usage won't cause a parse error, only a runtime AttributeError if the definition isn't present), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base database wrapper class, while Edit 1 uses that exact same method via `self.temporary_connection()` in a subclass. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in the base class, using it in the subclass becomes the immediate next step. This is a classic definition-usage relationship where both edits can be staged in either order (the usage won't cause a parse error, only a runtime AttributeError if the definition isn't present), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits apply the exact same structural pattern - wrapping existing code with 'with self.temporary_connection():' - to similar database version methods in different backend implementations. This represents a uniform, synchronized substitution pattern where the same before\u2192after transformation is being applied to the same type of syntactic construct (database version methods). The edits are part of what appears to be a single refactoring operation to ensure proper connection handling across database backends. Both changed lines reference the same method pattern (self.temporary_connection()) and apply identical structural modifications."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits apply the exact same structural pattern - wrapping existing code with 'with self.temporary_connection():' - to similar database version methods in different backend implementations. This represents a uniform, synchronized substitution pattern where the same before\u2192after transformation is being applied to the same type of syntactic construct (database version methods). The edits are part of what appears to be a single refactoring operation to ensure proper connection handling across database backends. Both changed lines reference the same method pattern (self.temporary_connection()) and apply identical structural modifications."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base class `django/db/backends/__init__.py`, while Edit 1 uses that exact same method by calling `self.temporary_connection()` in a subclass. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 is made first, it creates an immediate prompt to define the missing method in Edit 0. This is a classic definition-usage relationship where both edits can be staged in either order (the usage would cause a runtime AttributeError but not a parse error in Python), making it bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base class `django/db/backends/__init__.py`, while Edit 1 uses that exact same method by calling `self.temporary_connection()` in a subclass. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 is made first, it creates an immediate prompt to define the missing method in Edit 0. This is a classic definition-usage relationship where both edits can be staged in either order (the usage would cause a runtime AttributeError but not a parse error in Python), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable 'version' by assigning 'self.connection.version' to it. Edit 1 then uses this exact same 'version' variable by replacing 'self.connection.version' with 'version' in the return statement. The changed lines reference the exact same symbol 'version' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly extracted variable. Both edits are part of a single micro-task of extracting a variable assignment. Either edit can be made first since both are syntactically valid independently, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'version' by assigning 'self.connection.version' to it. Edit 1 then uses this exact same 'version' variable by replacing 'self.connection.version' with 'version' in the return statement. The changed lines reference the exact same symbol 'version' - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly extracted variable. Both edits are part of a single micro-task of extracting a variable assignment. Either edit can be made first since both are syntactically valid independently, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits apply the exact same structural pattern: wrapping an existing line that uses `self.connection` with `with self.temporary_connection():` and indenting the original line. This is a uniform, synchronized substitution across different database backend files, applying identical before\u2192after transformation to the same type of syntactic construct (method bodies that access `self.connection`). The edits are part of a single refactoring operation to ensure proper connection handling across database backends."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits apply the exact same structural pattern: wrapping an existing line that uses `self.connection` with `with self.temporary_connection():` and indenting the original line. This is a uniform, synchronized substitution across different database backend files, applying identical before\u2192after transformation to the same type of syntactic construct (method bodies that access `self.connection`). The edits are part of a single refactoring operation to ensure proper connection handling across database backends."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base class `django/db/backends/__init__.py`, while Edit 1 uses that exact same method by calling `self.temporary_connection()` in a subclass method in `django/db/backends/mysql/base.py`. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 is made first, Edit 0 becomes necessary to provide the definition. Both edits can be parsed and staged in either order (Edit 1 would cause a runtime AttributeError if staged before Edit 0, but not a parse-time syntax error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `temporary_connection` in the base class `django/db/backends/__init__.py`, while Edit 1 uses that exact same method by calling `self.temporary_connection()` in a subclass method in `django/db/backends/mysql/base.py`. The changed lines reference the exact same symbol - the `temporary_connection` method. After defining the method in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - if Edit 1 is made first, Edit 0 becomes necessary to provide the definition. Both edits can be parsed and staged in either order (Edit 1 would cause a runtime AttributeError if staged before Edit 0, but not a parse-time syntax error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds an 'auto_restart=True' parameter to a call to the 'do_run' function, while Edit 1 adds the 'auto_restart=False' parameter to the signature of the same 'do_run' function. These edits reference the exact same symbol (the 'do_run' function and its 'auto_restart' parameter). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the call site, you need to add it to the function signature, and vice versa. This is a classic function signature change paired with call-site update pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds an 'auto_restart=True' parameter to a call to the 'do_run' function, while Edit 1 adds the 'auto_restart=False' parameter to the signature of the same 'do_run' function. These edits reference the exact same symbol (the 'do_run' function and its 'auto_restart' parameter). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the call site, you need to add it to the function signature, and vice versa. This is a classic function signature change paired with call-site update pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds the parameter 'auto_restart=False' to the function signature of do_run(), and Edit 1 passes that exact same parameter 'auto_restart' to the ShellCommandThread constructor within the same function body. This is a classic parameter threading pattern where the newly added parameter in the signature must be passed through to the internal call. Both edits reference the exact same symbol 'auto_restart' - one defining it in the parameter list and the other using it in the function call. After adding the parameter to the signature, the natural next step is to thread it through to the relevant internal calls, making this bi-directional since either edit could be made first and would prompt the other as the immediate next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds the parameter 'auto_restart=False' to the function signature of do_run(), and Edit 1 passes that exact same parameter 'auto_restart' to the ShellCommandThread constructor within the same function body. This is a classic parameter threading pattern where the newly added parameter in the signature must be passed through to the internal call. Both edits reference the exact same symbol 'auto_restart' - one defining it in the parameter list and the other using it in the function call. After adding the parameter to the signature, the natural next step is to thread it through to the relevant internal calls, making this bi-directional since either edit could be made first and would prompt the other as the immediate next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to a ShellCommandThread constructor call, while Edit 1 adds the same 'auto_restart' parameter to the ShellCommandThread class constructor definition. These edits reference the exact same symbol (the auto_restart parameter of ShellCommandThread) and create a direct signature-caller dependency. After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the call site, you need to add it to the definition, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to a ShellCommandThread constructor call, while Edit 1 adds the same 'auto_restart' parameter to the ShellCommandThread class constructor definition. These edits reference the exact same symbol (the auto_restart parameter of ShellCommandThread) and create a direct signature-caller dependency. After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the call site, you need to add it to the definition, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to a ShellCommandThread constructor call, while Edit 1 adds logic to the ShellCommandThread class that uses 'self.auto_restart' in a while loop condition. These edits reference the exact same symbol (the auto_restart parameter/attribute) and have a direct code dependency - Edit 0 passes the parameter that Edit 1's logic depends on. However, both edits can be written and parsed independently without syntax errors. Edit 0 can be staged first (passing a parameter that doesn't exist yet would cause a runtime error, not a parse error), and Edit 1 can be staged first (referencing self.auto_restart that doesn't exist yet would also cause a runtime error, not a parse error). Since both reference the same symbol and either edit naturally prompts the other as the next mechanical step, this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to a ShellCommandThread constructor call, while Edit 1 adds logic to the ShellCommandThread class that uses 'self.auto_restart' in a while loop condition. These edits reference the exact same symbol (the auto_restart parameter/attribute) and have a direct code dependency - Edit 0 passes the parameter that Edit 1's logic depends on. However, both edits can be written and parsed independently without syntax errors. Edit 0 can be staged first (passing a parameter that doesn't exist yet would cause a runtime error, not a parse error), and Edit 1 can be staged first (referencing self.auto_restart that doesn't exist yet would also cause a runtime error, not a parse error). Since both reference the same symbol and either edit naturally prompts the other as the next mechanical step, this is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to the __init__ method signature, and Edit 1 uses 'self.auto_restart' in the run_cmd method body. The changed lines reference the exact same symbol - the auto_restart parameter that is defined in the constructor and then accessed as an instance attribute. After adding the parameter to the constructor, using it in the method body becomes the immediate next step to implement the auto-restart functionality. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds an 'auto_restart' parameter to the __init__ method signature, and Edit 1 uses 'self.auto_restart' in the run_cmd method body. The changed lines reference the exact same symbol - the auto_restart parameter that is defined in the constructor and then accessed as an instance attribute. After adding the parameter to the constructor, using it in the method body becomes the immediate next step to implement the auto-restart functionality. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds the 'auto_restart' parameter to the __init__ method signature, and Edit 1 assigns that exact same parameter to self.auto_restart in the method body. This is a classic parameter addition followed by parameter usage pattern within the same function. The changed lines reference the exact same symbol 'auto_restart' - one defining it as a parameter, the other using it in an assignment. After adding the parameter in the signature, the natural next step is to store it as an instance variable, making this a direct code dependency where either edit prompts the other as the immediate next action."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds the 'auto_restart' parameter to the __init__ method signature, and Edit 1 assigns that exact same parameter to self.auto_restart in the method body. This is a classic parameter addition followed by parameter usage pattern within the same function. The changed lines reference the exact same symbol 'auto_restart' - one defining it as a parameter, the other using it in an assignment. After adding the parameter in the signature, the natural next step is to store it as an instance variable, making this a direct code dependency where either edit prompts the other as the immediate next action."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'auto_restart' as an instance attribute of the same class. Edit 0 assigns the attribute in the constructor (self.auto_restart = auto_restart), and Edit 1 uses that same attribute in a conditional check (not self.auto_restart). This creates a direct definition-usage relationship where the changed lines reference the same symbol. After making either edit, the other becomes the immediate next step to complete the auto_restart functionality implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'auto_restart' as an instance attribute of the same class. Edit 0 assigns the attribute in the constructor (self.auto_restart = auto_restart), and Edit 1 uses that same attribute in a conditional check (not self.auto_restart). This creates a direct definition-usage relationship where the changed lines reference the same symbol. After making either edit, the other becomes the immediate next step to complete the auto_restart functionality implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a call to `self.do_run_cmd()` in the changed lines, while Edit 1 defines the method `do_run_cmd`. The changed lines reference the exact same symbol - the `do_run_cmd` method. After making Edit 0, the code would have a call to an undefined method, creating an immediate, mechanically obvious prompt to define that method (Edit 1). Conversely, after making Edit 1, the newly defined method would naturally prompt its usage in the calling context (Edit 0). Both edits can be parsed and staged in either order in Python, as method calls to undefined methods only fail at runtime, not at parse time. This represents a bi-directional definition-usage relationship within the same class."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a call to `self.do_run_cmd()` in the changed lines, while Edit 1 defines the method `do_run_cmd`. The changed lines reference the exact same symbol - the `do_run_cmd` method. After making Edit 0, the code would have a call to an undefined method, creating an immediate, mechanically obvious prompt to define that method (Edit 1). Conversely, after making Edit 1, the newly defined method would naturally prompt its usage in the calling context (Edit 0). Both edits can be parsed and staged in either order in Python, as method calls to undefined methods only fail at runtime, not at parse time. This represents a bi-directional definition-usage relationship within the same class."
+        }
+    ],
+    "allowed_init_edits": [
+        7
+    ]
+}

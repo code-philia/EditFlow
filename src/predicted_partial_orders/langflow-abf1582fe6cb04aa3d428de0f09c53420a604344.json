@@ -1,0 +1,92 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the instance variable `_message_stored = False` from the class, and Edit 1 removes the condition `and not self._message_stored` from an if statement. The changed line in Edit 1 directly references the same symbol `_message_stored` that was removed in Edit 0. After removing the variable definition in Edit 0, the reference to `self._message_stored` in the if condition becomes undefined, making Edit 1 necessary to remove this now-invalid reference. This creates an immediate, mechanically obvious code-driven prompt where removing the variable definition naturally leads to removing its usage."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes the instance variable `_message_stored = False` from the class, and Edit 1 removes the condition `and not self._message_stored` from an if statement. The changed line in Edit 1 directly references the same symbol `_message_stored` that was removed in Edit 0. After removing the variable definition in Edit 0, the reference to `self._message_stored` in the if condition becomes undefined, making Edit 1 necessary to remove this now-invalid reference. This creates an immediate, mechanically obvious code-driven prompt where removing the variable definition naturally leads to removing its usage."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the instance variable `_message_stored` declaration, while Edit 1 removes a line that assigns `True` to `self._message_stored` and replaces it with a different assignment. Both edits reference the exact same symbol `_message_stored` - Edit 0 removes its declaration and Edit 1 removes its usage. This creates a direct code dependency where removing the declaration (Edit 0) makes the usage (Edit 1) reference an undefined attribute. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time error, so both edits can be staged in either order. The edits are part of the same refactoring task to remove the `_message_stored` tracking mechanism."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the instance variable `_message_stored` declaration, while Edit 1 removes a line that assigns `True` to `self._message_stored` and replaces it with a different assignment. Both edits reference the exact same symbol `_message_stored` - Edit 0 removes its declaration and Edit 1 removes its usage. This creates a direct code dependency where removing the declaration (Edit 0) makes the usage (Edit 1) reference an undefined attribute. However, in Python, referencing an undefined attribute only causes a runtime AttributeError, not a parse-time error, so both edits can be staged in either order. The edits are part of the same refactoring task to remove the `_message_stored` tracking mechanism."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution - removing the exact same line '_message_stored = False' from two different classes (ChatInput and ChatOutput). This represents a bulk-edit pattern where the same code construct (a class attribute assignment) is being removed using the same before\u2192after pattern (removal of the line) in both locations. Both classes appear to be related components (ChatInput and ChatOutput both inherit from ChatComponent), and this appears to be part of a single, contiguous refactor to remove this attribute from both classes simultaneously. The edits target the same type of syntactic construct and use identical substitution patterns."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution - removing the exact same line '_message_stored = False' from two different classes (ChatInput and ChatOutput). This represents a bulk-edit pattern where the same code construct (a class attribute assignment) is being removed using the same before\u2192after pattern (removal of the line) in both locations. Both classes appear to be related components (ChatInput and ChatOutput both inherit from ChatComponent), and this appears to be part of a single, contiguous refactor to remove this attribute from both classes simultaneously. The edits target the same type of syntactic construct and use identical substitution patterns."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct (conditional statements). They both remove the 'and not self._message_stored' clause from identical conditional expressions in similar class methods (message_response). This represents a uniform refactoring pattern applied to the same construct type across related components, making it a clear case of bulk-edit synchronization where both changes would naturally occur as part of a single, contiguous refactor operation."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct (conditional statements). They both remove the 'and not self._message_stored' clause from identical conditional expressions in similar class methods (message_response). This represents a uniform refactoring pattern applied to the same construct type across related components, making it a clear case of bulk-edit synchronization where both changes would naturally occur as part of a single, contiguous refactor operation."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "This is a cut-and-paste move operation where the same import statement 'from langflow.field_typing import Text' is being removed from one location (line 4) and added to another location (line 1) within the same file. Edit 1 removes the import from its original position, and Edit 0 adds it to a new position. For this to work correctly, the removal must happen before the addition to avoid having duplicate import statements, making this an ordered relationship where Edit 1 must occur before Edit 0."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'self._message_stored = True' with 'self.message.value = message' in the same structural context (within message_response methods of ChatComponent subclasses). This represents a bulk refactoring operation where the same code pattern is being uniformly changed across multiple related classes. The edits target the same type of syntactic construct (assignment statements) with identical before\u2192after patterns, making this a synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'self._message_stored = True' with 'self.message.value = message' in the same structural context (within message_response methods of ChatComponent subclasses). This represents a bulk refactoring operation where the same code pattern is being uniformly changed across multiple related classes. The edits target the same type of syntactic construct (assignment statements) with identical before\u2192after patterns, making this a synchronized pattern substitution that would naturally occur as part of a single, contiguous refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the instance variable `_message_stored = False` from the class, and Edit 1 removes the condition `and not self._message_stored` from an if statement. The changed line in Edit 1 directly references the same symbol `_message_stored` that was removed in Edit 0. After removing the variable definition in Edit 0, the reference to `self._message_stored` in the original condition would cause a runtime AttributeError, making Edit 1 necessary to remove this now-invalid reference. Both edits reference the exact same symbol and form a cohesive removal of a feature - the variable and its usage must be removed together as part of the same micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes the instance variable `_message_stored = False` from the class, and Edit 1 removes the condition `and not self._message_stored` from an if statement. The changed line in Edit 1 directly references the same symbol `_message_stored` that was removed in Edit 0. After removing the variable definition in Edit 0, the reference to `self._message_stored` in the original condition would cause a runtime AttributeError, making Edit 1 necessary to remove this now-invalid reference. Both edits reference the exact same symbol and form a cohesive removal of a feature - the variable and its usage must be removed together as part of the same micro-task."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits are modifying the same method (message_response) in the same class and are part of a single logical change that removes the _message_stored flag mechanism and replaces it with direct message assignment. Edit 0 removes the check for _message_stored in the conditional, while Edit 1 removes the setting of _message_stored and replaces it with direct message assignment. These changes are mechanically linked - removing the flag check requires removing the flag setting, and the replacement logic (self.message.value = message) serves the same purpose. Both edits reference the same conditional block and the same message variable, making them part of one contiguous refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits are modifying the same method (message_response) in the same class and are part of a single logical change that removes the _message_stored flag mechanism and replaces it with direct message assignment. Edit 0 removes the check for _message_stored in the conditional, while Edit 1 removes the setting of _message_stored and replaces it with direct message assignment. These changes are mechanically linked - removing the flag check requires removing the flag setting, and the replacement logic (self.message.value = message) serves the same purpose. Both edits reference the same conditional block and the same message variable, making them part of one contiguous refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the instance variable `_message_stored` declaration, while Edit 1 removes a line that assigns `True` to `self._message_stored` and replaces it with a different assignment. Both edits reference the exact same symbol `_message_stored` - Edit 0 removes its declaration and Edit 1 removes its usage. This creates a direct code dependency where removing the variable declaration (Edit 0) makes the assignment to that variable (Edit 1) invalid. However, since Edit 1 also removes the problematic line rather than just using it, both edits can be staged independently without causing parse errors. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes the natural next step to complete the removal of the `_message_stored` variable from the codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the instance variable `_message_stored` declaration, while Edit 1 removes a line that assigns `True` to `self._message_stored` and replaces it with a different assignment. Both edits reference the exact same symbol `_message_stored` - Edit 0 removes its declaration and Edit 1 removes its usage. This creates a direct code dependency where removing the variable declaration (Edit 0) makes the assignment to that variable (Edit 1) invalid. However, since Edit 1 also removes the problematic line rather than just using it, both edits can be staged independently without causing parse errors. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes the natural next step to complete the removal of the `_message_stored` variable from the codebase."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

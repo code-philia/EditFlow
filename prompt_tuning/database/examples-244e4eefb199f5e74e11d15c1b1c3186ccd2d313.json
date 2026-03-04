@@ -1,0 +1,789 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/pytorch/examples/commit/244e4eefb199f5e74e11d15c1b1c3186ccd2d313",
+    "commit_message": "set type of batch_size argument to int in ddp-tutorial-series (#1104)\n\nset type of batch_size argument to int",
+    "commit_snapshots": {
+        "distributed/ddp-tutorial-series/multigpu.py": [
+            [
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "from torch.utils.data import Dataset, DataLoader\n",
+                "from datautils import MyTrainDataset\n",
+                "\n",
+                "import torch.multiprocessing as mp\n",
+                "from torch.utils.data.distributed import DistributedSampler\n",
+                "from torch.nn.parallel import DistributedDataParallel as DDP\n",
+                "from torch.distributed import init_process_group, destroy_process_group\n",
+                "import os\n",
+                "\n",
+                "\n",
+                "def ddp_setup(rank, world_size):\n",
+                "    \"\"\"\n",
+                "    Args:\n",
+                "        rank: Unique identifier of each process\n",
+                "        world_size: Total number of processes\n",
+                "    \"\"\"\n",
+                "    os.environ[\"MASTER_ADDR\"] = \"localhost\"\n",
+                "    os.environ[\"MASTER_PORT\"] = \"12355\"\n",
+                "    init_process_group(backend=\"nccl\", rank=rank, world_size=world_size)\n",
+                "\n",
+                "class Trainer:\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        model: torch.nn.Module,\n",
+                "        train_data: DataLoader,\n",
+                "        optimizer: torch.optim.Optimizer,\n",
+                "        gpu_id: int,\n",
+                "        save_every: int,\n",
+                "    ) -> None:\n",
+                "        self.gpu_id = gpu_id\n",
+                "        self.model = model.to(gpu_id)\n",
+                "        self.train_data = train_data\n",
+                "        self.optimizer = optimizer\n",
+                "        self.save_every = save_every\n",
+                "        self.model = DDP(model, device_ids=[gpu_id])\n",
+                "\n",
+                "    def _run_batch(self, source, targets):\n",
+                "        self.optimizer.zero_grad()\n",
+                "        output = self.model(source)\n",
+                "        loss = F.cross_entropy(output, targets)\n",
+                "        loss.backward()\n",
+                "        self.optimizer.step()\n",
+                "\n",
+                "    def _run_epoch(self, epoch):\n",
+                "        b_sz = len(next(iter(self.train_data))[0])\n",
+                "        print(f\"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}\")\n",
+                "        self.train_data.sampler.set_epoch(epoch)\n",
+                "        for source, targets in self.train_data:\n",
+                "            source = source.to(self.gpu_id)\n",
+                "            targets = targets.to(self.gpu_id)\n",
+                "            self._run_batch(source, targets)\n",
+                "\n",
+                "    def _save_checkpoint(self, epoch):\n",
+                "        ckp = self.model.module.state_dict()\n",
+                "        PATH = \"checkpoint.pt\"\n",
+                "        torch.save(ckp, PATH)\n",
+                "        print(f\"Epoch {epoch} | Training checkpoint saved at {PATH}\")\n",
+                "\n",
+                "    def train(self, max_epochs: int):\n",
+                "        for epoch in range(max_epochs):\n",
+                "            self._run_epoch(epoch)\n",
+                "            if self.gpu_id == 0 and epoch % self.save_every == 0:\n",
+                "                self._save_checkpoint(epoch)\n",
+                "\n",
+                "\n",
+                "def load_train_objs():\n",
+                "    train_set = MyTrainDataset(2048)  # load your dataset\n",
+                "    model = torch.nn.Linear(20, 1)  # load your model\n",
+                "    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)\n",
+                "    return train_set, model, optimizer\n",
+                "\n",
+                "\n",
+                "def prepare_dataloader(dataset: Dataset, batch_size: int):\n",
+                "    return DataLoader(\n",
+                "        dataset,\n",
+                "        batch_size=batch_size,\n",
+                "        pin_memory=True,\n",
+                "        shuffle=False,\n",
+                "        sampler=DistributedSampler(dataset)\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def main(rank: int, world_size: int, save_every: int, total_epochs: int, batch_size: int):\n",
+                "    ddp_setup(rank, world_size)\n",
+                "    dataset, model, optimizer = load_train_objs()\n",
+                "    train_data = prepare_dataloader(dataset, batch_size)\n",
+                "    trainer = Trainer(model, train_data, optimizer, rank, save_every)\n",
+                "    trainer.train(total_epochs)\n",
+                "    destroy_process_group()\n",
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    import argparse\n",
+                "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "after": [
+                    "    parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "parent_version_range": {
+                    "start": 98,
+                    "end": 99
+                },
+                "child_version_range": {
+                    "start": 98,
+                    "end": 99
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if __name__ == \"__main__\":",
+                        "start_line": 93,
+                        "end_line": 102
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')",
+                        "at_line": 98,
+                        "argument": "'--batch_size'"
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: distributed/ddp-tutorial-series/multigpu.py\nCode:\n 95  95        parser = argparse.ArgumentParser(description='simple distributed training job')\n 96  96        parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n 97  97        parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n 98      -     parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n     98  +     parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n 99  99        args = parser.parse_args()\n100 100        \n101 101        world_size = torch.cuda.device_count()\n         ...\n",
+                "file_path": "distributed/ddp-tutorial-series/multigpu.py",
+                "identifiers_before": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "parser"
+                ],
+                "identifiers_after": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "int",
+                    "parser",
+                    "type"
+                ],
+                "prefix": [
+                    "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                    "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                    "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+                ],
+                "suffix": [
+                    "    args = parser.parse_args()\n",
+                    "    \n",
+                    "    world_size = torch.cuda.device_count()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1,
+                    2,
+                    3
+                ]
+            },
+            [
+                "    args = parser.parse_args()\n",
+                "    \n",
+                "    world_size = torch.cuda.device_count()\n",
+                "    mp.spawn(main, args=(world_size, args.save_every, args.total_epochs, args.batch_size), nprocs=world_size)"
+            ]
+        ],
+        "distributed/ddp-tutorial-series/multigpu_torchrun.py": [
+            [
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "from torch.utils.data import Dataset, DataLoader\n",
+                "from datautils import MyTrainDataset\n",
+                "\n",
+                "import torch.multiprocessing as mp\n",
+                "from torch.utils.data.distributed import DistributedSampler\n",
+                "from torch.nn.parallel import DistributedDataParallel as DDP\n",
+                "from torch.distributed import init_process_group, destroy_process_group\n",
+                "import os\n",
+                "\n",
+                "\n",
+                "def ddp_setup():\n",
+                "    init_process_group(backend=\"nccl\")\n",
+                "\n",
+                "class Trainer:\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        model: torch.nn.Module,\n",
+                "        train_data: DataLoader,\n",
+                "        optimizer: torch.optim.Optimizer,\n",
+                "        save_every: int,\n",
+                "        snapshot_path: str,\n",
+                "    ) -> None:\n",
+                "        self.gpu_id = int(os.environ[\"LOCAL_RANK\"])\n",
+                "        self.model = model.to(self.gpu_id)\n",
+                "        self.train_data = train_data\n",
+                "        self.optimizer = optimizer\n",
+                "        self.save_every = save_every\n",
+                "        self.epochs_run = 0\n",
+                "        self.snapshot_path = snapshot_path\n",
+                "        if os.path.exists(snapshot_path):\n",
+                "            print(\"Loading snapshot\")\n",
+                "            self._load_snapshot(snapshot_path)\n",
+                "\n",
+                "        self.model = DDP(self.model, device_ids=[self.gpu_id])\n",
+                "\n",
+                "    def _load_snapshot(self, snapshot_path):\n",
+                "        loc = f\"cuda:{self.gpu_id}\"\n",
+                "        snapshot = torch.load(snapshot_path, map_location=loc)\n",
+                "        self.model.load_state_dict(snapshot[\"MODEL_STATE\"])\n",
+                "        self.epochs_run = snapshot[\"EPOCHS_RUN\"]\n",
+                "        print(f\"Resuming training from snapshot at Epoch {self.epochs_run}\")\n",
+                "\n",
+                "    def _run_batch(self, source, targets):\n",
+                "        self.optimizer.zero_grad()\n",
+                "        output = self.model(source)\n",
+                "        loss = F.cross_entropy(output, targets)\n",
+                "        loss.backward()\n",
+                "        self.optimizer.step()\n",
+                "\n",
+                "    def _run_epoch(self, epoch):\n",
+                "        b_sz = len(next(iter(self.train_data))[0])\n",
+                "        print(f\"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}\")\n",
+                "        self.train_data.sampler.set_epoch(epoch)\n",
+                "        for source, targets in self.train_data:\n",
+                "            source = source.to(self.gpu_id)\n",
+                "            targets = targets.to(self.gpu_id)\n",
+                "            self._run_batch(source, targets)\n",
+                "\n",
+                "    def _save_snapshot(self, epoch):\n",
+                "        snapshot = {\n",
+                "            \"MODEL_STATE\": self.model.module.state_dict(),\n",
+                "            \"EPOCHS_RUN\": epoch,\n",
+                "        }\n",
+                "        torch.save(snapshot, self.snapshot_path)\n",
+                "        print(f\"Epoch {epoch} | Training snapshot saved at {self.snapshot_path}\")\n",
+                "\n",
+                "    def train(self, max_epochs: int):\n",
+                "        for epoch in range(self.epochs_run, max_epochs):\n",
+                "            self._run_epoch(epoch)\n",
+                "            if self.gpu_id == 0 and epoch % self.save_every == 0:\n",
+                "                self._save_snapshot(epoch)\n",
+                "\n",
+                "\n",
+                "def load_train_objs():\n",
+                "    train_set = MyTrainDataset(2048)  # load your dataset\n",
+                "    model = torch.nn.Linear(20, 1)  # load your model\n",
+                "    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)\n",
+                "    return train_set, model, optimizer\n",
+                "\n",
+                "\n",
+                "def prepare_dataloader(dataset: Dataset, batch_size: int):\n",
+                "    return DataLoader(\n",
+                "        dataset,\n",
+                "        batch_size=batch_size,\n",
+                "        pin_memory=True,\n",
+                "        shuffle=False,\n",
+                "        sampler=DistributedSampler(dataset)\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str = \"snapshot.pt\"):\n",
+                "    ddp_setup()\n",
+                "    dataset, model, optimizer = load_train_objs()\n",
+                "    train_data = prepare_dataloader(dataset, batch_size)\n",
+                "    trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)\n",
+                "    trainer.train(total_epochs)\n",
+                "    destroy_process_group()\n",
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    import argparse\n",
+                "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "after": [
+                    "    parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "parent_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "child_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if __name__ == \"__main__\":",
+                        "start_line": 101,
+                        "end_line": 109
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')",
+                        "at_line": 106,
+                        "argument": "'--batch_size'"
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: distributed/ddp-tutorial-series/multigpu_torchrun.py\nCode:\n103 103        parser = argparse.ArgumentParser(description='simple distributed training job')\n104 104        parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n105 105        parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n106      -     parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n    106  +     parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n107 107        args = parser.parse_args()\n108 108        \n109 109        main(args.save_every, args.total_epochs, args.batch_size)\n         ...\n",
+                "file_path": "distributed/ddp-tutorial-series/multigpu_torchrun.py",
+                "identifiers_before": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "parser"
+                ],
+                "identifiers_after": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "int",
+                    "parser",
+                    "type"
+                ],
+                "prefix": [
+                    "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                    "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                    "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+                ],
+                "suffix": [
+                    "    args = parser.parse_args()\n",
+                    "    \n",
+                    "    main(args.save_every, args.total_epochs, args.batch_size)"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0,
+                    2,
+                    3
+                ]
+            },
+            [
+                "    args = parser.parse_args()\n",
+                "    \n",
+                "    main(args.save_every, args.total_epochs, args.batch_size)"
+            ]
+        ],
+        "distributed/ddp-tutorial-series/multinode.py": [
+            [
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "from torch.utils.data import Dataset, DataLoader\n",
+                "from datautils import MyTrainDataset\n",
+                "\n",
+                "import torch.multiprocessing as mp\n",
+                "from torch.utils.data.distributed import DistributedSampler\n",
+                "from torch.nn.parallel import DistributedDataParallel as DDP\n",
+                "from torch.distributed import init_process_group, destroy_process_group\n",
+                "import os\n",
+                "\n",
+                "\n",
+                "def ddp_setup():\n",
+                "    init_process_group(backend=\"nccl\")\n",
+                "\n",
+                "class Trainer:\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        model: torch.nn.Module,\n",
+                "        train_data: DataLoader,\n",
+                "        optimizer: torch.optim.Optimizer,\n",
+                "        save_every: int,\n",
+                "        snapshot_path: str,\n",
+                "    ) -> None:\n",
+                "        self.local_rank = int(os.environ[\"LOCAL_RANK\"])\n",
+                "        self.global_rank = int(os.environ[\"RANK\"])\n",
+                "        self.model = model.to(self.local_rank)\n",
+                "        self.train_data = train_data\n",
+                "        self.optimizer = optimizer\n",
+                "        self.save_every = save_every\n",
+                "        self.epochs_run = 0\n",
+                "        self.snapshot_path = snapshot_path\n",
+                "        if os.path.exists(snapshot_path):\n",
+                "            print(\"Loading snapshot\")\n",
+                "            self._load_snapshot(snapshot_path)\n",
+                "\n",
+                "        self.model = DDP(self.model, device_ids=[self.local_rank])\n",
+                "\n",
+                "    def _load_snapshot(self, snapshot_path):\n",
+                "        loc = f\"cuda:{self.gpu_id}\"\n",
+                "        snapshot = torch.load(snapshot_path, map_location=loc)\n",
+                "        self.model.load_state_dict(snapshot[\"MODEL_STATE\"])\n",
+                "        self.epochs_run = snapshot[\"EPOCHS_RUN\"]\n",
+                "        print(f\"Resuming training from snapshot at Epoch {self.epochs_run}\")\n",
+                "\n",
+                "    def _run_batch(self, source, targets):\n",
+                "        self.optimizer.zero_grad()\n",
+                "        output = self.model(source)\n",
+                "        loss = F.cross_entropy(output, targets)\n",
+                "        loss.backward()\n",
+                "        self.optimizer.step()\n",
+                "\n",
+                "    def _run_epoch(self, epoch):\n",
+                "        b_sz = len(next(iter(self.train_data))[0])\n",
+                "        print(f\"[GPU{self.global_rank}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}\")\n",
+                "        self.train_data.sampler.set_epoch(epoch)\n",
+                "        for source, targets in self.train_data:\n",
+                "            source = source.to(self.local_rank)\n",
+                "            targets = targets.to(self.local_rank)\n",
+                "            self._run_batch(source, targets)\n",
+                "\n",
+                "    def _save_snapshot(self, epoch):\n",
+                "        snapshot = {\n",
+                "            \"MODEL_STATE\": self.model.module.state_dict(),\n",
+                "            \"EPOCHS_RUN\": epoch,\n",
+                "        }\n",
+                "        torch.save(snapshot, self.snapshot_path)\n",
+                "        print(f\"Epoch {epoch} | Training snapshot saved at {self.snapshot_path}\")\n",
+                "\n",
+                "    def train(self, max_epochs: int):\n",
+                "        for epoch in range(self.epochs_run, max_epochs):\n",
+                "            self._run_epoch(epoch)\n",
+                "            if self.local_rank == 0 and epoch % self.save_every == 0:\n",
+                "                self._save_snapshot(epoch)\n",
+                "\n",
+                "\n",
+                "def load_train_objs():\n",
+                "    train_set = MyTrainDataset(2048)  # load your dataset\n",
+                "    model = torch.nn.Linear(20, 1)  # load your model\n",
+                "    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)\n",
+                "    return train_set, model, optimizer\n",
+                "\n",
+                "\n",
+                "def prepare_dataloader(dataset: Dataset, batch_size: int):\n",
+                "    return DataLoader(\n",
+                "        dataset,\n",
+                "        batch_size=batch_size,\n",
+                "        pin_memory=True,\n",
+                "        shuffle=False,\n",
+                "        sampler=DistributedSampler(dataset)\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def main(save_every: int, total_epochs: int, batch_size: int, snapshot_path: str = \"snapshot.pt\"):\n",
+                "    ddp_setup()\n",
+                "    dataset, model, optimizer = load_train_objs()\n",
+                "    train_data = prepare_dataloader(dataset, batch_size)\n",
+                "    trainer = Trainer(model, train_data, optimizer, save_every, snapshot_path)\n",
+                "    trainer.train(total_epochs)\n",
+                "    destroy_process_group()\n",
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    import argparse\n",
+                "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "after": [
+                    "    parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "parent_version_range": {
+                    "start": 107,
+                    "end": 108
+                },
+                "child_version_range": {
+                    "start": 107,
+                    "end": 108
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if __name__ == \"__main__\":",
+                        "start_line": 102,
+                        "end_line": 110
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')",
+                        "at_line": 107,
+                        "argument": "'--batch_size'"
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: distributed/ddp-tutorial-series/multinode.py\nCode:\n104 104        parser = argparse.ArgumentParser(description='simple distributed training job')\n105 105        parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n106 106        parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n107      -     parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n    107  +     parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n108 108        args = parser.parse_args()\n109 109        \n110 110        main(args.save_every, args.total_epochs, args.batch_size)\n         ...\n",
+                "file_path": "distributed/ddp-tutorial-series/multinode.py",
+                "identifiers_before": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "parser"
+                ],
+                "identifiers_after": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "int",
+                    "parser",
+                    "type"
+                ],
+                "prefix": [
+                    "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                    "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                    "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+                ],
+                "suffix": [
+                    "    args = parser.parse_args()\n",
+                    "    \n",
+                    "    main(args.save_every, args.total_epochs, args.batch_size)"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0,
+                    1,
+                    3
+                ]
+            },
+            [
+                "    args = parser.parse_args()\n",
+                "    \n",
+                "    main(args.save_every, args.total_epochs, args.batch_size)"
+            ]
+        ],
+        "distributed/ddp-tutorial-series/single_gpu.py": [
+            [
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "from torch.utils.data import Dataset, DataLoader\n",
+                "from datautils import MyTrainDataset\n",
+                "\n",
+                "\n",
+                "class Trainer:\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        model: torch.nn.Module,\n",
+                "        train_data: DataLoader,\n",
+                "        optimizer: torch.optim.Optimizer,\n",
+                "        gpu_id: int,\n",
+                "        save_every: int, \n",
+                "    ) -> None:\n",
+                "        self.gpu_id = gpu_id\n",
+                "        self.model = model.to(gpu_id)\n",
+                "        self.train_data = train_data\n",
+                "        self.optimizer = optimizer\n",
+                "        self.save_every = save_every\n",
+                "\n",
+                "    def _run_batch(self, source, targets):\n",
+                "        self.optimizer.zero_grad()\n",
+                "        output = self.model(source)\n",
+                "        loss = F.cross_entropy(output, targets)\n",
+                "        loss.backward()\n",
+                "        self.optimizer.step()\n",
+                "\n",
+                "    def _run_epoch(self, epoch):\n",
+                "        b_sz = len(next(iter(self.train_data))[0])\n",
+                "        print(f\"[GPU{self.gpu_id}] Epoch {epoch} | Batchsize: {b_sz} | Steps: {len(self.train_data)}\")\n",
+                "        for source, targets in self.train_data:\n",
+                "            source = source.to(self.gpu_id)\n",
+                "            targets = targets.to(self.gpu_id)\n",
+                "            self._run_batch(source, targets)\n",
+                "\n",
+                "    def _save_checkpoint(self, epoch):\n",
+                "        ckp = self.model.state_dict()\n",
+                "        PATH = \"checkpoint.pt\"\n",
+                "        torch.save(ckp, PATH)\n",
+                "        print(f\"Epoch {epoch} | Training checkpoint saved at {PATH}\")\n",
+                "\n",
+                "    def train(self, max_epochs: int):\n",
+                "        for epoch in range(max_epochs):\n",
+                "            self._run_epoch(epoch)\n",
+                "            if epoch % self.save_every == 0:\n",
+                "                self._save_checkpoint(epoch)\n",
+                "\n",
+                "\n",
+                "def load_train_objs():\n",
+                "    train_set = MyTrainDataset(2048)  # load your dataset\n",
+                "    model = torch.nn.Linear(20, 1)  # load your model\n",
+                "    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)\n",
+                "    return train_set, model, optimizer\n",
+                "\n",
+                "\n",
+                "def prepare_dataloader(dataset: Dataset, batch_size: int):\n",
+                "    return DataLoader(\n",
+                "        dataset,\n",
+                "        batch_size=batch_size,\n",
+                "        pin_memory=True,\n",
+                "        shuffle=True\n",
+                "    )\n",
+                "\n",
+                "\n",
+                "def main(device, total_epochs, save_every, batch_size):\n",
+                "    dataset, model, optimizer = load_train_objs()\n",
+                "    train_data = prepare_dataloader(dataset, batch_size)\n",
+                "    trainer = Trainer(model, train_data, optimizer, device, save_every)\n",
+                "    trainer.train(total_epochs)\n",
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    import argparse\n",
+                "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "after": [
+                    "    parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n"
+                ],
+                "parent_version_range": {
+                    "start": 77,
+                    "end": 78
+                },
+                "child_version_range": {
+                    "start": 77,
+                    "end": 78
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if __name__ == \"__main__\":",
+                        "start_line": 72,
+                        "end_line": 81
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')",
+                        "at_line": 77,
+                        "argument": "'--batch_size'"
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: distributed/ddp-tutorial-series/single_gpu.py\nCode:\n74 74        parser = argparse.ArgumentParser(description='simple distributed training job')\n75 75        parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n76 76        parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n77     -     parser.add_argument('--batch_size', default=32, help='Input batch size on each device (default: 32)')\n   77  +     parser.add_argument('--batch_size', default=32, type=int, help='Input batch size on each device (default: 32)')\n78 78        args = parser.parse_args()\n79 79        \n80 80        device = 0  # shorthand for cuda:0\n       ...\n",
+                "file_path": "distributed/ddp-tutorial-series/single_gpu.py",
+                "identifiers_before": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "parser"
+                ],
+                "identifiers_after": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "int",
+                    "parser",
+                    "type"
+                ],
+                "prefix": [
+                    "    parser = argparse.ArgumentParser(description='simple distributed training job')\n",
+                    "    parser.add_argument('total_epochs', type=int, help='Total epochs to train the model')\n",
+                    "    parser.add_argument('save_every', type=int, help='How often to save a snapshot')\n"
+                ],
+                "suffix": [
+                    "    args = parser.parse_args()\n",
+                    "    \n",
+                    "    device = 0  # shorthand for cuda:0\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0,
+                    1,
+                    2
+                ]
+            },
+            [
+                "    args = parser.parse_args()\n",
+                "    \n",
+                "    device = 0  # shorthand for cuda:0\n",
+                "    main(device, args.total_epochs, args.save_every, args.batch_size)"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            3,
+            2
+        ],
+        [
+            0,
+            1,
+            2,
+            3
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "User is under search-replace mental flow.",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, and then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, and then copied pasted it to edit 0."
+        }
+    ]
+}

@@ -1,0 +1,62 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `__ray_terminate__` in a modified class, and Edit 1 creates a `__del__` method that calls this exact same `__ray_terminate__` method via `actor_method_call`. The changed lines in Edit 1 explicitly reference the same symbol (`__ray_terminate__`) that is being defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After defining `__ray_terminate__` in Edit 0, the natural next step would be to use it in Edit 1's `__del__` method. Since both edits can be parsed and staged in either order (the call in Edit 1 would only fail at runtime if Edit 0 hasn't been applied), this is a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new method `__ray_terminate__` in a modified class, and Edit 1 creates a `__del__` method that calls this exact same `__ray_terminate__` method via `actor_method_call`. The changed lines in Edit 1 explicitly reference the same symbol (`__ray_terminate__`) that is being defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. After defining `__ray_terminate__` in Edit 0, the natural next step would be to use it in Edit 1's `__del__` method. Since both edits can be parsed and staged in either order (the call in Edit 1 would only fail at runtime if Edit 0 hasn't been applied), this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform identical textual substitutions (renaming 'actors' to 'actors1' and 'actors2' respectively) within the same test method context. They are part of a single refactoring operation to disambiguate two different actor lists that were previously both named 'actors'. This represents a bulk-edit pattern where the same type of syntactic construct (variable assignment) is being modified with a similar naming pattern to resolve a conflict. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the disambiguation."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions (renaming 'actors' to 'actors1' and 'actors2' respectively) within the same test method context. They are part of a single refactoring operation to disambiguate two different actor lists that were previously both named 'actors'. This represents a bulk-edit pattern where the same type of syntactic construct (variable assignment) is being modified with a similar naming pattern to resolve a conflict. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the disambiguation."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 renames the variable 'actors' to 'actors1' on line 684, and Edit 1 updates the usage of that same variable from 'actors' to 'actors1' on line 687. Both edits reference the exact same symbol (the variable that holds the list of Actor1 instances). After making either edit, the other becomes immediately necessary to maintain code consistency - if only one edit is made, there would be a NameError at runtime. This is a classic definition-usage relationship where both edits reference the same symbol and either can be staged first (both are syntactically valid), making it bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 renames the variable 'actors' to 'actors1' on line 684, and Edit 1 updates the usage of that same variable from 'actors' to 'actors1' on line 687. Both edits reference the exact same symbol (the variable that holds the list of Actor1 instances). After making either edit, the other becomes immediately necessary to maintain code consistency - if only one edit is made, there would be a NameError at runtime. This is a classic definition-usage relationship where both edits reference the same symbol and either can be staged first (both are syntactically valid), making it bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 renames the variable 'actors' to 'actors2' on line 713, and Edit 1 updates the usage of that same variable from 'actors' to 'actors2' on line 716. Both edits reference the exact same symbol (the variable that holds the list of Actor2.remote() instances). After making either edit, the other becomes immediately necessary to maintain code consistency - if only one edit is made, there would be a NameError at runtime. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 renames the variable 'actors' to 'actors2' on line 713, and Edit 1 updates the usage of that same variable from 'actors' to 'actors2' on line 716. Both edits reference the exact same symbol (the variable that holds the list of Actor2.remote() instances). After making either edit, the other becomes immediately necessary to maintain code consistency - if only one edit is made, there would be a NameError at runtime. This is a classic definition-usage relationship where both edits reference the same symbol and either can prompt the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol 'actors' within the same function scope. Edit 0 initializes an empty list 'actors = []' and edit 1 appends to that same list with 'actors.append(a)'. After making edit 0 (creating the list), edit 1 becomes the immediate next step to populate it. After making edit 1 (appending to the list), edit 0 would be needed to define the list being appended to. This is a classic definition-usage pattern where both changed lines reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'actors' within the same function scope. Edit 0 initializes an empty list 'actors = []' and edit 1 appends to that same list with 'actors.append(a)'. After making edit 0 (creating the list), edit 1 becomes the immediate next step to populate it. After making edit 1 (appending to the list), edit 0 would be needed to define the list being appended to. This is a classic definition-usage pattern where both changed lines reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        3,
+        5,
+        6,
+        7
+    ]
+}

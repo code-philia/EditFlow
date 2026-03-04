@@ -1,0 +1,132 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 creates variables `selected_install` and `selected_provider` and passes them to `_record_commit_context_all_frames_analytics()`. Edit 1 adds the `selected_provider` parameter to the function signature of `_record_commit_context_all_frames_analytics()`. This is a classic function signature change paired with a call-site update for the exact same function. The changed lines reference the same symbol (`selected_provider` parameter and the function call). After making edit 0, the function call would have a parameter mismatch, making edit 1 the immediate next step. After making edit 1, the function signature expects the parameter that edit 0 provides. Both edits can be parsed and staged in either order in Python (the call-site with extra parameter and the function signature with missing parameter would only cause runtime errors, not parse errors)."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 creates variables `selected_install` and `selected_provider` and passes them to `_record_commit_context_all_frames_analytics()`. Edit 1 adds the `selected_provider` parameter to the function signature of `_record_commit_context_all_frames_analytics()`. This is a classic function signature change paired with a call-site update for the exact same function. The changed lines reference the same symbol (`selected_provider` parameter and the function call). After making edit 0, the function call would have a parameter mismatch, making edit 1 the immediate next step. After making edit 1, the function signature expects the parameter that edit 0 provides. Both edits can be parsed and staged in either order in Python (the call-site with extra parameter and the function signature with missing parameter would only cause runtime errors, not parse errors)."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 introduces a new variable `selected_provider` by extracting it from `selected_blame.repo.provider` and storing it in a tuple assignment. Edit 1 then uses this newly introduced `selected_provider` variable in place of the original `selected_blame.repo.provider` expression. The changed lines reference the exact same symbol (`selected_provider`) - edit 0 defines/assigns it, and edit 1 uses it. This creates an immediate code dependency where after making edit 0, using the new variable in edit 1 becomes the natural next step to complete the refactoring. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a new variable `selected_provider` by extracting it from `selected_blame.repo.provider` and storing it in a tuple assignment. Edit 1 then uses this newly introduced `selected_provider` variable in place of the original `selected_blame.repo.provider` expression. The changed lines reference the exact same symbol (`selected_provider`) - edit 0 defines/assigns it, and edit 1 uses it. This creates an immediate code dependency where after making edit 0, using the new variable in edit 1 becomes the natural next step to complete the refactoring. Both edits can be staged in either order without parse errors, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 1 changes the type annotation of `integration_to_install_mapping` from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 then uses this same variable with tuple unpacking syntax `integration_to_install_mapping[selected_blame.code_mapping.organization_integration_id]` and assigns it to `(selected_install, selected_provider)`. The changed line in edit 0 directly references the exact same symbol that was modified in edit 1. After making edit 1 (changing the type), edit 0 becomes the immediate next step to update the usage to match the new tuple structure. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 1 changes the type annotation of `integration_to_install_mapping` from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 then uses this same variable with tuple unpacking syntax `integration_to_install_mapping[selected_blame.code_mapping.organization_integration_id]` and assigns it to `(selected_install, selected_provider)`. The changed line in edit 0 directly references the exact same symbol that was modified in edit 1. After making edit 1 (changing the type), edit 0 becomes the immediate next step to update the usage to match the new tuple structure. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable `selected_install` that is assigned a value based on the same conditional logic that was previously used inline in the return statement. Edit 1 then replaces that inline conditional logic in the return statement with the newly defined `selected_install` variable. The changed lines reference the exact same symbol (`selected_install`) - edit 0 defines it and edit 1 uses it. This is a classic definition-usage relationship where making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action within the same refactoring micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a new variable `selected_install` that is assigned a value based on the same conditional logic that was previously used inline in the return statement. Edit 1 then replaces that inline conditional logic in the return statement with the newly defined `selected_install` variable. The changed lines reference the exact same symbol (`selected_install`) - edit 0 defines it and edit 1 uses it. This is a classic definition-usage relationship where making either edit creates an immediate, mechanically obvious prompt for the other as the next contiguous action within the same refactoring micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 changes the return type annotation of `_get_blames_from_all_integrations` function from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 uses the return value from this function in the variable `integration_to_install_mapping` and accesses it with tuple unpacking syntax `integration_to_install_mapping[selected_blame.code_mapping.organization_integration_id]` expecting a tuple that can be unpacked into `(selected_install, selected_provider)`. The code in edit 0 would fail at runtime if edit 1's type change hasn't been implemented, as it expects tuple values but would get `IntegrationInstallation` objects. However, since both edits can be parsed and staged in either order (the type annotation change doesn't create a syntax error, and the tuple unpacking doesn't create a parse error), this is bi-directional. The edits reference the exact same symbol (the return value of `_get_blames_from_all_integrations`) and form a signature-caller relationship where one edit changes the function's return type and the other edit updates the usage to match that new return type."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 changes the return type annotation of `_get_blames_from_all_integrations` function from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 uses the return value from this function in the variable `integration_to_install_mapping` and accesses it with tuple unpacking syntax `integration_to_install_mapping[selected_blame.code_mapping.organization_integration_id]` expecting a tuple that can be unpacked into `(selected_install, selected_provider)`. The code in edit 0 would fail at runtime if edit 1's type change hasn't been implemented, as it expects tuple values but would get `IntegrationInstallation` objects. However, since both edits can be parsed and staged in either order (the type annotation change doesn't create a syntax error, and the tuple unpacking doesn't create a parse error), this is bi-directional. The edits reference the exact same symbol (the return value of `_get_blames_from_all_integrations`) and form a signature-caller relationship where one edit changes the function's return type and the other edit updates the usage to match that new return type."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a new variable 'selected_provider' by unpacking it from a tuple assignment. Edit 1 then uses this exact same variable 'selected_provider' as a parameter in a function call. The changed lines reference the exact same symbol - 'selected_provider' - where edit 0 defines/assigns it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly available variable. Both edits can be staged in either order without parser errors (the function call with the new parameter would just cause a NameError at runtime if staged before the variable definition), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a new variable 'selected_provider' by unpacking it from a tuple assignment. Edit 1 then uses this exact same variable 'selected_provider' as a parameter in a function call. The changed lines reference the exact same symbol - 'selected_provider' - where edit 0 defines/assigns it and edit 1 uses it. This creates an immediate code dependency where after making edit 0, edit 1 becomes the natural next step to use the newly available variable. Both edits can be staged in either order without parser errors (the function call with the new parameter would just cause a NameError at runtime if staged before the variable definition), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "These edits show a classic function signature change paired with its corresponding call-site update. Edit 1 adds a 'selected_provider' parameter to the function definition of '_record_commit_context_all_frames_analytics', while Edit 0 adds the same 'selected_provider' argument to the call site of that exact same function. Both edits reference the exact same symbol (the selected_provider parameter) and create an immediate code dependency - after adding the parameter to the function signature, the call site must be updated to provide that argument, and vice versa. This is a bi-directional relationship because either edit can be made first and both can be parsed successfully in Python (the function call with an extra argument would cause a TypeError at runtime, not a parse error)."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "These edits show a classic function signature change paired with its corresponding call-site update. Edit 1 adds a 'selected_provider' parameter to the function definition of '_record_commit_context_all_frames_analytics', while Edit 0 adds the same 'selected_provider' argument to the call site of that exact same function. Both edits reference the exact same symbol (the selected_provider parameter) and create an immediate code dependency - after adding the parameter to the function signature, the call site must be updated to provide that argument, and vice versa. This is a bi-directional relationship because either edit can be made first and both can be parsed successfully in Python (the function call with an extra argument would cause a TypeError at runtime, not a parse error)."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Both edits involve the exact same parameter 'selected_provider' in the same function call to '_record_commit_context_all_frames_analytics'. Edit 0 adds 'selected_provider=selected_provider' as a parameter to the function call, while Edit 1 changes the value assignment for the same parameter from 'selected_blame.repo.provider' to 'selected_provider' within the function definition. The changed lines in both edits reference the exact same symbol (the selected_provider parameter), creating a direct code dependency where adding the parameter in the caller (Edit 0) naturally prompts updating how that parameter is used in the callee (Edit 1), or vice versa. This represents a signature-caller relationship for the same function parameter."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Both edits involve the exact same parameter 'selected_provider' in the same function call to '_record_commit_context_all_frames_analytics'. Edit 0 adds 'selected_provider=selected_provider' as a parameter to the function call, while Edit 1 changes the value assignment for the same parameter from 'selected_blame.repo.provider' to 'selected_provider' within the function definition. The changed lines in both edits reference the exact same symbol (the selected_provider parameter), creating a direct code dependency where adding the parameter in the caller (Edit 0) naturally prompts updating how that parameter is used in the callee (Edit 1), or vice versa. This represents a signature-caller relationship for the same function parameter."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits change the type annotation for the same data structure from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 changes the return type annotation in the function signature, while Edit 1 changes the type annotation for the local variable `integration_to_install_mapping` that is part of the returned tuple. These edits reference the exact same type structure and are part of a synchronized type annotation update - changing the function signature naturally prompts updating the corresponding variable declaration to maintain type consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits change the type annotation for the same data structure from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`. Edit 0 changes the return type annotation in the function signature, while Edit 1 changes the type annotation for the local variable `integration_to_install_mapping` that is part of the returned tuple. These edits reference the exact same type structure and are part of a synchronized type annotation update - changing the function signature naturally prompts updating the corresponding variable declaration to maintain type consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits modify the exact same variable `integration_to_install_mapping` within the same function. Edit 0 changes the type annotation from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`, and Edit 1 changes the assignment to match this new type by wrapping the value in a tuple. The changed lines in both edits reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other to maintain type consistency. This is a bi-directional relationship because either edit can be made first, and after making either one, the other becomes the mechanically obvious next step to ensure the variable's type annotation matches its usage."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits modify the exact same variable `integration_to_install_mapping` within the same function. Edit 0 changes the type annotation from `dict[str, IntegrationInstallation]` to `dict[str, tuple[IntegrationInstallation, str]]`, and Edit 1 changes the assignment to match this new type by wrapping the value in a tuple. The changed lines in both edits reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other to maintain type consistency. This is a bi-directional relationship because either edit can be made first, and after making either one, the other becomes the mechanically obvious next step to ensure the variable's type annotation matches its usage."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "These edits are bi-directional neighbours because they both modify the exact same data structure and symbol. Edit 0 changes the return type annotation of the function to indicate that `integration_to_install_mapping` will contain tuples of `(IntegrationInstallation, str)` instead of just `IntegrationInstallation`. Edit 1 modifies the actual assignment to `integration_to_install_mapping` to store tuples containing `(install, integration.provider)` instead of just `install`. Both edits reference the exact same symbol (`integration_to_install_mapping`) and represent a synchronized change where the type annotation and implementation must match. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate mechanical prompt for the other to maintain consistency between the type annotation and the actual data structure being built."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "These edits are bi-directional neighbours because they both modify the exact same data structure and symbol. Edit 0 changes the return type annotation of the function to indicate that `integration_to_install_mapping` will contain tuples of `(IntegrationInstallation, str)` instead of just `IntegrationInstallation`. Edit 1 modifies the actual assignment to `integration_to_install_mapping` to store tuples containing `(install, integration.provider)` instead of just `install`. Both edits reference the exact same symbol (`integration_to_install_mapping`) and represent a synchronized change where the type annotation and implementation must match. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate mechanical prompt for the other to maintain consistency between the type annotation and the actual data structure being built."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 adds a 'selected_provider' parameter to the function signature, and Edit 1 changes the usage of 'selected_provider' in the function body from 'selected_blame.repo.provider' to the new parameter 'selected_provider'. Both edits reference the exact same symbol 'selected_provider' - one defines it as a parameter and the other uses it. This creates an immediate code-driven linkage where adding the parameter naturally prompts updating its usage, and vice versa. Both edits can be staged in either order without parser errors (the function body reference to an undefined parameter would only cause a runtime error, not a parse error in Python)."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 adds a 'selected_provider' parameter to the function signature, and Edit 1 changes the usage of 'selected_provider' in the function body from 'selected_blame.repo.provider' to the new parameter 'selected_provider'. Both edits reference the exact same symbol 'selected_provider' - one defines it as a parameter and the other uses it. This creates an immediate code-driven linkage where adding the parameter naturally prompts updating its usage, and vice versa. Both edits can be staged in either order without parser errors (the function body reference to an undefined parameter would only cause a runtime error, not a parse error in Python)."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 changes the structure of `integration_to_install_mapping` from storing just `install` to storing a tuple `(install, integration.provider)`. Edit 0 then uses this modified structure by unpacking the tuple with `integration_to_install_mapping[selected_blame.code_mapping.organization_integration_id]` into `selected_install, selected_provider`. The changed lines in both edits reference the exact same dictionary symbol `integration_to_install_mapping`, and edit 0's unpacking syntax would fail if edit 1's structural change hasn't been made first. This creates an immediate, mechanically obvious code dependency where edit 1 must occur before edit 0 to avoid a ValueError when unpacking."
+        }
+    ],
+    "allowed_init_edits": [
+        8
+    ]
+}

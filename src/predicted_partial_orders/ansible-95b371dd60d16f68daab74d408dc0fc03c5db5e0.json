@@ -1,0 +1,108 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits add 'AnsibleFileNotFound' to existing import statements from 'ansible.errors', but they are in different files (lib/ansible/parsing/__init__.py and lib/ansible/vars/__init__.py). While both edits perform the same type of operation (adding an import), they reference different import statements in different modules. The changed lines do not reference the exact same symbol - they are separate import statements that happen to import the same class. This is a bulk/pattern substitution across multiple files, but the edits target different import statements rather than the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits add 'AnsibleFileNotFound' to existing import statements from 'ansible.errors', but they are in different files (lib/ansible/parsing/__init__.py and lib/ansible/vars/__init__.py). While both edits perform the same type of operation (adding an import), they reference different import statements in different modules. The changed lines do not reference the exact same symbol - they are separate import statements that happen to import the same class. This is a bulk/pattern substitution across multiple files, but the edits target different import statements rather than the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'AnsibleError' or 'AnsibleParserError' to 'AnsibleFileNotFound' in exception raising statements. This is a uniform refactoring operation where the same type of syntactic construct (exception raising statements) is being modified with the same substitution pattern across multiple locations in the same file. Both edits are part of a single, contiguous refactor to standardize exception types for file-not-found scenarios. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'AnsibleError' or 'AnsibleParserError' to 'AnsibleFileNotFound' in exception raising statements. This is a uniform refactoring operation where the same type of syntactic construct (exception raising statements) is being modified with the same substitution pattern across multiple locations in the same file. Both edits are part of a single, contiguous refactor to standardize exception types for file-not-found scenarios. Either edit can be made first, and after making either one, the other becomes a natural next step in completing the uniform substitution pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 changes a raise statement to use AnsibleFileNotFound instead of AnsibleParserError. Both edits reference the exact same symbol (AnsibleFileNotFound). After making either edit, the other becomes the immediate next step - if you add the import without changing the usage, you have an unused import; if you change the usage without adding the import, you get a NameError at runtime. Since Python allows referencing undefined names at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 changes a raise statement to use AnsibleFileNotFound instead of AnsibleParserError. Both edits reference the exact same symbol (AnsibleFileNotFound). After making either edit, the other becomes the immediate next step - if you add the import without changing the usage, you have an unused import; if you change the usage without adding the import, you get a NameError at runtime. Since Python allows referencing undefined names at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes a raise statement to use AnsibleFileNotFound instead of AnsibleParserError, while Edit 1 adds AnsibleFileNotFound to an import statement. These edits reference the exact same symbol (AnsibleFileNotFound) where Edit 0 uses it and Edit 1 imports it. However, since this is Python, the usage in Edit 0 can be written and parsed even before the import in Edit 1 exists - it would only fail at runtime with a NameError. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes a raise statement to use AnsibleFileNotFound instead of AnsibleParserError, while Edit 1 adds AnsibleFileNotFound to an import statement. These edits reference the exact same symbol (AnsibleFileNotFound) where Edit 0 uses it and Edit 1 imports it. However, since this is Python, the usage in Edit 0 can be written and parsed even before the import in Edit 1 exists - it would only fail at runtime with a NameError. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'raise AnsibleParserError' or 'raise AnsibleError' to 'raise AnsibleFileNotFound' in exception handling contexts. This represents a uniform refactoring operation where the same exception type is being substituted across multiple files for file-not-found scenarios. The edits are part of a single, contiguous refactor to standardize exception types, and both target the same type of syntactic construct (exception raising statements). Either edit can be made first, and after making either, the other would be the natural next step in completing this uniform substitution pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'raise AnsibleParserError' or 'raise AnsibleError' to 'raise AnsibleFileNotFound' in exception handling contexts. This represents a uniform refactoring operation where the same exception type is being substituted across multiple files for file-not-found scenarios. The edits are part of a single, contiguous refactor to standardize exception types, and both target the same type of syntactic construct (exception raising statements). Either edit can be made first, and after making either, the other would be the natural next step in completing this uniform substitution pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 uses that exact same AnsibleFileNotFound symbol in a raise statement. The changed lines reference the exact same symbol - AnsibleFileNotFound. After making edit 0 (adding the import), edit 1 becomes the immediate next step to use the newly imported exception. Conversely, if edit 1 is made first, it would create an undefined symbol that prompts adding the import in edit 0. Both edits can be parsed and staged in either order in Python (undefined symbol only causes runtime NameError), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 uses that exact same AnsibleFileNotFound symbol in a raise statement. The changed lines reference the exact same symbol - AnsibleFileNotFound. After making edit 0 (adding the import), edit 1 becomes the immediate next step to use the newly imported exception. Conversely, if edit 1 is made first, it would create an undefined symbol that prompts adding the import in edit 0. Both edits can be parsed and staged in either order in Python (undefined symbol only causes runtime NameError), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'raise AnsibleError(' to 'raise AnsibleFileNotFound(' in error handling code for file-not-found scenarios. This is a uniform, synchronized substitution across multiple files targeting the same type of syntactic construct (exception raising statements). The edits are part of a single refactoring operation to replace a generic exception type with a more specific one for file-not-found cases. Either edit can be made first, and after making either, the other becomes a natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'raise AnsibleError(' to 'raise AnsibleFileNotFound(' in error handling code for file-not-found scenarios. This is a uniform, synchronized substitution across multiple files targeting the same type of syntactic construct (exception raising statements). The edits are part of a single refactoring operation to replace a generic exception type with a more specific one for file-not-found cases. Either edit can be made first, and after making either, the other becomes a natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 changes a raise statement from AnsibleError to AnsibleFileNotFound. The changed lines reference the exact same symbol (AnsibleFileNotFound) - Edit 0 imports it and Edit 1 uses it. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to use the newly imported exception. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 adds AnsibleFileNotFound to the import statement, and Edit 1 changes a raise statement from AnsibleError to AnsibleFileNotFound. The changed lines reference the exact same symbol (AnsibleFileNotFound) - Edit 0 imports it and Edit 1 uses it. After making Edit 0 (adding the import), Edit 1 becomes the immediate next step to use the newly imported exception. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds AnsibleParserError to the import statement, and Edit 1 uses AnsibleParserError in an except clause. These edits reference the exact same symbol (AnsibleParserError) and have a direct code dependency - the import makes the symbol available for use in the except clause. After making the import edit, using the symbol becomes the natural next step, and after adding the usage, ensuring the import exists becomes necessary. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds AnsibleParserError to the import statement, and Edit 1 uses AnsibleParserError in an except clause. These edits reference the exact same symbol (AnsibleParserError) and have a direct code dependency - the import makes the symbol available for use in the except clause. After making the import edit, using the symbol becomes the natural next step, and after adding the usage, ensuring the import exists becomes necessary. Both edits can be staged in either order since Python allows referencing undefined symbols at parse time (would only fail at runtime)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'AnsibleFileNotFound' to the import statement, and Edit 1 changes an exception handler from catching 'AnsibleParserError' to catching 'AnsibleFileNotFound'. Both edits reference the exact same symbol 'AnsibleFileNotFound' - one imports it and the other uses it. After importing AnsibleFileNotFound in edit 0, using it in the exception handler (edit 1) becomes the natural next step. Conversely, if edit 1 is made first, the import in edit 0 would be needed to resolve the undefined symbol. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows referencing undefined symbols at parse time), making it bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'AnsibleFileNotFound' to the import statement, and Edit 1 changes an exception handler from catching 'AnsibleParserError' to catching 'AnsibleFileNotFound'. Both edits reference the exact same symbol 'AnsibleFileNotFound' - one imports it and the other uses it. After importing AnsibleFileNotFound in edit 0, using it in the exception handler (edit 1) becomes the natural next step. Conversely, if edit 1 is made first, the import in edit 0 would be needed to resolve the undefined symbol. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows referencing undefined symbols at parse time), making it bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        4
+    ]
+}

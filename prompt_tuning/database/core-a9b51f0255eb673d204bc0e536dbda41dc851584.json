@@ -1,0 +1,1655 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/home-assistant/core/commit/a9b51f0255eb673d204bc0e536dbda41dc851584",
+    "commit_message": "Fix KNX telegram device trigger not firing after integration reload (#107388)",
+    "commit_snapshots": {
+        "homeassistant/components/knx/const.py": [
+            [
+                "\"\"\"Constants for the KNX integration.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from collections.abc import Awaitable, Callable\n",
+                "from enum import Enum\n",
+                "from typing import Final, TypedDict\n",
+                "\n",
+                "from xknx.telegram import Telegram\n",
+                "\n",
+                "from homeassistant.components.climate import (\n",
+                "    PRESET_AWAY,\n",
+                "    PRESET_COMFORT,\n",
+                "    PRESET_ECO,\n",
+                "    PRESET_NONE,\n",
+                "    PRESET_SLEEP,\n",
+                "    HVACAction,\n",
+                "    HVACMode,\n",
+                ")\n",
+                "from homeassistant.const import Platform\n",
+                "\n",
+                "DOMAIN: Final = \"knx\"\n",
+                "\n",
+                "# Address is used for configuration and services by the same functions so the key has to match\n",
+                "KNX_ADDRESS: Final = \"address\"\n",
+                "\n",
+                "CONF_INVERT: Final = \"invert\"\n",
+                "CONF_KNX_EXPOSE: Final = \"expose\"\n",
+                "CONF_KNX_INDIVIDUAL_ADDRESS: Final = \"individual_address\"\n",
+                "\n",
+                "##\n",
+                "# Connection constants\n",
+                "##\n",
+                "CONF_KNX_CONNECTION_TYPE: Final = \"connection_type\"\n",
+                "CONF_KNX_AUTOMATIC: Final = \"automatic\"\n",
+                "CONF_KNX_ROUTING: Final = \"routing\"\n",
+                "CONF_KNX_ROUTING_BACKBONE_KEY: Final = \"backbone_key\"\n",
+                "CONF_KNX_ROUTING_SYNC_LATENCY_TOLERANCE: Final = \"sync_latency_tolerance\"\n",
+                "CONF_KNX_ROUTING_SECURE: Final = \"routing_secure\"\n",
+                "CONF_KNX_TUNNELING: Final = \"tunneling\"\n",
+                "CONF_KNX_TUNNELING_TCP: Final = \"tunneling_tcp\"\n",
+                "CONF_KNX_TUNNELING_TCP_SECURE: Final = \"tunneling_tcp_secure\"\n",
+                "CONF_KNX_LOCAL_IP: Final = \"local_ip\"\n",
+                "CONF_KNX_MCAST_GRP: Final = \"multicast_group\"\n",
+                "CONF_KNX_MCAST_PORT: Final = \"multicast_port\"\n",
+                "CONF_KNX_TUNNEL_ENDPOINT_IA: Final = \"tunnel_endpoint_ia\"\n",
+                "\n",
+                "CONF_KNX_RATE_LIMIT: Final = \"rate_limit\"\n",
+                "CONF_KNX_ROUTE_BACK: Final = \"route_back\"\n",
+                "CONF_KNX_STATE_UPDATER: Final = \"state_updater\"\n",
+                "CONF_KNX_DEFAULT_STATE_UPDATER: Final = True\n",
+                "CONF_KNX_DEFAULT_RATE_LIMIT: Final = 0\n",
+                "\n",
+                "DEFAULT_ROUTING_IA: Final = \"0.0.240\"\n",
+                "\n",
+                "CONF_KNX_TELEGRAM_LOG_SIZE: Final = \"telegram_log_size\"\n",
+                "TELEGRAM_LOG_DEFAULT: Final = 200\n",
+                "TELEGRAM_LOG_MAX: Final = 5000  # ~2 MB or ~5 hours of reasonable bus load\n",
+                "\n",
+                "##\n",
+                "# Secure constants\n",
+                "##\n",
+                "CONST_KNX_STORAGE_KEY: Final = \"knx/\"\n",
+                "CONF_KNX_KNXKEY_FILENAME: Final = \"knxkeys_filename\"\n",
+                "CONF_KNX_KNXKEY_PASSWORD: Final = \"knxkeys_password\"\n",
+                "\n",
+                "CONF_KNX_SECURE_USER_ID: Final = \"user_id\"\n",
+                "CONF_KNX_SECURE_USER_PASSWORD: Final = \"user_password\"\n",
+                "CONF_KNX_SECURE_DEVICE_AUTHENTICATION: Final = \"device_authentication\"\n",
+                "\n",
+                "\n",
+                "CONF_PAYLOAD_LENGTH: Final = \"payload_length\"\n",
+                "CONF_RESET_AFTER: Final = \"reset_after\"\n",
+                "CONF_RESPOND_TO_READ: Final = \"respond_to_read\"\n",
+                "CONF_STATE_ADDRESS: Final = \"state_address\"\n",
+                "CONF_SYNC_STATE: Final = \"sync_state\"\n",
+                "\n",
+                "# yaml config merged with config entry data\n",
+                "DATA_KNX_CONFIG: Final = \"knx_config\"\n",
+                "# original hass yaml config\n",
+                "DATA_HASS_CONFIG: Final = \"knx_hass_config\"\n",
+                "\n",
+                "ATTR_COUNTER: Final = \"counter\"\n",
+                "ATTR_SOURCE: Final = \"source\"\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "# dispatcher signal for KNX interface device triggers\n",
+                    "SIGNAL_KNX_TELEGRAM_DICT: Final = \"knx_telegram_dict\"\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 84,
+                    "end": 84
+                },
+                "child_version_range": {
+                    "start": 84,
+                    "end": 87
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: homeassistant/components/knx/const.py\nCode:\n  ...\n81 81    ATTR_COUNTER: Final = \"counter\"\n82 82    ATTR_SOURCE: Final = \"source\"\n83 83    \n   84  + # dispatcher signal for KNX interface device triggers\n   85  + SIGNAL_KNX_TELEGRAM_DICT: Final = \"knx_telegram_dict\"\n   86  + \n84 87    AsyncMessageCallbackType = Callable[[Telegram], Awaitable[None]]\n85 88    MessageCallbackType = Callable[[Telegram], None]\n86 89    \n       ...\n",
+                "file_path": "homeassistant/components/knx/const.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Final",
+                    "SIGNAL_KNX_TELEGRAM_DICT"
+                ],
+                "prefix": [
+                    "ATTR_COUNTER: Final = \"counter\"\n",
+                    "ATTR_SOURCE: Final = \"source\"\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "AsyncMessageCallbackType = Callable[[Telegram], Awaitable[None]]\n",
+                    "MessageCallbackType = Callable[[Telegram], None]\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/const.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/const.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/const.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/const.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "AsyncMessageCallbackType = Callable[[Telegram], Awaitable[None]]\n",
+                "MessageCallbackType = Callable[[Telegram], None]\n",
+                "\n",
+                "\n",
+                "class KNXConfigEntryData(TypedDict, total=False):\n",
+                "    \"\"\"Config entry for the KNX integration.\"\"\"\n",
+                "\n",
+                "    connection_type: str\n",
+                "    individual_address: str\n",
+                "    local_ip: str | None  # not required\n",
+                "    multicast_group: str\n",
+                "    multicast_port: int\n",
+                "    route_back: bool  # not required\n",
+                "    host: str  # only required for tunnelling\n",
+                "    port: int  # only required for tunnelling\n",
+                "    tunnel_endpoint_ia: str | None\n",
+                "    # KNX secure\n",
+                "    user_id: int | None  # not required\n",
+                "    user_password: str | None  # not required\n",
+                "    device_authentication: str | None  # not required\n",
+                "    knxkeys_filename: str  # not required\n",
+                "    knxkeys_password: str  # not required\n",
+                "    backbone_key: str | None  # not required\n",
+                "    sync_latency_tolerance: int | None  # not required\n",
+                "    # OptionsFlow only\n",
+                "    state_updater: bool\n",
+                "    rate_limit: int\n",
+                "    #   Integration only (not forwarded to xknx)\n",
+                "    telegram_log_size: int  # not required\n",
+                "\n",
+                "\n",
+                "class ColorTempModes(Enum):\n",
+                "    \"\"\"Color temperature modes for config validation.\"\"\"\n",
+                "\n",
+                "    ABSOLUTE = \"DPT-7.600\"\n",
+                "    ABSOLUTE_FLOAT = \"DPT-9\"\n",
+                "    RELATIVE = \"DPT-5.001\"\n",
+                "\n",
+                "\n",
+                "SUPPORTED_PLATFORMS: Final = [\n",
+                "    Platform.BINARY_SENSOR,\n",
+                "    Platform.BUTTON,\n",
+                "    Platform.CLIMATE,\n",
+                "    Platform.COVER,\n",
+                "    Platform.DATE,\n",
+                "    Platform.DATETIME,\n",
+                "    Platform.FAN,\n",
+                "    Platform.LIGHT,\n",
+                "    Platform.NOTIFY,\n",
+                "    Platform.NUMBER,\n",
+                "    Platform.SCENE,\n",
+                "    Platform.SELECT,\n",
+                "    Platform.SENSOR,\n",
+                "    Platform.SWITCH,\n",
+                "    Platform.TEXT,\n",
+                "    Platform.TIME,\n",
+                "    Platform.WEATHER,\n",
+                "]\n",
+                "\n",
+                "# Map KNX controller modes to HA modes. This list might not be complete.\n",
+                "CONTROLLER_MODES: Final = {\n",
+                "    # Map DPT 20.105 HVAC control modes\n",
+                "    \"Auto\": HVACMode.AUTO,\n",
+                "    \"Heat\": HVACMode.HEAT,\n",
+                "    \"Cool\": HVACMode.COOL,\n",
+                "    \"Off\": HVACMode.OFF,\n",
+                "    \"Fan only\": HVACMode.FAN_ONLY,\n",
+                "    \"Dry\": HVACMode.DRY,\n",
+                "}\n",
+                "\n",
+                "CURRENT_HVAC_ACTIONS: Final = {\n",
+                "    HVACMode.HEAT: HVACAction.HEATING,\n",
+                "    HVACMode.COOL: HVACAction.COOLING,\n",
+                "    HVACMode.OFF: HVACAction.OFF,\n",
+                "    HVACMode.FAN_ONLY: HVACAction.FAN,\n",
+                "    HVACMode.DRY: HVACAction.DRYING,\n",
+                "}\n",
+                "\n",
+                "PRESET_MODES: Final = {\n",
+                "    # Map DPT 20.102 HVAC operating modes to HA presets\n",
+                "    \"Auto\": PRESET_NONE,\n",
+                "    \"Frost Protection\": PRESET_ECO,\n",
+                "    \"Night\": PRESET_SLEEP,\n",
+                "    \"Standby\": PRESET_AWAY,\n",
+                "    \"Comfort\": PRESET_COMFORT,\n",
+                "}"
+            ]
+        ],
+        "homeassistant/components/knx/device_trigger.py": [
+            [
+                "\"\"\"Provides device triggers for KNX.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from typing import Any, Final\n",
+                "\n",
+                "import voluptuous as vol\n",
+                "\n",
+                "from homeassistant.components.device_automation import DEVICE_TRIGGER_BASE_SCHEMA\n",
+                "from homeassistant.const import CONF_DEVICE_ID, CONF_DOMAIN, CONF_PLATFORM, CONF_TYPE\n",
+                "from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n",
+                "from homeassistant.helpers import selector\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from homeassistant.helpers.dispatcher import async_dispatcher_connect\n"
+                ],
+                "parent_version_range": {
+                    "start": 11,
+                    "end": 11
+                },
+                "child_version_range": {
+                    "start": 11,
+                    "end": 12
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: homeassistant/components/knx/device_trigger.py\nCode:\n  ...\n 8  8    from homeassistant.const import CONF_DEVICE_ID, CONF_DOMAIN, CONF_PLATFORM, CONF_TYPE\n 9  9    from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n10 10    from homeassistant.helpers import selector\n   11  + from homeassistant.helpers.dispatcher import async_dispatcher_connect\n11 12    from homeassistant.helpers.trigger import TriggerActionType, TriggerInfo\n12 13    from homeassistant.helpers.typing import ConfigType\n13 14    \n       ...\n",
+                "file_path": "homeassistant/components/knx/device_trigger.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "async_dispatcher_connect",
+                    "dispatcher",
+                    "helpers",
+                    "homeassistant"
+                ],
+                "prefix": [
+                    "from homeassistant.const import CONF_DEVICE_ID, CONF_DOMAIN, CONF_PLATFORM, CONF_TYPE\n",
+                    "from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n",
+                    "from homeassistant.helpers import selector\n"
+                ],
+                "suffix": [
+                    "from homeassistant.helpers.trigger import TriggerActionType, TriggerInfo\n",
+                    "from homeassistant.helpers.typing import ConfigType\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "async_dispatcher_connect",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "from homeassistant.helpers.trigger import TriggerActionType, TriggerInfo\n",
+                "from homeassistant.helpers.typing import ConfigType\n",
+                "\n",
+                "from . import KNXModule\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from .const import DOMAIN\n"
+                ],
+                "after": [
+                    "from .const import DOMAIN, SIGNAL_KNX_TELEGRAM_DICT\n"
+                ],
+                "parent_version_range": {
+                    "start": 15,
+                    "end": 16
+                },
+                "child_version_range": {
+                    "start": 16,
+                    "end": 17
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: homeassistant/components/knx/device_trigger.py\nCode:\n  ...\n12 13    from homeassistant.helpers.typing import ConfigType\n13 14    \n14 15    from . import KNXModule\n15     - from .const import DOMAIN\n   16  + from .const import DOMAIN, SIGNAL_KNX_TELEGRAM_DICT\n16 17    from .project import KNXProject\n17 18    from .schema import ga_list_validator\n18 19    from .telegrams import TelegramDict\n       ...\n",
+                "file_path": "homeassistant/components/knx/device_trigger.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "const"
+                ],
+                "identifiers_after": [
+                    "DOMAIN",
+                    "SIGNAL_KNX_TELEGRAM_DICT",
+                    "const"
+                ],
+                "prefix": [
+                    "from homeassistant.helpers.typing import ConfigType\n",
+                    "\n",
+                    "from . import KNXModule\n"
+                ],
+                "suffix": [
+                    "from .project import KNXProject\n",
+                    "from .schema import ga_list_validator\n",
+                    "from .telegrams import TelegramDict\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 16,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 16,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "from .project import KNXProject\n",
+                "from .schema import ga_list_validator\n",
+                "from .telegrams import TelegramDict\n",
+                "\n",
+                "TRIGGER_TELEGRAM: Final = \"telegram\"\n",
+                "EXTRA_FIELD_DESTINATION: Final = \"destination\"  # no translation support\n",
+                "\n",
+                "TRIGGER_SCHEMA = DEVICE_TRIGGER_BASE_SCHEMA.extend(\n",
+                "    {\n",
+                "        vol.Optional(EXTRA_FIELD_DESTINATION): ga_list_validator,\n",
+                "        vol.Required(CONF_TYPE): TRIGGER_TELEGRAM,\n",
+                "    }\n",
+                ")\n",
+                "\n",
+                "\n",
+                "async def async_get_triggers(\n",
+                "    hass: HomeAssistant, device_id: str\n",
+                ") -> list[dict[str, Any]]:\n",
+                "    \"\"\"List device triggers for KNX devices.\"\"\"\n",
+                "    triggers = []\n",
+                "\n",
+                "    knx: KNXModule = hass.data[DOMAIN]\n",
+                "    if knx.interface_device.device.id == device_id:\n",
+                "        # Add trigger for KNX telegrams to interface device\n",
+                "        triggers.append(\n",
+                "            {\n",
+                "                # Required fields of TRIGGER_BASE_SCHEMA\n",
+                "                CONF_PLATFORM: \"device\",\n",
+                "                CONF_DOMAIN: DOMAIN,\n",
+                "                CONF_DEVICE_ID: device_id,\n",
+                "                # Required fields of TRIGGER_SCHEMA\n",
+                "                CONF_TYPE: TRIGGER_TELEGRAM,\n",
+                "            }\n",
+                "        )\n",
+                "\n",
+                "    return triggers\n",
+                "\n",
+                "\n",
+                "async def async_get_trigger_capabilities(\n",
+                "    hass: HomeAssistant, config: ConfigType\n",
+                ") -> dict[str, vol.Schema]:\n",
+                "    \"\"\"List trigger capabilities.\"\"\"\n",
+                "    project: KNXProject = hass.data[DOMAIN].project\n",
+                "    options = [\n",
+                "        selector.SelectOptionDict(value=ga.address, label=f\"{ga.address} - {ga.name}\")\n",
+                "        for ga in project.group_addresses.values()\n",
+                "    ]\n",
+                "    return {\n",
+                "        \"extra_fields\": vol.Schema(\n",
+                "            {\n",
+                "                vol.Optional(EXTRA_FIELD_DESTINATION): selector.SelectSelector(\n",
+                "                    selector.SelectSelectorConfig(\n",
+                "                        mode=selector.SelectSelectorMode.DROPDOWN,\n",
+                "                        multiple=True,\n",
+                "                        custom_value=True,\n",
+                "                        options=options,\n",
+                "                    ),\n",
+                "                ),\n",
+                "            }\n",
+                "        )\n",
+                "    }\n",
+                "\n",
+                "\n",
+                "async def async_attach_trigger(\n",
+                "    hass: HomeAssistant,\n",
+                "    config: ConfigType,\n",
+                "    action: TriggerActionType,\n",
+                "    trigger_info: TriggerInfo,\n",
+                ") -> CALLBACK_TYPE:\n",
+                "    \"\"\"Attach a trigger.\"\"\"\n",
+                "    trigger_data = trigger_info[\"trigger_data\"]\n",
+                "    dst_addresses: list[str] = config.get(EXTRA_FIELD_DESTINATION, [])\n",
+                "    job = HassJob(action, f\"KNX device trigger {trigger_info}\")\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    knx: KNXModule = hass.data[DOMAIN]\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 89,
+                    "end": 90
+                },
+                "child_version_range": {
+                    "start": 90,
+                    "end": 90
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_attach_trigger",
+                        "signature": "def async_attach_trigger(\n    hass: HomeAssistant,\n    config: ConfigType,\n    action: TriggerActionType,\n    trigger_info: TriggerInfo,\n)->CALLBACK_TYPE:",
+                        "at_line": 79
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: homeassistant/components/knx/device_trigger.py\nCode:\n         def async_attach_trigger(\n    hass: HomeAssistant,\n    config: ConfigType,\n    action: TriggerActionType,\n    trigger_info: TriggerInfo,\n)->CALLBACK_TYPE:\n             ...\n86 87        trigger_data = trigger_info[\"trigger_data\"]\n87 88        dst_addresses: list[str] = config.get(EXTRA_FIELD_DESTINATION, [])\n88 89        job = HassJob(action, f\"KNX device trigger {trigger_info}\")\n89     -     knx: KNXModule = hass.data[DOMAIN]\n90 90    \n91 91        @callback\n92 92        def async_call_trigger_action(telegram: TelegramDict) -> None:\n       ...\n",
+                "file_path": "homeassistant/components/knx/device_trigger.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "KNXModule",
+                    "data",
+                    "hass",
+                    "knx"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    trigger_data = trigger_info[\"trigger_data\"]\n",
+                    "    dst_addresses: list[str] = config.get(EXTRA_FIELD_DESTINATION, [])\n",
+                    "    job = HassJob(action, f\"KNX device trigger {trigger_info}\")\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    @callback\n",
+                    "    def async_call_trigger_action(telegram: TelegramDict) -> None:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "knx",
+                            "position": {
+                                "start": {
+                                    "line": 89,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 89,
+                                    "column": 7
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    @callback\n",
+                "    def async_call_trigger_action(telegram: TelegramDict) -> None:\n",
+                "        \"\"\"Filter Telegram and call trigger action.\"\"\"\n",
+                "        if dst_addresses and telegram[\"destination\"] not in dst_addresses:\n",
+                "            return\n",
+                "        hass.async_run_hass_job(\n",
+                "            job,\n",
+                "            {\"trigger\": {**trigger_data, **telegram}},\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    return knx.telegrams.async_listen_telegram(\n",
+                    "        async_call_trigger_action, name=\"KNX device trigger call\"\n"
+                ],
+                "after": [
+                    "    return async_dispatcher_connect(\n",
+                    "        hass,\n",
+                    "        signal=SIGNAL_KNX_TELEGRAM_DICT,\n",
+                    "        target=async_call_trigger_action,\n"
+                ],
+                "parent_version_range": {
+                    "start": 101,
+                    "end": 103
+                },
+                "child_version_range": {
+                    "start": 101,
+                    "end": 105
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "async_attach_trigger",
+                        "signature": "def async_attach_trigger(\n    hass: HomeAssistant,\n    config: ConfigType,\n    action: TriggerActionType,\n    trigger_info: TriggerInfo,\n)->CALLBACK_TYPE:",
+                        "at_line": 79
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: homeassistant/components/knx/device_trigger.py\nCode:\n           def async_attach_trigger(\n    hass: HomeAssistant,\n    config: ConfigType,\n    action: TriggerActionType,\n    trigger_info: TriggerInfo,\n)->CALLBACK_TYPE:\n               ...\n 98  98                {\"trigger\": {**trigger_data, **telegram}},\n 99  99            )\n100 100    \n101      -     return knx.telegrams.async_listen_telegram(\n102      -         async_call_trigger_action, name=\"KNX device trigger call\"\n    101  +     return async_dispatcher_connect(\n    102  +         hass,\n    103  +         signal=SIGNAL_KNX_TELEGRAM_DICT,\n    104  +         target=async_call_trigger_action,\n103 105        )\n         ...\n",
+                "file_path": "homeassistant/components/knx/device_trigger.py",
+                "identifiers_before": [
+                    "async_call_trigger_action",
+                    "async_listen_telegram",
+                    "knx",
+                    "name",
+                    "telegrams"
+                ],
+                "identifiers_after": [
+                    "SIGNAL_KNX_TELEGRAM_DICT",
+                    "async_call_trigger_action",
+                    "async_dispatcher_connect",
+                    "hass",
+                    "signal",
+                    "target"
+                ],
+                "prefix": [
+                    "            {\"trigger\": {**trigger_data, **telegram}},\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    )"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "knx",
+                            "position": {
+                                "start": {
+                                    "line": 101,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 101,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 103,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 103,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 103,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 103,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "async_dispatcher_connect",
+                            "position": {
+                                "start": {
+                                    "line": 101,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 101,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/device_trigger.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    )"
+            ]
+        ],
+        "homeassistant/components/knx/telegrams.py": [
+            [
+                "\"\"\"KNX Telegram handler.\"\"\"\n",
+                "from __future__ import annotations\n",
+                "\n",
+                "from collections import deque\n",
+                "from collections.abc import Callable\n",
+                "from typing import Final, TypedDict\n",
+                "\n",
+                "from xknx import XKNX\n",
+                "from xknx.exceptions import XKNXException\n",
+                "from xknx.telegram import Telegram\n",
+                "from xknx.telegram.apci import GroupValueResponse, GroupValueWrite\n",
+                "\n",
+                "from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from homeassistant.helpers.dispatcher import async_dispatcher_send\n"
+                ],
+                "parent_version_range": {
+                    "start": 13,
+                    "end": 13
+                },
+                "child_version_range": {
+                    "start": 13,
+                    "end": 14
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: homeassistant/components/knx/telegrams.py\nCode:\n  ...\n10 10    from xknx.telegram.apci import GroupValueResponse, GroupValueWrite\n11 11    \n12 12    from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n   13  + from homeassistant.helpers.dispatcher import async_dispatcher_send\n13 14    from homeassistant.helpers.storage import Store\n14 15    import homeassistant.util.dt as dt_util\n15 16    \n       ...\n",
+                "file_path": "homeassistant/components/knx/telegrams.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "async_dispatcher_send",
+                    "dispatcher",
+                    "helpers",
+                    "homeassistant"
+                ],
+                "prefix": [
+                    "from xknx.telegram.apci import GroupValueResponse, GroupValueWrite\n",
+                    "\n",
+                    "from homeassistant.core import CALLBACK_TYPE, HassJob, HomeAssistant, callback\n"
+                ],
+                "suffix": [
+                    "from homeassistant.helpers.storage import Store\n",
+                    "import homeassistant.util.dt as dt_util\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "async_dispatcher_send",
+                            "position": {
+                                "start": {
+                                    "line": 13,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 13,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "from homeassistant.helpers.storage import Store\n",
+                "import homeassistant.util.dt as dt_util\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from .const import DOMAIN\n"
+                ],
+                "after": [
+                    "from .const import DOMAIN, SIGNAL_KNX_TELEGRAM_DICT\n"
+                ],
+                "parent_version_range": {
+                    "start": 16,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: homeassistant/components/knx/telegrams.py\nCode:\n  ...\n13 14    from homeassistant.helpers.storage import Store\n14 15    import homeassistant.util.dt as dt_util\n15 16    \n16     - from .const import DOMAIN\n   17  + from .const import DOMAIN, SIGNAL_KNX_TELEGRAM_DICT\n17 18    from .project import KNXProject\n18 19    \n19 20    STORAGE_VERSION: Final = 1\n       ...\n",
+                "file_path": "homeassistant/components/knx/telegrams.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "const"
+                ],
+                "identifiers_after": [
+                    "DOMAIN",
+                    "SIGNAL_KNX_TELEGRAM_DICT",
+                    "const"
+                ],
+                "prefix": [
+                    "from homeassistant.helpers.storage import Store\n",
+                    "import homeassistant.util.dt as dt_util\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from .project import KNXProject\n",
+                    "\n",
+                    "STORAGE_VERSION: Final = 1\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 27
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "from .project import KNXProject\n",
+                "\n",
+                "STORAGE_VERSION: Final = 1\n",
+                "STORAGE_KEY: Final = f\"{DOMAIN}/telegrams_history.json\"\n",
+                "\n",
+                "\n",
+                "class TelegramDict(TypedDict):\n",
+                "    \"\"\"Represent a Telegram as a dict.\"\"\"\n",
+                "\n",
+                "    # this has to be in sync with the frontend implementation\n",
+                "    destination: str\n",
+                "    destination_name: str\n",
+                "    direction: str\n",
+                "    dpt_main: int | None\n",
+                "    dpt_sub: int | None\n",
+                "    dpt_name: str | None\n",
+                "    payload: int | tuple[int, ...] | None\n",
+                "    source: str\n",
+                "    source_name: str\n",
+                "    telegramtype: str\n",
+                "    timestamp: str  # ISO format\n",
+                "    unit: str | None\n",
+                "    value: str | int | float | bool | None\n",
+                "\n",
+                "\n",
+                "class Telegrams:\n",
+                "    \"\"\"Class to handle KNX telegrams.\"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        hass: HomeAssistant,\n",
+                "        xknx: XKNX,\n",
+                "        project: KNXProject,\n",
+                "        log_size: int,\n",
+                "    ) -> None:\n",
+                "        \"\"\"Initialize Telegrams class.\"\"\"\n",
+                "        self.hass = hass\n",
+                "        self.project = project\n",
+                "        self._history_store = Store[list[TelegramDict]](\n",
+                "            hass, STORAGE_VERSION, STORAGE_KEY\n",
+                "        )\n",
+                "        self._jobs: list[HassJob[[TelegramDict], None]] = []\n",
+                "        self._xknx_telegram_cb_handle = (\n",
+                "            xknx.telegram_queue.register_telegram_received_cb(\n",
+                "                telegram_received_cb=self._xknx_telegram_cb,\n",
+                "                match_for_outgoing=True,\n",
+                "            )\n",
+                "        )\n",
+                "        self.recent_telegrams: deque[TelegramDict] = deque(maxlen=log_size)\n",
+                "\n",
+                "    async def load_history(self) -> None:\n",
+                "        \"\"\"Load history from store.\"\"\"\n",
+                "        if (telegrams := await self._history_store.async_load()) is None:\n",
+                "            return\n",
+                "        if self.recent_telegrams.maxlen == 0:\n",
+                "            await self._history_store.async_remove()\n",
+                "            return\n",
+                "        for telegram in telegrams:\n",
+                "            # tuples are stored as lists in JSON\n",
+                "            if isinstance(telegram[\"payload\"], list):\n",
+                "                telegram[\"payload\"] = tuple(telegram[\"payload\"])  # type: ignore[unreachable]\n",
+                "        self.recent_telegrams.extend(telegrams)\n",
+                "\n",
+                "    async def save_history(self) -> None:\n",
+                "        \"\"\"Save history to store.\"\"\"\n",
+                "        if self.recent_telegrams:\n",
+                "            await self._history_store.async_save(list(self.recent_telegrams))\n",
+                "\n",
+                "    async def _xknx_telegram_cb(self, telegram: Telegram) -> None:\n",
+                "        \"\"\"Handle incoming and outgoing telegrams from xknx.\"\"\"\n",
+                "        telegram_dict = self.telegram_to_dict(telegram)\n",
+                "        self.recent_telegrams.append(telegram_dict)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        async_dispatcher_send(self.hass, SIGNAL_KNX_TELEGRAM_DICT, telegram_dict)\n"
+                ],
+                "parent_version_range": {
+                    "start": 89,
+                    "end": 89
+                },
+                "child_version_range": {
+                    "start": 90,
+                    "end": 91
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Telegrams",
+                        "signature": "class Telegrams:",
+                        "at_line": 42
+                    },
+                    {
+                        "type": "function",
+                        "name": "_xknx_telegram_cb",
+                        "signature": "def _xknx_telegram_cb(self, telegram: Telegram)->None:",
+                        "at_line": 85
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.recent_telegrams.append",
+                        "signature": "self.recent_telegrams.append(telegram_dict)",
+                        "at_line": 88,
+                        "argument": "telegram_dict"
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: homeassistant/components/knx/telegrams.py\nCode:\n         class Telegrams:\n             ...\n             def _xknx_telegram_cb(self, telegram: Telegram)->None:\n                 ...\n86 87            \"\"\"Handle incoming and outgoing telegrams from xknx.\"\"\"\n87 88            telegram_dict = self.telegram_to_dict(telegram)\n88 89            self.recent_telegrams.append(telegram_dict)\n   90  +         async_dispatcher_send(self.hass, SIGNAL_KNX_TELEGRAM_DICT, telegram_dict)\n89 91            for job in self._jobs:\n90 92                self.hass.async_run_hass_job(job, telegram_dict)\n91 93    \n       ...\n",
+                "file_path": "homeassistant/components/knx/telegrams.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "SIGNAL_KNX_TELEGRAM_DICT",
+                    "async_dispatcher_send",
+                    "hass",
+                    "self",
+                    "telegram_dict"
+                ],
+                "prefix": [
+                    "        \"\"\"Handle incoming and outgoing telegrams from xknx.\"\"\"\n",
+                    "        telegram_dict = self.telegram_to_dict(telegram)\n",
+                    "        self.recent_telegrams.append(telegram_dict)\n"
+                ],
+                "suffix": [
+                    "        for job in self._jobs:\n",
+                    "            self.hass.async_run_hass_job(job, telegram_dict)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "SIGNAL_KNX_TELEGRAM_DICT",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "async_dispatcher_send",
+                            "position": {
+                                "start": {
+                                    "line": 90,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 90,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/components/knx/telegrams.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        for job in self._jobs:\n",
+                "            self.hass.async_run_hass_job(job, telegram_dict)\n",
+                "\n",
+                "    @callback\n",
+                "    def async_listen_telegram(\n",
+                "        self,\n",
+                "        action: Callable[[TelegramDict], None],\n",
+                "        name: str = \"KNX telegram listener\",\n",
+                "    ) -> CALLBACK_TYPE:\n",
+                "        \"\"\"Register callback to listen for telegrams.\"\"\"\n",
+                "        job = HassJob(action, name=name)\n",
+                "        self._jobs.append(job)\n",
+                "\n",
+                "        def remove_listener() -> None:\n",
+                "            \"\"\"Remove the listener.\"\"\"\n",
+                "            self._jobs.remove(job)\n",
+                "\n",
+                "        return remove_listener\n",
+                "\n",
+                "    def telegram_to_dict(self, telegram: Telegram) -> TelegramDict:\n",
+                "        \"\"\"Convert a Telegram to a dict.\"\"\"\n",
+                "        dst_name = \"\"\n",
+                "        dpt_main = None\n",
+                "        dpt_sub = None\n",
+                "        dpt_name = None\n",
+                "        payload_data: int | tuple[int, ...] | None = None\n",
+                "        src_name = \"\"\n",
+                "        transcoder = None\n",
+                "        unit = None\n",
+                "        value: str | int | float | bool | None = None\n",
+                "\n",
+                "        if (\n",
+                "            ga_info := self.project.group_addresses.get(\n",
+                "                f\"{telegram.destination_address}\"\n",
+                "            )\n",
+                "        ) is not None:\n",
+                "            dst_name = ga_info.name\n",
+                "            transcoder = ga_info.transcoder\n",
+                "\n",
+                "        if (\n",
+                "            device := self.project.devices.get(f\"{telegram.source_address}\")\n",
+                "        ) is not None:\n",
+                "            src_name = f\"{device['manufacturer_name']} {device['name']}\"\n",
+                "\n",
+                "        if isinstance(telegram.payload, (GroupValueWrite, GroupValueResponse)):\n",
+                "            payload_data = telegram.payload.value.value\n",
+                "            if transcoder is not None:\n",
+                "                try:\n",
+                "                    value = transcoder.from_knx(telegram.payload.value)\n",
+                "                    dpt_main = transcoder.dpt_main_number\n",
+                "                    dpt_sub = transcoder.dpt_sub_number\n",
+                "                    dpt_name = transcoder.value_type\n",
+                "                    unit = transcoder.unit\n",
+                "                except XKNXException:\n",
+                "                    value = \"Error decoding value\"\n",
+                "\n",
+                "        return TelegramDict(\n",
+                "            destination=f\"{telegram.destination_address}\",\n",
+                "            destination_name=dst_name,\n",
+                "            direction=telegram.direction.value,\n",
+                "            dpt_main=dpt_main,\n",
+                "            dpt_sub=dpt_sub,\n",
+                "            dpt_name=dpt_name,\n",
+                "            payload=payload_data,\n",
+                "            source=f\"{telegram.source_address}\",\n",
+                "            source_name=src_name,\n",
+                "            telegramtype=telegram.payload.__class__.__name__,\n",
+                "            timestamp=dt_util.now().isoformat(),\n",
+                "            unit=unit,\n",
+                "            value=value,\n",
+                "        )"
+            ]
+        ],
+        "tests/components/knx/test_device_trigger.py": [
+            [
+                "\"\"\"Tests for KNX device triggers.\"\"\"\n",
+                "import pytest\n",
+                "import voluptuous_serialize\n",
+                "\n",
+                "from homeassistant.components import automation\n",
+                "from homeassistant.components.device_automation import DeviceAutomationType\n",
+                "from homeassistant.components.knx import DOMAIN, device_trigger\n",
+                "from homeassistant.const import ATTR_ENTITY_ID, SERVICE_TURN_OFF\n",
+                "from homeassistant.core import HomeAssistant, ServiceCall\n",
+                "from homeassistant.helpers import config_validation as cv, device_registry as dr\n",
+                "from homeassistant.setup import async_setup_component\n",
+                "\n",
+                "from .conftest import KNXTestKit\n",
+                "\n",
+                "from tests.common import async_get_device_automations, async_mock_service\n",
+                "\n",
+                "\n",
+                "@pytest.fixture\n",
+                "def calls(hass: HomeAssistant) -> list[ServiceCall]:\n",
+                "    \"\"\"Track calls to a mock service.\"\"\"\n",
+                "    return async_mock_service(hass, \"test\", \"automation\")\n",
+                "\n",
+                "\n",
+                "async def test_get_triggers(\n",
+                "    hass: HomeAssistant,\n",
+                "    device_registry: dr.DeviceRegistry,\n",
+                "    knx: KNXTestKit,\n",
+                ") -> None:\n",
+                "    \"\"\"Test we get the expected triggers from knx.\"\"\"\n",
+                "    await knx.setup_integration({})\n",
+                "    device_entry = device_registry.async_get_device(\n",
+                "        identifiers={(DOMAIN, f\"_{knx.mock_config_entry.entry_id}_interface\")}\n",
+                "    )\n",
+                "    expected_trigger = {\n",
+                "        \"platform\": \"device\",\n",
+                "        \"domain\": DOMAIN,\n",
+                "        \"device_id\": device_entry.id,\n",
+                "        \"type\": \"telegram\",\n",
+                "        \"metadata\": {},\n",
+                "    }\n",
+                "    triggers = await async_get_device_automations(\n",
+                "        hass, DeviceAutomationType.TRIGGER, device_entry.id\n",
+                "    )\n",
+                "    assert expected_trigger in triggers\n",
+                "\n",
+                "\n",
+                "async def test_if_fires_on_telegram(\n",
+                "    hass: HomeAssistant,\n",
+                "    calls: list[ServiceCall],\n",
+                "    device_registry: dr.DeviceRegistry,\n",
+                "    knx: KNXTestKit,\n",
+                ") -> None:\n",
+                "    \"\"\"Test for telegram triggers firing.\"\"\"\n",
+                "    await knx.setup_integration({})\n",
+                "    device_entry = device_registry.async_get_device(\n",
+                "        identifiers={(DOMAIN, f\"_{knx.mock_config_entry.entry_id}_interface\")}\n",
+                "    )\n",
+                "\n",
+                "    # \"id\" field added to action to test if `trigger_data` passed correctly in `async_attach_trigger`\n",
+                "    assert await async_setup_component(\n",
+                "        hass,\n",
+                "        automation.DOMAIN,\n",
+                "        {\n",
+                "            automation.DOMAIN: [\n",
+                "                {\n",
+                "                    \"trigger\": {\n",
+                "                        \"platform\": \"device\",\n",
+                "                        \"domain\": DOMAIN,\n",
+                "                        \"device_id\": device_entry.id,\n",
+                "                        \"type\": \"telegram\",\n",
+                "                    },\n",
+                "                    \"action\": {\n",
+                "                        \"service\": \"test.automation\",\n",
+                "                        \"data_template\": {\n",
+                "                            \"catch_all\": (\"telegram - {{ trigger.destination }}\"),\n",
+                "                            \"id\": (\" {{ trigger.id }}\"),\n",
+                "                        },\n",
+                "                    },\n",
+                "                },\n",
+                "                {\n",
+                "                    \"trigger\": {\n",
+                "                        \"platform\": \"device\",\n",
+                "                        \"domain\": DOMAIN,\n",
+                "                        \"device_id\": device_entry.id,\n",
+                "                        \"type\": \"telegram\",\n",
+                "                        \"destination\": [\"1/2/3\", \"1/2/4\"],\n",
+                "                        \"id\": \"test-id\",\n",
+                "                    },\n",
+                "                    \"action\": {\n",
+                "                        \"service\": \"test.automation\",\n",
+                "                        \"data_template\": {\n",
+                "                            \"specific\": (\"telegram - {{ trigger.destination }}\"),\n",
+                "                            \"id\": (\" {{ trigger.id }}\"),\n",
+                "                        },\n",
+                "                    },\n",
+                "                },\n",
+                "            ]\n",
+                "        },\n",
+                "    )\n",
+                "\n",
+                "    await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n",
+                "    assert len(calls) == 1\n",
+                "    test_call = calls.pop()\n",
+                "    assert test_call.data[\"catch_all\"] == \"telegram - 0/0/1\"\n",
+                "    assert test_call.data[\"id\"] == 0\n",
+                "\n",
+                "    await knx.receive_write(\"1/2/4\", (0x03, 0x2F))\n",
+                "    assert len(calls) == 2\n",
+                "    test_call = calls.pop()\n",
+                "    assert test_call.data[\"specific\"] == \"telegram - 1/2/4\"\n",
+                "    assert test_call.data[\"id\"] == \"test-id\"\n",
+                "    test_call = calls.pop()\n",
+                "    assert test_call.data[\"catch_all\"] == \"telegram - 1/2/4\"\n",
+                "    assert test_call.data[\"id\"] == 0\n",
+                "\n",
+                "\n",
+                "async def test_remove_device_trigger(\n",
+                "    hass: HomeAssistant,\n",
+                "    calls: list[ServiceCall],\n",
+                "    device_registry: dr.DeviceRegistry,\n",
+                "    knx: KNXTestKit,\n",
+                ") -> None:\n",
+                "    \"\"\"Test for removed callback when device trigger not used.\"\"\"\n",
+                "    automation_name = \"telegram_trigger_automation\"\n",
+                "    await knx.setup_integration({})\n",
+                "    device_entry = device_registry.async_get_device(\n",
+                "        identifiers={(DOMAIN, f\"_{knx.mock_config_entry.entry_id}_interface\")}\n",
+                "    )\n",
+                "    assert await async_setup_component(\n",
+                "        hass,\n",
+                "        automation.DOMAIN,\n",
+                "        {\n",
+                "            automation.DOMAIN: [\n",
+                "                {\n",
+                "                    \"alias\": automation_name,\n",
+                "                    \"trigger\": {\n",
+                "                        \"platform\": \"device\",\n",
+                "                        \"domain\": DOMAIN,\n",
+                "                        \"device_id\": device_entry.id,\n",
+                "                        \"type\": \"telegram\",\n",
+                "                    },\n",
+                "                    \"action\": {\n",
+                "                        \"service\": \"test.automation\",\n",
+                "                        \"data_template\": {\n",
+                "                            \"catch_all\": (\"telegram - {{ trigger.destination }}\")\n",
+                "                        },\n",
+                "                    },\n",
+                "                }\n",
+                "            ]\n",
+                "        },\n",
+                "    )\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    assert len(hass.data[DOMAIN].telegrams._jobs) == 1\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 152,
+                    "end": 153
+                },
+                "child_version_range": {
+                    "start": 152,
+                    "end": 152
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_remove_device_trigger",
+                        "signature": "def test_remove_device_trigger(\n    hass: HomeAssistant,\n    calls: list[ServiceCall],\n    device_registry: dr.DeviceRegistry,\n    knx: KNXTestKit,\n)->None:",
+                        "at_line": 116
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: tests/components/knx/test_device_trigger.py\nCode:\n           def test_remove_device_trigger(\n    hass: HomeAssistant,\n    calls: list[ServiceCall],\n    device_registry: dr.DeviceRegistry,\n    knx: KNXTestKit,\n)->None:\n               ...\n149 149            },\n150 150        )\n151 151    \n152      -     assert len(hass.data[DOMAIN].telegrams._jobs) == 1\n153 152        await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n154 153        assert len(calls) == 1\n155 154        assert calls.pop().data[\"catch_all\"] == \"telegram - 0/0/1\"\n         ...\n",
+                "file_path": "tests/components/knx/test_device_trigger.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "_jobs",
+                    "data",
+                    "hass",
+                    "len",
+                    "telegrams"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        },\n",
+                    "    )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n",
+                    "    assert len(calls) == 1\n",
+                    "    assert calls.pop().data[\"catch_all\"] == \"telegram - 0/0/1\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    9
+                ]
+            },
+            [
+                "    await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n",
+                "    assert len(calls) == 1\n",
+                "    assert calls.pop().data[\"catch_all\"] == \"telegram - 0/0/1\"\n",
+                "\n",
+                "    await hass.services.async_call(\n",
+                "        automation.DOMAIN,\n",
+                "        SERVICE_TURN_OFF,\n",
+                "        {ATTR_ENTITY_ID: f\"automation.{automation_name}\"},\n",
+                "        blocking=True,\n",
+                "    )\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "\n",
+                    "    assert len(hass.data[DOMAIN].telegrams._jobs) == 0\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 163,
+                    "end": 165
+                },
+                "child_version_range": {
+                    "start": 162,
+                    "end": 162
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_remove_device_trigger",
+                        "signature": "def test_remove_device_trigger(\n    hass: HomeAssistant,\n    calls: list[ServiceCall],\n    device_registry: dr.DeviceRegistry,\n    knx: KNXTestKit,\n)->None:",
+                        "at_line": 116
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: tests/components/knx/test_device_trigger.py\nCode:\n           def test_remove_device_trigger(\n    hass: HomeAssistant,\n    calls: list[ServiceCall],\n    device_registry: dr.DeviceRegistry,\n    knx: KNXTestKit,\n)->None:\n               ...\n160 159            {ATTR_ENTITY_ID: f\"automation.{automation_name}\"},\n161 160            blocking=True,\n162 161        )\n163      - \n164      -     assert len(hass.data[DOMAIN].telegrams._jobs) == 0\n165 162        await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n166 163        assert len(calls) == 0\n167 164    \n         ...\n",
+                "file_path": "tests/components/knx/test_device_trigger.py",
+                "identifiers_before": [
+                    "DOMAIN",
+                    "_jobs",
+                    "data",
+                    "hass",
+                    "len",
+                    "telegrams"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        {ATTR_ENTITY_ID: f\"automation.{automation_name}\"},\n",
+                    "        blocking=True,\n",
+                    "    )\n"
+                ],
+                "suffix": [
+                    "    await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n",
+                    "    assert len(calls) == 0\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    8
+                ]
+            },
+            [
+                "    await knx.receive_write(\"0/0/1\", (0x03, 0x2F))\n",
+                "    assert len(calls) == 0\n",
+                "\n",
+                "\n",
+                "async def test_get_trigger_capabilities_node_status(\n",
+                "    hass: HomeAssistant,\n",
+                "    device_registry: dr.DeviceRegistry,\n",
+                "    knx: KNXTestKit,\n",
+                ") -> None:\n",
+                "    \"\"\"Test we get the expected capabilities from a node_status trigger.\"\"\"\n",
+                "    await knx.setup_integration({})\n",
+                "    device_entry = device_registry.async_get_device(\n",
+                "        identifiers={(DOMAIN, f\"_{knx.mock_config_entry.entry_id}_interface\")}\n",
+                "    )\n",
+                "\n",
+                "    capabilities = await device_trigger.async_get_trigger_capabilities(\n",
+                "        hass,\n",
+                "        {\n",
+                "            \"platform\": \"device\",\n",
+                "            \"domain\": DOMAIN,\n",
+                "            \"device_id\": device_entry.id,\n",
+                "            \"type\": \"telegram\",\n",
+                "        },\n",
+                "    )\n",
+                "    assert capabilities and \"extra_fields\" in capabilities\n",
+                "\n",
+                "    assert voluptuous_serialize.convert(\n",
+                "        capabilities[\"extra_fields\"], custom_serializer=cv.custom_serializer\n",
+                "    ) == [\n",
+                "        {\n",
+                "            \"name\": \"destination\",\n",
+                "            \"optional\": True,\n",
+                "            \"selector\": {\n",
+                "                \"select\": {\n",
+                "                    \"custom_value\": True,\n",
+                "                    \"mode\": \"dropdown\",\n",
+                "                    \"multiple\": True,\n",
+                "                    \"options\": [],\n",
+                "                    \"sort\": False,\n",
+                "                },\n",
+                "            },\n",
+                "        }\n",
+                "    ]"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and import"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

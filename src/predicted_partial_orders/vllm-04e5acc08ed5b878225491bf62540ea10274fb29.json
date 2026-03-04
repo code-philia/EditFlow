@@ -1,0 +1,43 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the definition of the variable `num_tokens` (line 49), while Edit 1 removes the usage of that same variable `num_tokens` in the slice operation `output[:num_tokens]` (line 51). These edits reference the exact same symbol `num_tokens` - one removes its definition and the other removes its usage. After removing the definition in Edit 0, the usage in Edit 1 would reference an undefined variable, making Edit 1 the immediate next step to complete the refactoring. This is a clear definition-usage relationship for the same symbol within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes the definition of the variable `num_tokens` (line 49), while Edit 1 removes the usage of that same variable `num_tokens` in the slice operation `output[:num_tokens]` (line 51). These edits reference the exact same symbol `num_tokens` - one removes its definition and the other removes its usage. After removing the definition in Edit 0, the usage in Edit 1 would reference an undefined variable, making Edit 1 the immediate next step to complete the refactoring. This is a clear definition-usage relationship for the same symbol within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "These edits are bi-directional neighbours because they form a coordinated refactoring of the same function call relationship. Edit 0 simplifies the multi_query_kv_attention method by removing tensor slicing (changing output[:num_tokens] to output), while Edit 1 compensates by adding the slicing logic to the caller site where multi_query_kv_attention is invoked. The changed lines reference the exact same function call and parameters, creating a direct code dependency where either edit naturally prompts the other as the next mechanical step to maintain correctness."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "These edits are bi-directional neighbours because they form a coordinated refactoring of the same function call relationship. Edit 0 simplifies the multi_query_kv_attention method by removing tensor slicing (changing output[:num_tokens] to output), while Edit 1 compensates by adding the slicing logic to the caller site where multi_query_kv_attention is invoked. The changed lines reference the exact same function call and parameters, creating a direct code dependency where either edit naturally prompts the other as the next mechanical step to maintain correctness."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new variable `num_prompt_tokens` by assigning it the value `sum(input_metadata.prompt_lens)`. Edit 1 then uses this exact same variable `num_prompt_tokens` multiple times in tensor slicing operations (`output[:num_prompt_tokens]`, `query[:num_prompt_tokens]`, etc.). The changed lines in edit 1 directly reference the symbol defined in edit 0. This creates an immediate code dependency where edit 0 must come before edit 1, as edit 1 cannot be parsed/executed without the variable definition from edit 0. In Python, using an undefined variable would cause a NameError at runtime, making this a clear definition-usage relationship where the definition must precede the usage."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "These edits are part of a single refactoring operation that transforms a simple for-loop iteration over test_inputs into a conditional pop-based approach within an existing while loop. Edit 0 removes the original for-loop that iterates through test_inputs, and Edit 1 adds conditional logic that pops from the same test_inputs list. Both edits reference the exact same symbol 'test_inputs' and the same method call 'frontend.query()'. This represents a cohesive transformation where removing the old approach and adding the new approach are mechanically linked parts of the same micro-task. Either edit could be applied first since both are syntactically valid independently, but together they form a complete refactoring of how test_inputs are processed."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "These edits are part of a single refactoring operation that transforms a simple for-loop iteration over test_inputs into a conditional pop-based approach within an existing while loop. Edit 0 removes the original for-loop that iterates through test_inputs, and Edit 1 adds conditional logic that pops from the same test_inputs list. Both edits reference the exact same symbol 'test_inputs' and the same method call 'frontend.query()'. This represents a cohesive transformation where removing the old approach and adding the new approach are mechanically linked parts of the same micro-task. Either edit could be applied first since both are syntactically valid independently, but together they form a complete refactoring of how test_inputs are processed."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        4
+    ]
+}

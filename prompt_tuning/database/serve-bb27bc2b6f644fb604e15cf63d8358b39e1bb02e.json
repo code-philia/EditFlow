@@ -1,0 +1,1386 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/jina-ai/serve/commit/bb27bc2b6f644fb604e15cf63d8358b39e1bb02e",
+    "commit_message": "fix: protect when deployment not in gathering endpoints dictionary (#5440)",
+    "commit_snapshots": {
+        "jina/serve/runtimes/gateway/graph/topology_graph.py": [
+            [
+                "import asyncio\n",
+                "import copy\n",
+                "import re\n",
+                "from collections import defaultdict\n",
+                "from datetime import datetime\n",
+                "from typing import Dict, List, Optional, Tuple\n",
+                "\n",
+                "import grpc.aio\n",
+                "\n",
+                "from jina import __default_endpoint__\n",
+                "from jina.excepts import InternalNetworkError\n",
+                "from jina.serve.networking import GrpcConnectionPool\n",
+                "from jina.serve.runtimes.helper import _parse_specific_params\n",
+                "from jina.serve.runtimes.worker.request_handling import WorkerRequestHandler\n",
+                "from jina.types.request.data import DataRequest\n",
+                "from jina.logging.logger import JinaLogger\n",
+                "\n",
+                "\n",
+                "class TopologyGraph:\n",
+                "    \"\"\"\n",
+                "    :class TopologyGraph is a class that describes a computational graph of nodes, where each node represents\n",
+                "        a Deployment that needs to be sent requests in the order respecting the path traversal.\n",
+                "\n",
+                "    :param graph_description: A dictionary describing the topology of the Deployments. 2 special nodes are expected, the name `start-gateway` and `end-gateway` to\n",
+                "        determine the nodes that receive the very first request and the ones whose response needs to be sent back to the client. All the nodes with no outgoing nodes\n",
+                "        will be considered to be floating, and they will be \"flagged\" so that the user can ignore their tasks and not await them.\n",
+                "\n",
+                "    :param conditions: A dictionary describing which Executors have special conditions to be fullfilled by the `Documents` to be sent to them.\n",
+                "    :param reduce: Reduce requests arriving from multiple needed predecessors, True by default\n",
+                "    \"\"\"\n",
+                "\n",
+                "    class _ReqReplyNode:\n",
+                "        def __init__(\n",
+                "            self,\n",
+                "            name: str,\n",
+                "            number_of_parts: int = 1,\n",
+                "            floating: bool = False,\n",
+                "            filter_condition: dict = None,\n",
+                "            metadata: Optional[Dict] = None,\n",
+                "            reduce: bool = True,\n",
+                "            timeout_send: Optional[float] = None,\n",
+                "            retries: Optional[int] = -1,\n",
+                "            logger: Optional[JinaLogger] = None,\n",
+                "        ):\n",
+                "            self.name = name\n",
+                "            self.outgoing_nodes = []\n",
+                "            self.number_of_parts = number_of_parts\n",
+                "            self.floating = floating\n",
+                "            self.parts_to_send = []\n",
+                "            self.start_time = None\n",
+                "            self.end_time = None\n",
+                "            self.status = None\n",
+                "            self._filter_condition = filter_condition\n",
+                "            self._metadata = metadata\n",
+                "            self._reduce = reduce\n",
+                "            self._timeout_send = timeout_send\n",
+                "            self._retries = retries\n",
+                "            self.result_in_params_returned = None\n",
+                "            self.logger = logger or JinaLogger(self.__class__.__name__)\n",
+                "\n",
+                "        @property\n",
+                "        def leaf(self):\n",
+                "            return len(self.outgoing_nodes) == 0\n",
+                "\n",
+                "        def _update_requests_with_filter_condition(self, need_copy):\n",
+                "            for i in range(len(self.parts_to_send)):\n",
+                "                req = (\n",
+                "                    self.parts_to_send[i]\n",
+                "                    if not need_copy\n",
+                "                    else copy.deepcopy(self.parts_to_send[i])\n",
+                "                )\n",
+                "                filtered_docs = req.docs.find(self._filter_condition)\n",
+                "                req.data.docs = filtered_docs\n",
+                "                self.parts_to_send[i] = req\n",
+                "\n",
+                "        def _update_request_by_params(\n",
+                "            self, deployment_name: str, request_input_parameters: Dict\n",
+                "        ):\n",
+                "            specific_parameters = _parse_specific_params(\n",
+                "                request_input_parameters, deployment_name\n",
+                "            )\n",
+                "            for i in range(len(self.parts_to_send)):\n",
+                "                self.parts_to_send[i].parameters = specific_parameters\n",
+                "\n",
+                "        def _handle_internalnetworkerror(self, err):\n",
+                "            err_code = err.code()\n",
+                "            if err_code == grpc.StatusCode.UNAVAILABLE:\n",
+                "                err._details = (\n",
+                "                    err.details()\n",
+                "                    + f' |Gateway: Communication error with deployment {self.name} at address(es) {err.dest_addr}. '\n",
+                "                    f'Head or worker(s) may be down.'\n",
+                "                )\n",
+                "                raise err\n",
+                "            elif err_code == grpc.StatusCode.DEADLINE_EXCEEDED:\n",
+                "                err._details = (\n",
+                "                    err.details()\n",
+                "                    + f'|Gateway: Connection with deployment {self.name} at address(es) {err.dest_addr} could be established, but timed out.'\n",
+                "                    f' You can increase the allowed time by setting `timeout_send` in your Flow YAML `with` block or Flow `__init__()` method.'\n",
+                "                )\n",
+                "                raise err\n",
+                "            else:\n",
+                "                raise\n",
+                "\n",
+                "        def get_endpoints(self, connection_pool: GrpcConnectionPool) -> asyncio.Task:\n",
+                "            return connection_pool.send_discover_endpoint(\n",
+                "                self.name, retries=self._retries\n",
+                "            )\n",
+                "\n",
+                "        async def _wait_previous_and_send(\n",
+                "            self,\n",
+                "            request: Optional[DataRequest],\n",
+                "            previous_task: Optional[asyncio.Task],\n",
+                "            connection_pool: GrpcConnectionPool,\n",
+                "            endpoint: Optional[str],\n",
+                "            executor_endpoint_mapping: Optional[Dict] = None,\n",
+                "            target_executor_pattern: Optional[str] = None,\n",
+                "            request_input_parameters: Dict = {},\n",
+                "            copy_request_at_send: bool = False,\n",
+                "        ):\n",
+                "            # Check my condition and send request with the condition\n",
+                "            metadata = {}\n",
+                "            if previous_task is not None:\n",
+                "                result = await previous_task\n",
+                "                request, metadata = result[0], result[1]\n",
+                "            if metadata and 'is-error' in metadata:\n",
+                "                return request, metadata\n",
+                "            elif request is not None:\n",
+                "                request.parameters = _parse_specific_params(\n",
+                "                    request.parameters, self.name\n",
+                "                )\n",
+                "                req_to_send = (\n",
+                "                    copy.deepcopy(request) if copy_request_at_send else request\n",
+                "                )\n",
+                "                self.parts_to_send.append(req_to_send)\n",
+                "                # this is a specific needs\n",
+                "                if len(self.parts_to_send) == self.number_of_parts:\n",
+                "                    self.start_time = datetime.utcnow()\n",
+                "                    self._update_request_by_params(self.name, request_input_parameters)\n",
+                "                    if self._filter_condition is not None:\n",
+                "                        self._update_requests_with_filter_condition(\n",
+                "                            need_copy=not copy_request_at_send\n",
+                "                        )\n",
+                "                    if self._reduce and len(self.parts_to_send) > 1:\n",
+                "                        self.parts_to_send = [\n",
+                "                            WorkerRequestHandler.reduce_requests(self.parts_to_send)\n",
+                "                        ]\n",
+                "\n",
+                "                    # avoid sending to executor which does not bind to this endpoint\n",
+                "                    if endpoint is not None and executor_endpoint_mapping is not None:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                        if (\n"
+                ],
+                "after": [
+                    "                        if (self.name in executor_endpoint_mapping and\n"
+                ],
+                "parent_version_range": {
+                    "start": 149,
+                    "end": 150
+                },
+                "child_version_range": {
+                    "start": 149,
+                    "end": 150
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if metadata and 'is-error' in metadata:",
+                        "start_line": 124,
+                        "end_line": 192
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if len(self.parts_to_send) == self.number_of_parts:",
+                        "start_line": 135,
+                        "end_line": 192
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if endpoint is not None and executor_endpoint_mapping is not None:",
+                        "start_line": 148,
+                        "end_line": 154
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if (\n                            endpoint not in executor_endpoint_mapping[self.name]\n                            and __default_endpoint__\n                            not in executor_endpoint_mapping[self.name]\n                        ):",
+                        "start_line": 149,
+                        "end_line": 154
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TopologyGraph",
+                        "signature": "class TopologyGraph:",
+                        "at_line": 18
+                    },
+                    {
+                        "type": "class",
+                        "name": "_ReqReplyNode",
+                        "signature": "class _ReqReplyNode:",
+                        "at_line": 31
+                    },
+                    {
+                        "type": "function",
+                        "name": "_wait_previous_and_send",
+                        "signature": "def _wait_previous_and_send(\n            self,\n            request: Optional[DataRequest],\n            previous_task: Optional[asyncio.Task],\n            connection_pool: GrpcConnectionPool,\n            endpoint: Optional[str],\n            executor_endpoint_mapping: Optional[Dict] = None,\n            target_executor_pattern: Optional[str] = None,\n            request_input_parameters: Dict = {},\n            copy_request_at_send: bool = False,\n        ):",
+                        "at_line": 108
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/graph/topology_graph.py\nCode:\n           class TopologyGraph:\n               ...\n               class _ReqReplyNode:\n                   ...\n                   def _wait_previous_and_send(\n            self,\n            request: Optional[DataRequest],\n            previous_task: Optional[asyncio.Task],\n            connection_pool: GrpcConnectionPool,\n            endpoint: Optional[str],\n            executor_endpoint_mapping: Optional[Dict] = None,\n            target_executor_pattern: Optional[str] = None,\n            request_input_parameters: Dict = {},\n            copy_request_at_send: bool = False,\n        ):\n                       ...\n146 146    \n147 147                        # avoid sending to executor which does not bind to this endpoint\n148 148                        if endpoint is not None and executor_endpoint_mapping is not None:\n149      -                         if (\n    149  +                         if (self.name in executor_endpoint_mapping and\n150 150                                endpoint not in executor_endpoint_mapping[self.name]\n151 151                                and __default_endpoint__\n152 152                                not in executor_endpoint_mapping[self.name]\n         ...\n",
+                "file_path": "jina/serve/runtimes/gateway/graph/topology_graph.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "executor_endpoint_mapping",
+                    "name",
+                    "self"
+                ],
+                "prefix": [
+                    "\n",
+                    "                    # avoid sending to executor which does not bind to this endpoint\n",
+                    "                    if endpoint is not None and executor_endpoint_mapping is not None:\n"
+                ],
+                "suffix": [
+                    "                            endpoint not in executor_endpoint_mapping[self.name]\n",
+                    "                            and __default_endpoint__\n",
+                    "                            not in executor_endpoint_mapping[self.name]\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                            endpoint not in executor_endpoint_mapping[self.name]\n",
+                "                            and __default_endpoint__\n",
+                "                            not in executor_endpoint_mapping[self.name]\n",
+                "                        ):\n",
+                "                            return request, metadata\n",
+                "\n",
+                "                    if target_executor_pattern is not None and not re.match(\n",
+                "                        target_executor_pattern, self.name\n",
+                "                    ):\n",
+                "                        return request, metadata\n",
+                "                    # otherwise, send to executor and get response\n",
+                "                    try:\n",
+                "                        result = await connection_pool.send_requests_once(\n",
+                "                            requests=self.parts_to_send,\n",
+                "                            deployment=self.name,\n",
+                "                            metadata=self._metadata,\n",
+                "                            head=True,\n",
+                "                            endpoint=endpoint,\n",
+                "                            timeout=self._timeout_send,\n",
+                "                            retries=self._retries,\n",
+                "                        )\n",
+                "                        if issubclass(type(result), BaseException):\n",
+                "                            raise result\n",
+                "                        else:\n",
+                "                            resp, metadata = result\n",
+                "                        if WorkerRequestHandler._KEY_RESULT in resp.parameters:\n",
+                "                            # Accumulate results from each Node and then add them to the original\n",
+                "                            self.result_in_params_returned = resp.parameters[\n",
+                "                                WorkerRequestHandler._KEY_RESULT\n",
+                "                            ]\n",
+                "                        request.parameters = request_input_parameters\n",
+                "                        resp.parameters = request_input_parameters\n",
+                "                        self.parts_to_send.clear()\n",
+                "                    except InternalNetworkError as err:\n",
+                "                        self._handle_internalnetworkerror(err)\n",
+                "                    except Exception as err:\n",
+                "                        self.logger.error(f' Exception sending requests to {self.name}: {err}')\n",
+                "                        raise err\n",
+                "\n",
+                "                    self.end_time = datetime.utcnow()\n",
+                "                    if metadata and 'is-error' in metadata:\n",
+                "                        self.status = resp.header.status\n",
+                "                    return resp, metadata\n",
+                "\n",
+                "            return None, {}\n",
+                "\n",
+                "        def get_leaf_tasks(\n",
+                "            self,\n",
+                "            connection_pool: GrpcConnectionPool,\n",
+                "            request_to_send: Optional[DataRequest],\n",
+                "            previous_task: Optional[asyncio.Task],\n",
+                "            endpoint: Optional[str] = None,\n",
+                "            executor_endpoint_mapping: Optional[Dict] = None,\n",
+                "            target_executor_pattern: Optional[str] = None,\n",
+                "            request_input_parameters: Dict = {},\n",
+                "            request_input_has_specific_params: bool = False,\n",
+                "            copy_request_at_send: bool = False,\n",
+                "        ) -> List[Tuple[bool, asyncio.Task]]:\n",
+                "            \"\"\"\n",
+                "            Gets all the tasks corresponding from all the subgraphs born from this node\n",
+                "\n",
+                "            :param connection_pool: The connection_pool need to actually send the requests\n",
+                "            :param request_to_send: Optional request to be sent when the node is an origin of a graph\n",
+                "            :param previous_task: Optional task coming from the predecessor of the Node\n",
+                "            :param endpoint: Optional string defining the endpoint of this request\n",
+                "            :param executor_endpoint_mapping: Optional map that maps the name of a Deployment with the endpoints that it binds to so that they can be skipped if needed\n",
+                "            :param target_executor_pattern: Optional regex pattern for the target executor to decide whether or not the Executor should receive the request\n",
+                "            :param request_input_parameters: The parameters coming from the Request as they arrive to the gateway\n",
+                "            :param request_input_has_specific_params: Parameter added for optimization. If this is False, there is no need to copy at all the request\n",
+                "            :param copy_request_at_send: Copy the request before actually calling the `ConnectionPool` sending\n",
+                "\n",
+                "            .. note:\n",
+                "                deployment1 -> outgoing_nodes: deployment2\n",
+                "                deployment2 -> outgoing_nodes: deployment4\n",
+                "                deployment3 -> outgoing_nodes: deployment4\n",
+                "                deployment4 -> outgoing_nodes: deployment6\n",
+                "                deployment5 -> outgoing_nodes: deployment6\n",
+                "                deployment6 -> outgoing_nodes: []\n",
+                "\n",
+                "                |-> deployment1 -> deployment2 -->\n",
+                "                |                   | -> deployment4 --->\n",
+                "                |-> deployment3 ---------->             | -> deployment6\n",
+                "                |-> deployment5 ------------------------>\n",
+                "\n",
+                "                Let's imagine a graph from this. Node corresponding to Deployment6 will receive 2 calls from deployment4 and deployment5.\n",
+                "                The task returned by `deployment6` will backpropagated to the caller of deployment1.get_leaf_tasks, deployment3.get_leaf_tasks and deployment5.get_leaf_tasks.\n",
+                "\n",
+                "                When the caller of these methods await them, they will fire the logic of sending requests and responses from and to every deployment\n",
+                "\n",
+                "            :return: Return a list of tuples, where tasks corresponding to the leafs of all the subgraphs born from this node are in each tuple.\n",
+                "                These tasks will be based on awaiting for the task from previous_node and sending a request to the corresponding node. The other member of the pair\n",
+                "                is a flag indicating if the task is to be awaited by the gateway or not.\n",
+                "            \"\"\"\n",
+                "            wait_previous_and_send_task = asyncio.create_task(\n",
+                "                self._wait_previous_and_send(\n",
+                "                    request=request_to_send,\n",
+                "                    previous_task=previous_task,\n",
+                "                    connection_pool=connection_pool,\n",
+                "                    endpoint=endpoint,\n",
+                "                    executor_endpoint_mapping=executor_endpoint_mapping,\n",
+                "                    target_executor_pattern=target_executor_pattern,\n",
+                "                    request_input_parameters=request_input_parameters,\n",
+                "                    copy_request_at_send=copy_request_at_send,\n",
+                "                )\n",
+                "            )\n",
+                "            if self.leaf:  # I am like a leaf\n",
+                "                return [\n",
+                "                    (not self.floating, wait_previous_and_send_task)\n",
+                "                ]  # I am the last in the chain\n",
+                "            hanging_tasks_tuples = []\n",
+                "            num_outgoing_nodes = len(self.outgoing_nodes)\n",
+                "            for outgoing_node in self.outgoing_nodes:\n",
+                "                t = outgoing_node.get_leaf_tasks(\n",
+                "                    connection_pool=connection_pool,\n",
+                "                    request_to_send=None,\n",
+                "                    previous_task=wait_previous_and_send_task,\n",
+                "                    endpoint=endpoint,\n",
+                "                    executor_endpoint_mapping=executor_endpoint_mapping,\n",
+                "                    target_executor_pattern=target_executor_pattern,\n",
+                "                    request_input_parameters=request_input_parameters,\n",
+                "                    request_input_has_specific_params=request_input_has_specific_params,\n",
+                "                    copy_request_at_send=num_outgoing_nodes > 1\n",
+                "                    and request_input_has_specific_params,\n",
+                "                )\n",
+                "                # We are interested in the last one, that will be the task that awaits all the previous\n",
+                "                hanging_tasks_tuples.extend(t)\n",
+                "\n",
+                "            return hanging_tasks_tuples\n",
+                "\n",
+                "        def add_route(self, request: 'DataRequest'):\n",
+                "            \"\"\"\n",
+                "             Add routes to the DataRequest based on the state of request processing\n",
+                "\n",
+                "             :param request: the request to add the routes to\n",
+                "            :return: modified request with added routes\n",
+                "            \"\"\"\n",
+                "\n",
+                "            def _find_route(request):\n",
+                "                for r in request.routes:\n",
+                "                    if r.executor == self.name:\n",
+                "                        return r\n",
+                "                return None\n",
+                "\n",
+                "            r = _find_route(request)\n",
+                "            if r is None and self.start_time:\n",
+                "                r = request.routes.add()\n",
+                "                r.executor = self.name\n",
+                "                r.start_time.FromDatetime(self.start_time)\n",
+                "                if self.end_time:\n",
+                "                    r.end_time.FromDatetime(self.end_time)\n",
+                "                if self.status:\n",
+                "                    r.status.CopyFrom(self.status)\n",
+                "            for outgoing_node in self.outgoing_nodes:\n",
+                "                request = outgoing_node.add_route(request=request)\n",
+                "            return request\n",
+                "\n",
+                "    class _EndGatewayNode(_ReqReplyNode):\n",
+                "\n",
+                "        \"\"\"\n",
+                "        Dummy node to be added before the gateway. This is to solve a problem we had when implementing `floating Executors`.\n",
+                "        If we do not add this at the end, this structure does not work:\n",
+                "\n",
+                "            GATEWAY -> EXEC1 -> FLOATING\n",
+                "                    -> GATEWAY\n",
+                "        \"\"\"\n",
+                "\n",
+                "        def get_endpoints(self, *args, **kwargs) -> asyncio.Task:\n",
+                "            async def task_wrapper():\n",
+                "                from jina.serve.networking import default_endpoints_proto\n",
+                "\n",
+                "                return default_endpoints_proto, None\n",
+                "\n",
+                "            return asyncio.create_task(task_wrapper())\n",
+                "\n",
+                "        def get_leaf_tasks(\n",
+                "            self, previous_task: Optional[asyncio.Task], *args, **kwargs\n",
+                "        ) -> List[Tuple[bool, asyncio.Task]]:\n",
+                "            return [(True, previous_task)]\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        graph_representation: Dict,\n",
+                "        graph_conditions: Dict = {},\n",
+                "        deployments_metadata: Dict = {},\n",
+                "        deployments_no_reduce: List[str] = [],\n",
+                "        timeout_send: Optional[float] = 1.0,\n",
+                "        retries: Optional[int] = -1,\n",
+                "        logger: Optional[JinaLogger] = None,\n",
+                "        *args,\n",
+                "        **kwargs,\n",
+                "    ):\n",
+                "        self.logger = logger or JinaLogger(self.__class__.__name__)\n",
+                "        num_parts_per_node = defaultdict(int)\n",
+                "        if 'start-gateway' in graph_representation:\n",
+                "            origin_node_names = graph_representation['start-gateway']\n",
+                "        else:\n",
+                "            origin_node_names = set()\n",
+                "        floating_deployment_set = set()\n",
+                "        node_set = set()\n",
+                "        for node_name, outgoing_node_names in graph_representation.items():\n",
+                "            if node_name not in {'start-gateway', 'end-gateway'}:\n",
+                "                node_set.add(node_name)\n",
+                "            if len(outgoing_node_names) == 0:\n",
+                "                floating_deployment_set.add(node_name)\n",
+                "            for out_node_name in outgoing_node_names:\n",
+                "                if out_node_name not in {'start-gateway', 'end-gateway'}:\n",
+                "                    node_set.add(out_node_name)\n",
+                "                    num_parts_per_node[out_node_name] += 1\n",
+                "\n",
+                "        nodes = {}\n",
+                "        for node_name in node_set:\n",
+                "            condition = graph_conditions.get(node_name, None)\n",
+                "            metadata = deployments_metadata.get(node_name, None)\n",
+                "            nodes[node_name] = self._ReqReplyNode(\n",
+                "                name=node_name,\n",
+                "                number_of_parts=num_parts_per_node[node_name]\n",
+                "                if num_parts_per_node[node_name] > 0\n",
+                "                else 1,\n",
+                "                floating=node_name in floating_deployment_set,\n",
+                "                filter_condition=condition,\n",
+                "                metadata=metadata,\n",
+                "                reduce=node_name not in deployments_no_reduce,\n",
+                "                timeout_send=timeout_send,\n",
+                "                retries=retries,\n",
+                "                logger=self.logger\n",
+                "            )\n",
+                "\n",
+                "        for node_name, outgoing_node_names in graph_representation.items():\n",
+                "            if node_name not in ['start-gateway', 'end-gateway']:\n",
+                "                for out_node_name in outgoing_node_names:\n",
+                "                    if out_node_name not in ['start-gateway', 'end-gateway']:\n",
+                "                        nodes[node_name].outgoing_nodes.append(nodes[out_node_name])\n",
+                "                    if out_node_name == 'end-gateway':\n",
+                "                        nodes[node_name].outgoing_nodes.append(\n",
+                "                            self._EndGatewayNode(name='__end_gateway__', floating=False)\n",
+                "                        )\n",
+                "\n",
+                "        self._origin_nodes = [nodes[node_name] for node_name in origin_node_names]\n",
+                "        self.has_filter_conditions = bool(graph_conditions)\n",
+                "\n",
+                "    def add_routes(self, request: 'DataRequest'):\n",
+                "        \"\"\"\n",
+                "        Add routes to the DataRequest based on the state of request processing\n",
+                "\n",
+                "        :param request: the request to add the routes to\n",
+                "        :return: modified request with added routes\n",
+                "        \"\"\"\n",
+                "        for node in self._origin_nodes:\n",
+                "            request = node.add_route(request=request)\n",
+                "        return request\n",
+                "\n",
+                "    @property\n",
+                "    def origin_nodes(self):\n",
+                "        \"\"\"\n",
+                "        The list of origin nodes, the one that depend only on the gateway, so all the subgraphs will be born from them and they will\n",
+                "        send to their deployments the request as received by the client.\n",
+                "\n",
+                "        :return: A list of nodes\n",
+                "        \"\"\"\n",
+                "        return self._origin_nodes\n",
+                "\n",
+                "    @property\n",
+                "    def all_nodes(self):\n",
+                "        \"\"\"\n",
+                "        The set of all the nodes inside this Graph\n",
+                "\n",
+                "        :return: A list of nodes\n",
+                "        \"\"\"\n",
+                "\n",
+                "        def _get_all_nodes(node, accum, accum_names):\n",
+                "            if node.name not in accum_names:\n",
+                "                accum.append(node)\n",
+                "                accum_names.append(node.name)\n",
+                "            for n in node.outgoing_nodes:\n",
+                "                _get_all_nodes(n, accum, accum_names)\n",
+                "            return accum, accum_names\n",
+                "\n",
+                "        nodes = []\n",
+                "        node_names = []\n",
+                "        for origin_node in self.origin_nodes:\n",
+                "            subtree_nodes, subtree_node_names = _get_all_nodes(origin_node, [], [])\n",
+                "            for st_node, st_node_name in zip(subtree_nodes, subtree_node_names):\n",
+                "                if st_node_name not in node_names:\n",
+                "                    nodes.append(st_node)\n",
+                "                    node_names.append(st_node_name)\n",
+                "        return nodes\n",
+                "\n",
+                "    def collect_all_results(self):\n",
+                "        \"\"\"Collect all the results from every node into a single dictionary so that gateway can collect them\n",
+                "\n",
+                "        :return: A dictionary of the results\n",
+                "        \"\"\"\n",
+                "        res = {}\n",
+                "        for node in self.all_nodes:\n",
+                "            if node.result_in_params_returned:\n",
+                "                res.update(node.result_in_params_returned)\n",
+                "        return res"
+            ]
+        ],
+        "jina/serve/runtimes/gateway/request_handling.py": [
+            [
+                "import asyncio\n",
+                "import copy\n",
+                "from typing import TYPE_CHECKING, Callable, List, Optional, Tuple\n",
+                "\n",
+                "import grpc.aio\n",
+                "\n",
+                "from docarray import DocumentArray\n",
+                "from jina.excepts import InternalNetworkError\n",
+                "from jina.helper import GATEWAY_NAME\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from jina.logging.logger import JinaLogger\n"
+                ],
+                "parent_version_range": {
+                    "start": 9,
+                    "end": 9
+                },
+                "child_version_range": {
+                    "start": 9,
+                    "end": 10
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n  ...\n 6  6    from docarray import DocumentArray\n 7  7    from jina.excepts import InternalNetworkError\n 8  8    from jina.helper import GATEWAY_NAME\n    9  + from jina.logging.logger import JinaLogger\n 9 10    from jina.serve.networking import GrpcConnectionPool\n10 11    from jina.serve.runtimes.gateway.graph.topology_graph import TopologyGraph\n11 12    from jina.serve.runtimes.helper import _is_param_for_specific_executor\n       ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "JinaLogger",
+                    "jina",
+                    "logger",
+                    "logging"
+                ],
+                "prefix": [
+                    "from docarray import DocumentArray\n",
+                    "from jina.excepts import InternalNetworkError\n",
+                    "from jina.helper import GATEWAY_NAME\n"
+                ],
+                "suffix": [
+                    "from jina.serve.networking import GrpcConnectionPool\n",
+                    "from jina.serve.runtimes.gateway.graph.topology_graph import TopologyGraph\n",
+                    "from jina.serve.runtimes.helper import _is_param_for_specific_executor\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "JinaLogger",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "JinaLogger",
+                            "position": {
+                                "start": {
+                                    "line": 9,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 9,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from jina.serve.networking import GrpcConnectionPool\n",
+                "from jina.serve.runtimes.gateway.graph.topology_graph import TopologyGraph\n",
+                "from jina.serve.runtimes.helper import _is_param_for_specific_executor\n",
+                "from jina.serve.runtimes.monitoring import MonitoringRequestMixin\n",
+                "from jina.serve.runtimes.worker.request_handling import WorkerRequestHandler\n",
+                "\n",
+                "if TYPE_CHECKING:  # pragma: no cover\n",
+                "    from asyncio import Future\n",
+                "\n",
+                "    from opentelemetry.metrics import Meter\n",
+                "    from prometheus_client import CollectorRegistry\n",
+                "\n",
+                "    from jina.types.request import Request\n",
+                "\n",
+                "\n",
+                "class GatewayRequestHandler(MonitoringRequestMixin):\n",
+                "    \"\"\"\n",
+                "    Class that handles the requests arriving to the gateway and the result extracted from the requests future.\n",
+                "\n",
+                "    :param metrics_registry: optional metrics registry for prometheus used if we need to expose metrics from the executor or from the data request handler\n",
+                "    :param runtime_name: optional runtime_name that will be registered during monitoring\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        metrics_registry: Optional['CollectorRegistry'] = None,\n",
+                "        meter: Optional['Meter'] = None,\n",
+                "        runtime_name: Optional[str] = None,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        logger: Optional[JinaLogger] = None,\n"
+                ],
+                "parent_version_range": {
+                    "start": 37,
+                    "end": 37
+                },
+                "child_version_range": {
+                    "start": 38,
+                    "end": 39
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GatewayRequestHandler",
+                        "signature": "class GatewayRequestHandler(MonitoringRequestMixin):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        metrics_registry: Optional['CollectorRegistry'] = None,\n        meter: Optional['Meter'] = None,\n        runtime_name: Optional[str] = None,\n    ):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n         class GatewayRequestHandler(MonitoringRequestMixin):\n             ...\n             def __init__(\n        self,\n        metrics_registry: Optional['CollectorRegistry'] = None,\n        meter: Optional['Meter'] = None,\n        runtime_name: Optional[str] = None,\n    ):\n                 ...\n34 35            metrics_registry: Optional['CollectorRegistry'] = None,\n35 36            meter: Optional['Meter'] = None,\n36 37            runtime_name: Optional[str] = None,\n   38  +         logger: Optional[JinaLogger] = None,\n37 39        ):\n38 40            super().__init__(metrics_registry, meter, runtime_name)\n39 41            self._executor_endpoint_mapping = None\n       ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "JinaLogger",
+                    "Optional",
+                    "logger"
+                ],
+                "prefix": [
+                    "        metrics_registry: Optional['CollectorRegistry'] = None,\n",
+                    "        meter: Optional['Meter'] = None,\n",
+                    "        runtime_name: Optional[str] = None,\n"
+                ],
+                "suffix": [
+                    "    ):\n",
+                    "        super().__init__(metrics_registry, meter, runtime_name)\n",
+                    "        self._executor_endpoint_mapping = None\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "JinaLogger",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 25
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    ):\n",
+                "        super().__init__(metrics_registry, meter, runtime_name)\n",
+                "        self._executor_endpoint_mapping = None\n",
+                "        self._gathering_endpoints = False\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.logger = logger or JinaLogger(self.__class__.__name__)\n"
+                ],
+                "parent_version_range": {
+                    "start": 41,
+                    "end": 41
+                },
+                "child_version_range": {
+                    "start": 43,
+                    "end": 44
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GatewayRequestHandler",
+                        "signature": "class GatewayRequestHandler(MonitoringRequestMixin):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(\n        self,\n        metrics_registry: Optional['CollectorRegistry'] = None,\n        meter: Optional['Meter'] = None,\n        runtime_name: Optional[str] = None,\n    ):",
+                        "at_line": 32
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n         class GatewayRequestHandler(MonitoringRequestMixin):\n             ...\n             def __init__(\n        self,\n        metrics_registry: Optional['CollectorRegistry'] = None,\n        meter: Optional['Meter'] = None,\n        runtime_name: Optional[str] = None,\n    ):\n                 ...\n38 40            super().__init__(metrics_registry, meter, runtime_name)\n39 41            self._executor_endpoint_mapping = None\n40 42            self._gathering_endpoints = False\n   43  +         self.logger = logger or JinaLogger(self.__class__.__name__)\n41 44    \n42 45        def handle_request(\n43 46            self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n       ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "JinaLogger",
+                    "__class__",
+                    "__name__",
+                    "logger",
+                    "self"
+                ],
+                "prefix": [
+                    "        super().__init__(metrics_registry, meter, runtime_name)\n",
+                    "        self._executor_endpoint_mapping = None\n",
+                    "        self._gathering_endpoints = False\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    def handle_request(\n",
+                    "        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "JinaLogger",
+                            "position": {
+                                "start": {
+                                    "line": 43,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 43,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 43,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 43,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 43,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 43,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    def handle_request(\n",
+                "        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n",
+                "    ) -> Callable[['Request'], 'Tuple[Future, Optional[Future]]']:\n",
+                "        \"\"\"\n",
+                "        Function that handles the requests arriving to the gateway. This will be passed to the streamer.\n",
+                "\n",
+                "        :param graph: The TopologyGraph of the Flow.\n",
+                "        :param connection_pool: The connection pool to be used to send messages to specific nodes of the graph\n",
+                "        :return: Return a Function that given a Request will return a Future from where to extract the response\n",
+                "        \"\"\"\n",
+                "\n",
+                "        async def gather_endpoints(request_graph):\n",
+                "            nodes = request_graph.all_nodes\n",
+                "            try:\n",
+                "                tasks_to_get_endpoints = [\n",
+                "                    node.get_endpoints(connection_pool) for node in nodes\n",
+                "                ]\n",
+                "                endpoints = await asyncio.gather(*tasks_to_get_endpoints)\n",
+                "            except InternalNetworkError as err:\n",
+                "                err_code = err.code()\n",
+                "                if err_code == grpc.StatusCode.UNAVAILABLE:\n",
+                "                    err._details = (\n",
+                "                        err.details()\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                        + f' |Gateway: Communication error with deployment at address(es) {err.dest_addr}. Head or worker(s) may be down.'\n"
+                ],
+                "after": [
+                    "                        + f' |Gateway: Communication error while gathering endpoints with deployment at address(es) {err.dest_addr}. Head or worker(s) may be down.'\n"
+                ],
+                "parent_version_range": {
+                    "start": 65,
+                    "end": 66
+                },
+                "child_version_range": {
+                    "start": 68,
+                    "end": 69
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 55,
+                        "end_line": 69
+                    },
+                    {
+                        "type": "except_clause",
+                        "statement": "except InternalNetworkError as err:",
+                        "start_line": 60,
+                        "end_line": 69
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if err_code == grpc.StatusCode.UNAVAILABLE:",
+                        "start_line": 62,
+                        "end_line": 69
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GatewayRequestHandler",
+                        "signature": "class GatewayRequestHandler(MonitoringRequestMixin):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "handle_request",
+                        "signature": "def handle_request(\n        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n    )->Callable[['Request'], 'Tuple[Future, Optional[Future]]']:",
+                        "at_line": 42
+                    },
+                    {
+                        "type": "function",
+                        "name": "gather_endpoints",
+                        "signature": "def gather_endpoints(request_graph):",
+                        "at_line": 53
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n         class GatewayRequestHandler(MonitoringRequestMixin):\n             ...\n             def handle_request(\n        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n    )->Callable[['Request'], 'Tuple[Future, Optional[Future]]']:\n                 ...\n                 def gather_endpoints(request_graph):\n                     ...\n62 65                    if err_code == grpc.StatusCode.UNAVAILABLE:\n63 66                        err._details = (\n64 67                            err.details()\n65     -                         + f' |Gateway: Communication error with deployment at address(es) {err.dest_addr}. Head or worker(s) may be down.'\n   68  +                         + f' |Gateway: Communication error while gathering endpoints with deployment at address(es) {err.dest_addr}. Head or worker(s) may be down.'\n66 69                        )\n67 70                        raise err\n68 71                    else:\n       ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [
+                    "dest_addr",
+                    "err"
+                ],
+                "identifiers_after": [
+                    "dest_addr",
+                    "err"
+                ],
+                "prefix": [
+                    "                if err_code == grpc.StatusCode.UNAVAILABLE:\n",
+                    "                    err._details = (\n",
+                    "                        err.details()\n"
+                ],
+                "suffix": [
+                    "                    )\n",
+                    "                    raise err\n",
+                    "                else:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                    )\n",
+                "                    raise err\n",
+                "                else:\n",
+                "                    raise\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            except Exception as exc:\n",
+                    "                self.logger.error(f' Error gathering endpoints: {exc}')\n",
+                    "                raise exc\n"
+                ],
+                "parent_version_range": {
+                    "start": 70,
+                    "end": 70
+                },
+                "child_version_range": {
+                    "start": 73,
+                    "end": 76
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 55,
+                        "end_line": 69
+                    },
+                    {
+                        "type": "except_clause",
+                        "statement": "except InternalNetworkError as err:",
+                        "start_line": 60,
+                        "end_line": 69
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if err_code == grpc.StatusCode.UNAVAILABLE:",
+                        "start_line": 62,
+                        "end_line": 69
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 68,
+                        "end_line": 69
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GatewayRequestHandler",
+                        "signature": "class GatewayRequestHandler(MonitoringRequestMixin):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "handle_request",
+                        "signature": "def handle_request(\n        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n    )->Callable[['Request'], 'Tuple[Future, Optional[Future]]']:",
+                        "at_line": 42
+                    },
+                    {
+                        "type": "function",
+                        "name": "gather_endpoints",
+                        "signature": "def gather_endpoints(request_graph):",
+                        "at_line": 53
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n         class GatewayRequestHandler(MonitoringRequestMixin):\n             ...\n             def handle_request(\n        self, graph: 'TopologyGraph', connection_pool: 'GrpcConnectionPool'\n    )->Callable[['Request'], 'Tuple[Future, Optional[Future]]']:\n                 ...\n                 def gather_endpoints(request_graph):\n                     ...\n67 70                        raise err\n68 71                    else:\n69 72                        raise\n   73  +             except Exception as exc:\n   74  +                 self.logger.error(f' Error gathering endpoints: {exc}')\n   75  +                 raise exc\n70 76    \n71 77                self._executor_endpoint_mapping = {}\n72 78                for node, (endp, _) in zip(nodes, endpoints):\n       ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Exception",
+                    "error",
+                    "exc",
+                    "except",
+                    "logger",
+                    "self"
+                ],
+                "prefix": [
+                    "                    raise err\n",
+                    "                else:\n",
+                    "                    raise\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "            self._executor_endpoint_mapping = {}\n",
+                    "            for node, (endp, _) in zip(nodes, endpoints):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "logger",
+                            "position": {
+                                "start": {
+                                    "line": 74,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 74,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/serve/jina/serve/runtimes/gateway/request_handling.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "            self._executor_endpoint_mapping = {}\n",
+                "            for node, (endp, _) in zip(nodes, endpoints):\n",
+                "                self._executor_endpoint_mapping[node.name] = endp.endpoints\n",
+                "\n",
+                "        def _handle_request(request: 'Request') -> 'Tuple[Future, Optional[Future]]':\n",
+                "            self._update_start_request_metrics(request)\n",
+                "\n",
+                "            # important that the gateway needs to have an instance of the graph per request\n",
+                "            request_graph = copy.deepcopy(graph)\n",
+                "\n",
+                "            if graph.has_filter_conditions:\n",
+                "                request_doc_ids = request.data.docs[\n",
+                "                    :, 'id'\n",
+                "                ]  # used to maintain order of docs that are filtered by executors\n",
+                "            responding_tasks = []\n",
+                "            floating_tasks = []\n",
+                "            endpoint = request.header.exec_endpoint\n",
+                "            r = request.routes.add()\n",
+                "            r.executor = 'gateway'\n",
+                "            r.start_time.GetCurrentTime()\n",
+                "            # If the request is targeting a specific deployment, we can send directly to the deployment instead of\n",
+                "            # querying the graph\n",
+                "            num_outgoing_nodes = len(request_graph.origin_nodes)\n",
+                "            has_specific_params = False\n",
+                "            request_input_parameters = request.parameters\n",
+                "            for key in request_input_parameters:\n",
+                "                if _is_param_for_specific_executor(key):\n",
+                "                    has_specific_params = True\n",
+                "                    break\n",
+                "\n",
+                "            target_executor = request.header.target_executor\n",
+                "            # reset it in case we send to an external gateway\n",
+                "            request.header.target_executor = ''\n",
+                "\n",
+                "            for origin_node in request_graph.origin_nodes:\n",
+                "                leaf_tasks = origin_node.get_leaf_tasks(\n",
+                "                    connection_pool=connection_pool,\n",
+                "                    request_to_send=request,\n",
+                "                    previous_task=None,\n",
+                "                    endpoint=endpoint,\n",
+                "                    executor_endpoint_mapping=self._executor_endpoint_mapping,\n",
+                "                    target_executor_pattern=target_executor or None,\n",
+                "                    request_input_parameters=request_input_parameters,\n",
+                "                    request_input_has_specific_params=has_specific_params,\n",
+                "                    copy_request_at_send=num_outgoing_nodes > 1 and has_specific_params,\n",
+                "                )\n",
+                "                # Every origin node returns a set of tasks that are the ones corresponding to the leafs of each of their\n",
+                "                # subtrees that unwrap all the previous tasks. It starts like a chain of waiting for tasks from previous\n",
+                "                # nodes\n",
+                "                responding_tasks.extend([task for ret, task in leaf_tasks if ret])\n",
+                "                floating_tasks.extend([task for ret, task in leaf_tasks if not ret])\n",
+                "\n",
+                "            def _sort_response_docs(response):\n",
+                "                # sort response docs according to their order in the initial request\n",
+                "                def sort_by_request_order(doc):\n",
+                "                    if doc.id in request_doc_ids:\n",
+                "                        return request_doc_ids.index(doc.id)\n",
+                "                    else:\n",
+                "                        return len(request_doc_ids)  # put new/unknown docs at the end\n",
+                "\n",
+                "                sorted_docs = sorted(response.data.docs, key=sort_by_request_order)\n",
+                "                response.data.docs = DocumentArray(sorted_docs)\n",
+                "\n",
+                "            async def _process_results_at_end_gateway(\n",
+                "                tasks: List[asyncio.Task], request_graph: TopologyGraph\n",
+                "            ) -> asyncio.Future:\n",
+                "                try:\n",
+                "                    if (\n",
+                "                        self._executor_endpoint_mapping is None\n",
+                "                        and not self._gathering_endpoints\n",
+                "                    ):\n",
+                "                        self._gathering_endpoints = True\n",
+                "                        asyncio.create_task(gather_endpoints(request_graph))\n",
+                "\n",
+                "                    partial_responses = await asyncio.gather(*tasks)\n",
+                "                except Exception:\n",
+                "                    # update here failed request\n",
+                "                    self._update_end_failed_requests_metrics()\n",
+                "                    raise\n",
+                "                partial_responses, metadatas = zip(*partial_responses)\n",
+                "                filtered_partial_responses = list(\n",
+                "                    filter(lambda x: x is not None, partial_responses)\n",
+                "                )\n",
+                "\n",
+                "                response = filtered_partial_responses[0]\n",
+                "                # JoanFM: to keep the docs_map feature, need to add the routes in the WorkerRuntime but clear it here\n",
+                "                # so that routes are properly done. not very clean but refactoring would be costly for such a small\n",
+                "                # thing, `docs_map` reuses routes potentially not in the best way but works for now\n",
+                "                for i in reversed(range(len(response.routes))):\n",
+                "                    if response.routes[i].executor != GATEWAY_NAME:\n",
+                "                        del response.routes[i]\n",
+                "                request_graph.add_routes(response)\n",
+                "\n",
+                "                if graph.has_filter_conditions:\n",
+                "                    _sort_response_docs(response)\n",
+                "\n",
+                "                collect_results = request_graph.collect_all_results()\n",
+                "                resp_params = response.parameters\n",
+                "                if len(collect_results) > 0:\n",
+                "                    resp_params[WorkerRequestHandler._KEY_RESULT] = collect_results\n",
+                "                    response.parameters = resp_params\n",
+                "                return response\n",
+                "\n",
+                "            # In case of empty topologies\n",
+                "            if not responding_tasks:\n",
+                "                r.end_time.GetCurrentTime()\n",
+                "                future = asyncio.Future()\n",
+                "                future.set_result((request, {}))\n",
+                "                responding_tasks.append(future)\n",
+                "\n",
+                "            return (\n",
+                "                asyncio.ensure_future(\n",
+                "                    _process_results_at_end_gateway(responding_tasks, request_graph)\n",
+                "                ),\n",
+                "                asyncio.ensure_future(asyncio.gather(*floating_tasks))\n",
+                "                if len(floating_tasks) > 0\n",
+                "                else None,\n",
+                "            )\n",
+                "\n",
+                "        return _handle_request\n",
+                "\n",
+                "    def handle_result(self) -> Callable[['Request'], 'Request']:\n",
+                "        \"\"\"\n",
+                "        Function that handles the result when extracted from the request future\n",
+                "\n",
+                "        :return: Return a Function that returns a request to be returned to the client\n",
+                "        \"\"\"\n",
+                "\n",
+                "        def _handle_result(result: 'Request'):\n",
+                "            \"\"\"\n",
+                "            Function that handles the result when extracted from the request future\n",
+                "\n",
+                "            :param result: The result returned to the gateway. It extracts the request to be returned to the client\n",
+                "            :return: Returns a request to be returned to the client\n",
+                "            \"\"\"\n",
+                "            for route in result.routes:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                if route.executor == 'gateway':\n"
+                ],
+                "after": [
+                    "                if route.executor == GATEWAY_NAME:\n"
+                ],
+                "parent_version_range": {
+                    "start": 207,
+                    "end": 208
+                },
+                "child_version_range": {
+                    "start": 213,
+                    "end": 214
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for route in result.routes:",
+                        "start_line": 206,
+                        "end_line": 208
+                    },
+                    {
+                        "type": "if_statement",
+                        "statement": "if route.executor == 'gateway':",
+                        "start_line": 207,
+                        "end_line": 208
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GatewayRequestHandler",
+                        "signature": "class GatewayRequestHandler(MonitoringRequestMixin):",
+                        "at_line": 24
+                    },
+                    {
+                        "type": "function",
+                        "name": "handle_result",
+                        "signature": "def handle_result(self)->Callable[['Request'], 'Request']:",
+                        "at_line": 192
+                    },
+                    {
+                        "type": "function",
+                        "name": "_handle_result",
+                        "signature": "def _handle_result(result: 'Request'):",
+                        "at_line": 199
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: jina/serve/runtimes/gateway/request_handling.py\nCode:\n           class GatewayRequestHandler(MonitoringRequestMixin):\n               ...\n               def handle_result(self)->Callable[['Request'], 'Request']:\n                   ...\n                   def _handle_result(result: 'Request'):\n                       ...\n204 210                :return: Returns a request to be returned to the client\n205 211                \"\"\"\n206 212                for route in result.routes:\n207      -                 if route.executor == 'gateway':\n    213  +                 if route.executor == GATEWAY_NAME:\n208 214                        route.end_time.GetCurrentTime()\n209 215    \n210 216                self._update_end_request_metrics(result)\n         ...\n",
+                "file_path": "jina/serve/runtimes/gateway/request_handling.py",
+                "identifiers_before": [
+                    "executor",
+                    "route"
+                ],
+                "identifiers_after": [
+                    "GATEWAY_NAME",
+                    "executor",
+                    "route"
+                ],
+                "prefix": [
+                    "            :return: Returns a request to be returned to the client\n",
+                    "            \"\"\"\n",
+                    "            for route in result.routes:\n"
+                ],
+                "suffix": [
+                    "                    route.end_time.GetCurrentTime()\n",
+                    "\n",
+                    "            self._update_end_request_metrics(result)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "                    route.end_time.GetCurrentTime()\n",
+                "\n",
+                "            self._update_end_request_metrics(result)\n",
+                "\n",
+                "            return result\n",
+                "\n",
+                "        return _handle_result"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "assign arg"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        }
+    ]
+}

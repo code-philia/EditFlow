@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are adding documentation and implementation for the same 'seed' parameter within the same DataConfig class. Edit 0 adds the docstring documentation for the seed parameter, while Edit 1 adds the actual parameter definition with type annotation and default value. These edits reference the exact same symbol (the 'seed' parameter) and are part of a single micro-task of adding a new parameter to the class. Either edit can be made first and both can be parsed independently, but making either edit creates an immediate prompt for the other to complete the parameter addition."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are adding documentation and implementation for the same 'seed' parameter within the same DataConfig class. Edit 0 adds the docstring documentation for the seed parameter, while Edit 1 adds the actual parameter definition with type annotation and default value. These edits reference the exact same symbol (the 'seed' parameter) and are part of a single micro-task of adding a new parameter to the class. Either edit can be made first and both can be parsed independently, but making either edit creates an immediate prompt for the other to complete the parameter addition."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the initialization logic for self._seed in the InputReader constructor, changing from a simple conditional assignment to a more complex if-elif-else structure that handles params.seed. Edit 1 uses this same self._seed attribute by passing it as the seed parameter to the dataset.shuffle() method. The changed lines reference the exact same symbol (self._seed) - edit 0 assigns to it and edit 1 uses it. This creates a direct code dependency where the initialization logic in edit 0 directly affects the usage in edit 1, making them part of the same micro-task of implementing seed handling functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the initialization logic for self._seed in the InputReader constructor, changing from a simple conditional assignment to a more complex if-elif-else structure that handles params.seed. Edit 1 uses this same self._seed attribute by passing it as the seed parameter to the dataset.shuffle() method. The changed lines reference the exact same symbol (self._seed) - edit 0 assigns to it and edit 1 uses it. This creates a direct code dependency where the initialization logic in edit 0 directly affects the usage in edit 1, making them part of the same micro-task of implementing seed handling functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'seed' parameter to the DataConfig class, and Edit 1 modifies the InputReader constructor to use this new 'seed' parameter from the config. The changed lines in both edits reference the exact same symbol 'params.seed' - Edit 0 defines it as an attribute of DataConfig, and Edit 1 accesses and uses that same attribute. This creates an immediate code dependency where adding the seed parameter to the config naturally prompts updating the code that uses the config to handle the new parameter. Either edit can be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'seed' parameter to the DataConfig class, and Edit 1 modifies the InputReader constructor to use this new 'seed' parameter from the config. The changed lines in both edits reference the exact same symbol 'params.seed' - Edit 0 defines it as an attribute of DataConfig, and Edit 1 accesses and uses that same attribute. This creates an immediate code dependency where adding the seed parameter to the config naturally prompts updating the code that uses the config to handle the new parameter. Either edit can be made first without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds documentation for a 'seed' parameter to the DataConfig class, while Edit 1 modifies the InputReader constructor to use 'params.seed' (where params is of type DataConfig). The changed lines in Edit 1 explicitly reference the exact same 'seed' attribute that is being documented in Edit 0. This creates a direct code dependency where the implementation in Edit 1 depends on the 'seed' attribute being available in the DataConfig class. Both edits reference the same symbol (the 'seed' attribute of DataConfig) and would naturally occur together when adding seed functionality - either edit could be made first and would prompt the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds documentation for a 'seed' parameter to the DataConfig class, while Edit 1 modifies the InputReader constructor to use 'params.seed' (where params is of type DataConfig). The changed lines in Edit 1 explicitly reference the exact same 'seed' attribute that is being documented in Edit 0. This creates a direct code dependency where the implementation in Edit 1 depends on the 'seed' attribute being available in the DataConfig class. Both edits reference the same symbol (the 'seed' attribute of DataConfig) and would naturally occur together when adding seed functionality - either edit could be made first and would prompt the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol `self._seed`. Edit 0 modifies how `self._seed` is assigned in the constructor, changing from a simple conditional to a more complex if-elif-else structure that considers `params.seed`. Edit 1 uses this same `self._seed` attribute by passing it as the `shuffle_seed` parameter to `tfds.ReadConfig`. After making edit 0 (which changes how `self._seed` is determined), edit 1 becomes the natural next step to utilize this newly configured seed value. The relationship is bi-directional because both edits can be staged in either order without causing parse errors, and both reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol `self._seed`. Edit 0 modifies how `self._seed` is assigned in the constructor, changing from a simple conditional to a more complex if-elif-else structure that considers `params.seed`. Edit 1 uses this same `self._seed` attribute by passing it as the `shuffle_seed` parameter to `tfds.ReadConfig`. After making edit 0 (which changes how `self._seed` is determined), edit 1 becomes the natural next step to utilize this newly configured seed value. The relationship is bi-directional because both edits can be staged in either order without causing parse errors, and both reference the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'dataset.shuffle(self._shuffle_buffer_size)' to 'dataset.shuffle(self._shuffle_buffer_size, seed=self._seed)' - adding the same 'seed=self._seed' parameter to shuffle() method calls. This is a uniform pattern substitution within the same method, where both changed lines involve the exact same transformation applied to structurally identical code constructs. This represents a single, contiguous refactoring task where either edit could be made first, and after making one, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'dataset.shuffle(self._shuffle_buffer_size)' to 'dataset.shuffle(self._shuffle_buffer_size, seed=self._seed)' - adding the same 'seed=self._seed' parameter to shuffle() method calls. This is a uniform pattern substitution within the same method, where both changed lines involve the exact same transformation applied to structurally identical code constructs. This represents a single, contiguous refactoring task where either edit could be made first, and after making one, the other becomes the immediate next step to maintain consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 modifies the initialization logic for self._seed in the InputReader constructor, changing from a simple conditional assignment to a more complex if-elif-else structure that handles params.seed. Edit 1 uses this self._seed attribute by passing it as the seed parameter to the dataset.shuffle() method. The changed lines reference the exact same symbol (self._seed) - edit 0 assigns to it and edit 1 uses it. This creates a direct code dependency where the seed initialization logic in edit 0 directly affects the shuffle operation in edit 1. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the initialization logic for self._seed in the InputReader constructor, changing from a simple conditional assignment to a more complex if-elif-else structure that handles params.seed. Edit 1 uses this self._seed attribute by passing it as the seed parameter to the dataset.shuffle() method. The changed lines reference the exact same symbol (self._seed) - edit 0 assigns to it and edit 1 uses it. This creates a direct code dependency where the seed initialization logic in edit 0 directly affects the shuffle operation in edit 1. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

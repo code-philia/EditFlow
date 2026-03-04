@@ -1,0 +1,113 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 removes 'Union' from the typing imports, while Edit 1 changes the function signature from returning 'Union[None, Dict[str, Any]]' to returning 'None'. These edits reference the exact same symbol 'Union' - Edit 1 removes its usage in the function signature, making the import in Edit 0 no longer needed. This creates a direct code dependency where removing the Union type annotation naturally prompts removing the unused Union import as the next mechanical step. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 removes 'Union' from the typing imports, while Edit 1 changes the function signature from returning 'Union[None, Dict[str, Any]]' to returning 'None'. These edits reference the exact same symbol 'Union' - Edit 1 removes its usage in the function signature, making the import in Edit 0 no longer needed. This creates a direct code dependency where removing the Union type annotation naturally prompts removing the unused Union import as the next mechanical step. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 renames the function from 'handle_digest_email' to 'get_digest_context' in the definition. Edit 1 updates the import statement to import the new function name 'get_digest_context' instead of 'handle_digest_email'. Both edits reference the exact same symbol - the function being renamed. After renaming the function in edit 0, the import in edit 1 becomes immediately necessary to maintain code correctness, and vice versa. This is a classic definition-usage relationship where both edits can be staged in either order (the import of a non-existent function would cause a runtime ImportError, not a parse error in Python)."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 renames the function from 'handle_digest_email' to 'get_digest_context' in the definition. Edit 1 updates the import statement to import the new function name 'get_digest_context' instead of 'handle_digest_email'. Both edits reference the exact same symbol - the function being renamed. After renaming the function in edit 0, the import in edit 1 becomes immediately necessary to maintain code correctness, and vice versa. This is a classic definition-usage relationship where both edits can be staged in either order (the import of a non-existent function would cause a runtime ImportError, not a parse error in Python)."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits are part of the same function refactoring operation. Edit 0 changes the function signature from 'handle_digest_email' to 'get_digest_context' and modifies its parameters and return type. Edit 1 adds a return statement that returns the 'context' variable. Both edits are modifying the same function and are part of converting it from a function that handles email sending to one that just returns digest context data. The changed lines reference the same function being refactored, and both changes would naturally occur together as part of a single micro-task to extract digest context logic. Either edit could be made first since both are syntactically valid independently, but together they complete the function transformation."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits are part of the same function refactoring operation. Edit 0 changes the function signature from 'handle_digest_email' to 'get_digest_context' and modifies its parameters and return type. Edit 1 adds a return statement that returns the 'context' variable. Both edits are modifying the same function and are part of converting it from a function that handles email sending to one that just returns digest context data. The changed lines reference the same function being refactored, and both changes would naturally occur together as part of a single micro-task to extract digest context logic. Either edit could be made first since both are syntactically valid independently, but together they complete the function transformation."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 changes the function signature from 'handle_digest_email' to 'get_digest_context' and removes the 'render_to_web' parameter. Edit 1 updates the call site to use the new function name 'get_digest_context' and removes the 'render_to_web=True' argument. Both edits reference the exact same symbol (the function being renamed), creating a direct code dependency where making either edit creates an immediate, mechanically obvious prompt for the other. The function signature change and its corresponding call-site update form a bi-directional relationship since either edit can be staged first in Python (both are syntactically valid), but after making either edit, the other becomes the next immediate code-driven step to maintain consistency."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature from 'handle_digest_email' to 'get_digest_context' and removes the 'render_to_web' parameter. Edit 1 updates the call site to use the new function name 'get_digest_context' and removes the 'render_to_web=True' argument. Both edits reference the exact same symbol (the function being renamed), creating a direct code dependency where making either edit creates an immediate, mechanically obvious prompt for the other. The function signature change and its corresponding call-site update form a bi-directional relationship since either edit can be staged first in Python (both are syntactically valid), but after making either edit, the other becomes the next immediate code-driven step to maintain consistency."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'context' within the same function handle_digest_email. Edit 0 assigns to the context variable (context = get_digest_context(...)), while Edit 1 uses that same context variable in multiple places (context['hot_conversations'] and context['new_streams_count']). This creates a direct definition-usage relationship where the context variable defined in Edit 0 is immediately used in Edit 1. Both edits are part of the same function refactoring and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'context' within the same function handle_digest_email. Edit 0 assigns to the context variable (context = get_digest_context(...)), while Edit 1 uses that same context variable in multiple places (context['hot_conversations'] and context['new_streams_count']). This creates a direct definition-usage relationship where the context variable defined in Edit 0 is immediately used in Edit 1. Both edits are part of the same function refactoring and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'return context' to the function, making the context dictionary available to the caller. Edit 1 changes a function call to use 'context[\"new_streams_count\"]' instead of the local variable 'new_streams_count'. For edit 1 to work correctly, the context dictionary must contain the 'new_streams_count' key, which would only be available after edit 0 returns the context. However, both edits can be parsed and staged independently - edit 1 would cause a runtime KeyError if context doesn't contain the expected key, but this is not a parse-time error. Since both reference the same context object and edit 1's success depends on edit 0's return value, they are bi-directionally linked as part of the same micro-task of refactoring the function to return context and use it consistently."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'return context' to the function, making the context dictionary available to the caller. Edit 1 changes a function call to use 'context[\"new_streams_count\"]' instead of the local variable 'new_streams_count'. For edit 1 to work correctly, the context dictionary must contain the 'new_streams_count' key, which would only be available after edit 0 returns the context. However, both edits can be parsed and staged independently - edit 1 would cause a runtime KeyError if context doesn't contain the expected key, but this is not a parse-time error. Since both reference the same context object and edit 1's success depends on edit 0's return value, they are bi-directionally linked as part of the same micro-task of refactoring the function to return context and use it consistently."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 extracts code into a new function `get_digest_context`, while Edit 1 calls this newly created function. The changed lines show a direct definition-usage relationship where Edit 0 defines `get_digest_context` and Edit 1 calls `get_digest_context(user_profile, cutoff)`. This creates an immediate code dependency where after extracting the function in Edit 0, the natural next step is to call it in Edit 1. Both edits reference the exact same symbol `get_digest_context`."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits are modifying the same function `handle_digest_email`. Edit 0 changes the function signature by removing the `render_to_web` parameter and changing the return type from `Union[None, Dict[str, Any]]` to `None`, while also removing the conditional `if render_to_web: return context` block. Edit 1 removes the `return None` statement at the end of the function. These edits are part of a single refactoring operation to simplify the function by removing the web rendering capability. The changes are mechanically linked - after removing the conditional return in edit 0, the explicit `return None` at the end becomes redundant and should be removed (edit 1). Both edits reference the exact same function symbol and are part of one contiguous micro-task to refactor the function signature and body."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits are modifying the same function `handle_digest_email`. Edit 0 changes the function signature by removing the `render_to_web` parameter and changing the return type from `Union[None, Dict[str, Any]]` to `None`, while also removing the conditional `if render_to_web: return context` block. Edit 1 removes the `return None` statement at the end of the function. These edits are part of a single refactoring operation to simplify the function by removing the web rendering capability. The changes are mechanically linked - after removing the conditional return in edit 0, the explicit `return None` at the end becomes redundant and should be removed (edit 1). Both edits reference the exact same function symbol and are part of one contiguous micro-task to refactor the function signature and body."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes 'Union' from the import statement, while Edit 1 changes a function signature that previously used 'Union[None, Dict[str, Any]]' as the return type to just 'Dict[str, Any]'. The changed lines in both edits reference the exact same symbol 'Union' - Edit 0 removes it from imports and Edit 1 removes its usage in the function signature. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 removes 'Union' from the import statement, while Edit 1 changes a function signature that previously used 'Union[None, Dict[str, Any]]' as the return type to just 'Dict[str, Any]'. The changed lines in both edits reference the exact same symbol 'Union' - Edit 0 removes it from imports and Edit 1 removes its usage in the function signature. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit naturally prompts the other as the next mechanical step in a single refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 changes the variable name from 'user_profile_id' to 'user_profile' and changes the assignment from 'request.user.id' to 'request.user'. Edit 1 then uses this exact same variable 'user_profile' in the function call, replacing the previous usage of 'user_profile_id'. The changed lines reference the exact same symbol - the variable that was renamed in edit 0 is the same variable being used in edit 1. After making edit 0, edit 1 becomes the immediate next step to update the usage of the renamed variable. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 changes the variable name from 'user_profile_id' to 'user_profile' and changes the assignment from 'request.user.id' to 'request.user'. Edit 1 then uses this exact same variable 'user_profile' in the function call, replacing the previous usage of 'user_profile_id'. The changed lines reference the exact same symbol - the variable that was renamed in edit 0 is the same variable being used in edit 1. After making edit 0, edit 1 becomes the immediate next step to update the usage of the renamed variable. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol being changed: 'handle_digest_email' is being replaced with 'get_digest_context' in both the import statement (edit 0) and the function call (edit 1). Edit 0 changes the import to reference the new function name, while edit 1 changes the actual usage/call site to use the new function name. This creates a direct code dependency where both edits must reference the same symbol for the code to work correctly. Either edit can be made first since Python allows importing symbols that are used later in the same file, and both edits are part of the same refactoring operation to rename a function."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol being changed: 'handle_digest_email' is being replaced with 'get_digest_context' in both the import statement (edit 0) and the function call (edit 1). Edit 0 changes the import to reference the new function name, while edit 1 changes the actual usage/call site to use the new function name. This creates a direct code dependency where both edits must reference the same symbol for the code to work correctly. Either edit can be made first since Python allows importing symbols that are used later in the same file, and both edits are part of the same refactoring operation to rename a function."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        7
+    ]
+}

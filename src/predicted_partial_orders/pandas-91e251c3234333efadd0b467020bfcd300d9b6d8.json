@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "These edits are part of a single refactoring within the same function where a warning mechanism is being changed from immediate execution to deferred execution. Edit 0 introduces the `needs_to_warn` variable, and Edit 1 replaces the immediate `warnings.warn()` call with setting `needs_to_warn = True`. The variable introduced in Edit 0 is directly used in Edit 1, creating an explicit code dependency where both edits reference the exact same symbol (`needs_to_warn`) and form a cohesive micro-task of refactoring the warning logic."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "These edits are part of a single refactoring within the same function where a warning mechanism is being changed from immediate execution to deferred execution. Edit 0 introduces the `needs_to_warn` variable, and Edit 1 replaces the immediate `warnings.warn()` call with setting `needs_to_warn = True`. The variable introduced in Edit 0 is directly used in Edit 1, creating an explicit code dependency where both edits reference the exact same symbol (`needs_to_warn`) and form a cohesive micro-task of refactoring the warning logic."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a variable 'needs_to_warn = False' and edit 1 uses that exact same variable in a conditional statement 'if needs_to_warn:'. The changed lines reference the exact same symbol 'needs_to_warn'. After making edit 0, the variable is defined but not used, creating an immediate code-driven prompt to add the usage in edit 1. After making edit 1, there would be a reference to an undefined variable, creating an immediate prompt to add the definition in edit 0. Both edits are within the same method and form a single micro-task of adding a warning mechanism."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 introduces a variable 'needs_to_warn = False' and edit 1 uses that exact same variable in a conditional statement 'if needs_to_warn:'. The changed lines reference the exact same symbol 'needs_to_warn'. After making edit 0, the variable is defined but not used, creating an immediate code-driven prompt to add the usage in edit 1. After making edit 1, there would be a reference to an undefined variable, creating an immediate prompt to add the definition in edit 0. Both edits are within the same method and form a single micro-task of adding a warning mechanism."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a variable 'needs_to_warn = True' that replaces a warnings.warn() call, and edit 1 uses that exact same variable 'needs_to_warn' in a conditional check to issue the deferred warning. The changed lines reference the exact same symbol 'needs_to_warn', creating a direct code dependency where edit 0 defines the variable and edit 1 uses it. This is a classic definition-usage pattern within the same function scope where both edits can be staged in either order (the variable assignment and its usage are both syntactically valid regardless of order), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 introduces a variable 'needs_to_warn = True' that replaces a warnings.warn() call, and edit 1 uses that exact same variable 'needs_to_warn' in a conditional check to issue the deferred warning. The changed lines reference the exact same symbol 'needs_to_warn', creating a direct code dependency where edit 0 defines the variable and edit 1 uses it. This is a classic definition-usage pattern within the same function scope where both edits can be staged in either order (the variable assignment and its usage are both syntactically valid regardless of order), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        5
+    ]
+}

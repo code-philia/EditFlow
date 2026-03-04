@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 'settings' module, and Edit 1 uses that exact same 'settings' symbol in the changed lines (line 24: 'options = settings.REDIS_OPTIONS'). This creates a direct import-usage relationship where both edits reference the same symbol. After making the import in Edit 0, using 'settings' in Edit 1 becomes the natural next step, and vice versa - if Edit 1 were made first, importing 'settings' would be the immediate code-driven requirement. Both edits can be staged in either order (the usage would cause a NameError at runtime but not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 'settings' module, and Edit 1 uses that exact same 'settings' symbol in the changed lines (line 24: 'options = settings.REDIS_OPTIONS'). This creates a direct import-usage relationship where both edits reference the same symbol. After making the import in Edit 0, using 'settings' in Edit 1 becomes the natural next step, and vice versa - if Edit 1 were made first, importing 'settings' would be the immediate code-driven requirement. Both edits can be staged in either order (the usage would cause a NameError at runtime but not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 references `settings.REDIS_OPTIONS` in the changed lines (line 24), while Edit 1 defines `REDIS_OPTIONS` as a configuration setting. These edits reference the exact same symbol - the `REDIS_OPTIONS` setting that is being accessed via the settings module. Edit 0 creates an immediate code-driven prompt for Edit 1 because it introduces a reference to `settings.REDIS_OPTIONS` that needs to be defined. However, since this is Python and the reference to an undefined setting would only cause a runtime AttributeError (not a parse-time syntax error), both edits can be written and staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in the same development session."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 references `settings.REDIS_OPTIONS` in the changed lines (line 24), while Edit 1 defines `REDIS_OPTIONS` as a configuration setting. These edits reference the exact same symbol - the `REDIS_OPTIONS` setting that is being accessed via the settings module. Edit 0 creates an immediate code-driven prompt for Edit 1 because it introduces a reference to `settings.REDIS_OPTIONS` that needs to be defined. However, since this is Python and the reference to an undefined setting would only cause a runtime AttributeError (not a parse-time syntax error), both edits can be written and staged in either order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in the same development session."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 removes the 'router' parameter from the __init__ method signature, while Edit 1 changes the usage of 'router' from a parameter reference to 'options['router']'. These edits reference the exact same symbol 'router' and are part of a single refactoring task - converting from explicit parameters to accessing values from the options dictionary. After making Edit 0, the 'router' parameter no longer exists, making Edit 1 necessary to access it from options instead. Conversely, if Edit 1 is made first, it would cause a NameError since 'router' parameter still exists but the code tries to access it from options. However, since this is Python and both edits can be parsed and staged in either order (the error would only occur at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 removes the 'router' parameter from the __init__ method signature, while Edit 1 changes the usage of 'router' from a parameter reference to 'options['router']'. These edits reference the exact same symbol 'router' and are part of a single refactoring task - converting from explicit parameters to accessing values from the options dictionary. After making Edit 0, the 'router' parameter no longer exists, making Edit 1 necessary to access it from options instead. Conversely, if Edit 1 is made first, it would cause a NameError since 'router' parameter still exists but the code tries to access it from options. However, since this is Python and both edits can be parsed and staged in either order (the error would only occur at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits modify the same __init__ method of the RedisBuffer class and work together to refactor how default options are handled. Edit 0 removes the hosts and router parameters from the method signature and adds logic to inherit from settings.REDIS_OPTIONS when no options are provided. Edit 1 removes the old hosts handling logic and replaces it with setdefault calls for both 'hosts' and 'router' options. The edits reference the same method and the same options parameter, with edit 1's setdefault approach being the natural continuation of edit 0's refactoring to use the options dict for all configuration. Either edit could be applied first as both are syntactically valid, but together they form a cohesive refactoring of the same method's parameter handling."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits modify the same __init__ method of the RedisBuffer class and work together to refactor how default options are handled. Edit 0 removes the hosts and router parameters from the method signature and adds logic to inherit from settings.REDIS_OPTIONS when no options are provided. Edit 1 removes the old hosts handling logic and replaces it with setdefault calls for both 'hosts' and 'router' options. The edits reference the same method and the same options parameter, with edit 1's setdefault approach being the natural continuation of edit 0's refactoring to use the options dict for all configuration. Either edit could be applied first as both are syntactically valid, but together they form a cohesive refactoring of the same method's parameter handling."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These edits are bi-directional neighbours because they form a cohesive refactoring within the same function. Edit 0 moves the default values for 'hosts' and 'router' from local variables into the options dictionary using setdefault. Edit 1 then updates the create_cluster call to reference these values from options['hosts'] and options['router'] instead of the local variables. The changed lines reference the exact same symbols ('hosts' and 'router') and this represents a single micro-task of refactoring parameter handling. Either edit could be made first - if Edit 0 is made first, the local variables become undefined making Edit 1 the natural next step; if Edit 1 is made first, it creates a reference to options keys that don't exist, making Edit 0 the natural next step to define them."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they form a cohesive refactoring within the same function. Edit 0 moves the default values for 'hosts' and 'router' from local variables into the options dictionary using setdefault. Edit 1 then updates the create_cluster call to reference these values from options['hosts'] and options['router'] instead of the local variables. The changed lines reference the exact same symbols ('hosts' and 'router') and this represents a single micro-task of refactoring parameter handling. Either edit could be made first - if Edit 0 is made first, the local variables become undefined making Edit 1 the natural next step; if Edit 1 is made first, it creates a reference to options keys that don't exist, making Edit 0 the natural next step to define them."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6
+    ]
+}

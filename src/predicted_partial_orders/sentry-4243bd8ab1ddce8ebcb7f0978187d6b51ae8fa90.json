@@ -1,0 +1,67 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds validation logic that raises an ArithmeticValidationError when an arithmetic expression contains only 1 term or fewer. Edit 1 removes a test function that was testing the behavior of single terms (which would now be invalid according to the new validation). These edits reference the exact same functionality - the handling of single-term arithmetic expressions in the parse_arithmetic function. The code change makes single terms invalid, and the test removal eliminates a test that would now fail due to this validation. This represents a direct code dependency where the validation change necessitates removing the conflicting test."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds validation logic that raises an ArithmeticValidationError when an arithmetic expression contains only 1 term or fewer. Edit 1 removes a test function that was testing the behavior of single terms (which would now be invalid according to the new validation). These edits reference the exact same functionality - the handling of single-term arithmetic expressions in the parse_arithmetic function. The code change makes single terms invalid, and the test removal eliminates a test that would now fail due to this validation. This represents a direct code dependency where the validation change necessitates removing the conflicting test."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'self.terms'. Edit 0 defines the attribute 'self.terms: int = 0' in the __init__ method, while edit 1 uses that same attribute with 'self.terms += 1' in the visit_primary method. After defining the attribute in edit 0, using it in edit 1 becomes the natural next step. Since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime), this is a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'self.terms'. Edit 0 defines the attribute 'self.terms: int = 0' in the __init__ method, while edit 1 uses that same attribute with 'self.terms += 1' in the visit_primary method. After defining the attribute in edit 0, using it in edit 1 becomes the natural next step. Since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime), this is a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a line `self.terms += 1` to track the number of terms in the ArithmeticVisitor class. Edit 1 uses this tracked value `visitor.terms` in a validation check. The changed lines reference the exact same symbol (`terms` attribute), where edit 0 defines/modifies the attribute and edit 1 uses it. This creates a direct code dependency where the usage in edit 1 depends on the tracking mechanism established in edit 0. However, since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a line `self.terms += 1` to track the number of terms in the ArithmeticVisitor class. Edit 1 uses this tracked value `visitor.terms` in a validation check. The changed lines reference the exact same symbol (`terms` attribute), where edit 0 defines/modifies the attribute and edit 1 uses it. This creates a direct code dependency where the usage in edit 1 depends on the tracking mechanism established in edit 0. However, since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds validation logic that raises ArithmeticValidationError when an arithmetic expression contains 1 or fewer terms. Edit 1 adds test cases that would trigger this exact validation - single values like '12', 'p50(transaction.duration)', and 'measurements.lcp' all have exactly 1 term and would cause the new validation to raise the error. The test cases are specifically designed to verify the behavior of the validation logic added in edit 0. Both edits reference the same validation concept and the test cases directly exercise the code path added in the implementation."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds validation logic that raises ArithmeticValidationError when an arithmetic expression contains 1 or fewer terms. Edit 1 adds test cases that would trigger this exact validation - single values like '12', 'p50(transaction.duration)', and 'measurements.lcp' all have exactly 1 term and would cause the new validation to raise the error. The test cases are specifically designed to verify the behavior of the validation logic added in edit 0. Both edits reference the same validation concept and the test cases directly exercise the code path added in the implementation."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new attribute 'terms: int = 0' to the ArithmeticVisitor class __init__ method. Edit 1 uses this exact same attribute 'visitor.terms' in a conditional check within the parse_arithmetic function. The changed lines reference the exact same symbol - the 'terms' attribute of the ArithmeticVisitor class. After adding the attribute definition in edit 0, edit 1 becomes the natural next step to use this newly defined attribute. Both edits can be staged in either order since Python allows referencing attributes that will be defined at runtime, making this a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new attribute 'terms: int = 0' to the ArithmeticVisitor class __init__ method. Edit 1 uses this exact same attribute 'visitor.terms' in a conditional check within the parse_arithmetic function. The changed lines reference the exact same symbol - the 'terms' attribute of the ArithmeticVisitor class. After adding the attribute definition in edit 0, edit 1 becomes the natural next step to use this newly defined attribute. Both edits can be staged in either order since Python allows referencing attributes that will be defined at runtime, making this a bi-directional relationship where either edit prompts the other as the immediate next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 removes a test function `test_single_term()` that tests parsing the arithmetic expression '12', while Edit 1 adds '12' to a parametrized test list of invalid equations. These edits reference the exact same literal value '12' and appear to be part of a single refactoring task where the standalone test for single terms is being removed and consolidated into the parametrized invalid equations test. The removal of the dedicated test and addition to the invalid cases list are mechanically linked - after removing the test that validates '12' as valid, the next logical step is to add '12' to the invalid cases to maintain test coverage with the new understanding that single terms should be invalid."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 removes a test function `test_single_term()` that tests parsing the arithmetic expression '12', while Edit 1 adds '12' to a parametrized test list of invalid equations. These edits reference the exact same literal value '12' and appear to be part of a single refactoring task where the standalone test for single terms is being removed and consolidated into the parametrized invalid equations test. The removal of the dedicated test and addition to the invalid cases list are mechanically linked - after removing the test that validates '12' as valid, the next logical step is to add '12' to the invalid cases to maintain test coverage with the new understanding that single terms should be invalid."
+        }
+    ],
+    "allowed_init_edits": [
+        4
+    ]
+}

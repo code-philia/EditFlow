@@ -1,0 +1,59 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'interval'. Edit 0 assigns a value to the variable 'interval = self.interval', and Edit 1 uses that same variable 'interval' as a parameter in the MetricsQuery constructor call. The changed lines in both edits directly reference the same symbol, creating an immediate code dependency where defining the interval variable naturally prompts its usage in the constructor call as the next mechanical step. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'interval'. Edit 0 assigns a value to the variable 'interval = self.interval', and Edit 1 uses that same variable 'interval' as a parameter in the MetricsQuery constructor call. The changed lines in both edits directly reference the same symbol, creating an immediate code dependency where defining the interval variable naturally prompts its usage in the constructor call as the next mechanical step. This is a classic definition-usage pattern within the same function scope."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'interval' within the same function. Edit 0 initializes the variable 'interval = None' and edit 1 uses that same variable as a parameter 'interval=interval' in the MetricsQuery constructor call. After making either edit, the other becomes the immediate next step - if you initialize the variable without using it, you'd naturally add the usage, and if you add the usage without initialization, you'd need to define the variable. This creates a direct code dependency between the changed lines referencing the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'interval' within the same function. Edit 0 initializes the variable 'interval = None' and edit 1 uses that same variable as a parameter 'interval=interval' in the MetricsQuery constructor call. After making either edit, the other becomes the immediate next step - if you initialize the variable without using it, you'd naturally add the usage, and if you add the usage without initialization, you'd need to define the variable. This creates a direct code dependency between the changed lines referencing the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are adding the same variable assignment 'interval = ...' in different branches of the same conditional statement within the same function. Edit 0 adds 'interval = self.interval' in the if branch, while Edit 1 adds 'interval = None' in the else branch. This represents a mirrored/synchronized addition pattern where both edits are part of the same structural change - introducing the interval variable assignment in both branches of a conditional. The edits reference the same symbol 'interval' being assigned in both changed lines, and they form a natural pair that would be implemented together as part of a single micro-task to ensure the interval variable is properly initialized in both code paths."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are adding the same variable assignment 'interval = ...' in different branches of the same conditional statement within the same function. Edit 0 adds 'interval = self.interval' in the if branch, while Edit 1 adds 'interval = None' in the else branch. This represents a mirrored/synchronized addition pattern where both edits are part of the same structural change - introducing the interval variable assignment in both branches of a conditional. The edits reference the same symbol 'interval' being assigned in both changed lines, and they form a natural pair that would be implemented together as part of a single micro-task to ensure the interval variable is properly initialized in both code paths."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 assigns a value to self.interval in the constructor, and Edit 0 references self.interval in a method. This creates a definition-usage relationship where the exact same symbol (self.interval) is being defined in one edit and used in another. Both edits reference the same instance attribute within the same class hierarchy (TimeseriesMetricQueryBuilder inherits from MetricsQueryBuilder). After making either edit, the other becomes a natural next step - if you add the assignment without the usage, the attribute goes unused; if you add the usage without the assignment, you reference an undefined attribute. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime)."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 assigns a value to self.interval in the constructor, and Edit 0 references self.interval in a method. This creates a definition-usage relationship where the exact same symbol (self.interval) is being defined in one edit and used in another. Both edits reference the same instance attribute within the same class hierarchy (TimeseriesMetricQueryBuilder inherits from MetricsQueryBuilder). After making either edit, the other becomes a natural next step - if you add the assignment without the usage, the attribute goes unused; if you add the usage without the assignment, you reference an undefined attribute. This is a bi-directional relationship since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime)."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces a new variable 'interval' that is calculated based on conditional logic involving self.interval and self.granularity.granularity. Edit 1 then uses this exact same 'interval' variable in place of 'self.granularity.granularity' in a calculation. The changed line in edit 1 directly references the variable defined in edit 0, creating an immediate code dependency. After making edit 0, using the newly defined 'interval' variable in the subsequent calculation becomes the natural next step. Both edits are part of the same micro-task of refactoring the granularity calculation logic."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'interval' that is calculated based on conditional logic involving self.interval and self.granularity.granularity. Edit 1 then uses this exact same 'interval' variable in place of 'self.granularity.granularity' in a calculation. The changed line in edit 1 directly references the variable defined in edit 0, creating an immediate code dependency. After making edit 0, using the newly defined 'interval' variable in the subsequent calculation becomes the natural next step. Both edits are part of the same micro-task of refactoring the granularity calculation logic."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        5
+    ]
+}

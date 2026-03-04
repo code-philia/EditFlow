@@ -1,0 +1,59 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new function `_index_in_group` and edit 1 calls that exact same function. The changed lines reference the same symbol - `_index_in_group`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. Since this is Python, the usage in edit 1 could be written before the definition (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new function `_index_in_group` and edit 1 calls that exact same function. The changed lines reference the same symbol - `_index_in_group`. After defining the function in edit 0, edit 1 becomes the immediate next step to use it. Since this is Python, the usage in edit 1 could be written before the definition (it would only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new line that assigns the result of `_index_in_group(axis_name, axis_index_groups)` to variable `idx`. Edit 1 removes the old implementation that assigned `axis_index(axis_name)` to `idx` and then conditionally modified it. Both edits reference the exact same symbol `idx` - one defines it with a new implementation, the other removes the old implementation. This is a classic refactoring pattern where the old logic is being replaced with a new helper function call. The edits are part of the same micro-task of updating how `idx` is computed, and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new line that assigns the result of `_index_in_group(axis_name, axis_index_groups)` to variable `idx`. Edit 1 removes the old implementation that assigned `axis_index(axis_name)` to `idx` and then conditionally modified it. Both edits reference the exact same symbol `idx` - one defines it with a new implementation, the other removes the old implementation. This is a classic refactoring pattern where the old logic is being replaced with a new helper function call. The edits are part of the same micro-task of updating how `idx` is computed, and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits involve replacing different implementations of index calculation with calls to the same helper function `_index_in_group`. Edit 0 adds a call to `_index_in_group(axis_name, axis_index_groups)` and assigns it to `idx`. Edit 1 replaces a multi-line index calculation with a call to the same function `_index_in_group(axis_name, axis_index_groups)` and assigns it to `index`. Both edits reference the exact same symbol `_index_in_group` and appear to be part of a refactoring to consolidate index calculation logic. This represents a uniform substitution pattern where the same helper function is being introduced/used across multiple locations, making either edit a natural prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits involve replacing different implementations of index calculation with calls to the same helper function `_index_in_group`. Edit 0 adds a call to `_index_in_group(axis_name, axis_index_groups)` and assigns it to `idx`. Edit 1 replaces a multi-line index calculation with a call to the same function `_index_in_group(axis_name, axis_index_groups)` and assigns it to `index`. Both edits reference the exact same symbol `_index_in_group` and appear to be part of a refactoring to consolidate index calculation logic. This represents a uniform substitution pattern where the same helper function is being introduced/used across multiple locations, making either edit a natural prompt for the other as part of the same refactoring task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new helper function `_index_in_group` that computes an index within a group based on axis_name and axis_index_groups. Edit 1 removes code that performs a similar computation (getting axis_index and modulating by group size). The removed code in edit 1 appears to be replaced by functionality that would use the new `_index_in_group` function defined in edit 0. This creates a direct code dependency where the definition in edit 0 enables the refactoring in edit 1, making edit 0 a prerequisite for edit 1 to work correctly."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `_index_in_group` and Edit 1 replaces existing code with a call to that exact same function. The changed lines in Edit 1 directly reference the function defined in Edit 0. This creates an immediate code dependency where Edit 0 must come before Edit 1 - if Edit 1 were applied first, it would reference an undefined function `_index_in_group`, causing a NameError at runtime. Edit 0 defines the function that Edit 1 needs to call."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural transformations on axis_index_groups arrays, changing from reshape((2, device_count // 2)) to reshape((device_count // 2, 2)).T. This is a uniform substitution pattern applied to the same type of syntactic construct (array reshaping operations) across different test methods. The edits represent a synchronized refactoring where the same reshape pattern is being corrected in multiple locations within the same test file."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform identical structural transformations on axis_index_groups arrays, changing from reshape((2, device_count // 2)) to reshape((device_count // 2, 2)).T. This is a uniform substitution pattern applied to the same type of syntactic construct (array reshaping operations) across different test methods. The edits represent a synchronized refactoring where the same reshape pattern is being corrected in multiple locations within the same test file."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6,
+        8
+    ]
+}

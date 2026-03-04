@@ -1,0 +1,47 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the info_from_service function to handle UnicodeDecodeError by ignoring invalid keys and continuing the loop. Edit 1 adds test assertions to verify this behavior - specifically checking that the raw_info has one fewer property (len(PROPERTIES) - 1) and that the NON_ASCII_KEY is not present in raw_info. These edits reference the exact same functionality where Edit 0 implements the error handling logic and Edit 1 tests that exact same logic. The test assertions directly verify the behavior implemented in the production code change."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the info_from_service function to handle UnicodeDecodeError by ignoring invalid keys and continuing the loop. Edit 1 adds test assertions to verify this behavior - specifically checking that the raw_info has one fewer property (len(PROPERTIES) - 1) and that the NON_ASCII_KEY is not present in raw_info. These edits reference the exact same functionality where Edit 0 implements the error handling logic and Edit 1 tests that exact same logic. The test assertions directly verify the behavior implemented in the production code change."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a constant PROPERTIES with specific property values, and Edit 1 replaces an inline properties dictionary with a reference to that exact same PROPERTIES constant. The changed lines reference the exact same symbol (PROPERTIES), creating a direct code dependency where defining the constant enables its usage. This is a classic definition-usage pattern where either edit can be staged first (the usage before definition would only cause a runtime NameError in Python, not a parse error), making both edits part of the same refactoring micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a constant PROPERTIES with specific property values, and Edit 1 replaces an inline properties dictionary with a reference to that exact same PROPERTIES constant. The changed lines reference the exact same symbol (PROPERTIES), creating a direct code dependency where defining the constant enables its usage. This is a classic definition-usage pattern where either edit can be staged first (the usage before definition would only cause a runtime NameError in Python, not a parse error), making both edits part of the same refactoring micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines the constant NON_UTF8_VALUE at the module level, and edit 1 uses that exact same symbol in a test assertion. The changed line in edit 1 explicitly references NON_UTF8_VALUE which was defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition is present (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines the constant NON_UTF8_VALUE at the module level, and edit 1 uses that exact same symbol in a test assertion. The changed line in edit 1 explicitly references NON_UTF8_VALUE which was defined in edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition is present (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines constants NON_ASCII_KEY and PROPERTIES at module level, while Edit 1 uses these exact same symbols in test assertions. The changed lines in Edit 1 directly reference the symbols defined in Edit 0's changed lines. This creates a definition-usage relationship where both edits reference the exact same symbols. In Python, the usage can be written before the definition (would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines constants NON_ASCII_KEY and PROPERTIES at module level, while Edit 1 uses these exact same symbols in test assertions. The changed lines in Edit 1 directly reference the symbols defined in Edit 0's changed lines. This creates a definition-usage relationship where both edits reference the exact same symbols. In Python, the usage can be written before the definition (would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

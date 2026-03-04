@@ -1,0 +1,63 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits remove the identical import statement 'import tensorflow.compat.v2 as tf' from different files. This represents a bulk uniform substitution where the same textual pattern (removing this specific import line) is being applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor to remove this import from the codebase. Since both edits perform the identical removal operation and can be staged in either order without creating dependencies, this is a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits remove the identical import statement 'import tensorflow.compat.v2 as tf' from different files. This represents a bulk uniform substitution where the same textual pattern (removing this specific import line) is being applied to the same type of syntactic construct (import statements) across multiple files. This appears to be part of a single, contiguous refactor to remove this import from the codebase. Since both edits perform the identical removal operation and can be staged in either order without creating dependencies, this is a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits involve the exact same import statement 'import tensorflow.compat.v2 as tf' - edit 0 removes it from line 16 and edit 1 adds it at line 22. This is a classic cut-and-paste move operation where the same symbol (tf) is being relocated from one position to another within the same file. The removal must occur before the addition to avoid having duplicate imports, making this an ordered relationship where edit 0 (removal) must happen before edit 1 (addition)."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 imports `legacy_optimizer` from `tensorflow.python.keras.optimizer_v2.optimizer_v2`, and edit 1 uses this exact same imported symbol `legacy_optimizer` in the changed lines to check if the inner_optimizer is an instance of the legacy optimizer class. The import in edit 0 creates an immediate, mechanically obvious prompt for the usage in edit 1, as the symbol `legacy_optimizer` referenced in edit 1's changed lines is the exact same symbol being imported in edit 0. This is a classic definition-usage relationship where both edits reference the same symbol and either could be staged first without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 imports `legacy_optimizer` from `tensorflow.python.keras.optimizer_v2.optimizer_v2`, and edit 1 uses this exact same imported symbol `legacy_optimizer` in the changed lines to check if the inner_optimizer is an instance of the legacy optimizer class. The import in edit 0 creates an immediate, mechanically obvious prompt for the usage in edit 1, as the symbol `legacy_optimizer` referenced in edit 1's changed lines is the exact same symbol being imported in edit 0. This is a classic definition-usage relationship where both edits reference the same symbol and either could be staged first without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 modifies the error message and logic in the LossScaleOptimizer constructor to provide a more detailed TypeError when a legacy optimizer is passed. Edit 1 adds a test method that specifically tests this new error behavior by passing a legacy SGD optimizer and asserting that the TypeError contains the specific message about legacy keras optimizers. The test directly validates the exact error message and behavior that was implemented in edit 0, creating an immediate code-driven relationship where the test verifies the production code change for the same functionality."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 modifies the error message and logic in the LossScaleOptimizer constructor to provide a more detailed TypeError when a legacy optimizer is passed. Edit 1 adds a test method that specifically tests this new error behavior by passing a legacy SGD optimizer and asserting that the TypeError contains the specific message about legacy keras optimizers. The test directly validates the exact error message and behavior that was implemented in edit 0, creating an immediate code-driven relationship where the test verifies the production code change for the same functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits involve moving the same imports (`numpy as np` and `from tensorflow.python.framework import test_util`) from one location to another within the same file. Edit 0 removes these imports from lines 21-22, while Edit 1 adds them back (along with additional imports) at lines 28 and 31. This represents a cut-and-paste move operation where the imports must first be removed from their original location before they can be added to the new location. The exact same symbols are being relocated, making this a direct structural dependency where Edit 0 (removal) must occur before Edit 1 (addition) to avoid duplicate import errors."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the import line 'import tensorflow.compat.v2 as tf' from line 16, while Edit 1 adds the same import line 'import tensorflow.compat.v2 as tf' at line 29 along with other imports. This appears to be a cut-and-paste move operation where the import is being relocated from one position to another within the same file. For a move operation, the removal must occur before the addition to avoid having duplicate imports, making this an ordered relationship where Edit 0 (removal) must come before Edit 1 (addition)."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 imports 'legacy_sgd' module and Edit 1 uses that exact same imported symbol 'legacy_sgd' to access the SGD class. The changed lines reference the exact same symbol - the import in edit 0 makes the 'legacy_sgd' symbol available, and edit 1's changed line directly references that same symbol. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors in mental flow within the same development session."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 imports 'legacy_sgd' module and Edit 1 uses that exact same imported symbol 'legacy_sgd' to access the SGD class. The changed lines reference the exact same symbol - the import in edit 0 makes the 'legacy_sgd' symbol available, and edit 1's changed line directly references that same symbol. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors in mental flow within the same development session."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        2
+    ]
+}

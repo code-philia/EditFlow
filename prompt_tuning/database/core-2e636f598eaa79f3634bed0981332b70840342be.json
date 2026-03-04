@@ -1,0 +1,2324 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/home-assistant/core/commit/2e636f598eaa79f3634bed0981332b70840342be",
+    "commit_message": "Add option to rotate log file daily.\n\nAdds a command line option to rotate the log daily at midnight and\nretain up to the specified amount of days.",
+    "commit_snapshots": {
+        "homeassistant/__main__.py": [
+            [
+                "\"\"\" Starts home assistant. \"\"\"\n",
+                "from __future__ import print_function\n",
+                "\n",
+                "import sys\n",
+                "import os\n",
+                "import argparse\n",
+                "\n",
+                "from homeassistant import bootstrap\n",
+                "import homeassistant.config as config_util\n",
+                "from homeassistant.const import __version__, EVENT_HOMEASSISTANT_START\n",
+                "\n",
+                "\n",
+                "def validate_python():\n",
+                "    \"\"\" Validate we're running the right Python version. \"\"\"\n",
+                "    major, minor = sys.version_info[:2]\n",
+                "\n",
+                "    if major < 3 or (major == 3 and minor < 4):\n",
+                "        print(\"Home Assistant requires atleast Python 3.4\")\n",
+                "        sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def ensure_config_path(config_dir):\n",
+                "    \"\"\" Validates configuration directory. \"\"\"\n",
+                "\n",
+                "    lib_dir = os.path.join(config_dir, 'lib')\n",
+                "\n",
+                "    # Test if configuration directory exists\n",
+                "    if not os.path.isdir(config_dir):\n",
+                "        if config_dir != config_util.get_default_config_dir():\n",
+                "            print(('Fatal Error: Specified configuration directory does '\n",
+                "                   'not exist {} ').format(config_dir))\n",
+                "            sys.exit(1)\n",
+                "\n",
+                "        try:\n",
+                "            os.mkdir(config_dir)\n",
+                "        except OSError:\n",
+                "            print(('Fatal Error: Unable to create default configuration '\n",
+                "                   'directory {} ').format(config_dir))\n",
+                "            sys.exit(1)\n",
+                "\n",
+                "    # Test if library directory exists\n",
+                "    if not os.path.isdir(lib_dir):\n",
+                "        try:\n",
+                "            os.mkdir(lib_dir)\n",
+                "        except OSError:\n",
+                "            print(('Fatal Error: Unable to create library '\n",
+                "                   'directory {} ').format(lib_dir))\n",
+                "            sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def ensure_config_file(config_dir):\n",
+                "    \"\"\" Ensure configuration file exists. \"\"\"\n",
+                "    config_path = config_util.ensure_config_exists(config_dir)\n",
+                "\n",
+                "    if config_path is None:\n",
+                "        print('Error getting configuration path')\n",
+                "        sys.exit(1)\n",
+                "\n",
+                "    return config_path\n",
+                "\n",
+                "\n",
+                "def get_arguments():\n",
+                "    \"\"\" Get parsed passed in arguments. \"\"\"\n",
+                "    parser = argparse.ArgumentParser(\n",
+                "        description=\"Home Assistant: Observe, Control, Automate.\")\n",
+                "    parser.add_argument('--version', action='version', version=__version__)\n",
+                "    parser.add_argument(\n",
+                "        '-c', '--config',\n",
+                "        metavar='path_to_config_dir',\n",
+                "        default=config_util.get_default_config_dir(),\n",
+                "        help=\"Directory that contains the Home Assistant configuration\")\n",
+                "    parser.add_argument(\n",
+                "        '--demo-mode',\n",
+                "        action='store_true',\n",
+                "        help='Start Home Assistant in demo mode')\n",
+                "    parser.add_argument(\n",
+                "        '--open-ui',\n",
+                "        action='store_true',\n",
+                "        help='Open the webinterface in a browser')\n",
+                "    parser.add_argument(\n",
+                "        '--skip-pip',\n",
+                "        action='store_true',\n",
+                "        help='Skips pip install of required packages on startup')\n",
+                "    parser.add_argument(\n",
+                "        '-v', '--verbose',\n",
+                "        action='store_true',\n",
+                "        help=\"Enable verbose logging to file.\")\n",
+                "    parser.add_argument(\n",
+                "        '--pid-file',\n",
+                "        metavar='path_to_pid_file',\n",
+                "        default=None,\n",
+                "        help='Path to PID file useful for running as daemon')\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    parser.add_argument(\n",
+                    "        '--log-rotate-days',\n",
+                    "        type=int,\n",
+                    "        default=None,\n",
+                    "        help='Enables daily log rotation and keeps up to the specified days')\n"
+                ],
+                "parent_version_range": {
+                    "start": 92,
+                    "end": 92
+                },
+                "child_version_range": {
+                    "start": 92,
+                    "end": 97
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_arguments",
+                        "signature": "def get_arguments():",
+                        "at_line": 61
+                    },
+                    {
+                        "type": "call",
+                        "name": "parser.add_argument",
+                        "signature": "parser.add_argument(\n        '--pid-file',\n        metavar='path_to_pid_file',\n        default=None,\n        help='Path to PID file useful for running as daemon')",
+                        "at_line": 87,
+                        "argument": "help=..."
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: homeassistant/__main__.py\nCode:\n         def get_arguments():\n             ...\n             parser.add_argument(\n        '--pid-file',\n        metavar='path_to_pid_file',\n        default=None,\n        help='Path to PID file useful for running as daemon')\n                 ...\n89 89            metavar='path_to_pid_file',\n90 90            default=None,\n91 91            help='Path to PID file useful for running as daemon')\n   92  +     parser.add_argument(\n   93  +         '--log-rotate-days',\n   94  +         type=int,\n   95  +         default=None,\n   96  +         help='Enables daily log rotation and keeps up to the specified days')\n92 97        if os.name != \"nt\":\n93 98            parser.add_argument(\n94 99                '--daemon',\n       ...\n",
+                "file_path": "homeassistant/__main__.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "add_argument",
+                    "default",
+                    "help",
+                    "int",
+                    "parser",
+                    "type"
+                ],
+                "prefix": [
+                    "        metavar='path_to_pid_file',\n",
+                    "        default=None,\n",
+                    "        help='Path to PID file useful for running as daemon')\n"
+                ],
+                "suffix": [
+                    "    if os.name != \"nt\":\n",
+                    "        parser.add_argument(\n",
+                    "            '--daemon',\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    if os.name != \"nt\":\n",
+                "        parser.add_argument(\n",
+                "            '--daemon',\n",
+                "            action='store_true',\n",
+                "            help='Run Home Assistant as daemon')\n",
+                "\n",
+                "    arguments = parser.parse_args()\n",
+                "    if os.name == \"nt\":\n",
+                "        arguments.daemon = False\n",
+                "    return arguments\n",
+                "\n",
+                "\n",
+                "def daemonize():\n",
+                "    \"\"\" Move current process to daemon process \"\"\"\n",
+                "    # create first fork\n",
+                "    pid = os.fork()\n",
+                "    if pid > 0:\n",
+                "        sys.exit(0)\n",
+                "\n",
+                "    # decouple fork\n",
+                "    os.setsid()\n",
+                "    os.umask(0)\n",
+                "\n",
+                "    # create second fork\n",
+                "    pid = os.fork()\n",
+                "    if pid > 0:\n",
+                "        sys.exit(0)\n",
+                "\n",
+                "\n",
+                "def check_pid(pid_file):\n",
+                "    \"\"\" Check that HA is not already running \"\"\"\n",
+                "    # check pid file\n",
+                "    try:\n",
+                "        pid = int(open(pid_file, 'r').readline())\n",
+                "    except IOError:\n",
+                "        # PID File does not exist\n",
+                "        return\n",
+                "\n",
+                "    try:\n",
+                "        os.kill(pid, 0)\n",
+                "    except OSError:\n",
+                "        # PID does not exist\n",
+                "        return\n",
+                "    print('Fatal Error: HomeAssistant is already running.')\n",
+                "    sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def write_pid(pid_file):\n",
+                "    \"\"\" Create PID File \"\"\"\n",
+                "    pid = os.getpid()\n",
+                "    try:\n",
+                "        open(pid_file, 'w').write(str(pid))\n",
+                "    except IOError:\n",
+                "        print('Fatal Error: Unable to write pid file {}'.format(pid_file))\n",
+                "        sys.exit(1)\n",
+                "\n",
+                "\n",
+                "def main():\n",
+                "    \"\"\" Starts Home Assistant. \"\"\"\n",
+                "    validate_python()\n",
+                "\n",
+                "    args = get_arguments()\n",
+                "\n",
+                "    config_dir = os.path.join(os.getcwd(), args.config)\n",
+                "    ensure_config_path(config_dir)\n",
+                "\n",
+                "    # daemon functions\n",
+                "    if args.pid_file:\n",
+                "        check_pid(args.pid_file)\n",
+                "    if args.daemon:\n",
+                "        daemonize()\n",
+                "    if args.pid_file:\n",
+                "        write_pid(args.pid_file)\n",
+                "\n",
+                "    if args.demo_mode:\n",
+                "        config = {\n",
+                "            'frontend': {},\n",
+                "            'demo': {}\n",
+                "        }\n",
+                "        hass = bootstrap.from_config_dict(\n",
+                "            config, config_dir=config_dir, daemon=args.daemon,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            verbose=args.verbose, skip_pip=args.skip_pip)\n"
+                ],
+                "after": [
+                    "            verbose=args.verbose, skip_pip=args.skip_pip,\n",
+                    "            log_rotate_days=args.log_rotate_days)\n"
+                ],
+                "parent_version_range": {
+                    "start": 173,
+                    "end": 174
+                },
+                "child_version_range": {
+                    "start": 178,
+                    "end": 180
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if args.demo_mode:",
+                        "start_line": 166,
+                        "end_line": 179
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main():",
+                        "at_line": 149
+                    },
+                    {
+                        "type": "call",
+                        "name": "bootstrap.from_config_dict",
+                        "signature": "bootstrap.from_config_dict(\n            config, config_dir=config_dir, daemon=args.daemon,\n            verbose=args.verbose, skip_pip=args.skip_pip)",
+                        "at_line": 171,
+                        "argument": "verbose=..."
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: homeassistant/__main__.py\nCode:\n           def main():\n               ...\n170 175            }\n171 176            hass = bootstrap.from_config_dict(\n172 177                config, config_dir=config_dir, daemon=args.daemon,\n173      -             verbose=args.verbose, skip_pip=args.skip_pip)\n    178  +             verbose=args.verbose, skip_pip=args.skip_pip,\n    179  +             log_rotate_days=args.log_rotate_days)\n174 180        else:\n175 181            config_file = ensure_config_file(config_dir)\n176 182            print('Config directory:', config_dir)\n         ...\n",
+                "file_path": "homeassistant/__main__.py",
+                "identifiers_before": [
+                    "args",
+                    "skip_pip",
+                    "verbose"
+                ],
+                "identifiers_after": [
+                    "args",
+                    "log_rotate_days",
+                    "skip_pip",
+                    "verbose"
+                ],
+                "prefix": [
+                    "        }\n",
+                    "        hass = bootstrap.from_config_dict(\n",
+                    "            config, config_dir=config_dir, daemon=args.daemon,\n"
+                ],
+                "suffix": [
+                    "    else:\n",
+                    "        config_file = ensure_config_file(config_dir)\n",
+                    "        print('Config directory:', config_dir)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 173,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 173,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 173,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 173,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 178,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 178,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 178,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 178,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 179,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 179,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "    else:\n",
+                "        config_file = ensure_config_file(config_dir)\n",
+                "        print('Config directory:', config_dir)\n",
+                "        hass = bootstrap.from_config_file(\n",
+                "            config_file, daemon=args.daemon, verbose=args.verbose,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            skip_pip=args.skip_pip)\n"
+                ],
+                "after": [
+                    "            skip_pip=args.skip_pip, log_rotate_days=args.log_rotate_days)\n"
+                ],
+                "parent_version_range": {
+                    "start": 179,
+                    "end": 180
+                },
+                "child_version_range": {
+                    "start": 185,
+                    "end": 186
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if args.demo_mode:",
+                        "start_line": 166,
+                        "end_line": 179
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 174,
+                        "end_line": 179
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "main",
+                        "signature": "def main():",
+                        "at_line": 149
+                    },
+                    {
+                        "type": "call",
+                        "name": "bootstrap.from_config_file",
+                        "signature": "bootstrap.from_config_file(\n            config_file, daemon=args.daemon, verbose=args.verbose,\n            skip_pip=args.skip_pip)",
+                        "at_line": 177,
+                        "argument": "skip_pip=..."
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: homeassistant/__main__.py\nCode:\n           def main():\n               ...\n176 182            print('Config directory:', config_dir)\n177 183            hass = bootstrap.from_config_file(\n178 184                config_file, daemon=args.daemon, verbose=args.verbose,\n179      -             skip_pip=args.skip_pip)\n    185  +             skip_pip=args.skip_pip, log_rotate_days=args.log_rotate_days)\n180 186    \n181 187        if args.open_ui:\n182 188            def open_browser(event):\n         ...\n",
+                "file_path": "homeassistant/__main__.py",
+                "identifiers_before": [
+                    "args",
+                    "skip_pip"
+                ],
+                "identifiers_after": [
+                    "args",
+                    "log_rotate_days",
+                    "skip_pip"
+                ],
+                "prefix": [
+                    "        print('Config directory:', config_dir)\n",
+                    "        hass = bootstrap.from_config_file(\n",
+                    "            config_file, daemon=args.daemon, verbose=args.verbose,\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    if args.open_ui:\n",
+                    "        def open_browser(event):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 179,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 179,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 185,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 185,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 185,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 185,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/__main__.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "\n",
+                "    if args.open_ui:\n",
+                "        def open_browser(event):\n",
+                "            \"\"\" Open the webinterface in a browser. \"\"\"\n",
+                "            if hass.config.api is not None:\n",
+                "                import webbrowser\n",
+                "                webbrowser.open(hass.config.api.base_url)\n",
+                "\n",
+                "        hass.bus.listen_once(EVENT_HOMEASSISTANT_START, open_browser)\n",
+                "\n",
+                "    hass.start()\n",
+                "    hass.block_till_stopped()\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    main()"
+            ]
+        ],
+        "homeassistant/bootstrap.py": [
+            [
+                "\"\"\"\n",
+                "homeassistant.bootstrap\n",
+                "~~~~~~~~~~~~~~~~~~~~~~~\n",
+                "Provides methods to bootstrap a home assistant instance.\n",
+                "\n",
+                "Each method will return a tuple (bus, statemachine).\n",
+                "\n",
+                "After bootstrapping you can add your own components or\n",
+                "start by calling homeassistant.start_home_assistant(bus)\n",
+                "\"\"\"\n",
+                "\n",
+                "import os\n",
+                "import sys\n",
+                "import logging\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import logging.handlers\n"
+                ],
+                "parent_version_range": {
+                    "start": 14,
+                    "end": 14
+                },
+                "child_version_range": {
+                    "start": 14,
+                    "end": 15
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n  ...\n11 11    import os\n12 12    import sys\n13 13    import logging\n   14  + import logging.handlers\n14 15    from collections import defaultdict\n15 16    \n16 17    import homeassistant.core as core\n       ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "handlers",
+                    "logging"
+                ],
+                "prefix": [
+                    "import os\n",
+                    "import sys\n",
+                    "import logging\n"
+                ],
+                "suffix": [
+                    "from collections import defaultdict\n",
+                    "\n",
+                    "import homeassistant.core as core\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "logging",
+                            "position": {
+                                "start": {
+                                    "line": 14,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 14,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "logging",
+                            "position": {
+                                "start": {
+                                    "line": 14,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 14,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "handlers",
+                            "position": {
+                                "start": {
+                                    "line": 14,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 14,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from collections import defaultdict\n",
+                "\n",
+                "import homeassistant.core as core\n",
+                "import homeassistant.util.dt as date_util\n",
+                "import homeassistant.util.package as pkg_util\n",
+                "import homeassistant.util.location as loc_util\n",
+                "import homeassistant.config as config_util\n",
+                "import homeassistant.loader as loader\n",
+                "import homeassistant.components as core_components\n",
+                "import homeassistant.components.group as group\n",
+                "from homeassistant.helpers.entity import Entity\n",
+                "from homeassistant.const import (\n",
+                "    EVENT_COMPONENT_LOADED, CONF_LATITUDE, CONF_LONGITUDE,\n",
+                "    CONF_TEMPERATURE_UNIT, CONF_NAME, CONF_TIME_ZONE, CONF_CUSTOMIZE,\n",
+                "    TEMP_CELCIUS, TEMP_FAHRENHEIT)\n",
+                "\n",
+                "_LOGGER = logging.getLogger(__name__)\n",
+                "\n",
+                "ATTR_COMPONENT = 'component'\n",
+                "\n",
+                "PLATFORM_FORMAT = '{}.{}'\n",
+                "\n",
+                "\n",
+                "def setup_component(hass, domain, config=None):\n",
+                "    \"\"\" Setup a component and all its dependencies. \"\"\"\n",
+                "\n",
+                "    if domain in hass.config.components:\n",
+                "        return True\n",
+                "\n",
+                "    _ensure_loader_prepared(hass)\n",
+                "\n",
+                "    if config is None:\n",
+                "        config = defaultdict(dict)\n",
+                "\n",
+                "    components = loader.load_order_component(domain)\n",
+                "\n",
+                "    # OrderedSet is empty if component or dependencies could not be resolved\n",
+                "    if not components:\n",
+                "        return False\n",
+                "\n",
+                "    for component in components:\n",
+                "        if not _setup_component(hass, component, config):\n",
+                "            return False\n",
+                "\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "def _handle_requirements(hass, component, name):\n",
+                "    \"\"\" Installs requirements for component. \"\"\"\n",
+                "    if hass.config.skip_pip or not hasattr(component, 'REQUIREMENTS'):\n",
+                "        return True\n",
+                "\n",
+                "    for req in component.REQUIREMENTS:\n",
+                "        if not pkg_util.install_package(req, target=hass.config.path('lib')):\n",
+                "            _LOGGER.error('Not initializing %s because could not install '\n",
+                "                          'dependency %s', name, req)\n",
+                "            return False\n",
+                "\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "def _setup_component(hass, domain, config):\n",
+                "    \"\"\" Setup a component for Home Assistant. \"\"\"\n",
+                "    if domain in hass.config.components:\n",
+                "        return True\n",
+                "    component = loader.get_component(domain)\n",
+                "\n",
+                "    missing_deps = [dep for dep in component.DEPENDENCIES\n",
+                "                    if dep not in hass.config.components]\n",
+                "\n",
+                "    if missing_deps:\n",
+                "        _LOGGER.error(\n",
+                "            'Not initializing %s because not all dependencies loaded: %s',\n",
+                "            domain, \", \".join(missing_deps))\n",
+                "        return False\n",
+                "\n",
+                "    if not _handle_requirements(hass, component, domain):\n",
+                "        return False\n",
+                "\n",
+                "    try:\n",
+                "        if not component.setup(hass, config):\n",
+                "            _LOGGER.error('component %s failed to initialize', domain)\n",
+                "            return False\n",
+                "    except Exception:  # pylint: disable=broad-except\n",
+                "        _LOGGER.exception('Error during setup of component %s', domain)\n",
+                "        return False\n",
+                "\n",
+                "    hass.config.components.append(component.DOMAIN)\n",
+                "\n",
+                "    # Assumption: if a component does not depend on groups\n",
+                "    # it communicates with devices\n",
+                "    if group.DOMAIN not in component.DEPENDENCIES:\n",
+                "        hass.pool.add_worker()\n",
+                "\n",
+                "    hass.bus.fire(\n",
+                "        EVENT_COMPONENT_LOADED, {ATTR_COMPONENT: component.DOMAIN})\n",
+                "\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "def prepare_setup_platform(hass, config, domain, platform_name):\n",
+                "    \"\"\" Loads a platform and makes sure dependencies are setup. \"\"\"\n",
+                "    _ensure_loader_prepared(hass)\n",
+                "\n",
+                "    platform_path = PLATFORM_FORMAT.format(domain, platform_name)\n",
+                "\n",
+                "    platform = loader.get_component(platform_path)\n",
+                "\n",
+                "    # Not found\n",
+                "    if platform is None:\n",
+                "        return None\n",
+                "\n",
+                "    # Already loaded\n",
+                "    elif platform_path in hass.config.components:\n",
+                "        return platform\n",
+                "\n",
+                "    # Load dependencies\n",
+                "    if hasattr(platform, 'DEPENDENCIES'):\n",
+                "        for component in platform.DEPENDENCIES:\n",
+                "            if not setup_component(hass, component, config):\n",
+                "                _LOGGER.error(\n",
+                "                    'Unable to prepare setup for platform %s because '\n",
+                "                    'dependency %s could not be initialized', platform_path,\n",
+                "                    component)\n",
+                "                return None\n",
+                "\n",
+                "    if not _handle_requirements(hass, platform, platform_path):\n",
+                "        return None\n",
+                "\n",
+                "    return platform\n",
+                "\n",
+                "\n",
+                "def mount_local_lib_path(config_dir):\n",
+                "    \"\"\" Add local library to Python Path \"\"\"\n",
+                "    sys.path.insert(0, os.path.join(config_dir, 'lib'))\n",
+                "\n",
+                "\n",
+                "# pylint: disable=too-many-branches, too-many-statements, too-many-arguments\n",
+                "def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                     verbose=False, daemon=False, skip_pip=False):\n"
+                ],
+                "after": [
+                    "                     verbose=False, daemon=False, skip_pip=False,\n",
+                    "                     log_rotate_days=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 153,
+                    "end": 154
+                },
+                "child_version_range": {
+                    "start": 154,
+                    "end": 156
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "from_config_dict",
+                        "signature": "def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n                     verbose=False, daemon=False, skip_pip=False):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n150 151    \n151 152    # pylint: disable=too-many-branches, too-many-statements, too-many-arguments\n152 153    def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n153      -                      verbose=False, daemon=False, skip_pip=False):\n    154  +                      verbose=False, daemon=False, skip_pip=False,\n    155  +                      log_rotate_days=None):\n154 156        \"\"\"\n155 157        Tries to configure Home Assistant from a config dict.\n156 158    \n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "daemon",
+                    "skip_pip",
+                    "verbose"
+                ],
+                "identifiers_after": [
+                    "daemon",
+                    "log_rotate_days",
+                    "skip_pip",
+                    "verbose"
+                ],
+                "prefix": [
+                    "\n",
+                    "# pylint: disable=too-many-branches, too-many-statements, too-many-arguments\n",
+                    "def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    Tries to configure Home Assistant from a config dict.\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 153,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 153,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 153,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 153,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 153,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 153,
+                                    "column": 58
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "daemon",
+                            "position": {
+                                "start": {
+                                    "line": 153,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 153,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 58
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 155,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 155,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 155,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 155,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "daemon",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    6,
+                    8
+                ]
+            },
+            [
+                "    \"\"\"\n",
+                "    Tries to configure Home Assistant from a config dict.\n",
+                "\n",
+                "    Dynamically loads required components and its dependencies.\n",
+                "    \"\"\"\n",
+                "    if hass is None:\n",
+                "        hass = core.HomeAssistant()\n",
+                "        if config_dir is not None:\n",
+                "            config_dir = os.path.abspath(config_dir)\n",
+                "            hass.config.config_dir = config_dir\n",
+                "            mount_local_lib_path(config_dir)\n",
+                "\n",
+                "    process_ha_core_config(hass, config.get(core.DOMAIN, {}))\n",
+                "\n",
+                "    if enable_log:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        enable_logging(hass, verbose, daemon)\n"
+                ],
+                "after": [
+                    "        enable_logging(hass, verbose, daemon, log_rotate_days)\n"
+                ],
+                "parent_version_range": {
+                    "start": 169,
+                    "end": 170
+                },
+                "child_version_range": {
+                    "start": 171,
+                    "end": 172
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if enable_log:",
+                        "start_line": 168,
+                        "end_line": 169
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "from_config_dict",
+                        "signature": "def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n                     verbose=False, daemon=False, skip_pip=False):",
+                        "at_line": 152
+                    },
+                    {
+                        "type": "call",
+                        "name": "enable_logging",
+                        "signature": "enable_logging(hass, verbose, daemon)",
+                        "at_line": 169,
+                        "argument": "hass"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n           def from_config_dict(config, hass=None, config_dir=None, enable_log=True,\n                     verbose=False, daemon=False, skip_pip=False):\n               ...\n166 168        process_ha_core_config(hass, config.get(core.DOMAIN, {}))\n167 169    \n168 170        if enable_log:\n169      -         enable_logging(hass, verbose, daemon)\n    171  +         enable_logging(hass, verbose, daemon, log_rotate_days)\n170 172    \n171 173        hass.config.skip_pip = skip_pip\n172 174        if skip_pip:\n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "verbose"
+                ],
+                "identifiers_after": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "log_rotate_days",
+                    "verbose"
+                ],
+                "prefix": [
+                    "    process_ha_core_config(hass, config.get(core.DOMAIN, {}))\n",
+                    "\n",
+                    "    if enable_log:\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    hass.config.skip_pip = skip_pip\n",
+                    "    if skip_pip:\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 169,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 169,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "daemon",
+                            "position": {
+                                "start": {
+                                    "line": 169,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 169,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 169,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 169,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "verbose",
+                            "position": {
+                                "start": {
+                                    "line": 171,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 171,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 171,
+                                    "column": 46
+                                },
+                                "end": {
+                                    "line": 171,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "daemon",
+                            "position": {
+                                "start": {
+                                    "line": 171,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 171,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 171,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 171,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    7
+                ]
+            },
+            [
+                "\n",
+                "    hass.config.skip_pip = skip_pip\n",
+                "    if skip_pip:\n",
+                "        _LOGGER.warning('Skipping pip installation of required modules. '\n",
+                "                        'This may cause issues.')\n",
+                "\n",
+                "    _ensure_loader_prepared(hass)\n",
+                "\n",
+                "    # Make a copy because we are mutating it.\n",
+                "    # Convert it to defaultdict so components can always have config dict\n",
+                "    # Convert values to dictionaries if they are None\n",
+                "    config = defaultdict(\n",
+                "        dict, {key: value or {} for key, value in config.items()})\n",
+                "\n",
+                "    # Filter out the repeating and common config section [homeassistant]\n",
+                "    components = (key for key in config.keys()\n",
+                "                  if ' ' not in key and key != core.DOMAIN)\n",
+                "\n",
+                "    if not core_components.setup(hass, config):\n",
+                "        _LOGGER.error('Home Assistant core failed to initialize. '\n",
+                "                      'Further initialization aborted.')\n",
+                "\n",
+                "        return hass\n",
+                "\n",
+                "    _LOGGER.info('Home Assistant core initialized')\n",
+                "\n",
+                "    # Setup the components\n",
+                "    for domain in loader.load_order_components(components):\n",
+                "        _setup_component(hass, domain, config)\n",
+                "\n",
+                "    return hass\n",
+                "\n",
+                "\n",
+                "def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                     skip_pip=True):\n"
+                ],
+                "after": [
+                    "                     skip_pip=True, log_rotate_days=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 204,
+                    "end": 205
+                },
+                "child_version_range": {
+                    "start": 206,
+                    "end": 207
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "from_config_file",
+                        "signature": "def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n                     skip_pip=True):",
+                        "at_line": 203
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n201 203    \n202 204    \n203 205    def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n204      -                      skip_pip=True):\n    206  +                      skip_pip=True, log_rotate_days=None):\n205 207        \"\"\"\n206 208        Reads the configuration file and tries to start all the required\n207 209        functionality. Will add functionality to 'hass' parameter if given,\n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "skip_pip"
+                ],
+                "identifiers_after": [
+                    "log_rotate_days",
+                    "skip_pip"
+                ],
+                "prefix": [
+                    "\n",
+                    "\n",
+                    "def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    Reads the configuration file and tries to start all the required\n",
+                    "    functionality. Will add functionality to 'hass' parameter if given,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 204,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 204,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "skip_pip",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 21
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 206,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 206,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4,
+                    8
+                ]
+            },
+            [
+                "    \"\"\"\n",
+                "    Reads the configuration file and tries to start all the required\n",
+                "    functionality. Will add functionality to 'hass' parameter if given,\n",
+                "    instantiates a new Home Assistant object if 'hass' is not given.\n",
+                "    \"\"\"\n",
+                "    if hass is None:\n",
+                "        hass = core.HomeAssistant()\n",
+                "\n",
+                "    # Set config dir to directory holding config file\n",
+                "    config_dir = os.path.abspath(os.path.dirname(config_path))\n",
+                "    hass.config.config_dir = config_dir\n",
+                "    mount_local_lib_path(config_dir)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    enable_logging(hass, verbose, daemon)\n"
+                ],
+                "after": [
+                    "    enable_logging(hass, verbose, daemon, log_rotate_days)\n"
+                ],
+                "parent_version_range": {
+                    "start": 218,
+                    "end": 219
+                },
+                "child_version_range": {
+                    "start": 220,
+                    "end": 221
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "from_config_file",
+                        "signature": "def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n                     skip_pip=True):",
+                        "at_line": 203
+                    },
+                    {
+                        "type": "call",
+                        "name": "enable_logging",
+                        "signature": "enable_logging(hass, verbose, daemon)",
+                        "at_line": 218,
+                        "argument": "hass"
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n           def from_config_file(config_path, hass=None, verbose=False, daemon=False,\n                     skip_pip=True):\n               ...\n215 217        hass.config.config_dir = config_dir\n216 218        mount_local_lib_path(config_dir)\n217 219    \n218      -     enable_logging(hass, verbose, daemon)\n    220  +     enable_logging(hass, verbose, daemon, log_rotate_days)\n219 221    \n220 222        config_dict = config_util.load_config_file(config_path)\n221 223    \n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "verbose"
+                ],
+                "identifiers_after": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "log_rotate_days",
+                    "verbose"
+                ],
+                "prefix": [
+                    "    hass.config.config_dir = config_dir\n",
+                    "    mount_local_lib_path(config_dir)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    config_dict = config_util.load_config_file(config_path)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 218,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 218,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 220,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 220,
+                                    "column": 57
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 220,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 220,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "\n",
+                "    config_dict = config_util.load_config_file(config_path)\n",
+                "\n",
+                "    return from_config_dict(config_dict, hass, enable_log=False,\n",
+                "                            skip_pip=skip_pip)\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def enable_logging(hass, verbose=False, daemon=False):\n"
+                ],
+                "after": [
+                    "def enable_logging(hass, verbose=False, daemon=False, log_rotate_days=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 226,
+                    "end": 227
+                },
+                "child_version_range": {
+                    "start": 228,
+                    "end": 229
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "enable_logging",
+                        "signature": "def enable_logging(hass, verbose=False, daemon=False):",
+                        "at_line": 226
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n223 225                                skip_pip=skip_pip)\n224 226    \n225 227    \n226      - def enable_logging(hass, verbose=False, daemon=False):\n    228  + def enable_logging(hass, verbose=False, daemon=False, log_rotate_days=None):\n227 229        \"\"\" Setup the logging for home assistant. \"\"\"\n228 230        if not daemon:\n229 231            logging.basicConfig(level=logging.INFO)\n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "verbose"
+                ],
+                "identifiers_after": [
+                    "daemon",
+                    "enable_logging",
+                    "hass",
+                    "log_rotate_days",
+                    "verbose"
+                ],
+                "prefix": [
+                    "                            skip_pip=skip_pip)\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\" Setup the logging for home assistant. \"\"\"\n",
+                    "    if not daemon:\n",
+                    "        logging.basicConfig(level=logging.INFO)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 226,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 226,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 226,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 226,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 228,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 228,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "enable_logging",
+                            "position": {
+                                "start": {
+                                    "line": 228,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 228,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 228,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 228,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 228,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 228,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4,
+                    6
+                ]
+            },
+            [
+                "    \"\"\" Setup the logging for home assistant. \"\"\"\n",
+                "    if not daemon:\n",
+                "        logging.basicConfig(level=logging.INFO)\n",
+                "        fmt = (\"%(log_color)s%(asctime)s %(levelname)s (%(threadName)s) \"\n",
+                "               \"[%(name)s] %(message)s%(reset)s\")\n",
+                "        try:\n",
+                "            from colorlog import ColoredFormatter\n",
+                "            logging.getLogger().handlers[0].setFormatter(ColoredFormatter(\n",
+                "                fmt,\n",
+                "                datefmt='%y-%m-%d %H:%M:%S',\n",
+                "                reset=True,\n",
+                "                log_colors={\n",
+                "                    'DEBUG': 'cyan',\n",
+                "                    'INFO': 'green',\n",
+                "                    'WARNING': 'yellow',\n",
+                "                    'ERROR': 'red',\n",
+                "                    'CRITICAL': 'red',\n",
+                "                }\n",
+                "            ))\n",
+                "        except ImportError:\n",
+                "            _LOGGER.warning(\n",
+                "                \"Colorlog package not found, console coloring disabled\")\n",
+                "\n",
+                "    # Log errors to a file if we have write access to file or config dir\n",
+                "    err_log_path = hass.config.path('home-assistant.log')\n",
+                "    err_path_exists = os.path.isfile(err_log_path)\n",
+                "\n",
+                "    # Check if we can write to the error log if it exists or that\n",
+                "    # we can create files in the containing directory if not.\n",
+                "    if (err_path_exists and os.access(err_log_path, os.W_OK)) or \\\n",
+                "       (not err_path_exists and os.access(hass.config.config_dir, os.W_OK)):\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        err_handler = logging.FileHandler(\n",
+                    "            err_log_path, mode='w', delay=True)\n"
+                ],
+                "after": [
+                    "        if log_rotate_days:\n",
+                    "            err_handler = logging.handlers.TimedRotatingFileHandler(\n",
+                    "                err_log_path, when='midnight', backupCount=log_rotate_days)\n",
+                    "        else:\n",
+                    "            err_handler = logging.FileHandler(\n",
+                    "                err_log_path, mode='w', delay=True)\n"
+                ],
+                "parent_version_range": {
+                    "start": 259,
+                    "end": 261
+                },
+                "child_version_range": {
+                    "start": 261,
+                    "end": 267
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if (err_path_exists and os.access(err_log_path, os.W_OK)) or \\\n       (not err_path_exists and os.access(hass.config.config_dir, os.W_OK)):",
+                        "start_line": 256,
+                        "end_line": 272
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "enable_logging",
+                        "signature": "def enable_logging(hass, verbose=False, daemon=False):",
+                        "at_line": 226
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: homeassistant/bootstrap.py\nCode:\n           def enable_logging(hass, verbose=False, daemon=False):\n               ...\n256 258        if (err_path_exists and os.access(err_log_path, os.W_OK)) or \\\n257 259           (not err_path_exists and os.access(hass.config.config_dir, os.W_OK)):\n258 260    \n259      -         err_handler = logging.FileHandler(\n260      -             err_log_path, mode='w', delay=True)\n    261  +         if log_rotate_days:\n    262  +             err_handler = logging.handlers.TimedRotatingFileHandler(\n    263  +                 err_log_path, when='midnight', backupCount=log_rotate_days)\n    264  +         else:\n    265  +             err_handler = logging.FileHandler(\n    266  +                 err_log_path, mode='w', delay=True)\n261 267    \n262 268            err_handler.setLevel(logging.INFO if verbose else logging.WARNING)\n263 269            err_handler.setFormatter(\n         ...\n",
+                "file_path": "homeassistant/bootstrap.py",
+                "identifiers_before": [
+                    "FileHandler",
+                    "delay",
+                    "err_handler",
+                    "err_log_path",
+                    "logging",
+                    "mode"
+                ],
+                "identifiers_after": [
+                    "FileHandler",
+                    "TimedRotatingFileHandler",
+                    "backupCount",
+                    "delay",
+                    "err_handler",
+                    "err_log_path",
+                    "handlers",
+                    "log_rotate_days",
+                    "logging",
+                    "mode",
+                    "when"
+                ],
+                "prefix": [
+                    "    if (err_path_exists and os.access(err_log_path, os.W_OK)) or \\\n",
+                    "       (not err_path_exists and os.access(hass.config.config_dir, os.W_OK)):\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        err_handler.setLevel(logging.INFO if verbose else logging.WARNING)\n",
+                    "        err_handler.setFormatter(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "logging",
+                            "position": {
+                                "start": {
+                                    "line": 262,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 262,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "logging",
+                            "position": {
+                                "start": {
+                                    "line": 265,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 265,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "handlers",
+                            "position": {
+                                "start": {
+                                    "line": 262,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 262,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 261,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 261,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "log_rotate_days",
+                            "position": {
+                                "start": {
+                                    "line": 263,
+                                    "column": 59
+                                },
+                                "end": {
+                                    "line": 263,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/core/homeassistant/bootstrap.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        err_handler.setLevel(logging.INFO if verbose else logging.WARNING)\n",
+                "        err_handler.setFormatter(\n",
+                "            logging.Formatter('%(asctime)s %(name)s: %(message)s',\n",
+                "                              datefmt='%y-%m-%d %H:%M:%S'))\n",
+                "        logger = logging.getLogger('')\n",
+                "        logger.addHandler(err_handler)\n",
+                "        logger.setLevel(logging.INFO)  # this sets the minimum log level\n",
+                "\n",
+                "    else:\n",
+                "        _LOGGER.error(\n",
+                "            'Unable to setup error log %s (access denied)', err_log_path)\n",
+                "\n",
+                "\n",
+                "def process_ha_core_config(hass, config):\n",
+                "    \"\"\" Processes the [homeassistant] section from the config. \"\"\"\n",
+                "    hac = hass.config\n",
+                "\n",
+                "    def set_time_zone(time_zone_str):\n",
+                "        \"\"\" Helper method to set time zone in HA. \"\"\"\n",
+                "        if time_zone_str is None:\n",
+                "            return\n",
+                "\n",
+                "        time_zone = date_util.get_time_zone(time_zone_str)\n",
+                "\n",
+                "        if time_zone:\n",
+                "            hac.time_zone = time_zone\n",
+                "            date_util.set_default_time_zone(time_zone)\n",
+                "        else:\n",
+                "            _LOGGER.error('Received invalid time zone %s', time_zone_str)\n",
+                "\n",
+                "    for key, attr in ((CONF_LATITUDE, 'latitude'),\n",
+                "                      (CONF_LONGITUDE, 'longitude'),\n",
+                "                      (CONF_NAME, 'location_name')):\n",
+                "        if key in config:\n",
+                "            setattr(hac, attr, config[key])\n",
+                "\n",
+                "    set_time_zone(config.get(CONF_TIME_ZONE))\n",
+                "\n",
+                "    customize = config.get(CONF_CUSTOMIZE)\n",
+                "\n",
+                "    if isinstance(customize, dict):\n",
+                "        for entity_id, attrs in config.get(CONF_CUSTOMIZE, {}).items():\n",
+                "            if not isinstance(attrs, dict):\n",
+                "                continue\n",
+                "            Entity.overwrite_attribute(entity_id, attrs.keys(), attrs.values())\n",
+                "\n",
+                "    if CONF_TEMPERATURE_UNIT in config:\n",
+                "        unit = config[CONF_TEMPERATURE_UNIT]\n",
+                "\n",
+                "        if unit == 'C':\n",
+                "            hac.temperature_unit = TEMP_CELCIUS\n",
+                "        elif unit == 'F':\n",
+                "            hac.temperature_unit = TEMP_FAHRENHEIT\n",
+                "\n",
+                "    # If we miss some of the needed values, auto detect them\n",
+                "    if None not in (\n",
+                "            hac.latitude, hac.longitude, hac.temperature_unit, hac.time_zone):\n",
+                "        return\n",
+                "\n",
+                "    _LOGGER.info('Auto detecting location and temperature unit')\n",
+                "\n",
+                "    info = loc_util.detect_location_info()\n",
+                "\n",
+                "    if info is None:\n",
+                "        _LOGGER.error('Could not detect location information')\n",
+                "        return\n",
+                "\n",
+                "    if hac.latitude is None and hac.longitude is None:\n",
+                "        hac.latitude = info.latitude\n",
+                "        hac.longitude = info.longitude\n",
+                "\n",
+                "    if hac.temperature_unit is None:\n",
+                "        if info.use_fahrenheit:\n",
+                "            hac.temperature_unit = TEMP_FAHRENHEIT\n",
+                "        else:\n",
+                "            hac.temperature_unit = TEMP_CELCIUS\n",
+                "\n",
+                "    if hac.location_name is None:\n",
+                "        hac.location_name = info.city\n",
+                "\n",
+                "    if hac.time_zone is None:\n",
+                "        set_time_zone(info.time_zone)\n",
+                "\n",
+                "\n",
+                "def _ensure_loader_prepared(hass):\n",
+                "    \"\"\" Ensure Home Assistant loader is prepared. \"\"\"\n",
+                "    if not loader.PREPARED:\n",
+                "        loader.prepare(hass)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "same semantic at different branch of same if condition"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use",
+            "scenario of 0 -> 1": "edit 0 use log_rotate_days, edit 1 add log_rotate_days in the def of from_config_file",
+            "scenario of 1 -> 0": "edit 1 add log_rotate_days in the def of from_config_file, then edit 0 uses it"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

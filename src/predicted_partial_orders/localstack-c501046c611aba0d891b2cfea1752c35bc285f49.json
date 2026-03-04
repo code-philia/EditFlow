@@ -1,0 +1,41 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits are part of a single variable rename operation from 'l' to 'lda' within the same function. Edit 0 changes the loop variable declaration 'for l in lambdas:' to 'for lda in lambdas:', and Edit 1 updates all subsequent references to that same loop variable from 'l' to 'lda'. This is a mechanically obvious dependency - after renaming the loop variable in the for statement, all references to that variable in the loop body must be updated to maintain syntactic correctness. The changed lines reference the exact same symbol (the loop variable), and making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits are part of a single variable rename operation from 'l' to 'lda' within the same function. Edit 0 changes the loop variable declaration 'for l in lambdas:' to 'for lda in lambdas:', and Edit 1 updates all subsequent references to that same loop variable from 'l' to 'lda'. This is a mechanically obvious dependency - after renaming the loop variable in the for statement, all references to that variable in the loop body must be updated to maintain syntactic correctness. The changed lines reference the exact same symbol (the loop variable), and making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits change references to the exact same variable symbol 'l' to 'lda' within the same function scope. Edit 0 changes the loop variable declaration 'for l in lambdas:' to 'for lda in lambdas:', and Edit 1 changes a usage of that same variable 'for t in l.targets:' to 'for t in lda.targets:'. This is a classic variable rename where the definition and usage of the exact same symbol are being updated together. After making either edit, the other becomes immediately necessary to maintain code consistency and avoid referencing an undefined variable. This represents a single, contiguous micro-task of renaming a variable throughout its scope."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits change references to the exact same variable symbol 'l' to 'lda' within the same function scope. Edit 0 changes the loop variable declaration 'for l in lambdas:' to 'for lda in lambdas:', and Edit 1 changes a usage of that same variable 'for t in l.targets:' to 'for t in lda.targets:'. This is a classic variable rename where the definition and usage of the exact same symbol are being updated together. After making either edit, the other becomes immediately necessary to maintain code consistency and avoid referencing an undefined variable. This represents a single, contiguous micro-task of renaming a variable throughout its scope."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits are part of the same bulk substitution pattern within the same function scope. They both change references from 'l' to 'lda' for the same variable that represents a lambda object. Edit 0 changes 'l.id', 'l.name()', and 'l.event_sources' to 'lda.id', 'lda.name()', and 'lda.event_sources'. Edit 1 changes 'l.targets' to 'lda.targets'. This is a uniform textual substitution (l \u2192 lda) applied to the same variable across multiple lines within the same function. Both edits reference the exact same symbol (the lambda variable) and represent identical before\u2192after patterns on the same type of syntactic construct (attribute access on the lambda object). Either edit can be made first, and both are part of the same contiguous refactoring operation."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits are part of the same bulk substitution pattern within the same function scope. They both change references from 'l' to 'lda' for the same variable that represents a lambda object. Edit 0 changes 'l.id', 'l.name()', and 'l.event_sources' to 'lda.id', 'lda.name()', and 'lda.event_sources'. Edit 1 changes 'l.targets' to 'lda.targets'. This is a uniform textual substitution (l \u2192 lda) applied to the same variable across multiple lines within the same function. Both edits reference the exact same symbol (the lambda variable) and represent identical before\u2192after patterns on the same type of syntactic construct (attribute access on the lambda object). Either edit can be made first, and both are part of the same contiguous refactoring operation."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4,
+        5,
+        6,
+        7
+    ]
+}

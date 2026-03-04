@@ -1,0 +1,62 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'field' parameter to the get_variable function signature, and Edit 1 uses that exact same 'field' parameter in the function call to variable_service.get_variable. The changed lines reference the exact same symbol 'field' - it's defined as a parameter in Edit 0 and used as an argument in Edit 1. After making Edit 0 (adding the parameter), Edit 1 becomes the immediate next step to actually use that parameter. This is a classic definition-usage relationship within the same function where both edits reference the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'field' parameter to the get_variable function signature, and Edit 1 uses that exact same 'field' parameter in the function call to variable_service.get_variable. The changed lines reference the exact same symbol 'field' - it's defined as a parameter in Edit 0 and used as an argument in Edit 1. After making Edit 0 (adding the parameter), Edit 1 becomes the immediate next step to actually use that parameter. This is a classic definition-usage relationship within the same function where both edits reference the exact same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'field' parameter to a call to variable_service.get_variable(), while Edit 1 adds the same 'field' parameter to the function signature of get_variable(). These edits reference the exact same symbol (the get_variable method) and create a direct code dependency - adding the parameter to the call site requires the parameter to exist in the function signature, and vice versa. This is a classic signature-caller synchronization pattern where either edit can be made first (both are syntactically valid in Python), but making either edit creates an immediate mechanical prompt for the other to maintain consistency."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'field' parameter to a call to variable_service.get_variable(), while Edit 1 adds the same 'field' parameter to the function signature of get_variable(). These edits reference the exact same symbol (the get_variable method) and create a direct code dependency - adding the parameter to the call site requires the parameter to exist in the function signature, and vice versa. This is a classic signature-caller synchronization pattern where either edit can be made first (both are syntactically valid in Python), but making either edit creates an immediate mechanical prompt for the other to maintain consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits show a signature change and corresponding call-site update for the exact same method. Edit 0 modifies the `get_variable` method signature within `CustomComponent.variables()` to add a `field` parameter, while Edit 1 updates a call to `custom_component.variables()` to pass the new `field` argument. The changed lines reference the same symbol - the `variables` method of `CustomComponent` - and after making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors (Python allows mismatched signatures at parse time, only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits show a signature change and corresponding call-site update for the exact same method. Edit 0 modifies the `get_variable` method signature within `CustomComponent.variables()` to add a `field` parameter, while Edit 1 updates a call to `custom_component.variables()` to pass the new `field` argument. The changed lines reference the same symbol - the `variables` method of `CustomComponent` - and after making either edit, the other becomes the immediate next step to maintain code consistency. Both edits can be staged in either order without causing parse errors (Python allows mismatched signatures at parse time, only failing at runtime), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 changes the signature of the get_variable function by adding a 'field' parameter. Edit 1 updates a call site to pass the additional 'field' parameter when calling custom_component.variables(). The changed lines reference the exact same symbol - the get_variable function that is accessed through the variables method. After making edit 0 (signature change), edit 1 becomes the immediate next step to fix the call site, and vice versa - after making edit 1, edit 0 would be needed to provide the expected signature. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows mismatched signatures at parse time, only failing at runtime)."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 changes the signature of the get_variable function by adding a 'field' parameter. Edit 1 updates a call site to pass the additional 'field' parameter when calling custom_component.variables(). The changed lines reference the exact same symbol - the get_variable function that is accessed through the variables method. After making edit 0 (signature change), edit 1 becomes the immediate next step to fix the call site, and vice versa - after making edit 1, edit 0 would be needed to provide the expected signature. This is a classic definition-usage relationship where both edits can be staged in either order (Python allows mismatched signatures at parse time, only failing at runtime)."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same parameter symbol 'field' within the same function. Edit 0 adds the 'field' parameter to the function signature, and Edit 1 uses that exact same parameter in a conditional check within the function body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the implementation. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of staging order (no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same parameter symbol 'field' within the same function. Edit 0 adds the 'field' parameter to the function signature, and Edit 1 uses that exact same parameter in a conditional check within the function body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the implementation. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of staging order (no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'field' parameter to the get_variable() function call, while Edit 1 adds logic that uses this 'field' parameter within the get_variable() method implementation. However, these edits reference different symbols - Edit 0 calls get_variable() as a method on variable_service, while Edit 1 modifies the implementation of get_variable() as a method of VariableService class. Although they appear related conceptually, the changed lines don't reference the exact same symbol - one is a call site and the other is the method implementation, but they are in different contexts and the 'field' parameter usage creates a dependency that suggests Edit 1's signature change should come before Edit 0's usage."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

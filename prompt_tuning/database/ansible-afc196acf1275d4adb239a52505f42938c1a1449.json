@@ -1,0 +1,1931 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/ansible/ansible/commit/afc196acf1275d4adb239a52505f42938c1a1449",
+    "commit_message": "Add a User-Agent string to the API request (#38587)",
+    "commit_snapshots": {
+        "lib/ansible/module_utils/scaleway.py": [
+            [
+                "import json\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import sys\n"
+                ],
+                "parent_version_range": {
+                    "start": 1,
+                    "end": 1
+                },
+                "child_version_range": {
+                    "start": 1,
+                    "end": 2
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: lib/ansible/module_utils/scaleway.py\nCode:\n  ...\n0 0    import json\n  1  + import sys\n1 2    \n2 3    from ansible.module_utils.urls import fetch_url\n3 4    \n     ...\n",
+                "file_path": "lib/ansible/module_utils/scaleway.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "sys"
+                ],
+                "prefix": [
+                    "import json\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from ansible.module_utils.urls import fetch_url\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 1,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 1,
+                                    "column": 10
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "from ansible.module_utils.urls import fetch_url\n",
+                "\n",
+                "\n",
+                "class Response(object):\n",
+                "\n",
+                "    def __init__(self, resp, info):\n",
+                "        self.body = None\n",
+                "        if resp:\n",
+                "            self.body = resp.read()\n",
+                "        self.info = info\n",
+                "\n",
+                "    @property\n",
+                "    def json(self):\n",
+                "        if not self.body:\n",
+                "            if \"body\" in self.info:\n",
+                "                return json.loads(self.info[\"body\"])\n",
+                "            return None\n",
+                "        try:\n",
+                "            return json.loads(self.body)\n",
+                "        except ValueError:\n",
+                "            return None\n",
+                "\n",
+                "    @property\n",
+                "    def status_code(self):\n",
+                "        return self.info[\"status\"]\n",
+                "\n",
+                "    @property\n",
+                "    def ok(self):\n",
+                "        return self.status_code in (200, 201, 202, 204)\n",
+                "\n",
+                "\n",
+                "class ScalewayAPI(object):\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def __init__(self, module, headers, base_url):\n"
+                ],
+                "after": [
+                    "    def __init__(self, module, base_url, headers=None):\n"
+                ],
+                "parent_version_range": {
+                    "start": 35,
+                    "end": 36
+                },
+                "child_version_range": {
+                    "start": 36,
+                    "end": 37
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "ScalewayAPI",
+                        "signature": "class ScalewayAPI(object):",
+                        "at_line": 33
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, module, headers, base_url):",
+                        "at_line": 35
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: lib/ansible/module_utils/scaleway.py\nCode:\n32 33    \n33 34    class ScalewayAPI(object):\n34 35    \n35     -     def __init__(self, module, headers, base_url):\n   36  +     def __init__(self, module, base_url, headers=None):\n36 37            self.module = module\n       ...\n",
+                "file_path": "lib/ansible/module_utils/scaleway.py",
+                "identifiers_before": [
+                    "__init__",
+                    "base_url",
+                    "headers",
+                    "module",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "__init__",
+                    "base_url",
+                    "headers",
+                    "module",
+                    "self"
+                ],
+                "prefix": [
+                    "\n",
+                    "class ScalewayAPI(object):\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        self.module = module\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 48
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "module",
+                            "position": {
+                                "start": {
+                                    "line": 36,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 36,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        self.module = module\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self.headers = headers\n"
+                ],
+                "after": [
+                    "        self.headers = {'User-Agent': self.get_user_agent_string(module),\n",
+                    "                        'Content-type': 'application/json'}\n",
+                    "        if headers is not None:\n",
+                    "            self.headers.update(headers)\n"
+                ],
+                "parent_version_range": {
+                    "start": 37,
+                    "end": 38
+                },
+                "child_version_range": {
+                    "start": 38,
+                    "end": 42
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "ScalewayAPI",
+                        "signature": "class ScalewayAPI(object):",
+                        "at_line": 33
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, module, headers, base_url):",
+                        "at_line": 35
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: lib/ansible/module_utils/scaleway.py\nCode:\n         class ScalewayAPI(object):\n             ...\n             def __init__(self, module, headers, base_url):\n                 ...\n36 37            self.module = module\n37     -         self.headers = headers\n   38  +         self.headers = {'User-Agent': self.get_user_agent_string(module),\n   39  +                         'Content-type': 'application/json'}\n   40  +         if headers is not None:\n   41  +             self.headers.update(headers)\n38 42            self.base_url = base_url\n39 43    \n40 44        def _url_builder(self, path):\n       ...\n",
+                "file_path": "lib/ansible/module_utils/scaleway.py",
+                "identifiers_before": [
+                    "headers",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "get_user_agent_string",
+                    "headers",
+                    "module",
+                    "self",
+                    "update"
+                ],
+                "prefix": [
+                    "        self.module = module\n"
+                ],
+                "suffix": [
+                    "        self.base_url = base_url\n",
+                    "\n",
+                    "    def _url_builder(self, path):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 37,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 37,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 37,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 37,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 41,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 41,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 41,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 41,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "get_user_agent_string",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 43
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "module",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 65
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 71
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        self.base_url = base_url\n",
+                "\n",
+                "    def _url_builder(self, path):\n",
+                "        if path[0] == '/':\n",
+                "            path = path[1:]\n",
+                "        return '%s/%s' % (self.base_url, path)\n",
+                "\n",
+                "    def send(self, method, path, data=None, headers=None):\n",
+                "        url = self._url_builder(path)\n",
+                "        data = self.module.jsonify(data)\n",
+                "        timeout = self.module.params['timeout']\n",
+                "\n",
+                "        if headers is not None:\n",
+                "            self.headers.update(headers)\n",
+                "\n",
+                "        resp, info = fetch_url(self.module, url, data=data, headers=self.headers, method=method, timeout=timeout)\n",
+                "\n",
+                "        # Exceptions in fetch_url may result in a status -1, the ensures a proper error to the user in all cases\n",
+                "        if info['status'] == -1:\n",
+                "            self.module.fail_json(msg=info['msg'])\n",
+                "\n",
+                "        return Response(resp, info)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    @staticmethod\n",
+                    "    def get_user_agent_string(module):\n",
+                    "        return \"ansible %s Python %s\" % (module.ansible_version, sys.version.split(' ')[0])\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 61,
+                    "end": 61
+                },
+                "child_version_range": {
+                    "start": 65,
+                    "end": 69
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "ScalewayAPI",
+                        "signature": "class ScalewayAPI(object):",
+                        "at_line": 33
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: lib/ansible/module_utils/scaleway.py\nCode:\n         class ScalewayAPI(object):\n             ...\n58 62    \n59 63            return Response(resp, info)\n60 64    \n   65  +     @staticmethod\n   66  +     def get_user_agent_string(module):\n   67  +         return \"ansible %s Python %s\" % (module.ansible_version, sys.version.split(' ')[0])\n   68  + \n61 69        def get(self, path, data=None, headers=None):\n62 70            return self.send('GET', path, data, headers)\n63 71    \n       ...\n",
+                "file_path": "lib/ansible/module_utils/scaleway.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ansible_version",
+                    "get_user_agent_string",
+                    "module",
+                    "split",
+                    "staticmethod",
+                    "sys",
+                    "version"
+                ],
+                "prefix": [
+                    "\n",
+                    "        return Response(resp, info)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def get(self, path, data=None, headers=None):\n",
+                    "        return self.send('GET', path, data, headers)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 67,
+                                    "column": 65
+                                },
+                                "end": {
+                                    "line": 67,
+                                    "column": 68
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "get_user_agent_string",
+                            "position": {
+                                "start": {
+                                    "line": 66,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 66,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/module_utils/scaleway.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    def get(self, path, data=None, headers=None):\n",
+                "        return self.send('GET', path, data, headers)\n",
+                "\n",
+                "    def put(self, path, data=None, headers=None):\n",
+                "        return self.send('PUT', path, data, headers)\n",
+                "\n",
+                "    def post(self, path, data=None, headers=None):\n",
+                "        return self.send('POST', path, data, headers)\n",
+                "\n",
+                "    def delete(self, path, data=None, headers=None):\n",
+                "        return self.send('DELETE', path, data, headers)\n",
+                "\n",
+                "    def patch(self, path, data=None, headers=None):\n",
+                "        return self.send(\"PATCH\", path, data, headers)\n",
+                "\n",
+                "    def update(self, path, data=None, headers=None):\n",
+                "        return self.send(\"UPDATE\", path, data, headers)\n",
+                "\n",
+                "\n",
+                "SCALEWAY_LOCATION = {\n",
+                "    'par1': {'name': 'Paris 1', 'country': 'FR', \"api_endpoint\": 'https://cp-par1.scaleway.com'},\n",
+                "    'EMEA-FR-PAR1': {'name': 'Paris 1', 'country': 'FR', \"api_endpoint\": 'https://cp-par1.scaleway.com'},\n",
+                "\n",
+                "    'ams1': {'name': 'Amsterdam 1', 'country': 'NL', \"api_endpoint\": 'https://cp-ams1.scaleway.com'},\n",
+                "    'EMEA-NL-EVS': {'name': 'Amsterdam 1', 'country': 'NL', \"api_endpoint\": 'https://cp-ams1.scaleway.com'}\n",
+                "}"
+            ]
+        ],
+        "lib/ansible/modules/cloud/scaleway/scaleway_compute.py": [
+            [
+                "#!/usr/bin/python\n",
+                "#\n",
+                "# Scaleway Compute management module\n",
+                "#\n",
+                "# Copyright (C) 2018 Online SAS.\n",
+                "# https://www.scaleway.com\n",
+                "#\n",
+                "# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)\n",
+                "\n",
+                "from __future__ import absolute_import, division, print_function\n",
+                "\n",
+                "__metaclass__ = type\n",
+                "\n",
+                "ANSIBLE_METADATA = {\n",
+                "    'metadata_version': '1.1',\n",
+                "    'status': ['preview'],\n",
+                "    'supported_by': 'community'\n",
+                "}\n",
+                "\n",
+                "DOCUMENTATION = '''\n",
+                "---\n",
+                "module: scaleway_compute\n",
+                "short_description: Scaleway compute management module\n",
+                "version_added: \"2.6\"\n",
+                "author: Remy Leone (@sieben)\n",
+                "description:\n",
+                "    - \"This module manages compute instances on Scaleway.\"\n",
+                "options:\n",
+                "\n",
+                "  enable_ipv6:\n",
+                "    description:\n",
+                "      - Enable public IPv6 connectivity on the instance\n",
+                "    default: false\n",
+                "    type: bool\n",
+                "\n",
+                "  image:\n",
+                "    description:\n",
+                "      - Image identifier used to start the instance with\n",
+                "    required: true\n",
+                "\n",
+                "  name:\n",
+                "    description:\n",
+                "      - Name of the instance\n",
+                "\n",
+                "  organization:\n",
+                "    description:\n",
+                "      - Organization identifier\n",
+                "    required: true\n",
+                "\n",
+                "  state:\n",
+                "    description:\n",
+                "     - Indicate desired state of the instance.\n",
+                "    default: present\n",
+                "    choices:\n",
+                "      - present\n",
+                "      - absent\n",
+                "      - running\n",
+                "      - restarted\n",
+                "      - stopped\n",
+                "\n",
+                "  tags:\n",
+                "    description:\n",
+                "    - List of tags to apply to the instance (5 max)\n",
+                "    required: false\n",
+                "    default: []\n",
+                "\n",
+                "  oauth_token:\n",
+                "    description:\n",
+                "     - Scaleway OAuth token.\n",
+                "    required: true\n",
+                "\n",
+                "  region:\n",
+                "    description:\n",
+                "    - Scaleway compute zone\n",
+                "    required: true\n",
+                "    choices:\n",
+                "      - ams1\n",
+                "      - EMEA-NL-EVS\n",
+                "      - par1\n",
+                "      - EMEA-FR-PAR1\n",
+                "\n",
+                "  commercial_type:\n",
+                "    description:\n",
+                "    - Commercial name of the compute node\n",
+                "    required: true\n",
+                "    choices:\n",
+                "      - ARM64-2GB\n",
+                "      - ARM64-4GB\n",
+                "      - ARM64-8GB\n",
+                "      - ARM64-16GB\n",
+                "      - ARM64-32GB\n",
+                "      - ARM64-64GB\n",
+                "      - ARM64-128GB\n",
+                "      - C1\n",
+                "      - C2S\n",
+                "      - C2M\n",
+                "      - C2L\n",
+                "      - VC1S\n",
+                "      - VC1M\n",
+                "      - VC1L\n",
+                "      - X64-15GB\n",
+                "      - X64-30GB\n",
+                "      - X64-60GB\n",
+                "      - X64-120GB\n",
+                "\n",
+                "  timeout:\n",
+                "    description:\n",
+                "    - Timeout for API calls\n",
+                "    required: false\n",
+                "    default: 30\n",
+                "\n",
+                "  wait:\n",
+                "    description:\n",
+                "    - Wait for the instance to reach its desired state before returning.\n",
+                "    type: bool\n",
+                "    default: 'no'\n",
+                "\n",
+                "  wait_timeout:\n",
+                "    description:\n",
+                "    - Time to wait for the server to reach the expected state\n",
+                "    required: false\n",
+                "    default: 300\n",
+                "\n",
+                "  wait_sleep_time:\n",
+                "    description:\n",
+                "    - Time to wait before every attempt to check the state of the server\n",
+                "    required: false\n",
+                "    default: 3\n",
+                "'''\n",
+                "\n",
+                "EXAMPLES = '''\n",
+                "- name: Create a server\n",
+                "  scaleway_compute:\n",
+                "    name: foobar\n",
+                "    state: present\n",
+                "    image: 89ee4018-f8c3-4dc4-a6b5-bca14f985ebe\n",
+                "    organization: 951df375-e094-4d26-97c1-ba548eeb9c42\n",
+                "    region: ams1\n",
+                "    commercial_type: VC1S\n",
+                "    tags:\n",
+                "      - test\n",
+                "      - www\n",
+                "\n",
+                "- name: Destroy it right after\n",
+                "  scaleway_compute:\n",
+                "    name: foobar\n",
+                "    state: absent\n",
+                "    image: 89ee4018-f8c3-4dc4-a6b5-bca14f985ebe\n",
+                "    organization: 951df375-e094-4d26-97c1-ba548eeb9c42\n",
+                "    region: ams1\n",
+                "    commercial_type: VC1S\n",
+                "'''\n",
+                "\n",
+                "RETURN = '''\n",
+                "'''\n",
+                "\n",
+                "import datetime\n",
+                "import time\n",
+                "\n",
+                "from ansible.module_utils.basic import AnsibleModule\n",
+                "from ansible.module_utils.basic import env_fallback\n",
+                "from ansible.module_utils.six.moves.urllib.parse import quote as urlquote\n",
+                "from ansible.module_utils.scaleway import ScalewayAPI, SCALEWAY_LOCATION\n",
+                "\n",
+                "SCALEWAY_COMMERCIAL_TYPES = [\n",
+                "\n",
+                "    # Virtual ARM64 compute instance\n",
+                "    'ARM64-2GB',\n",
+                "    'ARM64-4GB',\n",
+                "    'ARM64-8GB',\n",
+                "    'ARM64-16GB',\n",
+                "    'ARM64-32GB',\n",
+                "    'ARM64-64GB',\n",
+                "    'ARM64-128GB',\n",
+                "\n",
+                "    # Baremetal\n",
+                "    'C1',  # ARM64 (4 cores) - 2GB\n",
+                "    'C2S',  # X86-64 (4 cores) - 8GB\n",
+                "    'C2M',  # X86-64 (8 cores) - 16GB\n",
+                "    'C2L',  # x86-64 (8 cores) - 32 GB\n",
+                "\n",
+                "    # Virtual X86-64 compute instance\n",
+                "    'VC1S',  # Starter X86-64 (2 cores) - 2GB\n",
+                "    'VC1M',  # Starter X86-64 (4 cores) - 4GB\n",
+                "    'VC1L',  # Starter X86-64 (6 cores) - 8GB\n",
+                "    'X64-15GB',\n",
+                "    'X64-30GB',\n",
+                "    'X64-60GB',\n",
+                "    'X64-120GB',\n",
+                "]\n",
+                "\n",
+                "SCALEWAY_SERVER_STATES = (\n",
+                "    'stopped',\n",
+                "    'stopping',\n",
+                "    'starting',\n",
+                "    'running',\n",
+                "    'locked'\n",
+                ")\n",
+                "\n",
+                "SCALEWAY_TRANSITIONS_STATES = (\n",
+                "    \"stopping\",\n",
+                "    \"starting\",\n",
+                "    \"pending\"\n",
+                ")\n",
+                "\n",
+                "\n",
+                "def fetch_state(compute_api, server):\n",
+                "    compute_api.module.debug(\"fetch_state of server: %s\" % server[\"id\"])\n",
+                "    response = compute_api.get(path=\"servers/%s\" % server[\"id\"])\n",
+                "\n",
+                "    if response.status_code == 404:\n",
+                "        return \"absent\"\n",
+                "\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during state fetching: (%s) %s' % (response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    try:\n",
+                "        compute_api.module.debug(\"Server %s in state: %s\" % (server[\"id\"], response.json[\"server\"][\"state\"]))\n",
+                "        return response.json[\"server\"][\"state\"]\n",
+                "    except KeyError:\n",
+                "        compute_api.module.fail_json(msg=\"Could not fetch state in %s\" % response.json)\n",
+                "\n",
+                "\n",
+                "def wait_to_complete_state_transition(compute_api, server):\n",
+                "    wait = compute_api.module.params[\"wait\"]\n",
+                "    if not wait:\n",
+                "        return\n",
+                "    wait_timeout = compute_api.module.params[\"wait_timeout\"]\n",
+                "    wait_sleep_time = compute_api.module.params[\"wait_sleep_time\"]\n",
+                "\n",
+                "    start = datetime.datetime.utcnow()\n",
+                "    end = start + datetime.timedelta(seconds=wait_timeout)\n",
+                "    while datetime.datetime.utcnow() < end:\n",
+                "        compute_api.module.debug(\"We are going to wait for the server to finish its transition\")\n",
+                "        if fetch_state(compute_api, server) not in SCALEWAY_TRANSITIONS_STATES:\n",
+                "            compute_api.module.debug(\"It seems that the server is not in transition anymore.\")\n",
+                "            compute_api.module.debug(\"Server in state: %s\" % fetch_state(compute_api, server))\n",
+                "            break\n",
+                "        time.sleep(wait_sleep_time)\n",
+                "    else:\n",
+                "        compute_api.module.fail_json(msg=\"Server takes too long to finish its transition\")\n",
+                "\n",
+                "\n",
+                "def create_server(compute_api, server):\n",
+                "    compute_api.module.debug(\"Starting a create_server\")\n",
+                "    target_server = None\n",
+                "    response = compute_api.post(path=\"servers\",\n",
+                "                                data={\"enable_ipv6\": server[\"enable_ipv6\"],\n",
+                "                                      \"tags\": server[\"tags\"],\n",
+                "                                      \"commercial_type\": server[\"commercial_type\"],\n",
+                "                                      \"image\": server[\"image\"],\n",
+                "                                      \"name\": server[\"name\"],\n",
+                "                                      \"organization\": server[\"organization\"]})\n",
+                "\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during server creation: (%s) %s' % (response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    try:\n",
+                "        target_server = response.json[\"server\"]\n",
+                "    except KeyError:\n",
+                "        compute_api.module.fail_json(msg=\"Error in getting the server information from: %s\" % response.json)\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    return target_server\n",
+                "\n",
+                "\n",
+                "def restart_server(compute_api, server):\n",
+                "    return perform_action(compute_api=compute_api, server=server, action=\"reboot\")\n",
+                "\n",
+                "\n",
+                "def stop_server(compute_api, server):\n",
+                "    return perform_action(compute_api=compute_api, server=server, action=\"poweroff\")\n",
+                "\n",
+                "\n",
+                "def start_server(compute_api, server):\n",
+                "    return perform_action(compute_api=compute_api, server=server, action=\"poweron\")\n",
+                "\n",
+                "\n",
+                "def perform_action(compute_api, server, action):\n",
+                "    response = compute_api.post(path=\"servers/%s/action\" % server[\"id\"],\n",
+                "                                data={\"action\": action})\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during server %s: (%s) %s' % (action, response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=server)\n",
+                "\n",
+                "    return response\n",
+                "\n",
+                "\n",
+                "def remove_server(compute_api, server):\n",
+                "    compute_api.module.debug(\"Starting remove server strategy\")\n",
+                "    response = compute_api.delete(path=\"servers/%s\" % server[\"id\"])\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during server deletion: (%s) %s' % (response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=server)\n",
+                "\n",
+                "    return response\n",
+                "\n",
+                "\n",
+                "def present_strategy(compute_api, wished_server):\n",
+                "    compute_api.module.debug(\"Starting present strategy\")\n",
+                "    changed = False\n",
+                "    query_results = find(compute_api=compute_api, wished_server=wished_server, per_page=1)\n",
+                "\n",
+                "    if not query_results:\n",
+                "        changed = True\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"A server would be created.\"}\n",
+                "\n",
+                "        target_server = create_server(compute_api=compute_api, server=wished_server)\n",
+                "    else:\n",
+                "        target_server = query_results[0]\n",
+                "\n",
+                "    if server_attributes_should_be_changed(compute_api=compute_api, target_server=target_server,\n",
+                "                                           wished_server=wished_server):\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"Server %s attributes would be changed.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        server_change_attributes(compute_api=compute_api, target_server=target_server, wished_server=wished_server)\n",
+                "\n",
+                "    return changed, target_server\n",
+                "\n",
+                "\n",
+                "def absent_strategy(compute_api, wished_server):\n",
+                "    compute_api.module.debug(\"Starting absent strategy\")\n",
+                "    changed = False\n",
+                "    target_server = None\n",
+                "    query_results = find(compute_api=compute_api, wished_server=wished_server, per_page=1)\n",
+                "\n",
+                "    if not query_results:\n",
+                "        return changed, {\"status\": \"Server already absent.\"}\n",
+                "    else:\n",
+                "        target_server = query_results[0]\n",
+                "\n",
+                "    changed = True\n",
+                "\n",
+                "    if compute_api.module.check_mode:\n",
+                "        return changed, {\"status\": \"Server %s would be made absent.\" % target_server[\"id\"]}\n",
+                "\n",
+                "    # A server MUST be stopped to be deleted.\n",
+                "    while not fetch_state(compute_api=compute_api, server=target_server) == \"stopped\":\n",
+                "        wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "        response = stop_server(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "        if not response.ok:\n",
+                "            err_msg = 'Error while stopping a server before removing it [{0}: {1}]'.format(response.status_code,\n",
+                "                                                                                           response.json)\n",
+                "            compute_api.module.fail_json(msg=err_msg)\n",
+                "\n",
+                "        wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    response = remove_server(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    if not response.ok:\n",
+                "        err_msg = 'Error while removing server [{0}: {1}]'.format(response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=err_msg)\n",
+                "\n",
+                "    return changed, {\"status\": \"Server %s deleted\" % target_server[\"id\"]}\n",
+                "\n",
+                "\n",
+                "def running_strategy(compute_api, wished_server):\n",
+                "    compute_api.module.debug(\"Starting running strategy\")\n",
+                "    changed = False\n",
+                "    query_results = find(compute_api=compute_api, wished_server=wished_server, per_page=1)\n",
+                "\n",
+                "    if not query_results:\n",
+                "        changed = True\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"A server would be created before being run.\"}\n",
+                "\n",
+                "        target_server = create_server(compute_api=compute_api, server=wished_server)\n",
+                "    else:\n",
+                "        target_server = query_results[0]\n",
+                "\n",
+                "    if server_attributes_should_be_changed(compute_api=compute_api, target_server=target_server,\n",
+                "                                           wished_server=wished_server):\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"Server %s attributes would be changed before running it.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        server_change_attributes(compute_api=compute_api, target_server=target_server, wished_server=wished_server)\n",
+                "\n",
+                "    current_state = fetch_state(compute_api=compute_api, server=target_server)\n",
+                "    if current_state not in (\"running\", \"starting\"):\n",
+                "        compute_api.module.debug(\"running_strategy: Server in state: %s\" % current_state)\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"Server %s attributes would be changed.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        response = start_server(compute_api=compute_api, server=target_server)\n",
+                "        if not response.ok:\n",
+                "            msg = 'Error while running server [{0}: {1}]'.format(response.status_code, response.json)\n",
+                "            compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    return changed, target_server\n",
+                "\n",
+                "\n",
+                "def stop_strategy(compute_api, wished_server):\n",
+                "    compute_api.module.debug(\"Starting stop strategy\")\n",
+                "    query_results = find(compute_api=compute_api, wished_server=wished_server, per_page=1)\n",
+                "\n",
+                "    changed = False\n",
+                "\n",
+                "    if not query_results:\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"A server would be created before being stopped.\"}\n",
+                "\n",
+                "        target_server = create_server(compute_api=compute_api, server=wished_server)\n",
+                "        changed = True\n",
+                "    else:\n",
+                "        target_server = query_results[0]\n",
+                "\n",
+                "    compute_api.module.debug(\"stop_strategy: Servers are found.\")\n",
+                "\n",
+                "    if server_attributes_should_be_changed(compute_api=compute_api, target_server=target_server,\n",
+                "                                           wished_server=wished_server):\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\n",
+                "                \"status\": \"Server %s attributes would be changed before stopping it.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        server_change_attributes(compute_api=compute_api, target_server=target_server, wished_server=wished_server)\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    current_state = fetch_state(compute_api=compute_api, server=target_server)\n",
+                "    if current_state not in (\"stopped\",):\n",
+                "        compute_api.module.debug(\"stop_strategy: Server in state: %s\" % current_state)\n",
+                "\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"Server %s would be stopped.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        response = stop_server(compute_api=compute_api, server=target_server)\n",
+                "        compute_api.module.debug(response.json)\n",
+                "        compute_api.module.debug(response.ok)\n",
+                "\n",
+                "        if not response.ok:\n",
+                "            msg = 'Error while stopping server [{0}: {1}]'.format(response.status_code, response.json)\n",
+                "            compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    return changed, target_server\n",
+                "\n",
+                "\n",
+                "def restart_strategy(compute_api, wished_server):\n",
+                "    compute_api.module.debug(\"Starting restart strategy\")\n",
+                "    changed = False\n",
+                "    query_results = find(compute_api=compute_api, wished_server=wished_server, per_page=1)\n",
+                "\n",
+                "    if not query_results:\n",
+                "        changed = True\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\"status\": \"A server would be created before being rebooted.\"}\n",
+                "\n",
+                "        target_server = create_server(compute_api=compute_api, server=wished_server)\n",
+                "    else:\n",
+                "        target_server = query_results[0]\n",
+                "\n",
+                "    if server_attributes_should_be_changed(compute_api=compute_api,\n",
+                "                                           target_server=target_server,\n",
+                "                                           wished_server=wished_server):\n",
+                "        changed = True\n",
+                "\n",
+                "        if compute_api.module.check_mode:\n",
+                "            return changed, {\n",
+                "                \"status\": \"Server %s attributes would be changed before rebooting it.\" % target_server[\"id\"]}\n",
+                "\n",
+                "        server_change_attributes(compute_api=compute_api, target_server=target_server, wished_server=wished_server)\n",
+                "\n",
+                "    changed = True\n",
+                "    if compute_api.module.check_mode:\n",
+                "        return changed, {\"status\": \"Server %s would be rebooted.\" % target_server[\"id\"]}\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    if fetch_state(compute_api=compute_api, server=target_server) in (\"running\",):\n",
+                "        response = restart_server(compute_api=compute_api, server=target_server)\n",
+                "        wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "        if not response.ok:\n",
+                "            msg = 'Error while restarting server that was running [{0}: {1}].'.format(response.status_code,\n",
+                "                                                                                      response.json)\n",
+                "            compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    if fetch_state(compute_api=compute_api, server=target_server) in (\"stopped\",):\n",
+                "        response = restart_server(compute_api=compute_api, server=target_server)\n",
+                "        wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "        if not response.ok:\n",
+                "            msg = 'Error while restarting server that was stopped [{0}: {1}].'.format(response.status_code,\n",
+                "                                                                                      response.json)\n",
+                "            compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    return changed, target_server\n",
+                "\n",
+                "\n",
+                "state_strategy = {\n",
+                "    \"present\": present_strategy,\n",
+                "    \"restarted\": restart_strategy,\n",
+                "    \"stopped\": stop_strategy,\n",
+                "    \"running\": running_strategy,\n",
+                "    \"absent\": absent_strategy\n",
+                "}\n",
+                "\n",
+                "\n",
+                "def find(compute_api, wished_server, per_page=1):\n",
+                "    compute_api.module.debug(\"Getting inside find\")\n",
+                "    # Only the name attribute is accepted in the Compute query API\n",
+                "    url = 'servers?name=%s&per_page=%d' % (urlquote(wished_server[\"name\"]), per_page)\n",
+                "    response = compute_api.get(url)\n",
+                "\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during server search: (%s) %s' % (response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    search_results = response.json[\"servers\"]\n",
+                "\n",
+                "    return search_results\n",
+                "\n",
+                "\n",
+                "PATCH_MUTABLE_SERVER_ATTRIBUTES = (\n",
+                "    \"ipv6\",\n",
+                "    \"tags\",\n",
+                "    \"name\",\n",
+                "    \"dynamic_ip_required\",\n",
+                ")\n",
+                "\n",
+                "\n",
+                "def server_attributes_should_be_changed(compute_api, target_server, wished_server):\n",
+                "    compute_api.module.debug(\"Checking if server attributes should be changed\")\n",
+                "    compute_api.module.debug(\"Current Server: %s\" % target_server)\n",
+                "    compute_api.module.debug(\"Wished Server: %s\" % wished_server)\n",
+                "    debug_dict = dict((x, (target_server[x], wished_server[x]))\n",
+                "                      for x in PATCH_MUTABLE_SERVER_ATTRIBUTES\n",
+                "                      if x in target_server and x in wished_server)\n",
+                "    compute_api.module.debug(\"Debug dict %s\" % debug_dict)\n",
+                "\n",
+                "    try:\n",
+                "        return any([target_server[x] != wished_server[x]\n",
+                "                    for x in PATCH_MUTABLE_SERVER_ATTRIBUTES\n",
+                "                    if x in target_server and x in wished_server])\n",
+                "    except AttributeError:\n",
+                "        compute_api.module.fail_json(msg=\"Error while checking if attributes should be changed\")\n",
+                "\n",
+                "\n",
+                "def server_change_attributes(compute_api, target_server, wished_server):\n",
+                "    compute_api.module.debug(\"Starting patching server attributes\")\n",
+                "    patch_payload = dict((x, wished_server[x])\n",
+                "                         for x in PATCH_MUTABLE_SERVER_ATTRIBUTES\n",
+                "                         if x in wished_server and x in target_server)\n",
+                "    response = compute_api.patch(path=\"servers/%s\" % target_server[\"id\"],\n",
+                "                                 data=patch_payload)\n",
+                "    if not response.ok:\n",
+                "        msg = 'Error during server attributes patching: (%s) %s' % (response.status_code, response.json)\n",
+                "        compute_api.module.fail_json(msg=msg)\n",
+                "\n",
+                "    wait_to_complete_state_transition(compute_api=compute_api, server=target_server)\n",
+                "\n",
+                "    return response\n",
+                "\n",
+                "\n",
+                "def core(module):\n",
+                "    api_token = module.params['oauth_token']\n",
+                "    region = module.params[\"region\"]\n",
+                "    wished_server = {\n",
+                "        \"state\": module.params[\"state\"],\n",
+                "        \"image\": module.params[\"image\"],\n",
+                "        \"name\": module.params[\"name\"],\n",
+                "        \"commercial_type\": module.params[\"commercial_type\"],\n",
+                "        \"enable_ipv6\": module.params[\"enable_ipv6\"],\n",
+                "        \"tags\": module.params[\"tags\"],\n",
+                "        \"organization\": module.params[\"organization\"]\n",
+                "    }\n",
+                "\n",
+                "    compute_api = ScalewayAPI(module=module,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                              headers={'X-Auth-Token': api_token,\n",
+                    "                                       'Content-type': 'application/json'},\n"
+                ],
+                "after": [
+                    "                              headers={'X-Auth-Token': api_token},\n"
+                ],
+                "parent_version_range": {
+                    "start": 586,
+                    "end": 588
+                },
+                "child_version_range": {
+                    "start": 586,
+                    "end": 587
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "core",
+                        "signature": "def core(module):",
+                        "at_line": 572
+                    },
+                    {
+                        "type": "call",
+                        "name": "ScalewayAPI",
+                        "signature": "ScalewayAPI(module=module,\n                              headers={'X-Auth-Token': api_token,\n                                       'Content-type': 'application/json'},\n                              base_url=SCALEWAY_LOCATION[region][\"api_endpoint\"])",
+                        "at_line": 585,
+                        "argument": "headers=..."
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: lib/ansible/modules/cloud/scaleway/scaleway_compute.py\nCode:\n           def core(module):\n               ...\n583 583        }\n584 584    \n585 585        compute_api = ScalewayAPI(module=module,\n586      -                               headers={'X-Auth-Token': api_token,\n587      -                                        'Content-type': 'application/json'},\n    586  +                               headers={'X-Auth-Token': api_token},\n588 587                                  base_url=SCALEWAY_LOCATION[region][\"api_endpoint\"])\n589 588    \n590 589        changed, summary = state_strategy[wished_server[\"state\"]](compute_api=compute_api, wished_server=wished_server)\n         ...\n",
+                "file_path": "lib/ansible/modules/cloud/scaleway/scaleway_compute.py",
+                "identifiers_before": [
+                    "api_token",
+                    "headers"
+                ],
+                "identifiers_after": [
+                    "api_token",
+                    "headers"
+                ],
+                "prefix": [
+                    "    }\n",
+                    "\n",
+                    "    compute_api = ScalewayAPI(module=module,\n"
+                ],
+                "suffix": [
+                    "                              base_url=SCALEWAY_LOCATION[region][\"api_endpoint\"])\n",
+                    "\n",
+                    "    changed, summary = state_strategy[wished_server[\"state\"]](compute_api=compute_api, wished_server=wished_server)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 586,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 586,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/modules/cloud/scaleway/scaleway_compute.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 586,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 586,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/modules/cloud/scaleway/scaleway_compute.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "                              base_url=SCALEWAY_LOCATION[region][\"api_endpoint\"])\n",
+                "\n",
+                "    changed, summary = state_strategy[wished_server[\"state\"]](compute_api=compute_api, wished_server=wished_server)\n",
+                "    module.exit_json(changed=changed, msg=summary)\n",
+                "\n",
+                "\n",
+                "def main():\n",
+                "    module = AnsibleModule(\n",
+                "        argument_spec=dict(\n",
+                "            oauth_token=dict(\n",
+                "                no_log=True,\n",
+                "                # Support environment variable for Scaleway OAuth Token\n",
+                "                fallback=(env_fallback, ['SCW_TOKEN', 'SCW_API_KEY', 'SCW_OAUTH_TOKEN']),\n",
+                "                required=True,\n",
+                "            ),\n",
+                "            image=dict(required=True),\n",
+                "            name=dict(),\n",
+                "            region=dict(required=True, choices=SCALEWAY_LOCATION.keys()),\n",
+                "            commercial_type=dict(required=True, choices=SCALEWAY_COMMERCIAL_TYPES),\n",
+                "            enable_ipv6=dict(default=False, type=\"bool\"),\n",
+                "            state=dict(choices=state_strategy.keys(), default='present'),\n",
+                "            tags=dict(type=\"list\", default=[]),\n",
+                "            organization=dict(required=True),\n",
+                "            timeout=dict(type=\"int\", default=30),\n",
+                "            wait=dict(type=\"bool\", default=False),\n",
+                "            wait_timeout=dict(type=\"int\", default=300),\n",
+                "            wait_sleep_time=dict(type=\"int\", default=3),\n",
+                "        ),\n",
+                "        supports_check_mode=True,\n",
+                "    )\n",
+                "\n",
+                "    core(module)\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    main()"
+            ]
+        ],
+        "lib/ansible/modules/cloud/scaleway/scaleway_sshkey.py": [
+            [
+                "#!/usr/bin/python\n",
+                "#\n",
+                "# Scaleway SSH keys management module\n",
+                "#\n",
+                "# Copyright (C) 2018 Online SAS.\n",
+                "# https://www.scaleway.com\n",
+                "#\n",
+                "# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)\n",
+                "\n",
+                "from __future__ import absolute_import, division, print_function\n",
+                "\n",
+                "__metaclass__ = type\n",
+                "\n",
+                "ANSIBLE_METADATA = {\n",
+                "    'metadata_version': '1.1',\n",
+                "    'status': ['preview'],\n",
+                "    'supported_by': 'community'\n",
+                "}\n",
+                "\n",
+                "DOCUMENTATION = '''\n",
+                "---\n",
+                "module: scaleway_sshkey\n",
+                "short_description: Scaleway SSH keys management module\n",
+                "version_added: \"2.6\"\n",
+                "author: Remy Leone (@sieben)\n",
+                "description:\n",
+                "    - This module manages SSH keys on Scaleway account\n",
+                "      U(https://developer.scaleway.com)\n",
+                "\n",
+                "options:\n",
+                "  state:\n",
+                "    description:\n",
+                "     - Indicate desired state of the SSH key.\n",
+                "    required: true\n",
+                "    choices:\n",
+                "      - present\n",
+                "      - absent\n",
+                "  ssh_pub_key:\n",
+                "    description:\n",
+                "     - The public SSH key as a string to add.\n",
+                "    required: true\n",
+                "  oauth_token:\n",
+                "    description:\n",
+                "     - Scaleway OAuth token.\n",
+                "    required: true\n",
+                "  timeout:\n",
+                "    description:\n",
+                "    - Timeout for API calls\n",
+                "    default: 30\n",
+                "  base_url:\n",
+                "    description:\n",
+                "    - Base URL for account API\n",
+                "    default: \"https://account.scaleway.com\"\n",
+                "'''\n",
+                "\n",
+                "EXAMPLES = '''\n",
+                "- name: \"Add SSH key\"\n",
+                "  scaleway_sshkey:\n",
+                "    ssh_pub_key: \"ssh-rsa AAAA...\"\n",
+                "    state: \"Present\"\n",
+                "\n",
+                "- name: \"Delete SSH key\"\n",
+                "  scaleway_sshkey:\n",
+                "    ssh_pub_key: \"ssh-rsa AAAA...\"\n",
+                "    state: \"absent\"\n",
+                "\n",
+                "- name: \"Add SSH key with explicit token\"\n",
+                "  scaleway_sshkey:\n",
+                "    ssh_pub_key: \"ssh-rsa AAAA...\"\n",
+                "    state: \"Present\"\n",
+                "    oauth_token: \"6ecd2c9b-6f4f-44d4-a187-61a92078d08c\"\n",
+                "'''\n",
+                "\n",
+                "RETURN = '''\n",
+                "data:\n",
+                "    description: This is only present when C(state=present)\n",
+                "    returned: when C(state=present)\n",
+                "    type: dict\n",
+                "    sample: {\n",
+                "        \"ssh_public_keys\": [\n",
+                "            {\"key\": \"ssh-rsa AAAA....\"}\n",
+                "        ]\n",
+                "    }\n",
+                "'''\n",
+                "\n",
+                "from ansible.module_utils.basic import AnsibleModule\n",
+                "from ansible.module_utils.basic import env_fallback\n",
+                "from ansible.module_utils.scaleway import ScalewayAPI\n",
+                "\n",
+                "\n",
+                "def extract_present_sshkeys(raw_organization_dict):\n",
+                "    ssh_key_list = raw_organization_dict[\"organizations\"][0][\"users\"][0][\"ssh_public_keys\"]\n",
+                "    ssh_key_lookup = [ssh_key[\"key\"] for ssh_key in ssh_key_list]\n",
+                "    return ssh_key_lookup\n",
+                "\n",
+                "\n",
+                "def extract_user_id(raw_organization_dict):\n",
+                "    return raw_organization_dict[\"organizations\"][0][\"users\"][0][\"id\"]\n",
+                "\n",
+                "\n",
+                "def sshkey_user_patch(ssh_lookup):\n",
+                "    ssh_list = {\"ssh_public_keys\": [{\"key\": key}\n",
+                "                                    for key in ssh_lookup]}\n",
+                "    return ssh_list\n",
+                "\n",
+                "\n",
+                "def core(module):\n",
+                "    api_token = module.params['oauth_token']\n",
+                "    ssh_pub_key = module.params['ssh_pub_key']\n",
+                "    state = module.params[\"state\"]\n",
+                "    account_api = ScalewayAPI(module,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                              headers={'X-Auth-Token': api_token,\n",
+                    "                                       'Content-type': 'application/json'},\n"
+                ],
+                "after": [
+                    "                              headers={'X-Auth-Token': api_token},\n"
+                ],
+                "parent_version_range": {
+                    "start": 111,
+                    "end": 113
+                },
+                "child_version_range": {
+                    "start": 111,
+                    "end": 112
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "core",
+                        "signature": "def core(module):",
+                        "at_line": 106
+                    },
+                    {
+                        "type": "call",
+                        "name": "ScalewayAPI",
+                        "signature": "ScalewayAPI(module,\n                              headers={'X-Auth-Token': api_token,\n                                       'Content-type': 'application/json'},\n                              base_url=module.params[\"base_url\"])",
+                        "at_line": 110,
+                        "argument": "headers=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: lib/ansible/modules/cloud/scaleway/scaleway_sshkey.py\nCode:\n           def core(module):\n               ...\n108 108        ssh_pub_key = module.params['ssh_pub_key']\n109 109        state = module.params[\"state\"]\n110 110        account_api = ScalewayAPI(module,\n111      -                               headers={'X-Auth-Token': api_token,\n112      -                                        'Content-type': 'application/json'},\n    111  +                               headers={'X-Auth-Token': api_token},\n113 112                                  base_url=module.params[\"base_url\"])\n114 113        response = account_api.get('organizations')\n115 114    \n         ...\n",
+                "file_path": "lib/ansible/modules/cloud/scaleway/scaleway_sshkey.py",
+                "identifiers_before": [
+                    "api_token",
+                    "headers"
+                ],
+                "identifiers_after": [
+                    "api_token",
+                    "headers"
+                ],
+                "prefix": [
+                    "    ssh_pub_key = module.params['ssh_pub_key']\n",
+                    "    state = module.params[\"state\"]\n",
+                    "    account_api = ScalewayAPI(module,\n"
+                ],
+                "suffix": [
+                    "                              base_url=module.params[\"base_url\"])\n",
+                    "    response = account_api.get('organizations')\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 111,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 111,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/modules/cloud/scaleway/scaleway_sshkey.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "headers",
+                            "position": {
+                                "start": {
+                                    "line": 111,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 111,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ansible/lib/ansible/modules/cloud/scaleway/scaleway_sshkey.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "                              base_url=module.params[\"base_url\"])\n",
+                "    response = account_api.get('organizations')\n",
+                "\n",
+                "    status_code = response.status_code\n",
+                "    organization_json = response.json\n",
+                "\n",
+                "    if not response.ok:\n",
+                "        module.fail_json(msg='Error getting ssh key [{0}: {1}]'.format(\n",
+                "            status_code, response.json['message']))\n",
+                "\n",
+                "    user_id = extract_user_id(organization_json)\n",
+                "    present_sshkeys = []\n",
+                "    try:\n",
+                "        present_sshkeys = extract_present_sshkeys(organization_json)\n",
+                "    except (KeyError, IndexError) as e:\n",
+                "        module.fail_json(changed=False, data=\"Error while extracting present SSH keys from API\")\n",
+                "\n",
+                "    if state in ('present',):\n",
+                "        if ssh_pub_key in present_sshkeys:\n",
+                "            module.exit_json(changed=False)\n",
+                "\n",
+                "        # If key not found create it!\n",
+                "        if module.check_mode:\n",
+                "            module.exit_json(changed=True)\n",
+                "\n",
+                "        present_sshkeys.append(ssh_pub_key)\n",
+                "        payload = sshkey_user_patch(present_sshkeys)\n",
+                "\n",
+                "        response = account_api.patch('/users/%s' % user_id, data=payload)\n",
+                "\n",
+                "        if response.ok:\n",
+                "            module.exit_json(changed=True, data=response.json)\n",
+                "\n",
+                "        module.fail_json(msg='Error creating ssh key [{0}: {1}]'.format(\n",
+                "            response.status_code, response.json))\n",
+                "\n",
+                "    elif state in ('absent',):\n",
+                "        if ssh_pub_key not in present_sshkeys:\n",
+                "            module.exit_json(changed=False)\n",
+                "\n",
+                "        if module.check_mode:\n",
+                "            module.exit_json(changed=True)\n",
+                "\n",
+                "        present_sshkeys.remove(ssh_pub_key)\n",
+                "        payload = sshkey_user_patch(present_sshkeys)\n",
+                "\n",
+                "        response = account_api.patch('/users/%s' % user_id, data=payload)\n",
+                "\n",
+                "        if response.ok:\n",
+                "            module.exit_json(changed=True, data=response.json)\n",
+                "\n",
+                "        module.fail_json(msg='Error deleting ssh key [{0}: {1}]'.format(\n",
+                "            response.status_code, response.json))\n",
+                "\n",
+                "\n",
+                "def main():\n",
+                "    module = AnsibleModule(\n",
+                "        argument_spec=dict(\n",
+                "            base_url=dict(default='https://account.scaleway.com'),\n",
+                "            oauth_token=dict(\n",
+                "                no_log=True,\n",
+                "                # Support environment variable for Scaleway OAuth Token\n",
+                "                fallback=(env_fallback, ['SCW_TOKEN', 'SCW_API_KEY', 'SCW_OAUTH_TOKEN']),\n",
+                "                required=True,\n",
+                "            ),\n",
+                "            state=dict(choices=['present', 'absent'], required=True),\n",
+                "            ssh_pub_key=dict(required=True),\n",
+                "            timeout=dict(type='int', default=30),\n",
+                "        ),\n",
+                "        supports_check_mode=True,\n",
+                "    )\n",
+                "\n",
+                "    core(module)\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    main()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

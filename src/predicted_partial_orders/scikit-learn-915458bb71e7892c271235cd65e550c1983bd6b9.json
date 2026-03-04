@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a variable 'rng' as np.random.RandomState(0), and edit 1 uses that exact same 'rng' variable to replace np.random.rand() with rng.rand(). The changed lines reference the exact same symbol 'rng' - edit 0 creates it and edit 1 uses it. This creates an immediate code dependency where after defining rng in edit 0, using it in edit 1 becomes the natural next step to replace the global random call with the seeded random state. Both edits can be staged in either order (Python allows referencing undefined variables at parse time), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'rng' as np.random.RandomState(0), and edit 1 uses that exact same 'rng' variable to replace np.random.rand() with rng.rand(). The changed lines reference the exact same symbol 'rng' - edit 0 creates it and edit 1 uses it. This creates an immediate code dependency where after defining rng in edit 0, using it in edit 1 becomes the natural next step to replace the global random call with the seeded random state. Both edits can be staged in either order (Python allows referencing undefined variables at parse time), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform the identical textual substitution pattern: replacing 'np.random.randn' with 'rng.randn'. This is a uniform refactoring pattern applied to the same type of syntactic construct (random number generation calls) within the same test file. Both changes are part of a single, contiguous refactor to use a seeded random number generator instead of the global numpy random state. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform the identical textual substitution pattern: replacing 'np.random.randn' with 'rng.randn'. This is a uniform refactoring pattern applied to the same type of syntactic construct (random number generation calls) within the same test file. Both changes are part of a single, contiguous refactor to use a seeded random number generator instead of the global numpy random state. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 defines a variable 'rng' as np.random.RandomState(0), and edit 1 uses that exact same 'rng' variable to replace np.random.randn() with rng.randn(). The changed lines reference the exact same symbol 'rng' - edit 0 creates it and edit 1 uses it. This creates an immediate code dependency where after defining rng in edit 0, using it in edit 1 becomes the natural next step to replace the global random call with the seeded random state. Both edits can be staged in either order (no parse errors), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 defines a variable 'rng' as np.random.RandomState(0), and edit 1 uses that exact same 'rng' variable to replace np.random.randn() with rng.randn(). The changed lines reference the exact same symbol 'rng' - edit 0 creates it and edit 1 uses it. This creates an immediate code dependency where after defining rng in edit 0, using it in edit 1 becomes the natural next step to replace the global random call with the seeded random state. Both edits can be staged in either order (no parse errors), making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        4
+    ]
+}

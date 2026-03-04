@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'Literal' symbol from airflow.typing_compat, and Edit 1 uses that exact same 'Literal' symbol in a type annotation. After making the import in Edit 0, using Literal in Edit 1 becomes the natural next step. Both edits reference the exact same symbol 'Literal' - one defines it via import, the other uses it. This creates an immediate, mechanically obvious code-driven prompt where either edit can be made first (the usage would cause a runtime NameError but not a parse error in Python), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 'Literal' symbol from airflow.typing_compat, and Edit 1 uses that exact same 'Literal' symbol in a type annotation. After making the import in Edit 0, using Literal in Edit 1 becomes the natural next step. Both edits reference the exact same symbol 'Literal' - one defines it via import, the other uses it. This creates an immediate, mechanically obvious code-driven prompt where either edit can be made first (the usage would cause a runtime NameError but not a parse error in Python), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 imports 'Literal' from 'airflow.typing_compat' module, while Edit 1 adds 'Literal' to the imports in the typing_compat.py module itself. These edits reference the exact same symbol 'Literal' - Edit 1 makes it available in the typing_compat module, and Edit 0 imports it from there. This creates a direct definition-usage relationship where both edits can be staged in either order (the import in Edit 0 would cause a runtime ImportError if Edit 1 hasn't been applied, but both edits can be parsed and staged independently in Python). This is a bi-directional relationship as either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'Literal' from 'airflow.typing_compat' module, while Edit 1 adds 'Literal' to the imports in the typing_compat.py module itself. These edits reference the exact same symbol 'Literal' - Edit 1 makes it available in the typing_compat module, and Edit 0 imports it from there. This creates a direct definition-usage relationship where both edits can be staged in either order (the import in Edit 0 would cause a runtime ImportError if Edit 1 hasn't been applied, but both edits can be parsed and staged independently in Python). This is a bi-directional relationship as either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 imports 'Literal' from 'airflow.typing_compat' while Edit 1 adds 'Literal' to the imports in the 'airflow.typing_compat' module. These edits reference the exact same symbol (Literal) where Edit 1 makes Literal available in the typing_compat module and Edit 0 imports that same symbol. This creates a direct definition-usage relationship where both edits can be staged in either order (the import in Edit 0 would cause a runtime ImportError if Edit 1 hasn't been applied, but both edits can be written and parsed independently). This is a bi-directional relationship as either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 imports 'Literal' from 'airflow.typing_compat' while Edit 1 adds 'Literal' to the imports in the 'airflow.typing_compat' module. These edits reference the exact same symbol (Literal) where Edit 1 makes Literal available in the typing_compat module and Edit 0 imports that same symbol. This creates a direct definition-usage relationship where both edits can be staged in either order (the import in Edit 0 would cause a runtime ImportError if Edit 1 hasn't been applied, but both edits can be written and parsed independently). This is a bi-directional relationship as either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a type annotation using 'Literal' in the function signature, while Edit 1 adds the import for 'Literal' from typing. The changed line in Edit 0 references the exact same symbol 'Literal' that is being imported in Edit 1. This creates a direct code dependency where using 'Literal' in the type annotation requires it to be imported. In Python, using an undefined symbol in type annotations is allowed at parse time but would fail at runtime/import time, making this a bi-directional relationship where either edit can be staged first, but after making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a type annotation using 'Literal' in the function signature, while Edit 1 adds the import for 'Literal' from typing. The changed line in Edit 0 references the exact same symbol 'Literal' that is being imported in Edit 1. This creates a direct code dependency where using 'Literal' in the type annotation requires it to be imported. In Python, using an undefined symbol in type annotations is allowed at parse time but would fail at runtime/import time, making this a bi-directional relationship where either edit can be staged first, but after making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 adds a type annotation using 'Literal' in the function signature, while Edit 1 adds 'Literal' to the import statement from typing_extensions. The changed line in Edit 0 references the exact same symbol 'Literal' that is being imported in Edit 1's changed line. This creates a direct code dependency where using 'Literal' in the type annotation requires it to be imported. In Python, the import can be added before or after the usage since both can be parsed successfully (the usage would only fail at runtime/import time without the import), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 adds a type annotation using 'Literal' in the function signature, while Edit 1 adds 'Literal' to the import statement from typing_extensions. The changed line in Edit 0 references the exact same symbol 'Literal' that is being imported in Edit 1's changed line. This creates a direct code dependency where using 'Literal' in the type annotation requires it to be imported. In Python, the import can be added before or after the usage since both can be parsed successfully (the usage would only fail at runtime/import time without the import), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `clear_task_instances` and work together to implement a parameter deprecation pattern. Edit 0 changes the type annotation of the `dag_run_state` parameter to allow both string and `Literal[False]` values. Edit 1 adds deprecation warning logic that sets `dag_run_state = False` when the deprecated `activate_dag_runs` parameter is used. The changed lines in both edits reference the exact same symbol `dag_run_state` - edit 0 modifies its type signature and edit 1 assigns to it. This creates a direct code dependency where the type change in edit 0 enables the assignment in edit 1 to be type-safe. Both edits are part of the same micro-task of implementing parameter deprecation and either could be implemented first since both are syntactically valid independently."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `clear_task_instances` and work together to implement a parameter deprecation pattern. Edit 0 changes the type annotation of the `dag_run_state` parameter to allow both string and `Literal[False]` values. Edit 1 adds deprecation warning logic that sets `dag_run_state = False` when the deprecated `activate_dag_runs` parameter is used. The changed lines in both edits reference the exact same symbol `dag_run_state` - edit 0 modifies its type signature and edit 1 assigns to it. This creates a direct code dependency where the type change in edit 0 enables the assignment in edit 1 to be type-safe. Both edits are part of the same micro-task of implementing parameter deprecation and either could be implemented first since both are syntactically valid independently."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'activate_dag_runs' within the same function. Edit 0 adds the parameter to the function signature, and Edit 1 adds code that uses this parameter in the function body. After adding the parameter in Edit 0, the natural next step would be to implement the logic that uses this parameter, which is exactly what Edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit can be made first (the parameter can be added without usage, and the usage code can be written referencing the parameter), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'activate_dag_runs' within the same function. Edit 0 adds the parameter to the function signature, and Edit 1 adds code that uses this parameter in the function body. After adding the parameter in Edit 0, the natural next step would be to implement the logic that uses this parameter, which is exactly what Edit 1 does. This creates an immediate, mechanically obvious code-driven prompt where either edit can be made first (the parameter can be added without usage, and the usage code can be written referencing the parameter), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits are adding 'Literal' to import statements in the same file - one adds it to the typing import (edit 0) and the other adds it to the typing_extensions import (edit 1). This is a synchronized pattern where the same symbol 'Literal' is being added to both import locations as part of a single refactoring task to ensure the symbol is available regardless of which import path is used. Both edits reference the exact same symbol 'Literal' and represent identical structural substitutions (adding the same import to different fallback import statements). Either edit can be made first, and after making either one, the other becomes the natural next step to complete the synchronized import addition."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits are adding 'Literal' to import statements in the same file - one adds it to the typing import (edit 0) and the other adds it to the typing_extensions import (edit 1). This is a synchronized pattern where the same symbol 'Literal' is being added to both import locations as part of a single refactoring task to ensure the symbol is available regardless of which import path is used. Both edits reference the exact same symbol 'Literal' and represent identical structural substitutions (adding the same import to different fallback import statements). Either edit can be made first, and after making either one, the other becomes the natural next step to complete the synchronized import addition."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

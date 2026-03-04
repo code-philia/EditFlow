@@ -1,0 +1,1297 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/AUTOMATIC1111/stable-diffusion-webui/commit/0a6628bad0615a640efd99937eb6d10d6d648975",
+    "commit_message": "remove mentions of specific samplers from CFG denoiser code",
+    "commit_snapshots": {
+        "modules/sd_samplers_cfg_denoiser.py": [
+            [
+                "import torch\n",
+                "from modules import prompt_parser, sd_samplers_common\n",
+                "\n",
+                "from modules.shared import opts, state\n",
+                "import modules.shared as shared\n",
+                "from modules.script_callbacks import CFGDenoiserParams, cfg_denoiser_callback\n",
+                "from modules.script_callbacks import CFGDenoisedParams, cfg_denoised_callback\n",
+                "from modules.script_callbacks import AfterCFGCallbackParams, cfg_after_cfg_callback\n",
+                "\n",
+                "\n",
+                "def catenate_conds(conds):\n",
+                "    if not isinstance(conds[0], dict):\n",
+                "        return torch.cat(conds)\n",
+                "\n",
+                "    return {key: torch.cat([x[key] for x in conds]) for key in conds[0].keys()}\n",
+                "\n",
+                "\n",
+                "def subscript_cond(cond, a, b):\n",
+                "    if not isinstance(cond, dict):\n",
+                "        return cond[a:b]\n",
+                "\n",
+                "    return {key: vec[a:b] for key, vec in cond.items()}\n",
+                "\n",
+                "\n",
+                "def pad_cond(tensor, repeats, empty):\n",
+                "    if not isinstance(tensor, dict):\n",
+                "        return torch.cat([tensor, empty.repeat((tensor.shape[0], repeats, 1))], axis=1)\n",
+                "\n",
+                "    tensor['crossattn'] = pad_cond(tensor['crossattn'], repeats, empty)\n",
+                "    return tensor\n",
+                "\n",
+                "\n",
+                "class CFGDenoiser(torch.nn.Module):\n",
+                "    \"\"\"\n",
+                "    Classifier free guidance denoiser. A wrapper for stable diffusion model (specifically for unet)\n",
+                "    that can take a noisy picture and produce a noise-free picture using two guidances (prompts)\n",
+                "    instead of one. Originally, the second prompt is just an empty string, but we use non-empty\n",
+                "    negative prompt.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, sampler):\n",
+                "        super().__init__()\n",
+                "        self.model_wrap = None\n",
+                "        self.mask = None\n",
+                "        self.nmask = None\n",
+                "        self.init_latent = None\n",
+                "        self.steps = None\n",
+                "        \"\"\"number of steps as specified by user in UI\"\"\"\n",
+                "\n",
+                "        self.total_steps = None\n",
+                "        \"\"\"expected number of calls to denoiser calculated from self.steps and specifics of the selected sampler\"\"\"\n",
+                "\n",
+                "        self.step = 0\n",
+                "        self.image_cfg_scale = None\n",
+                "        self.padded_cond_uncond = False\n",
+                "        self.padded_cond_uncond_v0 = False\n",
+                "        self.sampler = sampler\n",
+                "        self.model_wrap = None\n",
+                "        self.p = None\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.cond_scale_miltiplier = 1.0\n",
+                    "\n",
+                    "        self.need_last_noise_uncond = False\n"
+                ],
+                "parent_version_range": {
+                    "start": 60,
+                    "end": 60
+                },
+                "child_version_range": {
+                    "start": 60,
+                    "end": 63
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, sampler):",
+                        "at_line": 40
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n         class CFGDenoiser(torch.nn.Module):\n             ...\n             def __init__(self, sampler):\n                 ...\n57 57            self.model_wrap = None\n58 58            self.p = None\n59 59    \n   60  +         self.cond_scale_miltiplier = 1.0\n   61  + \n   62  +         self.need_last_noise_uncond = False\n60 63            self.last_noise_uncond = None\n61 64    \n62 65            # NOTE: masking before denoising can cause the original latents to be oversmoothed\n       ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "cond_scale_miltiplier",
+                    "need_last_noise_uncond",
+                    "self"
+                ],
+                "prefix": [
+                    "        self.model_wrap = None\n",
+                    "        self.p = None\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        self.last_noise_uncond = None\n",
+                    "\n",
+                    "        # NOTE: masking before denoising can cause the original latents to be oversmoothed\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "cond_scale_miltiplier",
+                            "position": {
+                                "start": {
+                                    "line": 60,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 60,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "cond_scale_miltiplier",
+                            "position": {
+                                "start": {
+                                    "line": 60,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 60,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "need_last_noise_uncond",
+                            "position": {
+                                "start": {
+                                    "line": 62,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 62,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        self.last_noise_uncond = None\n",
+                "\n",
+                "        # NOTE: masking before denoising can cause the original latents to be oversmoothed\n",
+                "        # as the original latents do not have noise\n",
+                "        self.mask_before_denoising = False\n",
+                "\n",
+                "    @property\n",
+                "    def inner_model(self):\n",
+                "        raise NotImplementedError()\n",
+                "\n",
+                "    def combine_denoised(self, x_out, conds_list, uncond, cond_scale):\n",
+                "        denoised_uncond = x_out[-uncond.shape[0]:]\n",
+                "        denoised = torch.clone(denoised_uncond)\n",
+                "\n",
+                "        for i, conds in enumerate(conds_list):\n",
+                "            for cond_index, weight in conds:\n",
+                "                denoised[i] += (x_out[cond_index] - denoised_uncond[i]) * (weight * cond_scale)\n",
+                "\n",
+                "        return denoised\n",
+                "\n",
+                "    def combine_denoised_for_edit_model(self, x_out, cond_scale):\n",
+                "        out_cond, out_img_cond, out_uncond = x_out.chunk(3)\n",
+                "        denoised = out_uncond + cond_scale * (out_cond - out_img_cond) + self.image_cfg_scale * (out_img_cond - out_uncond)\n",
+                "\n",
+                "        return denoised\n",
+                "\n",
+                "    def get_pred_x0(self, x_in, x_out, sigma):\n",
+                "        return x_out\n",
+                "\n",
+                "    def update_inner_model(self):\n",
+                "        self.model_wrap = None\n",
+                "\n",
+                "        c, uc = self.p.get_conds()\n",
+                "        self.sampler.sampler_extra_args['cond'] = c\n",
+                "        self.sampler.sampler_extra_args['uncond'] = uc\n",
+                "\n",
+                "    def pad_cond_uncond(self, cond, uncond):\n",
+                "        empty = shared.sd_model.cond_stage_model_empty_prompt\n",
+                "        num_repeats = (cond.shape[1] - uncond.shape[1]) // empty.shape[1]\n",
+                "\n",
+                "        if num_repeats < 0:\n",
+                "            cond = pad_cond(cond, -num_repeats, empty)\n",
+                "            self.padded_cond_uncond = True\n",
+                "        elif num_repeats > 0:\n",
+                "            uncond = pad_cond(uncond, num_repeats, empty)\n",
+                "            self.padded_cond_uncond = True\n",
+                "\n",
+                "        return cond, uncond\n",
+                "\n",
+                "    def pad_cond_uncond_v0(self, cond, uncond):\n",
+                "        \"\"\"\n",
+                "        Pads the 'uncond' tensor to match the shape of the 'cond' tensor.\n",
+                "\n",
+                "        If 'uncond' is a dictionary, it is assumed that the 'crossattn' key holds the tensor to be padded.\n",
+                "        If 'uncond' is a tensor, it is padded directly.\n",
+                "\n",
+                "        If the number of columns in 'uncond' is less than the number of columns in 'cond', the last column of 'uncond'\n",
+                "        is repeated to match the number of columns in 'cond'.\n",
+                "\n",
+                "        If the number of columns in 'uncond' is greater than the number of columns in 'cond', 'uncond' is truncated\n",
+                "        to match the number of columns in 'cond'.\n",
+                "\n",
+                "        Args:\n",
+                "            cond (torch.Tensor or DictWithShape): The condition tensor to match the shape of 'uncond'.\n",
+                "            uncond (torch.Tensor or DictWithShape): The tensor to be padded, or a dictionary containing the tensor to be padded.\n",
+                "\n",
+                "        Returns:\n",
+                "            tuple: A tuple containing the 'cond' tensor and the padded 'uncond' tensor.\n",
+                "\n",
+                "        Note:\n",
+                "            This is the padding that was always used in DDIM before version 1.6.0\n",
+                "        \"\"\"\n",
+                "\n",
+                "        is_dict_cond = isinstance(uncond, dict)\n",
+                "        uncond_vec = uncond['crossattn'] if is_dict_cond else uncond\n",
+                "\n",
+                "        if uncond_vec.shape[1] < cond.shape[1]:\n",
+                "            last_vector = uncond_vec[:, -1:]\n",
+                "            last_vector_repeated = last_vector.repeat([1, cond.shape[1] - uncond_vec.shape[1], 1])\n",
+                "            uncond_vec = torch.hstack([uncond_vec, last_vector_repeated])\n",
+                "            self.padded_cond_uncond_v0 = True\n",
+                "        elif uncond_vec.shape[1] > cond.shape[1]:\n",
+                "            uncond_vec = uncond_vec[:, :cond.shape[1]]\n",
+                "            self.padded_cond_uncond_v0 = True\n",
+                "\n",
+                "        if is_dict_cond:\n",
+                "            uncond['crossattn'] = uncond_vec\n",
+                "        else:\n",
+                "            uncond = uncond_vec\n",
+                "\n",
+                "        return cond, uncond\n",
+                "\n",
+                "    def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n",
+                "        if state.interrupted or state.skipped:\n",
+                "            raise sd_samplers_common.InterruptedException\n",
+                "\n",
+                "        if sd_samplers_common.apply_refiner(self, sigma):\n",
+                "            cond = self.sampler.sampler_extra_args['cond']\n",
+                "            uncond = self.sampler.sampler_extra_args['uncond']\n",
+                "\n",
+                "        # at self.image_cfg_scale == 1.0 produced results for edit model are the same as with normal sampling,\n",
+                "        # so is_edit_model is set to False to support AND composition.\n",
+                "        is_edit_model = shared.sd_model.cond_stage_key == \"edit\" and self.image_cfg_scale is not None and self.image_cfg_scale != 1.0\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        is_cfg_pp = 'CFG++' in self.sampler.config.name\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 164,
+                    "end": 166
+                },
+                "child_version_range": {
+                    "start": 167,
+                    "end": 167
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "forward",
+                        "signature": "def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n           class CFGDenoiser(torch.nn.Module):\n               ...\n               def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n                   ...\n161 164            # so is_edit_model is set to False to support AND composition.\n162 165            is_edit_model = shared.sd_model.cond_stage_key == \"edit\" and self.image_cfg_scale is not None and self.image_cfg_scale != 1.0\n163 166    \n164      -         is_cfg_pp = 'CFG++' in self.sampler.config.name\n165      - \n166 167            conds_list, tensor = prompt_parser.reconstruct_multicond_batch(cond, self.step)\n167 168            uncond = prompt_parser.reconstruct_cond_batch(uncond, self.step)\n168 169    \n         ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [
+                    "config",
+                    "is_cfg_pp",
+                    "name",
+                    "sampler",
+                    "self"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        # so is_edit_model is set to False to support AND composition.\n",
+                    "        is_edit_model = shared.sd_model.cond_stage_key == \"edit\" and self.image_cfg_scale is not None and self.image_cfg_scale != 1.0\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        conds_list, tensor = prompt_parser.reconstruct_multicond_batch(cond, self.step)\n",
+                    "        uncond = prompt_parser.reconstruct_cond_batch(uncond, self.step)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "is_cfg_pp",
+                            "position": {
+                                "start": {
+                                    "line": 164,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 164,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "is_cfg_pp",
+                            "position": {
+                                "start": {
+                                    "line": 164,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 164,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        conds_list, tensor = prompt_parser.reconstruct_multicond_batch(cond, self.step)\n",
+                "        uncond = prompt_parser.reconstruct_cond_batch(uncond, self.step)\n",
+                "\n",
+                "        assert not is_edit_model or all(len(conds) == 1 for conds in conds_list), \"AND is not supported for InstructPix2Pix checkpoint (unless using Image CFG scale = 1.0)\"\n",
+                "\n",
+                "        # If we use masks, blending between the denoised and original latent images occurs here.\n",
+                "        def apply_blend(current_latent):\n",
+                "            blended_latent = current_latent * self.nmask + self.init_latent * self.mask\n",
+                "\n",
+                "            if self.p.scripts is not None:\n",
+                "                from modules import scripts\n",
+                "                mba = scripts.MaskBlendArgs(current_latent, self.nmask, self.init_latent, self.mask, blended_latent, denoiser=self, sigma=sigma)\n",
+                "                self.p.scripts.on_mask_blend(self.p, mba)\n",
+                "                blended_latent = mba.blended_latent\n",
+                "\n",
+                "            return blended_latent\n",
+                "\n",
+                "        # Blend in the original latents (before)\n",
+                "        if self.mask_before_denoising and self.mask is not None:\n",
+                "            x = apply_blend(x)\n",
+                "\n",
+                "        batch_size = len(conds_list)\n",
+                "        repeats = [len(conds_list[i]) for i in range(batch_size)]\n",
+                "\n",
+                "        if shared.sd_model.model.conditioning_key == \"crossattn-adm\":\n",
+                "            image_uncond = torch.zeros_like(image_cond)\n",
+                "            make_condition_dict = lambda c_crossattn, c_adm: {\"c_crossattn\": [c_crossattn], \"c_adm\": c_adm}\n",
+                "        else:\n",
+                "            image_uncond = image_cond\n",
+                "            if isinstance(uncond, dict):\n",
+                "                make_condition_dict = lambda c_crossattn, c_concat: {**c_crossattn, \"c_concat\": [c_concat]}\n",
+                "            else:\n",
+                "                make_condition_dict = lambda c_crossattn, c_concat: {\"c_crossattn\": [c_crossattn], \"c_concat\": [c_concat]}\n",
+                "\n",
+                "        if not is_edit_model:\n",
+                "            x_in = torch.cat([torch.stack([x[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [x])\n",
+                "            sigma_in = torch.cat([torch.stack([sigma[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [sigma])\n",
+                "            image_cond_in = torch.cat([torch.stack([image_cond[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [image_uncond])\n",
+                "        else:\n",
+                "            x_in = torch.cat([torch.stack([x[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [x] + [x])\n",
+                "            sigma_in = torch.cat([torch.stack([sigma[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [sigma] + [sigma])\n",
+                "            image_cond_in = torch.cat([torch.stack([image_cond[i] for _ in range(n)]) for i, n in enumerate(repeats)] + [image_uncond] + [torch.zeros_like(self.init_latent)])\n",
+                "\n",
+                "        denoiser_params = CFGDenoiserParams(x_in, image_cond_in, sigma_in, state.sampling_step, state.sampling_steps, tensor, uncond, self)\n",
+                "        cfg_denoiser_callback(denoiser_params)\n",
+                "        x_in = denoiser_params.x\n",
+                "        image_cond_in = denoiser_params.image_cond\n",
+                "        sigma_in = denoiser_params.sigma\n",
+                "        tensor = denoiser_params.text_cond\n",
+                "        uncond = denoiser_params.text_uncond\n",
+                "        skip_uncond = False\n",
+                "\n",
+                "        if shared.opts.skip_early_cond != 0. and self.step / self.total_steps <= shared.opts.skip_early_cond:\n",
+                "            skip_uncond = True\n",
+                "            self.p.extra_generation_params[\"Skip Early CFG\"] = shared.opts.skip_early_cond\n",
+                "        elif (self.step % 2 or shared.opts.s_min_uncond_all) and s_min_uncond > 0 and sigma[0] < s_min_uncond and not is_edit_model:\n",
+                "            skip_uncond = True\n",
+                "            self.p.extra_generation_params[\"NGMS\"] = s_min_uncond\n",
+                "            if shared.opts.s_min_uncond_all:\n",
+                "                self.p.extra_generation_params[\"NGMS all steps\"] = shared.opts.s_min_uncond_all\n",
+                "\n",
+                "        if skip_uncond:\n",
+                "            x_in = x_in[:-batch_size]\n",
+                "            sigma_in = sigma_in[:-batch_size]\n",
+                "\n",
+                "        self.padded_cond_uncond = False\n",
+                "        self.padded_cond_uncond_v0 = False\n",
+                "        if shared.opts.pad_cond_uncond_v0 and tensor.shape[1] != uncond.shape[1]:\n",
+                "            tensor, uncond = self.pad_cond_uncond_v0(tensor, uncond)\n",
+                "        elif shared.opts.pad_cond_uncond and tensor.shape[1] != uncond.shape[1]:\n",
+                "            tensor, uncond = self.pad_cond_uncond(tensor, uncond)\n",
+                "\n",
+                "        if tensor.shape[1] == uncond.shape[1] or skip_uncond:\n",
+                "            if is_edit_model:\n",
+                "                cond_in = catenate_conds([tensor, uncond, uncond])\n",
+                "            elif skip_uncond:\n",
+                "                cond_in = tensor\n",
+                "            else:\n",
+                "                cond_in = catenate_conds([tensor, uncond])\n",
+                "\n",
+                "            if shared.opts.batch_cond_uncond:\n",
+                "                x_out = self.inner_model(x_in, sigma_in, cond=make_condition_dict(cond_in, image_cond_in))\n",
+                "            else:\n",
+                "                x_out = torch.zeros_like(x_in)\n",
+                "                for batch_offset in range(0, x_out.shape[0], batch_size):\n",
+                "                    a = batch_offset\n",
+                "                    b = a + batch_size\n",
+                "                    x_out[a:b] = self.inner_model(x_in[a:b], sigma_in[a:b], cond=make_condition_dict(subscript_cond(cond_in, a, b), image_cond_in[a:b]))\n",
+                "        else:\n",
+                "            x_out = torch.zeros_like(x_in)\n",
+                "            batch_size = batch_size*2 if shared.opts.batch_cond_uncond else batch_size\n",
+                "            for batch_offset in range(0, tensor.shape[0], batch_size):\n",
+                "                a = batch_offset\n",
+                "                b = min(a + batch_size, tensor.shape[0])\n",
+                "\n",
+                "                if not is_edit_model:\n",
+                "                    c_crossattn = subscript_cond(tensor, a, b)\n",
+                "                else:\n",
+                "                    c_crossattn = torch.cat([tensor[a:b]], uncond)\n",
+                "\n",
+                "                x_out[a:b] = self.inner_model(x_in[a:b], sigma_in[a:b], cond=make_condition_dict(c_crossattn, image_cond_in[a:b]))\n",
+                "\n",
+                "            if not skip_uncond:\n",
+                "                x_out[-uncond.shape[0]:] = self.inner_model(x_in[-uncond.shape[0]:], sigma_in[-uncond.shape[0]:], cond=make_condition_dict(uncond, image_cond_in[-uncond.shape[0]:]))\n",
+                "\n",
+                "        denoised_image_indexes = [x[0][0] for x in conds_list]\n",
+                "        if skip_uncond:\n",
+                "            fake_uncond = torch.cat([x_out[i:i+1] for i in denoised_image_indexes])\n",
+                "            x_out = torch.cat([x_out, fake_uncond])  # we skipped uncond denoising, so we put cond-denoised image to where the uncond-denoised image should be\n",
+                "\n",
+                "        denoised_params = CFGDenoisedParams(x_out, state.sampling_step, state.sampling_steps, self.inner_model)\n",
+                "        cfg_denoised_callback(denoised_params)\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        if is_cfg_pp:\n",
+                    "            self.last_noise_uncond = x_out[-uncond.shape[0]:]\n",
+                    "            self.last_noise_uncond = torch.clone(self.last_noise_uncond)\n"
+                ],
+                "after": [
+                    "        if self.need_last_noise_uncond:\n",
+                    "            self.last_noise_uncond = torch.clone(x_out[-uncond.shape[0]:])\n"
+                ],
+                "parent_version_range": {
+                    "start": 279,
+                    "end": 282
+                },
+                "child_version_range": {
+                    "start": 280,
+                    "end": 282
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if is_cfg_pp:",
+                        "start_line": 279,
+                        "end_line": 281
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "forward",
+                        "signature": "def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n           class CFGDenoiser(torch.nn.Module):\n               ...\n               def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n                   ...\n276 277            denoised_params = CFGDenoisedParams(x_out, state.sampling_step, state.sampling_steps, self.inner_model)\n277 278            cfg_denoised_callback(denoised_params)\n278 279    \n279      -         if is_cfg_pp:\n280      -             self.last_noise_uncond = x_out[-uncond.shape[0]:]\n281      -             self.last_noise_uncond = torch.clone(self.last_noise_uncond)\n    280  +         if self.need_last_noise_uncond:\n    281  +             self.last_noise_uncond = torch.clone(x_out[-uncond.shape[0]:])\n282 282    \n283 283            if is_edit_model:\n         ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [
+                    "clone",
+                    "is_cfg_pp",
+                    "last_noise_uncond",
+                    "self",
+                    "shape",
+                    "torch",
+                    "uncond",
+                    "x_out"
+                ],
+                "identifiers_after": [
+                    "clone",
+                    "last_noise_uncond",
+                    "need_last_noise_uncond",
+                    "self",
+                    "shape",
+                    "torch",
+                    "uncond",
+                    "x_out"
+                ],
+                "prefix": [
+                    "        denoised_params = CFGDenoisedParams(x_out, state.sampling_step, state.sampling_steps, self.inner_model)\n",
+                    "        cfg_denoised_callback(denoised_params)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if is_edit_model:\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "is_cfg_pp",
+                            "position": {
+                                "start": {
+                                    "line": 279,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 279,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "need_last_noise_uncond",
+                            "position": {
+                                "start": {
+                                    "line": 280,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 280,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if is_edit_model:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            denoised = self.combine_denoised_for_edit_model(x_out, cond_scale)\n"
+                ],
+                "after": [
+                    "            denoised = self.combine_denoised_for_edit_model(x_out, cond_scale * self.cond_scale_miltiplier)\n"
+                ],
+                "parent_version_range": {
+                    "start": 284,
+                    "end": 285
+                },
+                "child_version_range": {
+                    "start": 284,
+                    "end": 285
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if is_edit_model:",
+                        "start_line": 283,
+                        "end_line": 290
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "forward",
+                        "signature": "def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n           class CFGDenoiser(torch.nn.Module):\n               ...\n               def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n                   ...\n282 282    \n283 283            if is_edit_model:\n284      -             denoised = self.combine_denoised_for_edit_model(x_out, cond_scale)\n    284  +             denoised = self.combine_denoised_for_edit_model(x_out, cond_scale * self.cond_scale_miltiplier)\n285 285            elif skip_uncond:\n286 286                denoised = self.combine_denoised(x_out, conds_list, uncond, 1.0)\n         ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [
+                    "combine_denoised_for_edit_model",
+                    "cond_scale",
+                    "denoised",
+                    "self",
+                    "x_out"
+                ],
+                "identifiers_after": [
+                    "combine_denoised_for_edit_model",
+                    "cond_scale",
+                    "cond_scale_miltiplier",
+                    "denoised",
+                    "self",
+                    "x_out"
+                ],
+                "prefix": [
+                    "\n",
+                    "        if is_edit_model:\n"
+                ],
+                "suffix": [
+                    "        elif skip_uncond:\n",
+                    "            denoised = self.combine_denoised(x_out, conds_list, uncond, 1.0)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "cond_scale_miltiplier",
+                            "position": {
+                                "start": {
+                                    "line": 284,
+                                    "column": 85
+                                },
+                                "end": {
+                                    "line": 284,
+                                    "column": 106
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        elif skip_uncond:\n",
+                "            denoised = self.combine_denoised(x_out, conds_list, uncond, 1.0)\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "        elif is_cfg_pp:\n",
+                    "            denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale/12.5) # CFG++ scale of (0, 1) maps to (1.0, 12.5)\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 287,
+                    "end": 289
+                },
+                "child_version_range": {
+                    "start": 287,
+                    "end": 287
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if is_edit_model:",
+                        "start_line": 283,
+                        "end_line": 290
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "forward",
+                        "signature": "def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n           class CFGDenoiser(torch.nn.Module):\n               ...\n               def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n                   ...\n285 285            elif skip_uncond:\n286 286                denoised = self.combine_denoised(x_out, conds_list, uncond, 1.0)\n287      -         elif is_cfg_pp:\n288      -             denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale/12.5) # CFG++ scale of (0, 1) maps to (1.0, 12.5)\n289 287            else:\n         ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [
+                    "combine_denoised",
+                    "cond_scale",
+                    "conds_list",
+                    "denoised",
+                    "elif",
+                    "is_cfg_pp",
+                    "self",
+                    "uncond",
+                    "x_out"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "        elif skip_uncond:\n",
+                    "            denoised = self.combine_denoised(x_out, conds_list, uncond, 1.0)\n"
+                ],
+                "suffix": [
+                    "        else:\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "is_cfg_pp",
+                            "position": {
+                                "start": {
+                                    "line": 287,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 287,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        else:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale)\n"
+                ],
+                "after": [
+                    "            denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale * self.cond_scale_miltiplier)\n"
+                ],
+                "parent_version_range": {
+                    "start": 290,
+                    "end": 291
+                },
+                "child_version_range": {
+                    "start": 288,
+                    "end": 289
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if is_edit_model:",
+                        "start_line": 283,
+                        "end_line": 290
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 289,
+                        "end_line": 290
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "CFGDenoiser",
+                        "signature": "class CFGDenoiser(torch.nn.Module):",
+                        "at_line": 32
+                    },
+                    {
+                        "type": "function",
+                        "name": "forward",
+                        "signature": "def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):",
+                        "at_line": 152
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: modules/sd_samplers_cfg_denoiser.py\nCode:\n           class CFGDenoiser(torch.nn.Module):\n               ...\n               def forward(self, x, sigma, uncond, cond, cond_scale, s_min_uncond, image_cond):\n                   ...\n289 287            else:\n290      -             denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale)\n    288  +             denoised = self.combine_denoised(x_out, conds_list, uncond, cond_scale * self.cond_scale_miltiplier)\n291 289    \n292 290            # Blend in the original latents (after)\n293 291            if not self.mask_before_denoising and self.mask is not None:\n         ...\n",
+                "file_path": "modules/sd_samplers_cfg_denoiser.py",
+                "identifiers_before": [
+                    "combine_denoised",
+                    "cond_scale",
+                    "conds_list",
+                    "denoised",
+                    "self",
+                    "uncond",
+                    "x_out"
+                ],
+                "identifiers_after": [
+                    "combine_denoised",
+                    "cond_scale",
+                    "cond_scale_miltiplier",
+                    "conds_list",
+                    "denoised",
+                    "self",
+                    "uncond",
+                    "x_out"
+                ],
+                "prefix": [
+                    "        else:\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        # Blend in the original latents (after)\n",
+                    "        if not self.mask_before_denoising and self.mask is not None:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "cond_scale_miltiplier",
+                            "position": {
+                                "start": {
+                                    "line": 288,
+                                    "column": 90
+                                },
+                                "end": {
+                                    "line": 288,
+                                    "column": 111
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/stable-diffusion-webui/modules/sd_samplers_cfg_denoiser.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "\n",
+                "        # Blend in the original latents (after)\n",
+                "        if not self.mask_before_denoising and self.mask is not None:\n",
+                "            denoised = apply_blend(denoised)\n",
+                "\n",
+                "        self.sampler.last_latent = self.get_pred_x0(torch.cat([x_in[i:i + 1] for i in denoised_image_indexes]), torch.cat([x_out[i:i + 1] for i in denoised_image_indexes]), sigma)\n",
+                "\n",
+                "        if opts.live_preview_content == \"Prompt\":\n",
+                "            preview = self.sampler.last_latent\n",
+                "        elif opts.live_preview_content == \"Negative prompt\":\n",
+                "            preview = self.get_pred_x0(x_in[-uncond.shape[0]:], x_out[-uncond.shape[0]:], sigma)\n",
+                "        else:\n",
+                "            preview = self.get_pred_x0(torch.cat([x_in[i:i+1] for i in denoised_image_indexes]), torch.cat([denoised[i:i+1] for i in denoised_image_indexes]), sigma)\n",
+                "\n",
+                "        sd_samplers_common.store_latent(preview)\n",
+                "\n",
+                "        after_cfg_callback_params = AfterCFGCallbackParams(denoised, state.sampling_step, state.sampling_steps)\n",
+                "        cfg_after_cfg_callback(after_cfg_callback_params)\n",
+                "        denoised = after_cfg_callback_params.x\n",
+                "\n",
+                "        self.step += 1\n",
+                "        return denoised\n",
+                ""
+            ]
+        ],
+        "modules/sd_samplers_timesteps_impl.py": [
+            [
+                "import torch\n",
+                "import tqdm\n",
+                "import k_diffusion.sampling\n",
+                "import numpy as np\n",
+                "\n",
+                "from modules import shared\n",
+                "from modules.models.diffusion.uni_pc import uni_pc\n",
+                "from modules.torch_utils import float64\n",
+                "\n",
+                "\n",
+                "@torch.no_grad()\n",
+                "def ddim(model, x, timesteps, extra_args=None, callback=None, disable=None, eta=0.0):\n",
+                "    alphas_cumprod = model.inner_model.inner_model.alphas_cumprod\n",
+                "    alphas = alphas_cumprod[timesteps]\n",
+                "    alphas_prev = alphas_cumprod[torch.nn.functional.pad(timesteps[:-1], pad=(1, 0))].to(float64(x))\n",
+                "    sqrt_one_minus_alphas = torch.sqrt(1 - alphas)\n",
+                "    sigmas = eta * np.sqrt((1 - alphas_prev.cpu().numpy()) / (1 - alphas.cpu()) * (1 - alphas.cpu() / alphas_prev.cpu().numpy()))\n",
+                "\n",
+                "    extra_args = {} if extra_args is None else extra_args\n",
+                "    s_in = x.new_ones((x.shape[0]))\n",
+                "    s_x = x.new_ones((x.shape[0], 1, 1, 1))\n",
+                "    for i in tqdm.trange(len(timesteps) - 1, disable=disable):\n",
+                "        index = len(timesteps) - 1 - i\n",
+                "\n",
+                "        e_t = model(x, timesteps[index].item() * s_in, **extra_args)\n",
+                "\n",
+                "        a_t = alphas[index].item() * s_x\n",
+                "        a_prev = alphas_prev[index].item() * s_x\n",
+                "        sigma_t = sigmas[index].item() * s_x\n",
+                "        sqrt_one_minus_at = sqrt_one_minus_alphas[index].item() * s_x\n",
+                "\n",
+                "        pred_x0 = (x - sqrt_one_minus_at * e_t) / a_t.sqrt()\n",
+                "        dir_xt = (1. - a_prev - sigma_t ** 2).sqrt() * e_t\n",
+                "        noise = sigma_t * k_diffusion.sampling.torch.randn_like(x)\n",
+                "        x = a_prev.sqrt() * pred_x0 + dir_xt + noise\n",
+                "\n",
+                "        if callback is not None:\n",
+                "            callback({'x': x, 'i': i, 'sigma': 0, 'sigma_hat': 0, 'denoised': pred_x0})\n",
+                "\n",
+                "    return x\n",
+                "\n",
+                "\n",
+                "@torch.no_grad()\n",
+                "def ddim_cfgpp(model, x, timesteps, extra_args=None, callback=None, disable=None, eta=0.0):\n",
+                "    \"\"\" Implements CFG++: Manifold-constrained Classifier Free Guidance For Diffusion Models (2024).\n",
+                "    Uses the unconditional noise prediction instead of the conditional noise to guide the denoising direction.\n",
+                "    The CFG scale is divided by 12.5 to map CFG from [0.0, 12.5] to [0, 1.0].\n",
+                "    \"\"\"\n",
+                "    alphas_cumprod = model.inner_model.inner_model.alphas_cumprod\n",
+                "    alphas = alphas_cumprod[timesteps]\n",
+                "    alphas_prev = alphas_cumprod[torch.nn.functional.pad(timesteps[:-1], pad=(1, 0))].to(float64(x))\n",
+                "    sqrt_one_minus_alphas = torch.sqrt(1 - alphas)\n",
+                "    sigmas = eta * np.sqrt((1 - alphas_prev.cpu().numpy()) / (1 - alphas.cpu()) * (1 - alphas.cpu() / alphas_prev.cpu().numpy()))\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    model.cond_scale_miltiplier = 1 / 12.5\n",
+                    "    model.need_last_noise_uncond = True\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 54,
+                    "end": 54
+                },
+                "child_version_range": {
+                    "start": 54,
+                    "end": 57
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "ddim_cfgpp",
+                        "signature": "def ddim_cfgpp(model, x, timesteps, extra_args=None, callback=None, disable=None, eta=0.0):",
+                        "at_line": 43
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: modules/sd_samplers_timesteps_impl.py\nCode:\n         def ddim_cfgpp(model, x, timesteps, extra_args=None, callback=None, disable=None, eta=0.0):\n             ...\n51 51        sqrt_one_minus_alphas = torch.sqrt(1 - alphas)\n52 52        sigmas = eta * np.sqrt((1 - alphas_prev.cpu().numpy()) / (1 - alphas.cpu()) * (1 - alphas.cpu() / alphas_prev.cpu().numpy()))\n53 53    \n   54  +     model.cond_scale_miltiplier = 1 / 12.5\n   55  +     model.need_last_noise_uncond = True\n   56  + \n54 57        extra_args = {} if extra_args is None else extra_args\n55 58        s_in = x.new_ones((x.shape[0]))\n56 59        s_x = x.new_ones((x.shape[0], 1, 1, 1))\n       ...\n",
+                "file_path": "modules/sd_samplers_timesteps_impl.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "cond_scale_miltiplier",
+                    "model",
+                    "need_last_noise_uncond"
+                ],
+                "prefix": [
+                    "    sqrt_one_minus_alphas = torch.sqrt(1 - alphas)\n",
+                    "    sigmas = eta * np.sqrt((1 - alphas_prev.cpu().numpy()) / (1 - alphas.cpu()) * (1 - alphas.cpu() / alphas_prev.cpu().numpy()))\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    extra_args = {} if extra_args is None else extra_args\n",
+                    "    s_in = x.new_ones((x.shape[0]))\n",
+                    "    s_x = x.new_ones((x.shape[0], 1, 1, 1))\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    extra_args = {} if extra_args is None else extra_args\n",
+                "    s_in = x.new_ones((x.shape[0]))\n",
+                "    s_x = x.new_ones((x.shape[0], 1, 1, 1))\n",
+                "    for i in tqdm.trange(len(timesteps) - 1, disable=disable):\n",
+                "        index = len(timesteps) - 1 - i\n",
+                "\n",
+                "        e_t = model(x, timesteps[index].item() * s_in, **extra_args)\n",
+                "        last_noise_uncond = model.last_noise_uncond\n",
+                "\n",
+                "        a_t = alphas[index].item() * s_x\n",
+                "        a_prev = alphas_prev[index].item() * s_x\n",
+                "        sigma_t = sigmas[index].item() * s_x\n",
+                "        sqrt_one_minus_at = sqrt_one_minus_alphas[index].item() * s_x\n",
+                "\n",
+                "        pred_x0 = (x - sqrt_one_minus_at * e_t) / a_t.sqrt()\n",
+                "        dir_xt = (1. - a_prev - sigma_t ** 2).sqrt() * last_noise_uncond\n",
+                "        noise = sigma_t * k_diffusion.sampling.torch.randn_like(x)\n",
+                "        x = a_prev.sqrt() * pred_x0 + dir_xt + noise\n",
+                "\n",
+                "        if callback is not None:\n",
+                "            callback({'x': x, 'i': i, 'sigma': 0, 'sigma_hat': 0, 'denoised': pred_x0})\n",
+                "\n",
+                "    return x\n",
+                "\n",
+                "\n",
+                "@torch.no_grad()\n",
+                "def plms(model, x, timesteps, extra_args=None, callback=None, disable=None):\n",
+                "    alphas_cumprod = model.inner_model.inner_model.alphas_cumprod\n",
+                "    alphas = alphas_cumprod[timesteps]\n",
+                "    alphas_prev = alphas_cumprod[torch.nn.functional.pad(timesteps[:-1], pad=(1, 0))].to(float64(x))\n",
+                "    sqrt_one_minus_alphas = torch.sqrt(1 - alphas)\n",
+                "\n",
+                "    extra_args = {} if extra_args is None else extra_args\n",
+                "    s_in = x.new_ones([x.shape[0]])\n",
+                "    s_x = x.new_ones((x.shape[0], 1, 1, 1))\n",
+                "    old_eps = []\n",
+                "\n",
+                "    def get_x_prev_and_pred_x0(e_t, index):\n",
+                "        # select parameters corresponding to the currently considered timestep\n",
+                "        a_t = alphas[index].item() * s_x\n",
+                "        a_prev = alphas_prev[index].item() * s_x\n",
+                "        sqrt_one_minus_at = sqrt_one_minus_alphas[index].item() * s_x\n",
+                "\n",
+                "        # current prediction for x_0\n",
+                "        pred_x0 = (x - sqrt_one_minus_at * e_t) / a_t.sqrt()\n",
+                "\n",
+                "        # direction pointing to x_t\n",
+                "        dir_xt = (1. - a_prev).sqrt() * e_t\n",
+                "        x_prev = a_prev.sqrt() * pred_x0 + dir_xt\n",
+                "        return x_prev, pred_x0\n",
+                "\n",
+                "    for i in tqdm.trange(len(timesteps) - 1, disable=disable):\n",
+                "        index = len(timesteps) - 1 - i\n",
+                "        ts = timesteps[index].item() * s_in\n",
+                "        t_next = timesteps[max(index - 1, 0)].item() * s_in\n",
+                "\n",
+                "        e_t = model(x, ts, **extra_args)\n",
+                "\n",
+                "        if len(old_eps) == 0:\n",
+                "            # Pseudo Improved Euler (2nd order)\n",
+                "            x_prev, pred_x0 = get_x_prev_and_pred_x0(e_t, index)\n",
+                "            e_t_next = model(x_prev, t_next, **extra_args)\n",
+                "            e_t_prime = (e_t + e_t_next) / 2\n",
+                "        elif len(old_eps) == 1:\n",
+                "            # 2nd order Pseudo Linear Multistep (Adams-Bashforth)\n",
+                "            e_t_prime = (3 * e_t - old_eps[-1]) / 2\n",
+                "        elif len(old_eps) == 2:\n",
+                "            # 3nd order Pseudo Linear Multistep (Adams-Bashforth)\n",
+                "            e_t_prime = (23 * e_t - 16 * old_eps[-1] + 5 * old_eps[-2]) / 12\n",
+                "        else:\n",
+                "            # 4nd order Pseudo Linear Multistep (Adams-Bashforth)\n",
+                "            e_t_prime = (55 * e_t - 59 * old_eps[-1] + 37 * old_eps[-2] - 9 * old_eps[-3]) / 24\n",
+                "\n",
+                "        x_prev, pred_x0 = get_x_prev_and_pred_x0(e_t_prime, index)\n",
+                "\n",
+                "        old_eps.append(e_t)\n",
+                "        if len(old_eps) >= 4:\n",
+                "            old_eps.pop(0)\n",
+                "\n",
+                "        x = x_prev\n",
+                "\n",
+                "        if callback is not None:\n",
+                "            callback({'x': x, 'i': i, 'sigma': 0, 'sigma_hat': 0, 'denoised': pred_x0})\n",
+                "\n",
+                "    return x\n",
+                "\n",
+                "\n",
+                "class UniPCCFG(uni_pc.UniPC):\n",
+                "    def __init__(self, cfg_model, extra_args, callback, *args, **kwargs):\n",
+                "        super().__init__(None, *args, **kwargs)\n",
+                "\n",
+                "        def after_update(x, model_x):\n",
+                "            callback({'x': x, 'i': self.index, 'sigma': 0, 'sigma_hat': 0, 'denoised': model_x})\n",
+                "            self.index += 1\n",
+                "\n",
+                "        self.cfg_model = cfg_model\n",
+                "        self.extra_args = extra_args\n",
+                "        self.callback = callback\n",
+                "        self.index = 0\n",
+                "        self.after_update = after_update\n",
+                "\n",
+                "    def get_model_input_time(self, t_continuous):\n",
+                "        return (t_continuous - 1. / self.noise_schedule.total_N) * 1000.\n",
+                "\n",
+                "    def model(self, x, t):\n",
+                "        t_input = self.get_model_input_time(t)\n",
+                "\n",
+                "        res = self.cfg_model(x, t_input, **self.extra_args)\n",
+                "\n",
+                "        return res\n",
+                "\n",
+                "\n",
+                "def unipc(model, x, timesteps, extra_args=None, callback=None, disable=None, is_img2img=False):\n",
+                "    alphas_cumprod = model.inner_model.inner_model.alphas_cumprod\n",
+                "\n",
+                "    ns = uni_pc.NoiseScheduleVP('discrete', alphas_cumprod=alphas_cumprod)\n",
+                "    t_start = timesteps[-1] / 1000 + 1 / 1000 if is_img2img else None  # this is likely off by a bit - if someone wants to fix it please by all means\n",
+                "    unipc_sampler = UniPCCFG(model, extra_args, callback, ns, predict_x0=True, thresholding=False, variant=shared.opts.uni_pc_variant)\n",
+                "    x = unipc_sampler.sample(x, steps=len(timesteps), t_start=t_start, skip_type=shared.opts.uni_pc_skip_type, method=\"multistep\", order=shared.opts.uni_pc_order, lower_order_final=shared.opts.uni_pc_lower_order_final)\n",
+                "\n",
+                "    return x"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+        ],
+        [
+            0,
+            3,
+            5,
+            6,
+            1,
+            2,
+            4
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of `self.need_last_noise_uncond`",
+            "scenario of 0 -> 1": "user may frist create this variable in edit 0, then use in edit 1",
+            "scenario of 1 -> 0": "user may first use this variable, then driven by error, define this variable in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of `self.cond_scale_miltiplier`",
+            "scenario of 0 -> 1": "user may frist create this variable in edit 0, then use in edit 1",
+            "scenario of 1 -> 0": "user may first use this variable, then driven by error, define this variable in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of `self.cond_scale_miltiplier`",
+            "scenario of 0 -> 1": "user may frist create this variable in edit 0, then use in edit 1",
+            "scenario of 1 -> 0": "user may first use this variable, then driven by error, define this variable in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clone",
+            "scenario of 0 -> 1": "direction does not matter",
+            "scenario of 1 -> 0": "direction does not matter"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 delete a variable used in edit 1",
+            "scenario of 0 -> 1": "user may first delete the vairable in edit 0, then affect edit 1",
+            "scenario of 1 -> 0": "user may first delete variable in edit 1, then affect edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "edit 0 delete a variable used in edit 1",
+            "scenario of 0 -> 1": "user may first delete the vairable in edit 0, then affect edit 1",
+            "scenario of 1 -> 0": "user may first delete variable in edit 1, then affect edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implementation and usage",
+            "scenario of 0 -> 1": "user may first implement how this attribute is used, then use this attribute",
+            "scenario of 1 -> 0": "user may first use this attribute, then driven by error, implement this attribute in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "similar semantic action in different branch of if condition"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implementation and usage",
+            "scenario of 0 -> 1": "user may first implement how this attribute is used, then use this attribute",
+            "scenario of 1 -> 0": "user may first use this attribute, then driven by error, implement this attribute in edit 0"
+        }
+    ]
+}

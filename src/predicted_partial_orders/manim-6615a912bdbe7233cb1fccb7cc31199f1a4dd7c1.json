@@ -1,0 +1,57 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution, changing 'camera_config' to 'default_camera_config' in class attribute definitions. This is a uniform refactoring pattern where the same structural change is being applied to the same type of syntactic construct (class attributes) across multiple files. The edits are part of a single, contiguous refactor to rename the attribute consistently. Either edit can be made first, and after making either one, the other becomes the natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution, changing 'camera_config' to 'default_camera_config' in class attribute definitions. This is a uniform refactoring pattern where the same structural change is being applied to the same type of syntactic construct (class attributes) across multiple files. The edits are part of a single, contiguous refactor to rename the attribute consistently. Either edit can be made first, and after making either one, the other becomes the natural next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines three new class attributes (default_camera_config, default_window_config, default_file_writer_config) and Edit 1 uses these exact same attributes in the __init__ method. The changed lines in Edit 1 explicitly reference the same symbols that were defined in Edit 0's changed lines. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, the usage in Edit 1 would cause a runtime AttributeError if Edit 0 hasn't been applied first, but both edits can be parsed and staged in either order since attribute access doesn't cause parse-time errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines three new class attributes (default_camera_config, default_window_config, default_file_writer_config) and Edit 1 uses these exact same attributes in the __init__ method. The changed lines in Edit 1 explicitly reference the same symbols that were defined in Edit 0's changed lines. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, the usage in Edit 1 would cause a runtime AttributeError if Edit 0 hasn't been applied first, but both edits can be parsed and staged in either order since attribute access doesn't cause parse-time errors. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 assigns the window_config parameter to self.window_config, and Edit 1 uses self.window_config in the Window constructor call. The changed lines reference the exact same symbol (self.window_config), creating a direct code dependency where Edit 0 must occur before Edit 1 to avoid a NameError when accessing self.window_config."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 removes the camera_class parameter from the Scene.__init__ method signature, while Edit 1 changes the usage of that parameter from 'camera_class(**self.camera_config)' to 'Camera(**self.camera_config)'. These edits reference the exact same symbol 'camera_class' - one removes it from the parameter list and the other removes its usage in the method body. This creates a direct code dependency where removing the parameter definition makes the parameter usage invalid. However, in Python, both edits can be written and parsed in either order since the usage would only fail at runtime with a NameError, not at parse time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 removes the camera_class parameter from the Scene.__init__ method signature, while Edit 1 changes the usage of that parameter from 'camera_class(**self.camera_config)' to 'Camera(**self.camera_config)'. These edits reference the exact same symbol 'camera_class' - one removes it from the parameter list and the other removes its usage in the method body. This creates a direct code dependency where removing the parameter definition makes the parameter usage invalid. However, in Python, both edits can be written and parsed in either order since the usage would only fail at runtime with a NameError, not at parse time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 assigns values to self.camera_config and self.file_writer_config attributes, while Edit 1 uses these exact same attributes (self.camera_config and self.file_writer_config) in the changed lines. The changed lines in Edit 1 directly reference the attributes that are being assigned in Edit 0. This creates an immediate code dependency where Edit 0 must occur before Edit 1, as Edit 1 depends on the attributes being defined first. However, in Python, attribute assignment and usage within the same __init__ method can occur in either order at parse time (though logically Edit 0 should come first for proper initialization). Since both edits can be parsed and staged in either order without syntax errors, this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 assigns values to self.camera_config and self.file_writer_config attributes, while Edit 1 uses these exact same attributes (self.camera_config and self.file_writer_config) in the changed lines. The changed lines in Edit 1 directly reference the attributes that are being assigned in Edit 0. This creates an immediate code dependency where Edit 0 must occur before Edit 1, as Edit 1 depends on the attributes being defined first. However, in Python, attribute assignment and usage within the same __init__ method can occur in either order at parse time (though logically Edit 0 should come first for proper initialization). Since both edits can be parsed and staged in either order without syntax errors, this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "These edits involve moving the same two lines of code (self.undo_stack = [] and self.redo_stack = []) from one location to another within the same __init__ method. Edit 0 removes these lines from their original location (lines 91-92), while Edit 1 adds them to a new location (lines 108-109). This is a classic cut-and-paste move operation where the removal must occur before the relocation to avoid duplication. The edits reference the exact same symbols (self.undo_stack and self.redo_stack) and form a single atomic refactoring operation."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

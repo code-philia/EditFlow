@@ -1,0 +1,73 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural transformation: replacing a `__repr__` method with a `_get_repr_options` method that returns a dictionary. This is a uniform refactoring pattern applied to two different aggregate classes (Count and Variance) within the same file. The edits follow the same before\u2192after pattern (removing __repr__ implementation and adding _get_repr_options method) and target the same type of syntactic construct (method definitions in aggregate classes). This appears to be part of a single, contiguous refactoring operation to standardize how these aggregate classes handle their representation options."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural transformation: replacing a `__repr__` method with a `_get_repr_options` method that returns a dictionary. This is a uniform refactoring pattern applied to two different aggregate classes (Count and Variance) within the same file. The edits follow the same before\u2192after pattern (removing __repr__ implementation and adding _get_repr_options method) and target the same type of syntactic construct (method definitions in aggregate classes). This appears to be part of a single, contiguous refactoring operation to standardize how these aggregate classes handle their representation options."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern - replacing a `__repr__` method with a `_get_repr_options` method. The pattern is exactly the same: removing the __repr__ method that formats class name and arguments with specific options, and replacing it with _get_repr_options that returns a dictionary of those same options. This is clearly part of a single refactoring operation to extract repr option logic into a common pattern across multiple aggregate classes. Both edits target the same type of syntactic construct (method definitions in aggregate classes) with identical before\u2192after transformation patterns."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural substitution pattern - replacing a `__repr__` method with a `_get_repr_options` method. The pattern is exactly the same: removing the __repr__ method that formats class name and arguments with specific options, and replacing it with _get_repr_options that returns a dictionary of those same options. This is clearly part of a single refactoring operation to extract repr option logic into a common pattern across multiple aggregate classes. Both edits target the same type of syntactic construct (method definitions in aggregate classes) with identical before\u2192after transformation patterns."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits are performing an identical structural refactoring on the same type of syntactic construct. They are replacing `__repr__` methods with `_get_repr_options` methods in different aggregate classes (StdDev and Variance), using the exact same transformation pattern: removing a complex string formatting method and replacing it with a method that returns a dictionary with sample information. This is a uniform substitution pattern applied to the same construct type (method definitions) across related classes. Both edits can be applied in either order as they modify different classes and don't depend on each other. This represents a synchronized refactoring operation that would naturally occur as part of a single, contiguous micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits are performing an identical structural refactoring on the same type of syntactic construct. They are replacing `__repr__` methods with `_get_repr_options` methods in different aggregate classes (StdDev and Variance), using the exact same transformation pattern: removing a complex string formatting method and replacing it with a method that returns a dictionary with sample information. This is a uniform substitution pattern applied to the same construct type (method definitions) across related classes. Both edits can be applied in either order as they modify different classes and don't depend on each other. This represents a synchronized refactoring operation that would naturally occur as part of a single, contiguous micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `_get_repr_options()` in the Variance class, while Edit 1 calls this exact same method `_get_repr_options()` in the Func class's `__repr__` method. Since Variance inherits from Aggregate which inherits from Func, the method defined in Edit 0 is being called in Edit 1. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined method, and vice versa - both edits can be staged in either order since Python allows method calls to undefined methods at parse time (only failing at runtime)."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `_get_repr_options()` in the Variance class, while Edit 1 calls this exact same method `_get_repr_options()` in the Func class's `__repr__` method. Since Variance inherits from Aggregate which inherits from Func, the method defined in Edit 0 is being called in Edit 1. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to utilize the newly defined method, and vice versa - both edits can be staged in either order since Python allows method calls to undefined methods at parse time (only failing at runtime)."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 1 defines the `_get_repr_options` method in the `Func` class, while Edit 0 overrides this same method in the `Variance` class (which inherits from `Aggregate`, which likely inherits from `Func`). The changed lines reference the exact same method symbol `_get_repr_options`. Edit 0 cannot meaningfully override a method that doesn't exist yet, making this a definition-usage relationship where the base definition must come before the override."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 1 defines a new method `_get_repr_options` and Edit 0 calls this exact same method in the changed line `extra = dict(self.extra, **self._get_repr_options())`. The method call in Edit 0 creates a direct code dependency on the method definition in Edit 1. However, since this is Python, the method call can be written and parsed before the method definition exists (it would only fail at runtime), making both edits stageable in either order. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 1 defines a new method `_get_repr_options` and Edit 0 calls this exact same method in the changed line `extra = dict(self.extra, **self._get_repr_options())`. The method call in Edit 0 creates a direct code dependency on the method definition in Edit 1. However, since this is Python, the method call can be written and parsed before the method definition exists (it would only fail at runtime), making both edits stageable in either order. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 changes the assignment of the 'extra' variable from a string to a dictionary, while Edit 1 adds a line that converts the 'extra' variable (now a dictionary) back to a string format. The changed lines reference the exact same 'extra' variable within the same function scope. Edit 0 creates an immediate code-driven prompt for Edit 1 because after making Edit 0, the 'extra' variable is now a dictionary but the subsequent code expects it to be a string for the return statement. Edit 1 resolves this by converting the dictionary back to the expected string format. This is a clear definition-usage relationship where both edits reference the same symbol and one naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 changes the assignment of the 'extra' variable from a string to a dictionary, while Edit 1 adds a line that converts the 'extra' variable (now a dictionary) back to a string format. The changed lines reference the exact same 'extra' variable within the same function scope. Edit 0 creates an immediate code-driven prompt for Edit 1 because after making Edit 0, the 'extra' variable is now a dictionary but the subsequent code expects it to be a string for the return statement. Edit 1 resolves this by converting the dictionary back to the expected string format. This is a clear definition-usage relationship where both edits reference the same symbol and one naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        4
+    ]
+}

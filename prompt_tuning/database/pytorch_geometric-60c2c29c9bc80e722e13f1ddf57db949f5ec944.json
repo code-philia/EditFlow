@@ -1,0 +1,887 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/pyg-team/pytorch_geometric/commit/60c2c29c9bc80e722e13f1ddf57db949f5ec944",
+    "commit_message": "allow data objects without batch, allow regular collating",
+    "commit_snapshots": {
+        "torch_geometric/data/batch.py": [
+            [
+                "import torch\n",
+                "from torch_geometric.data import Data\n",
+                "\n",
+                "\n",
+                "class Batch(Data):\n",
+                "    r\"\"\"A plain old python object modeling a batch of graphs as one big\n",
+                "    (dicconnected) graph. With :class:`torch_geometric.data.Data` being the\n",
+                "    base class, all its methods can also be used here.\n",
+                "    In addition, single graphs can be reconstructed via the assignment vector\n",
+                "    :obj:`batch`, which maps each node to its respective graph identifier.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, batch=None, **kwargs):\n",
+                "        super(Batch, self).__init__(**kwargs)\n",
+                "        self.batch = batch\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def from_data_list(data_list):\n",
+                "        r\"\"\"Constructs a batch object from a python list holding\n",
+                "        :class:`torch_geometric.data.Data` objects.\n",
+                "        The assignment vector :obj:`batch` is created on the fly.\"\"\"\n",
+                "        keys = [set(data.keys) for data in data_list]\n",
+                "        keys = list(set.union(*keys))\n",
+                "        assert 'batch' not in keys\n",
+                "\n",
+                "        batch = Batch()\n",
+                "\n",
+                "        for key in keys:\n",
+                "            batch[key] = []\n",
+                "        batch.batch = []\n",
+                "\n",
+                "        cumsum = 0\n",
+                "        for i, data in enumerate(data_list):\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "            num_nodes = data.num_nodes\n",
+                    "            batch.batch.append(torch.full((num_nodes, ), i, dtype=torch.long))\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 33,
+                    "end": 35
+                },
+                "child_version_range": {
+                    "start": 33,
+                    "end": 33
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for i, data in enumerate(data_list):",
+                        "start_line": 32,
+                        "end_line": 39
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Batch",
+                        "signature": "class Batch(Data):",
+                        "at_line": 4
+                    },
+                    {
+                        "type": "function",
+                        "name": "from_data_list",
+                        "signature": "def from_data_list(data_list):",
+                        "at_line": 17
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: torch_geometric/data/batch.py\nCode:\n         class Batch(Data):\n             ...\n             def from_data_list(data_list):\n                 ...\n30 30    \n31 31            cumsum = 0\n32 32            for i, data in enumerate(data_list):\n33     -             num_nodes = data.num_nodes\n34     -             batch.batch.append(torch.full((num_nodes, ), i, dtype=torch.long))\n35 33                for key in data.keys:\n36 34                    item = data[key]\n37 35                    item = item + cumsum if data.__cumsum__(key, item) else item\n       ...\n",
+                "file_path": "torch_geometric/data/batch.py",
+                "identifiers_before": [
+                    "append",
+                    "batch",
+                    "data",
+                    "dtype",
+                    "full",
+                    "i",
+                    "long",
+                    "num_nodes",
+                    "torch"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "        cumsum = 0\n",
+                    "        for i, data in enumerate(data_list):\n"
+                ],
+                "suffix": [
+                    "            for key in data.keys:\n",
+                    "                item = data[key]\n",
+                    "                item = item + cumsum if data.__cumsum__(key, item) else item\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "num_nodes",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/batch.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            for key in data.keys:\n",
+                "                item = data[key]\n",
+                "                item = item + cumsum if data.__cumsum__(key, item) else item\n",
+                "                batch[key].append(item)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            cumsum += num_nodes\n"
+                ],
+                "after": [
+                    "\n",
+                    "            num_nodes = data.num_nodes\n",
+                    "            if num_nodes is not None:\n",
+                    "                batch.batch.append(\n",
+                    "                    torch.full((num_nodes, ), i, dtype=torch.long))\n",
+                    "                cumsum += num_nodes\n"
+                ],
+                "parent_version_range": {
+                    "start": 39,
+                    "end": 40
+                },
+                "child_version_range": {
+                    "start": 37,
+                    "end": 43
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for i, data in enumerate(data_list):",
+                        "start_line": 32,
+                        "end_line": 39
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Batch",
+                        "signature": "class Batch(Data):",
+                        "at_line": 4
+                    },
+                    {
+                        "type": "function",
+                        "name": "from_data_list",
+                        "signature": "def from_data_list(data_list):",
+                        "at_line": 17
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: torch_geometric/data/batch.py\nCode:\n         class Batch(Data):\n             ...\n             def from_data_list(data_list):\n                 ...\n36 34                    item = data[key]\n37 35                    item = item + cumsum if data.__cumsum__(key, item) else item\n38 36                    batch[key].append(item)\n39     -             cumsum += num_nodes\n   37  + \n   38  +             num_nodes = data.num_nodes\n   39  +             if num_nodes is not None:\n   40  +                 batch.batch.append(\n   41  +                     torch.full((num_nodes, ), i, dtype=torch.long))\n   42  +                 cumsum += num_nodes\n40 43    \n41 44            for key in keys:\n42 45                item = batch[key][0]\n       ...\n",
+                "file_path": "torch_geometric/data/batch.py",
+                "identifiers_before": [
+                    "cumsum",
+                    "num_nodes"
+                ],
+                "identifiers_after": [
+                    "append",
+                    "batch",
+                    "cumsum",
+                    "data",
+                    "dtype",
+                    "full",
+                    "i",
+                    "long",
+                    "num_nodes",
+                    "torch"
+                ],
+                "prefix": [
+                    "                item = data[key]\n",
+                    "                item = item + cumsum if data.__cumsum__(key, item) else item\n",
+                    "                batch[key].append(item)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        for key in keys:\n",
+                    "            item = batch[key][0]\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "num_nodes",
+                            "position": {
+                                "start": {
+                                    "line": 39,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 39,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/batch.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "num_nodes",
+                            "position": {
+                                "start": {
+                                    "line": 38,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 38,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/batch.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        for key in keys:\n",
+                "            item = batch[key][0]\n",
+                "            if torch.is_tensor(item):\n",
+                "                batch[key] = torch.cat(\n",
+                "                    batch[key], dim=data_list[0].__cat_dim__(key, item))\n",
+                "            elif isinstance(item, int) or isinstance(item, float):\n",
+                "                batch[key] = torch.tensor(batch[key])\n",
+                "            else:\n",
+                "                raise ValueError('Unsupported attribute type.')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        batch.batch = torch.cat(batch.batch, dim=-1)\n"
+                ],
+                "after": [
+                    "\n",
+                    "        if num_nodes is not None:\n",
+                    "            batch.batch = torch.cat(batch.batch, dim=-1)\n",
+                    "        else:\n",
+                    "            batch.batch = None\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 50,
+                    "end": 51
+                },
+                "child_version_range": {
+                    "start": 53,
+                    "end": 59
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Batch",
+                        "signature": "class Batch(Data):",
+                        "at_line": 4
+                    },
+                    {
+                        "type": "function",
+                        "name": "from_data_list",
+                        "signature": "def from_data_list(data_list):",
+                        "at_line": 17
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: torch_geometric/data/batch.py\nCode:\n         class Batch(Data):\n             ...\n             def from_data_list(data_list):\n                 ...\n47 50                    batch[key] = torch.tensor(batch[key])\n48 51                else:\n49 52                    raise ValueError('Unsupported attribute type.')\n50     -         batch.batch = torch.cat(batch.batch, dim=-1)\n   53  + \n   54  +         if num_nodes is not None:\n   55  +             batch.batch = torch.cat(batch.batch, dim=-1)\n   56  +         else:\n   57  +             batch.batch = None\n   58  + \n51 59            return batch.contiguous()\n52 60    \n53 61        @property\n       ...\n",
+                "file_path": "torch_geometric/data/batch.py",
+                "identifiers_before": [
+                    "batch",
+                    "cat",
+                    "dim",
+                    "torch"
+                ],
+                "identifiers_after": [
+                    "batch",
+                    "cat",
+                    "dim",
+                    "num_nodes",
+                    "torch"
+                ],
+                "prefix": [
+                    "                batch[key] = torch.tensor(batch[key])\n",
+                    "            else:\n",
+                    "                raise ValueError('Unsupported attribute type.')\n"
+                ],
+                "suffix": [
+                    "        return batch.contiguous()\n",
+                    "\n",
+                    "    @property\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "num_nodes",
+                            "position": {
+                                "start": {
+                                    "line": 54,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 54,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/batch.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        return batch.contiguous()\n",
+                "\n",
+                "    @property\n",
+                "    def num_graphs(self):\n",
+                "        \"\"\"Returns the number of graphs in the batch.\"\"\"\n",
+                "        return self.batch[-1].item() + 1"
+            ]
+        ],
+        "torch_geometric/data/dataloader.py": [
+            [
+                "import torch.utils.data\n",
+                "from torch.utils.data.dataloader import default_collate\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from torch_geometric.data import Batch\n"
+                ],
+                "after": [
+                    "from torch_geometric.data import Data, Batch\n"
+                ],
+                "parent_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "child_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: torch_geometric/data/dataloader.py\nCode:\n  ...\n0 0    import torch.utils.data\n1 1    from torch.utils.data.dataloader import default_collate\n2 2    \n3    - from torch_geometric.data import Batch\n  3  + from torch_geometric.data import Data, Batch\n4 4    \n5 5    \n6 6    class DataLoader(torch.utils.data.DataLoader):\n     ...\n",
+                "file_path": "torch_geometric/data/dataloader.py",
+                "identifiers_before": [
+                    "Batch",
+                    "data",
+                    "torch_geometric"
+                ],
+                "identifiers_after": [
+                    "Batch",
+                    "Data",
+                    "data",
+                    "torch_geometric"
+                ],
+                "prefix": [
+                    "import torch.utils.data\n",
+                    "from torch.utils.data.dataloader import default_collate\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class DataLoader(torch.utils.data.DataLoader):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "Batch",
+                            "position": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "Data",
+                            "position": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 33
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "Batch",
+                            "position": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class DataLoader(torch.utils.data.DataLoader):\n",
+                "    r\"\"\"Data loader which merges data objects from a\n",
+                "    :class:`torch_geometric.data.dataset` to a mini-batch.\n",
+                "\n",
+                "    Args:\n",
+                "        dataset (Dataset): The dataset from which to load the data.\n",
+                "        batch_size (int, optional): How may samples per batch to load.\n",
+                "            (default: :obj:`1`)\n",
+                "        shuffle (bool, optional): If set to :obj:`True`, the data will be\n",
+                "            reshuffled at every epoch (default: :obj:`True`)\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        def collate(data_list):\n",
+                    "            if isinstance(data_list[0], Data):\n",
+                    "                return Batch.from_data_list(data_list)\n",
+                    "            else:\n",
+                    "                return default_collate(data_list)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 19,
+                    "end": 19
+                },
+                "child_version_range": {
+                    "start": 19,
+                    "end": 25
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "DataLoader",
+                        "signature": "class DataLoader(torch.utils.data.DataLoader):",
+                        "at_line": 6
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):",
+                        "at_line": 18
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: torch_geometric/data/dataloader.py\nCode:\n         class DataLoader(torch.utils.data.DataLoader):\n             ...\n16 16        \"\"\"\n17 17    \n18 18        def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n   19  +         def collate(data_list):\n   20  +             if isinstance(data_list[0], Data):\n   21  +                 return Batch.from_data_list(data_list)\n   22  +             else:\n   23  +                 return default_collate(data_list)\n   24  + \n19 25            super(DataLoader, self).__init__(\n       ...\n",
+                "file_path": "torch_geometric/data/dataloader.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Batch",
+                    "Data",
+                    "collate",
+                    "data_list",
+                    "default_collate",
+                    "from_data_list",
+                    "isinstance"
+                ],
+                "prefix": [
+                    "    \"\"\"\n",
+                    "\n",
+                    "    def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n"
+                ],
+                "suffix": [
+                    "        super(DataLoader, self).__init__(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "Data",
+                            "position": {
+                                "start": {
+                                    "line": 20,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 20,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "Batch",
+                            "position": {
+                                "start": {
+                                    "line": 21,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 21,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "collate",
+                            "position": {
+                                "start": {
+                                    "line": 19,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 19,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        super(DataLoader, self).__init__(\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            dataset,\n",
+                    "            batch_size,\n",
+                    "            shuffle,\n",
+                    "            collate_fn=lambda data_list: Batch.from_data_list(data_list),\n",
+                    "            **kwargs)\n"
+                ],
+                "after": [
+                    "            dataset, batch_size, shuffle, collate_fn=collate, **kwargs)\n"
+                ],
+                "parent_version_range": {
+                    "start": 20,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 27
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "DataLoader",
+                        "signature": "class DataLoader(torch.utils.data.DataLoader):",
+                        "at_line": 6
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):",
+                        "at_line": 18
+                    },
+                    {
+                        "type": "call",
+                        "name": "super(DataLoader, self).__init__",
+                        "signature": "super(DataLoader, self).__init__(\n            dataset,\n            batch_size,\n            shuffle,\n            collate_fn=lambda data_list: Batch.from_data_list(data_list),\n            **kwargs)",
+                        "at_line": 19,
+                        "argument": "dataset"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: torch_geometric/data/dataloader.py\nCode:\n         class DataLoader(torch.utils.data.DataLoader):\n             ...\n             def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n                 ...\n19 25            super(DataLoader, self).__init__(\n20     -             dataset,\n21     -             batch_size,\n22     -             shuffle,\n23     -             collate_fn=lambda data_list: Batch.from_data_list(data_list),\n24     -             **kwargs)\n   26  +             dataset, batch_size, shuffle, collate_fn=collate, **kwargs)\n25 27    \n26 28    \n27 29    class DataListLoader(torch.utils.data.DataLoader):\n       ...\n",
+                "file_path": "torch_geometric/data/dataloader.py",
+                "identifiers_before": [
+                    "Batch",
+                    "batch_size",
+                    "collate_fn",
+                    "data_list",
+                    "dataset",
+                    "from_data_list",
+                    "kwargs",
+                    "shuffle"
+                ],
+                "identifiers_after": [
+                    "batch_size",
+                    "collate",
+                    "collate_fn",
+                    "dataset",
+                    "kwargs",
+                    "shuffle"
+                ],
+                "prefix": [
+                    "        super(DataLoader, self).__init__(\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class DataListLoader(torch.utils.data.DataLoader):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "Batch",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 46
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "collate",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 53
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/pytorch_geometric/torch_geometric/data/dataloader.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class DataListLoader(torch.utils.data.DataLoader):\n",
+                "    r\"\"\"Data loader which merges data objects from a\n",
+                "    :class:`torch_geometric.data.dataset` to a python list.\n",
+                "\n",
+                "    .. note::\n",
+                "\n",
+                "        This data loader should be used for multi-gpu support via\n",
+                "        :class:`torch_geometric.nn.DataParallel`.\n",
+                "\n",
+                "    Args:\n",
+                "        dataset (Dataset): The dataset from which to load the data.\n",
+                "        batch_size (int, optional): How may samples per batch to load.\n",
+                "            (default: :obj:`1`)\n",
+                "        shuffle (bool, optional): If set to :obj:`True`, the data will be\n",
+                "            reshuffled at every epoch (default: :obj:`True`)\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n",
+                "        super(DataListLoader, self).__init__(\n",
+                "            dataset,\n",
+                "            batch_size,\n",
+                "            shuffle,\n",
+                "            collate_fn=lambda data_list: data_list,\n",
+                "            **kwargs)\n",
+                "\n",
+                "\n",
+                "class DenseDataLoader(torch.utils.data.DataLoader):\n",
+                "    r\"\"\"Data loader which merges data objects from a\n",
+                "    :class:`torch_geometric.data.dataset` to a mini-batch.\n",
+                "\n",
+                "    .. note::\n",
+                "\n",
+                "        To make use of this data loader, all graphs in the dataset needs to\n",
+                "        have the same shape for each its attributes.\n",
+                "        Therefore, this data loader should only be used when working with\n",
+                "        *dense* adjacency matrices.\n",
+                "\n",
+                "    Args:\n",
+                "        dataset (Dataset): The dataset from which to load the data.\n",
+                "        batch_size (int, optional): How may samples per batch to load.\n",
+                "            (default: :obj:`1`)\n",
+                "        shuffle (bool, optional): If set to :obj:`True`, the data will be\n",
+                "            reshuffled at every epoch (default: :obj:`True`)\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, dataset, batch_size=1, shuffle=True, **kwargs):\n",
+                "        def dense_collate(data_list):\n",
+                "            batch = Batch()\n",
+                "            for key in data_list[0].keys:\n",
+                "                batch[key] = default_collate([d[key] for d in data_list])\n",
+                "            return batch\n",
+                "\n",
+                "        super(DenseDataLoader, self).__init__(\n",
+                "            dataset, batch_size, shuffle, collate_fn=dense_collate, **kwargs)"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+        ],
+        [
+            3,
+            4,
+            5,
+            0,
+            1,
+            2
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "delete variable num_nodes",
+            "scenario of 0 -> 1": "delete variable created in edit 0 then delete usage in edit 1",
+            "scenario of 1 -> 0": "delete usage in edit 1 then delete variable created in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow of batch.batch",
+            "scenario of 0 -> 1": "delete appending tensor to batch.batch in edit 0, then delete concatenation in edit 1",
+            "scenario of 1 -> 0": "delete concatenation in edit 1, then delete appending tensor to batch.batch in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "positional",
+            "scenario of 0 -> 1": "user may edit in top-down order from edit 0 to edit 1",
+            "scenario of 1 -> 0": "user may edit in bottom-up order from edit 1 to edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Edit 4 used type `Data`, which is imported in edit 3",
+            "scenario of 0 -> 1": "user may first use `Data` in edit 0, then driven by error, use it in edit 1",
+            "scenario of 1 -> 0": "user may first import `Data` in edit 1, then use it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "extract lambda function as new func",
+            "scenario of 0 -> 1": "user may frist refactor the edit 0, the implement the detail in edit 1",
+            "scenario of 1 -> 0": "user may first impelement the function in edit 1, then use the function to refactor edit 0"
+        }
+    ]
+}

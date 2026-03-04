@@ -1,0 +1,44 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'sz' in their changed lines. Edit 0 modifies the definition of 'sz' from a constant value to a call to getenv(), while Edit 1 uses this same 'sz' variable in tensor creation calls. The changed lines in both edits explicitly reference the same symbol 'sz', creating a direct code dependency. After making either edit, the other edit would be a natural next step in the same micro-task of modifying how tensors are created with the sz parameter. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'sz' in their changed lines. Edit 0 modifies the definition of 'sz' from a constant value to a call to getenv(), while Edit 1 uses this same 'sz' variable in tensor creation calls. The changed lines in both edits explicitly reference the same symbol 'sz', creating a direct code dependency. After making either edit, the other edit would be a natural next step in the same micro-task of modifying how tensors are created with the sz parameter. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'getenv' and 'Timing' to the import statement, while Edit 1 uses both 'getenv' and 'Timing' in the code. The changed lines in Edit 1 reference the exact same symbols ('getenv' and 'Timing') that were added to the import in Edit 0. This creates a direct code dependency where importing these symbols enables their immediate usage. Either edit can be staged first - if Edit 0 is done first, it enables the usage in Edit 1; if Edit 1 is done first, it would create a runtime NameError but can still be parsed and staged in Python. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'getenv' and 'Timing' to the import statement, while Edit 1 uses both 'getenv' and 'Timing' in the code. The changed lines in Edit 1 reference the exact same symbols ('getenv' and 'Timing') that were added to the import in Edit 0. This creates a direct code dependency where importing these symbols enables their immediate usage. Either edit can be staged first - if Edit 0 is done first, it enables the usage in Edit 1; if Edit 1 is done first, it would create a runtime NameError but can still be parsed and staged in Python. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new __getitem__ method that calls self.__get_canonicalized_item(). Edit 1 renames the existing __getitem__ method to __get_canonicalized_item. These edits reference the exact same symbol (__get_canonicalized_item) and form a refactoring pattern where the original method is renamed and a new wrapper method is created that calls the renamed method. Edit 1 must occur before Edit 0 because Edit 0 calls __get_canonicalized_item which doesn't exist until Edit 1 renames the method to create it."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 adds 'DEBUG' to the import statement from tinygrad.helpers, and Edit 1 uses 'DEBUG' in a conditional check on line 87. This creates a direct definition-usage relationship where the import makes the DEBUG symbol available for use in the same file. After making the import edit, using DEBUG becomes the next logical step, and after adding the DEBUG usage, importing it becomes necessary. Both edits reference the exact same symbol 'DEBUG' and either edit naturally prompts the other as the next mechanical step within the same development session."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 adds 'DEBUG' to the import statement from tinygrad.helpers, and Edit 1 uses 'DEBUG' in a conditional check on line 87. This creates a direct definition-usage relationship where the import makes the DEBUG symbol available for use in the same file. After making the import edit, using DEBUG becomes the next logical step, and after adding the DEBUG usage, importing it becomes necessary. Both edits reference the exact same symbol 'DEBUG' and either edit naturally prompts the other as the next mechanical step within the same development session."
+        }
+    ],
+    "allowed_init_edits": [
+        4,
+        5,
+        6
+    ]
+}

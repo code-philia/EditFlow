@@ -1,0 +1,1586 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/zulip/zulip/commit/d6711e3cd2767b197395640c97e0de3ff2e5db88",
+    "commit_message": "muting: Add support for muting deactivated users.\n\nFixes #19141",
+    "commit_snapshots": {
+        "zerver/tests/test_muting_users.py": [
+            [
+                "from datetime import datetime, timezone\n",
+                "from unittest import mock\n",
+                "\n",
+                "import orjson\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from zerver.lib.actions import do_deactivate_user\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 5
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n  ...\n2 2    \n3 3    import orjson\n4 4    \n  5  + from zerver.lib.actions import do_deactivate_user\n5 6    from zerver.lib.cache import cache_get, get_muting_users_cache_key\n6 7    from zerver.lib.test_classes import ZulipTestCase\n7 8    from zerver.lib.timestamp import datetime_to_timestamp\n     ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "actions",
+                    "do_deactivate_user",
+                    "lib",
+                    "zerver"
+                ],
+                "prefix": [
+                    "\n",
+                    "import orjson\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from zerver.lib.cache import cache_get, get_muting_users_cache_key\n",
+                    "from zerver.lib.test_classes import ZulipTestCase\n",
+                    "from zerver.lib.timestamp import datetime_to_timestamp\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "do_deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "do_deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 49
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from zerver.lib.cache import cache_get, get_muting_users_cache_key\n",
+                "from zerver.lib.test_classes import ZulipTestCase\n",
+                "from zerver.lib.timestamp import datetime_to_timestamp\n",
+                "from zerver.lib.user_mutes import get_mute_object, get_muting_users, get_user_mutes\n",
+                "from zerver.models import RealmAuditLog, UserMessage, UserProfile\n",
+                "\n",
+                "\n",
+                "class MutedUsersTests(ZulipTestCase):\n",
+                "    # Hamlet does the muting/unmuting, and Cordelia gets muted/unmuted.\n",
+                "    def test_get_user_mutes(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "\n",
+                "        muted_users = get_user_mutes(hamlet)\n",
+                "        self.assertEqual(muted_users, [])\n",
+                "        mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n",
+                "\n",
+                "        with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n",
+                "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "            result = self.api_post(hamlet, url)\n",
+                "            self.assert_json_success(result)\n",
+                "\n",
+                "        muted_users = get_user_mutes(hamlet)\n",
+                "        self.assert_length(muted_users, 1)\n",
+                "\n",
+                "        self.assertDictEqual(\n",
+                "            muted_users[0],\n",
+                "            {\n",
+                "                \"id\": cordelia.id,\n",
+                "                \"timestamp\": datetime_to_timestamp(mute_time),\n",
+                "            },\n",
+                "        )\n",
+                "\n",
+                "    def test_add_muted_user_mute_self(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(hamlet.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_error(result, \"Cannot mute self\")\n",
+                "\n",
+                "    def test_add_muted_user_mute_bot(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "\n",
+                "        bot_info = {\n",
+                "            \"full_name\": \"The Bot of Hamlet\",\n",
+                "            \"short_name\": \"hambot\",\n",
+                "            \"bot_type\": \"1\",\n",
+                "        }\n",
+                "        result = self.client_post(\"/json/bots\", bot_info)\n",
+                "        self.assert_json_success(result)\n",
+                "        muted_id = result.json()[\"user_id\"]\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(muted_id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        # Currently we do not allow muting bots. This is the error message\n",
+                "        # from `access_user_by_id`.\n",
+                "        self.assert_json_error(result, \"No such user\")\n",
+                "\n",
+                "    def test_add_muted_user_mute_twice(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_error(result, \"User already muted\")\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def test_add_muted_user_valid_data(self) -> None:\n"
+                ],
+                "after": [
+                    "    def _test_add_muted_user_valid_data(self, deactivate_user: bool = False) -> None:\n"
+                ],
+                "parent_version_range": {
+                    "start": 78,
+                    "end": 79
+                },
+                "child_version_range": {
+                    "start": 79,
+                    "end": 80
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_add_muted_user_valid_data",
+                        "signature": "def test_add_muted_user_valid_data(self)->None:",
+                        "at_line": 78
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n         class MutedUsersTests(ZulipTestCase):\n             ...\n75 76            result = self.api_post(hamlet, url)\n76 77            self.assert_json_error(result, \"User already muted\")\n77 78    \n78     -     def test_add_muted_user_valid_data(self) -> None:\n   79  +     def _test_add_muted_user_valid_data(self, deactivate_user: bool = False) -> None:\n79 80            hamlet = self.example_user(\"hamlet\")\n80 81            self.login_user(hamlet)\n81 82            cordelia = self.example_user(\"cordelia\")\n       ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [
+                    "self",
+                    "test_add_muted_user_valid_data"
+                ],
+                "identifiers_after": [
+                    "_test_add_muted_user_valid_data",
+                    "bool",
+                    "deactivate_user",
+                    "self"
+                ],
+                "prefix": [
+                    "        result = self.api_post(hamlet, url)\n",
+                    "        self.assert_json_error(result, \"User already muted\")\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        hamlet = self.example_user(\"hamlet\")\n",
+                    "        self.login_user(hamlet)\n",
+                    "        cordelia = self.example_user(\"cordelia\")\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "_test_add_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "_test_add_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 46
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 79,
+                                    "column": 46
+                                },
+                                "end": {
+                                    "line": 79,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "        mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if deactivate_user:\n",
+                    "            do_deactivate_user(cordelia, acting_user=None)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 84,
+                    "end": 84
+                },
+                "child_version_range": {
+                    "start": 85,
+                    "end": 88
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_add_muted_user_valid_data",
+                        "signature": "def test_add_muted_user_valid_data(self)->None:",
+                        "at_line": 78
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n         class MutedUsersTests(ZulipTestCase):\n             ...\n             def test_add_muted_user_valid_data(self)->None:\n                 ...\n81 82            cordelia = self.example_user(\"cordelia\")\n82 83            mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n83 84    \n   85  +         if deactivate_user:\n   86  +             do_deactivate_user(cordelia, acting_user=None)\n   87  + \n84 88            with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n85 89                url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n86 90                result = self.api_post(hamlet, url)\n       ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "acting_user",
+                    "cordelia",
+                    "deactivate_user",
+                    "do_deactivate_user"
+                ],
+                "prefix": [
+                    "        cordelia = self.example_user(\"cordelia\")\n",
+                    "        mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n",
+                    "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                    "            result = self.api_post(hamlet, url)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "do_deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 86,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 86,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 85,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 85,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "        with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n",
+                "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "            result = self.api_post(hamlet, url)\n",
+                "            self.assert_json_success(result)\n",
+                "\n",
+                "        self.assertIn(\n",
+                "            {\n",
+                "                \"id\": cordelia.id,\n",
+                "                \"timestamp\": datetime_to_timestamp(mute_time),\n",
+                "            },\n",
+                "            get_user_mutes(hamlet),\n",
+                "        )\n",
+                "        self.assertIsNotNone(get_mute_object(hamlet, cordelia))\n",
+                "\n",
+                "        audit_log_entries = list(\n",
+                "            RealmAuditLog.objects.filter(acting_user=hamlet, modified_user=hamlet).values_list(\n",
+                "                \"event_type\", \"event_time\", \"extra_data\"\n",
+                "            )\n",
+                "        )\n",
+                "        self.assert_length(audit_log_entries, 1)\n",
+                "        audit_log_entry = audit_log_entries[0]\n",
+                "        self.assertEqual(\n",
+                "            audit_log_entry,\n",
+                "            (\n",
+                "                RealmAuditLog.USER_MUTED,\n",
+                "                mute_time,\n",
+                "                orjson.dumps({\"muted_user_id\": cordelia.id}).decode(),\n",
+                "            ),\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def test_add_muted_user_valid_data(self) -> None:\n",
+                    "        self._test_add_muted_user_valid_data()\n",
+                    "\n",
+                    "    def test_add_muted_user_deactivated_user(self) -> None:\n",
+                    "        self._test_add_muted_user_valid_data(deactivate_user=True)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 114,
+                    "end": 114
+                },
+                "child_version_range": {
+                    "start": 118,
+                    "end": 124
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n           class MutedUsersTests(ZulipTestCase):\n               ...\n111 115                ),\n112 116            )\n113 117    \n    118  +     def test_add_muted_user_valid_data(self) -> None:\n    119  +         self._test_add_muted_user_valid_data()\n    120  + \n    121  +     def test_add_muted_user_deactivated_user(self) -> None:\n    122  +         self._test_add_muted_user_valid_data(deactivate_user=True)\n    123  + \n114 124        def test_remove_muted_user_unmute_before_muting(self) -> None:\n115 125            hamlet = self.example_user(\"hamlet\")\n116 126            self.login_user(hamlet)\n         ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_test_add_muted_user_valid_data",
+                    "deactivate_user",
+                    "self",
+                    "test_add_muted_user_deactivated_user",
+                    "test_add_muted_user_valid_data"
+                ],
+                "prefix": [
+                    "            ),\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def test_remove_muted_user_unmute_before_muting(self) -> None:\n",
+                    "        hamlet = self.example_user(\"hamlet\")\n",
+                    "        self.login_user(hamlet)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_add_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 119,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 119,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_add_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 122,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 122,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 122,
+                                    "column": 45
+                                },
+                                "end": {
+                                    "line": 122,
+                                    "column": 60
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "    def test_remove_muted_user_unmute_before_muting(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_delete(hamlet, url)\n",
+                "        self.assert_json_error(result, \"User is not muted\")\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def test_remove_muted_user_valid_data(self) -> None:\n"
+                ],
+                "after": [
+                    "    def _test_remove_muted_user_valid_data(self, deactivate_user: bool = False) -> None:\n"
+                ],
+                "parent_version_range": {
+                    "start": 123,
+                    "end": 124
+                },
+                "child_version_range": {
+                    "start": 133,
+                    "end": 134
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_remove_muted_user_valid_data",
+                        "signature": "def test_remove_muted_user_valid_data(self)->None:",
+                        "at_line": 123
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n           class MutedUsersTests(ZulipTestCase):\n               ...\n120 130            result = self.api_delete(hamlet, url)\n121 131            self.assert_json_error(result, \"User is not muted\")\n122 132    \n123      -     def test_remove_muted_user_valid_data(self) -> None:\n    133  +     def _test_remove_muted_user_valid_data(self, deactivate_user: bool = False) -> None:\n124 134            hamlet = self.example_user(\"hamlet\")\n125 135            self.login_user(hamlet)\n126 136            cordelia = self.example_user(\"cordelia\")\n         ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [
+                    "self",
+                    "test_remove_muted_user_valid_data"
+                ],
+                "identifiers_after": [
+                    "_test_remove_muted_user_valid_data",
+                    "bool",
+                    "deactivate_user",
+                    "self"
+                ],
+                "prefix": [
+                    "        result = self.api_delete(hamlet, url)\n",
+                    "        self.assert_json_error(result, \"User is not muted\")\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        hamlet = self.example_user(\"hamlet\")\n",
+                    "        self.login_user(hamlet)\n",
+                    "        cordelia = self.example_user(\"cordelia\")\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "_test_remove_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 133,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 133,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "_test_remove_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 133,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 133,
+                                    "column": 42
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 133,
+                                    "column": 49
+                                },
+                                "end": {
+                                    "line": 133,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 133,
+                                    "column": 49
+                                },
+                                "end": {
+                                    "line": 133,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "        mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        if deactivate_user:\n",
+                    "            do_deactivate_user(cordelia, acting_user=None)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 129,
+                    "end": 129
+                },
+                "child_version_range": {
+                    "start": 139,
+                    "end": 142
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_remove_muted_user_valid_data",
+                        "signature": "def test_remove_muted_user_valid_data(self)->None:",
+                        "at_line": 123
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n           class MutedUsersTests(ZulipTestCase):\n               ...\n               def test_remove_muted_user_valid_data(self)->None:\n                   ...\n126 136            cordelia = self.example_user(\"cordelia\")\n127 137            mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n128 138    \n    139  +         if deactivate_user:\n    140  +             do_deactivate_user(cordelia, acting_user=None)\n    141  + \n129 142            with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n130 143                url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n131 144                result = self.api_post(hamlet, url)\n         ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "acting_user",
+                    "cordelia",
+                    "deactivate_user",
+                    "do_deactivate_user"
+                ],
+                "prefix": [
+                    "        cordelia = self.example_user(\"cordelia\")\n",
+                    "        mute_time = datetime(2021, 1, 1, tzinfo=timezone.utc)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n",
+                    "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                    "            result = self.api_post(hamlet, url)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "do_deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 140,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 140,
+                                    "column": 30
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 139,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 139,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "        with mock.patch(\"zerver.views.muting.timezone_now\", return_value=mute_time):\n",
+                "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "            result = self.api_post(hamlet, url)\n",
+                "            self.assert_json_success(result)\n",
+                "\n",
+                "        with mock.patch(\"zerver.lib.actions.timezone_now\", return_value=mute_time):\n",
+                "            # To test that `RealmAuditLog` entry has correct `event_time`.\n",
+                "            url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "            result = self.api_delete(hamlet, url)\n",
+                "\n",
+                "        self.assert_json_success(result)\n",
+                "        self.assertNotIn(\n",
+                "            {\n",
+                "                \"id\": cordelia.id,\n",
+                "                \"timestamp\": datetime_to_timestamp(mute_time),\n",
+                "            },\n",
+                "            get_user_mutes(hamlet),\n",
+                "        )\n",
+                "        self.assertIsNone(get_mute_object(hamlet, cordelia))\n",
+                "\n",
+                "        audit_log_entries = list(\n",
+                "            RealmAuditLog.objects.filter(acting_user=hamlet, modified_user=hamlet)\n",
+                "            .values_list(\"event_type\", \"event_time\", \"extra_data\")\n",
+                "            .order_by(\"id\")\n",
+                "        )\n",
+                "        self.assert_length(audit_log_entries, 2)\n",
+                "        audit_log_entry = audit_log_entries[1]\n",
+                "        self.assertEqual(\n",
+                "            audit_log_entry,\n",
+                "            (\n",
+                "                RealmAuditLog.USER_UNMUTED,\n",
+                "                mute_time,\n",
+                "                orjson.dumps({\"unmuted_user_id\": cordelia.id}).decode(),\n",
+                "            ),\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def test_remove_muted_user_valid_data(self) -> None:\n",
+                    "        self._test_remove_muted_user_valid_data()\n",
+                    "\n",
+                    "    def test_remove_muted_user_deactivated_user(self) -> None:\n",
+                    "        self._test_remove_muted_user_valid_data(deactivate_user=True)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 165,
+                    "end": 165
+                },
+                "child_version_range": {
+                    "start": 178,
+                    "end": 184
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "MutedUsersTests",
+                        "signature": "class MutedUsersTests(ZulipTestCase):",
+                        "at_line": 12
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: zerver/tests/test_muting_users.py\nCode:\n           class MutedUsersTests(ZulipTestCase):\n               ...\n162 175                ),\n163 176            )\n164 177    \n    178  +     def test_remove_muted_user_valid_data(self) -> None:\n    179  +         self._test_remove_muted_user_valid_data()\n    180  + \n    181  +     def test_remove_muted_user_deactivated_user(self) -> None:\n    182  +         self._test_remove_muted_user_valid_data(deactivate_user=True)\n    183  + \n165 184        def test_get_muting_users(self) -> None:\n166 185            hamlet = self.example_user(\"hamlet\")\n167 186            self.login_user(hamlet)\n         ...\n",
+                "file_path": "zerver/tests/test_muting_users.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "_test_remove_muted_user_valid_data",
+                    "deactivate_user",
+                    "self",
+                    "test_remove_muted_user_deactivated_user",
+                    "test_remove_muted_user_valid_data"
+                ],
+                "prefix": [
+                    "            ),\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def test_get_muting_users(self) -> None:\n",
+                    "        hamlet = self.example_user(\"hamlet\")\n",
+                    "        self.login_user(hamlet)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "_test_remove_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 179,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 179,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "_test_remove_muted_user_valid_data",
+                            "position": {
+                                "start": {
+                                    "line": 182,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 182,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "deactivate_user",
+                            "position": {
+                                "start": {
+                                    "line": 182,
+                                    "column": 48
+                                },
+                                "end": {
+                                    "line": 182,
+                                    "column": 63
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/zulip/zerver/tests/test_muting_users.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "    def test_get_muting_users(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "\n",
+                "        self.assertEqual(None, cache_get(get_muting_users_cache_key(cordelia.id)))\n",
+                "        self.assertEqual(set(), get_muting_users(cordelia.id))\n",
+                "        self.assertEqual(set(), cache_get(get_muting_users_cache_key(cordelia.id))[0])\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "        self.assertEqual(None, cache_get(get_muting_users_cache_key(cordelia.id)))\n",
+                "        self.assertEqual({hamlet.id}, get_muting_users(cordelia.id))\n",
+                "        self.assertEqual({hamlet.id}, cache_get(get_muting_users_cache_key(cordelia.id))[0])\n",
+                "\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_delete(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "        self.assertEqual(None, cache_get(get_muting_users_cache_key(cordelia.id)))\n",
+                "        self.assertEqual(set(), get_muting_users(cordelia.id))\n",
+                "        self.assertEqual(set(), cache_get(get_muting_users_cache_key(cordelia.id))[0])\n",
+                "\n",
+                "    def assert_usermessage_read_flag(self, user: UserProfile, message: int, flag: bool) -> None:\n",
+                "        usermesaage = UserMessage.objects.get(\n",
+                "            user_profile=user,\n",
+                "            message=message,\n",
+                "        )\n",
+                "        self.assertTrue(usermesaage.flags.read == flag)\n",
+                "\n",
+                "    def test_new_messages_from_muted_user_marked_as_read(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "        othello = self.example_user(\"othello\")\n",
+                "\n",
+                "        self.make_stream(\"general\")\n",
+                "        self.subscribe(hamlet, \"general\")\n",
+                "        self.subscribe(cordelia, \"general\")\n",
+                "        self.subscribe(othello, \"general\")\n",
+                "\n",
+                "        # Hamlet mutes Cordelia.\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "\n",
+                "        # Have Cordelia send messages to Hamlet and Othello.\n",
+                "        stream_message = self.send_stream_message(cordelia, \"general\", \"Spam in stream\")\n",
+                "        huddle_message = self.send_huddle_message(cordelia, [hamlet, othello], \"Spam in huddle\")\n",
+                "        pm_to_hamlet = self.send_personal_message(cordelia, hamlet, \"Spam in PM\")\n",
+                "        pm_to_othello = self.send_personal_message(cordelia, othello, \"Spam in PM\")\n",
+                "\n",
+                "        # These should be marked as read for Hamlet, since he has muted Cordelia.\n",
+                "        self.assert_usermessage_read_flag(hamlet, stream_message, True)\n",
+                "        self.assert_usermessage_read_flag(hamlet, huddle_message, True)\n",
+                "        self.assert_usermessage_read_flag(hamlet, pm_to_hamlet, True)\n",
+                "\n",
+                "        # These messages should be unreads for Othello, since he hasn't muted Cordelia.\n",
+                "        self.assert_usermessage_read_flag(othello, stream_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, huddle_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, pm_to_othello, False)\n",
+                "\n",
+                "    def test_existing_messages_from_muted_user_marked_as_read(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "        othello = self.example_user(\"othello\")\n",
+                "\n",
+                "        self.make_stream(\"general\")\n",
+                "        self.subscribe(hamlet, \"general\")\n",
+                "        self.subscribe(cordelia, \"general\")\n",
+                "        self.subscribe(othello, \"general\")\n",
+                "\n",
+                "        # Have Cordelia send messages to Hamlet and Othello.\n",
+                "        stream_message = self.send_stream_message(cordelia, \"general\", \"Spam in stream\")\n",
+                "        huddle_message = self.send_huddle_message(cordelia, [hamlet, othello], \"Spam in huddle\")\n",
+                "        pm_to_hamlet = self.send_personal_message(cordelia, hamlet, \"Spam in PM\")\n",
+                "        pm_to_othello = self.send_personal_message(cordelia, othello, \"Spam in PM\")\n",
+                "\n",
+                "        # These messages are unreads for both Hamlet and Othello right now.\n",
+                "        self.assert_usermessage_read_flag(hamlet, stream_message, False)\n",
+                "        self.assert_usermessage_read_flag(hamlet, huddle_message, False)\n",
+                "        self.assert_usermessage_read_flag(hamlet, pm_to_hamlet, False)\n",
+                "\n",
+                "        self.assert_usermessage_read_flag(othello, stream_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, huddle_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, pm_to_othello, False)\n",
+                "\n",
+                "        # Hamlet mutes Cordelia.\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "\n",
+                "        # The messages sent earlier should be marked as read for Hamlet.\n",
+                "        self.assert_usermessage_read_flag(hamlet, stream_message, True)\n",
+                "        self.assert_usermessage_read_flag(hamlet, huddle_message, True)\n",
+                "        self.assert_usermessage_read_flag(hamlet, pm_to_hamlet, True)\n",
+                "\n",
+                "        # These messages are still unreads for Othello, since he did not mute Cordelia.\n",
+                "        self.assert_usermessage_read_flag(othello, stream_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, huddle_message, False)\n",
+                "        self.assert_usermessage_read_flag(othello, pm_to_othello, False)\n",
+                "\n",
+                "    def test_muted_message_send_notifications_not_enqueued(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "\n",
+                "        # No muting involved. Notification about to be enqueued for Hamlet.\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            self.send_personal_message(cordelia, hamlet)\n",
+                "            m.assert_called_once()\n",
+                "\n",
+                "        # Hamlet mutes Cordelia.\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "\n",
+                "        # Cordelia has been muted. Notification will not be enqueued for Hamlet.\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            self.send_personal_message(cordelia, hamlet)\n",
+                "            m.assert_not_called()\n",
+                "\n",
+                "    def test_muted_message_edit_notifications_not_enqueued(self) -> None:\n",
+                "        hamlet = self.example_user(\"hamlet\")\n",
+                "        self.login_user(hamlet)\n",
+                "        cordelia = self.example_user(\"cordelia\")\n",
+                "        self.make_stream(\"general\")\n",
+                "        self.subscribe(hamlet, \"general\")\n",
+                "\n",
+                "        # No muting. Only Hamlet is subscribed to #general, so only he can potentially recieve\n",
+                "        # notifications.\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            message_id = self.send_stream_message(cordelia, \"general\")\n",
+                "            # Message does not mention Hamlet, so no notification.\n",
+                "            m.assert_not_called()\n",
+                "\n",
+                "        self.login(\"cordelia\")\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            result = self.client_patch(\n",
+                "                \"/json/messages/\" + str(message_id),\n",
+                "                dict(\n",
+                "                    message_id=message_id,\n",
+                "                    content=\"@**King Hamlet**\",\n",
+                "                ),\n",
+                "            )\n",
+                "            self.assert_json_success(result)\n",
+                "            m.assert_called_once()\n",
+                "            # `maybe_enqueue_notificaions` was called for Hamlet after message edit mentioned him.\n",
+                "            self.assertEqual(m.call_args_list[0][1][\"user_notifications_data\"].user_id, hamlet.id)\n",
+                "\n",
+                "        # Hamlet mutes Cordelia.\n",
+                "        self.login(\"hamlet\")\n",
+                "        url = \"/api/v1/users/me/muted_users/{}\".format(cordelia.id)\n",
+                "        result = self.api_post(hamlet, url)\n",
+                "        self.assert_json_success(result)\n",
+                "\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            message_id = self.send_stream_message(cordelia, \"general\")\n",
+                "            m.assert_not_called()\n",
+                "\n",
+                "        self.login(\"cordelia\")\n",
+                "        with mock.patch(\"zerver.tornado.event_queue.maybe_enqueue_notifications\") as m:\n",
+                "            result = self.client_patch(\n",
+                "                \"/json/messages/\" + str(message_id),\n",
+                "                dict(\n",
+                "                    message_id=message_id,\n",
+                "                    content=\"@**King Hamlet**\",\n",
+                "                ),\n",
+                "            )\n",
+                "            self.assert_json_success(result)\n",
+                "            # `maybe_enqueue_notificaions` wasn't called for Hamlet after message edit which mentioned him,\n",
+                "            # because the sender (Cordelia) was muted.\n",
+                "            m.assert_not_called()"
+            ]
+        ],
+        "zerver/views/muting.py": [
+            [
+                "import datetime\n",
+                "from typing import Optional\n",
+                "\n",
+                "from django.http import HttpRequest, HttpResponse\n",
+                "from django.utils.timezone import now as timezone_now\n",
+                "from django.utils.translation import gettext as _\n",
+                "\n",
+                "from zerver.lib.actions import do_mute_topic, do_mute_user, do_unmute_topic, do_unmute_user\n",
+                "from zerver.lib.exceptions import JsonableError\n",
+                "from zerver.lib.request import REQ, has_request_variables\n",
+                "from zerver.lib.response import json_success\n",
+                "from zerver.lib.streams import (\n",
+                "    access_stream_by_id,\n",
+                "    access_stream_by_name,\n",
+                "    access_stream_for_unmute_topic_by_id,\n",
+                "    access_stream_for_unmute_topic_by_name,\n",
+                "    check_for_exactly_one_stream_arg,\n",
+                ")\n",
+                "from zerver.lib.topic_mutes import topic_is_muted\n",
+                "from zerver.lib.user_mutes import get_mute_object\n",
+                "from zerver.lib.users import access_user_by_id\n",
+                "from zerver.lib.validator import check_int\n",
+                "from zerver.models import UserProfile\n",
+                "\n",
+                "\n",
+                "def mute_topic(\n",
+                "    user_profile: UserProfile,\n",
+                "    stream_id: Optional[int],\n",
+                "    stream_name: Optional[str],\n",
+                "    topic_name: str,\n",
+                "    date_muted: datetime.datetime,\n",
+                ") -> HttpResponse:\n",
+                "    if stream_name is not None:\n",
+                "        (stream, sub) = access_stream_by_name(user_profile, stream_name)\n",
+                "    else:\n",
+                "        assert stream_id is not None\n",
+                "        (stream, sub) = access_stream_by_id(user_profile, stream_id)\n",
+                "\n",
+                "    if topic_is_muted(user_profile, stream.id, topic_name):\n",
+                "        raise JsonableError(_(\"Topic already muted\"))\n",
+                "\n",
+                "    do_mute_topic(user_profile, stream, topic_name, date_muted)\n",
+                "    return json_success()\n",
+                "\n",
+                "\n",
+                "def unmute_topic(\n",
+                "    user_profile: UserProfile, stream_id: Optional[int], stream_name: Optional[str], topic_name: str\n",
+                ") -> HttpResponse:\n",
+                "    error = _(\"Topic is not muted\")\n",
+                "\n",
+                "    if stream_name is not None:\n",
+                "        stream = access_stream_for_unmute_topic_by_name(user_profile, stream_name, error)\n",
+                "    else:\n",
+                "        assert stream_id is not None\n",
+                "        stream = access_stream_for_unmute_topic_by_id(user_profile, stream_id, error)\n",
+                "\n",
+                "    if not topic_is_muted(user_profile, stream.id, topic_name):\n",
+                "        raise JsonableError(error)\n",
+                "\n",
+                "    do_unmute_topic(user_profile, stream, topic_name)\n",
+                "    return json_success()\n",
+                "\n",
+                "\n",
+                "@has_request_variables\n",
+                "def update_muted_topic(\n",
+                "    request: HttpRequest,\n",
+                "    user_profile: UserProfile,\n",
+                "    stream_id: Optional[int] = REQ(json_validator=check_int, default=None),\n",
+                "    stream: Optional[str] = REQ(default=None),\n",
+                "    topic: str = REQ(),\n",
+                "    op: str = REQ(),\n",
+                ") -> HttpResponse:\n",
+                "\n",
+                "    check_for_exactly_one_stream_arg(stream_id=stream_id, stream=stream)\n",
+                "\n",
+                "    if op == \"add\":\n",
+                "        return mute_topic(\n",
+                "            user_profile=user_profile,\n",
+                "            stream_id=stream_id,\n",
+                "            stream_name=stream,\n",
+                "            topic_name=topic,\n",
+                "            date_muted=timezone_now(),\n",
+                "        )\n",
+                "    elif op == \"remove\":\n",
+                "        return unmute_topic(\n",
+                "            user_profile=user_profile,\n",
+                "            stream_id=stream_id,\n",
+                "            stream_name=stream,\n",
+                "            topic_name=topic,\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "def mute_user(request: HttpRequest, user_profile: UserProfile, muted_user_id: int) -> HttpResponse:\n",
+                "    if user_profile.id == muted_user_id:\n",
+                "        raise JsonableError(_(\"Cannot mute self\"))\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    muted_user = access_user_by_id(user_profile, muted_user_id, allow_bots=False, for_admin=False)\n"
+                ],
+                "after": [
+                    "    muted_user = access_user_by_id(\n",
+                    "        user_profile, muted_user_id, allow_bots=False, allow_deactivated=True, for_admin=False\n",
+                    "    )\n"
+                ],
+                "parent_version_range": {
+                    "start": 96,
+                    "end": 97
+                },
+                "child_version_range": {
+                    "start": 96,
+                    "end": 99
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "mute_user",
+                        "signature": "def mute_user(request: HttpRequest, user_profile: UserProfile, muted_user_id: int)->HttpResponse:",
+                        "at_line": 92
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: zerver/views/muting.py\nCode:\n           def mute_user(request: HttpRequest, user_profile: UserProfile, muted_user_id: int)->HttpResponse:\n               ...\n 93  93        if user_profile.id == muted_user_id:\n 94  94            raise JsonableError(_(\"Cannot mute self\"))\n 95  95    \n 96      -     muted_user = access_user_by_id(user_profile, muted_user_id, allow_bots=False, for_admin=False)\n     96  +     muted_user = access_user_by_id(\n     97  +         user_profile, muted_user_id, allow_bots=False, allow_deactivated=True, for_admin=False\n     98  +     )\n 97  99        date_muted = timezone_now()\n 98 100    \n 99 101        if get_mute_object(user_profile, muted_user) is not None:\n         ...\n",
+                "file_path": "zerver/views/muting.py",
+                "identifiers_before": [
+                    "access_user_by_id",
+                    "allow_bots",
+                    "for_admin",
+                    "muted_user",
+                    "muted_user_id",
+                    "user_profile"
+                ],
+                "identifiers_after": [
+                    "access_user_by_id",
+                    "allow_bots",
+                    "allow_deactivated",
+                    "for_admin",
+                    "muted_user",
+                    "muted_user_id",
+                    "user_profile"
+                ],
+                "prefix": [
+                    "    if user_profile.id == muted_user_id:\n",
+                    "        raise JsonableError(_(\"Cannot mute self\"))\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    date_muted = timezone_now()\n",
+                    "\n",
+                    "    if get_mute_object(user_profile, muted_user) is not None:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    8
+                ]
+            },
+            [
+                "    date_muted = timezone_now()\n",
+                "\n",
+                "    if get_mute_object(user_profile, muted_user) is not None:\n",
+                "        raise JsonableError(_(\"User already muted\"))\n",
+                "\n",
+                "    do_mute_user(user_profile, muted_user, date_muted)\n",
+                "    return json_success()\n",
+                "\n",
+                "\n",
+                "def unmute_user(\n",
+                "    request: HttpRequest, user_profile: UserProfile, muted_user_id: int\n",
+                ") -> HttpResponse:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    muted_user = access_user_by_id(user_profile, muted_user_id, allow_bots=False, for_admin=False)\n"
+                ],
+                "after": [
+                    "    muted_user = access_user_by_id(\n",
+                    "        user_profile, muted_user_id, allow_bots=False, allow_deactivated=True, for_admin=False\n",
+                    "    )\n"
+                ],
+                "parent_version_range": {
+                    "start": 109,
+                    "end": 110
+                },
+                "child_version_range": {
+                    "start": 111,
+                    "end": 114
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "unmute_user",
+                        "signature": "def unmute_user(\n    request: HttpRequest, user_profile: UserProfile, muted_user_id: int\n)->HttpResponse:",
+                        "at_line": 106
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: zerver/views/muting.py\nCode:\n106 108    def unmute_user(\n107 109        request: HttpRequest, user_profile: UserProfile, muted_user_id: int\n108 110    ) -> HttpResponse:\n109      -     muted_user = access_user_by_id(user_profile, muted_user_id, allow_bots=False, for_admin=False)\n    111  +     muted_user = access_user_by_id(\n    112  +         user_profile, muted_user_id, allow_bots=False, allow_deactivated=True, for_admin=False\n    113  +     )\n110 114        mute_object = get_mute_object(user_profile, muted_user)\n111 115    \n112 116        if mute_object is None:\n         ...\n",
+                "file_path": "zerver/views/muting.py",
+                "identifiers_before": [
+                    "access_user_by_id",
+                    "allow_bots",
+                    "for_admin",
+                    "muted_user",
+                    "muted_user_id",
+                    "user_profile"
+                ],
+                "identifiers_after": [
+                    "access_user_by_id",
+                    "allow_bots",
+                    "allow_deactivated",
+                    "for_admin",
+                    "muted_user",
+                    "muted_user_id",
+                    "user_profile"
+                ],
+                "prefix": [
+                    "def unmute_user(\n",
+                    "    request: HttpRequest, user_profile: UserProfile, muted_user_id: int\n",
+                    ") -> HttpResponse:\n"
+                ],
+                "suffix": [
+                    "    mute_object = get_mute_object(user_profile, muted_user)\n",
+                    "\n",
+                    "    if mute_object is None:\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    7
+                ]
+            },
+            [
+                "    mute_object = get_mute_object(user_profile, muted_user)\n",
+                "\n",
+                "    if mute_object is None:\n",
+                "        raise JsonableError(_(\"User is not muted\"))\n",
+                "\n",
+                "    do_unmute_user(mute_object)\n",
+                "    return json_success()"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            3,
+            1,
+            2,
+            0,
+            6,
+            4,
+            5,
+            7,
+            8
+        ],
+        [
+            7,
+            8,
+            1,
+            2,
+            3,
+            0,
+            4,
+            5,
+            6
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                2,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Edit 2 used `do_deactivate_user`, which is imported in edit 0",
+            "scenario of 0 -> 1": "user fisrt import `do_deactivate_user` in edit 0, then invoke the imported function in edit 1",
+            "scenario of 1 -> 0": "user already know the existance of `do_deactivate_user`, so first use it in edit 1 and driven by error, import it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Edit 0 used `do_deactivate_user`, which is imported in edit 1",
+            "scenario of 0 -> 1": "user fisrt import `do_deactivate_user` in edit 0, then invoke the imported function in edit 1",
+            "scenario of 1 -> 0": "user already know the existance of `do_deactivate_user`, so first invoke it in edit 1 and driven by error, import it in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Implement in edit 2 so that it can be used in 2 functions",
+            "scenario of 0 -> 1": "edit 0 introduce a new argument, then used the argument in edit 1",
+            "scenario of 1 -> 0": "user first wrote the logic of using the new argument, and driven by error, defined the new argument in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and implementation",
+            "scenario of 0 -> 1": "use before implementation",
+            "scenario of 1 -> 0": "implementation before use"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and implementation",
+            "scenario of 0 -> 1": "use before implementation",
+            "scenario of 1 -> 0": "implementation before use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Refactor func `test_add_muted_user_valid_data` into 2 different functions",
+            "scenario of 0 -> 1": "user first renamed old function in edit 0, and reimplement the old function in edit 1",
+            "scenario of 1 -> 0": "user first reimplement the function in edit 1, then rename the function to resolve the conflict in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Implement in edit 1 so that it can be used in 2 functions",
+            "scenario of 0 -> 1": "edit 0 introduce a new argument, then used the argument in edit 1",
+            "scenario of 1 -> 0": "user first wrote the logic of using the new argument, and driven by error, defined the new argument in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Refactor func `test_remove_muted_user_valid_data` into 2 different functions",
+            "scenario of 0 -> 1": "user first renamed old function in edit 0, and reimplement the old function in edit 1",
+            "scenario of 1 -> 0": "user first reimplement the function in edit 1, then rename the function to resolve the conflict in edit 0"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "code clones",
+            "scenario of 0 -> 1": "user are editing code clones in batch, encounter edit 0 first, then found edit 1",
+            "scenario of 1 -> 0": "user are editing code clones in batch, encounter edit 1 first, then found edit 0"
+        }
+    ]
+}

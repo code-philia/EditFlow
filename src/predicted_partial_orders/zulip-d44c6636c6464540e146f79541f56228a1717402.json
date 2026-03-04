@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import for cProfile at the top of the file, while Edit 1 uses cProfile functionality (log_data['prof'].disable() and log_data['prof'].dump_stats()) in a function. The changed lines in Edit 1 directly reference cProfile methods that would be undefined without the import from Edit 0. This creates an immediate code dependency where Edit 0 must come before Edit 1 to avoid a NameError when the cProfile methods are called."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits add identical conditional blocks that check `settings.PROFILE_ALL_REQUESTS` and perform complementary operations on `log_data['prof']` - one disables profiling and the other enables it. These are mirrored, structurally identical additions that appear to be part of a single refactoring task to add profiling control to both functions. The edits reference the same settings variable and perform synchronized operations on the same data structure key, making them part of a contiguous micro-task with either edit naturally prompting the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits add identical conditional blocks that check `settings.PROFILE_ALL_REQUESTS` and perform complementary operations on `log_data['prof']` - one disables profiling and the other enables it. These are mirrored, structurally identical additions that appear to be part of a single refactoring task to add profiling control to both functions. The edits reference the same settings variable and perform synchronized operations on the same data structure key, making them part of a contiguous micro-task with either edit naturally prompting the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'log_data[\"prof\"]' - edit 1 creates and enables this profiler object, while edit 0 disables it. This creates a direct code dependency where the profiler must be created and enabled before it can be disabled. The changed lines in both edits explicitly reference the same dictionary key and profiler object. This represents a clear definition-usage relationship where edit 1 defines/initializes the profiler and edit 0 uses/disables it."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 imports the cProfile module, and Edit 1 uses that exact same cProfile symbol in the changed lines (cProfile.Profile()). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the cProfile symbol available for use in Edit 1. Both edits reference the exact same symbol 'cProfile', and after making the import, using cProfile becomes the natural next step. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 imports the cProfile module, and Edit 1 uses that exact same cProfile symbol in the changed lines (cProfile.Profile()). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the cProfile symbol available for use in Edit 1. Both edits reference the exact same symbol 'cProfile', and after making the import, using cProfile becomes the natural next step. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "These edits implement a profiling feature where edit 0 enables profiling in the record_request_restart_data function and edit 1 disables profiling and saves the profile data in the write_log_line function. Both edits reference the exact same symbol 'log_data[\"prof\"]' and work together to implement a complete profiling workflow - one starts profiling and the other stops it and saves the results. The edits are part of a single micro-task to add request profiling functionality, where enabling profiling naturally prompts the need to disable it and save the results. Either edit could be implemented first since both are syntactically valid independently, but together they form a cohesive profiling implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "These edits implement a profiling feature where edit 0 enables profiling in the record_request_restart_data function and edit 1 disables profiling and saves the profile data in the write_log_line function. Both edits reference the exact same symbol 'log_data[\"prof\"]' and work together to implement a complete profiling workflow - one starts profiling and the other stops it and saves the results. The edits are part of a single micro-task to add request profiling functionality, where enabling profiling naturally prompts the need to disable it and save the results. Either edit could be implemented first since both are syntactically valid independently, but together they form a cohesive profiling implementation."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 1 creates and initializes log_data['prof'] as a cProfile.Profile() object and enables it, while Edit 0 calls enable() on the same log_data['prof'] object. There is a direct code dependency where Edit 0 references the exact same symbol (log_data['prof']) that Edit 1 defines. However, both edits can be written and parsed independently - Edit 0 would only fail at runtime with a KeyError if log_data['prof'] doesn't exist. Since Python allows referencing undefined dictionary keys at parse time (only failing at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 1 creates and initializes log_data['prof'] as a cProfile.Profile() object and enables it, while Edit 0 calls enable() on the same log_data['prof'] object. There is a direct code dependency where Edit 0 references the exact same symbol (log_data['prof']) that Edit 1 defines. However, both edits can be written and parsed independently - Edit 0 would only fail at runtime with a KeyError if log_data['prof'] doesn't exist. Since Python allows referencing undefined dictionary keys at parse time (only failing at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 references the setting `settings.PROFILE_ALL_REQUESTS` in its changed lines, while Edit 1 defines this exact same setting. The changed lines in Edit 0 explicitly check `if settings.PROFILE_ALL_REQUESTS:` and the changed lines in Edit 1 define `PROFILE_ALL_REQUESTS = False`. This creates a direct code dependency where both edits reference the exact same symbol. Either edit can be made first - if the setting is defined first, the usage will work; if the usage is added first, it will cause a runtime AttributeError but can still be parsed and staged. This is a classic definition-usage relationship that is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 references the setting `settings.PROFILE_ALL_REQUESTS` in its changed lines, while Edit 1 defines this exact same setting. The changed lines in Edit 0 explicitly check `if settings.PROFILE_ALL_REQUESTS:` and the changed lines in Edit 1 define `PROFILE_ALL_REQUESTS = False`. This creates a direct code dependency where both edits reference the exact same symbol. Either edit can be made first - if the setting is defined first, the usage will work; if the usage is added first, it will cause a runtime AttributeError but can still be parsed and staged. This is a classic definition-usage relationship that is bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'log_data[\"prof\"]' and implement a paired profiling mechanism. Edit 0 creates and enables a cProfile.Profile object in log_data[\"prof\"], while Edit 1 disables that same profiler object and dumps its stats. This creates a direct code dependency where the profiler object created in Edit 0 is the exact same object being operated on in Edit 1. The relationship is bi-directional because either edit can be staged first without causing parse errors, but making either edit creates an immediate, mechanically obvious prompt for the other to complete the profiling functionality."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'log_data[\"prof\"]' and implement a paired profiling mechanism. Edit 0 creates and enables a cProfile.Profile object in log_data[\"prof\"], while Edit 1 disables that same profiler object and dumps its stats. This creates a direct code dependency where the profiler object created in Edit 0 is the exact same object being operated on in Edit 1. The relationship is bi-directional because either edit can be staged first without causing parse errors, but making either edit creates an immediate, mechanically obvious prompt for the other to complete the profiling functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 references the setting `settings.PROFILE_ALL_REQUESTS` in its changed lines, while Edit 1 defines this exact same setting. After defining the setting in Edit 1, Edit 0's reference becomes valid. However, in Python, referencing an undefined setting like this would only cause a runtime AttributeError when the code is executed, not a parse-time syntax error. Both edits can be written and staged in either order - the code will parse successfully regardless of order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step: defining the setting prompts its usage, and using an undefined setting prompts its definition."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 references the setting `settings.PROFILE_ALL_REQUESTS` in its changed lines, while Edit 1 defines this exact same setting. After defining the setting in Edit 1, Edit 0's reference becomes valid. However, in Python, referencing an undefined setting like this would only cause a runtime AttributeError when the code is executed, not a parse-time syntax error. Both edits can be written and staged in either order - the code will parse successfully regardless of order. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step: defining the setting prompts its usage, and using an undefined setting prompts its definition."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

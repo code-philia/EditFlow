@@ -1,0 +1,85 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new function `buf_index` that returns buffer indices and assigns them to variables `buf0` and `buf1` using walrus operators. Edit 1 then uses these exact same variables `buf0` and `buf1` in the very next lines to access `self.sts[buf0]` and `self.sts[buf1]`. The changed lines in edit 1 directly reference the symbols `buf0` and `buf1` that were defined in edit 0's changed lines. This creates an immediate, mechanically obvious code dependency where edit 0 defines the variables that edit 1 uses, making them part of a single uninterrupted micro-task of refactoring the buffer index logic."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits are within the same method `_apply_tc_opt` and both reference the same variable `LOOSE_TC` that is defined in edit 0. Edit 0 introduces `LOOSE_TC = getenv(\"BEAM_LOOSE_TC\", 0)` and edit 1 uses this variable in the condition `(BEAM and LOOSE_TC)`. The changed lines in edit 1 directly reference the variable defined in edit 0's changed lines. This creates an immediate code dependency where edit 0 must come before edit 1 since edit 1 references the undefined variable `LOOSE_TC` that is defined in edit 0."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'BEAM' to the import statement from tinygrad.helpers, and Edit 1 uses 'BEAM' in a conditional expression on line 358. This creates a direct definition-usage relationship where the imported symbol BEAM in Edit 0 is the exact same symbol being referenced in Edit 1. After making Edit 0, the usage of BEAM in Edit 1 becomes immediately available and mechanically prompted. After making Edit 1, the import of BEAM in Edit 0 becomes the immediate next step to resolve the undefined symbol. Both edits reference the exact same symbol and either can be staged first in Python (usage before import only causes runtime NameError, not parse error)."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'BEAM' to the import statement from tinygrad.helpers, and Edit 1 uses 'BEAM' in a conditional expression on line 358. This creates a direct definition-usage relationship where the imported symbol BEAM in Edit 0 is the exact same symbol being referenced in Edit 1. After making Edit 0, the usage of BEAM in Edit 1 becomes immediately available and mechanically prompted. After making Edit 1, the import of BEAM in Edit 0 becomes the immediate next step to resolve the undefined symbol. Both edits reference the exact same symbol and either can be staged first in Python (usage before import only causes runtime NameError, not parse error)."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'BEAM' to the import statement from tinygrad.helpers, and Edit 1 uses 'BEAM' in a conditional expression on line 366. This is a classic import-usage pattern where the import makes the symbol available and the usage references that exact same symbol. The changed lines reference the exact same symbol 'BEAM'. After making the import edit, the usage becomes immediately valid; after making the usage edit, the import becomes immediately necessary to avoid a NameError. Both edits can be written and parsed in either order (Python allows referencing undefined names at parse time), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'BEAM' to the import statement from tinygrad.helpers, and Edit 1 uses 'BEAM' in a conditional expression on line 366. This is a classic import-usage pattern where the import makes the symbol available and the usage references that exact same symbol. The changed lines reference the exact same symbol 'BEAM'. After making the import edit, the usage becomes immediately valid; after making the usage edit, the import becomes immediately necessary to avoid a NameError. Both edits can be written and parsed in either order (Python allows referencing undefined names at parse time), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable `reduce_sz` that is assigned the value `self.full_shape[self.first_reduce]`. Edit 1 then uses this newly defined `reduce_sz` variable in place of the original `self.full_shape[self.first_reduce]` expressions. The changed lines reference the exact same symbol - `reduce_sz` is defined in edit 0 and used in edit 1. This creates an immediate code dependency where edit 0 must come first to define the variable that edit 1 uses, making this an ordered relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 introduces two new variables `max_up` and `max_lcl` that are assigned values from `getenv()` calls. Edit 1 then uses these exact same variables (`max_up` and `max_lcl`) in a conditional statement, replacing the hardcoded values 256. The changed lines reference the exact same symbols - edit 0 defines them and edit 1 uses them. This creates an immediate code dependency where after defining these variables in edit 0, using them in edit 1 becomes the natural next step. Both edits are within the same function and form a single micro-task of replacing hardcoded values with configurable environment variables."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 introduces two new variables `max_up` and `max_lcl` that are assigned values from `getenv()` calls. Edit 1 then uses these exact same variables (`max_up` and `max_lcl`) in a conditional statement, replacing the hardcoded values 256. The changed lines reference the exact same symbols - edit 0 defines them and edit 1 uses them. This creates an immediate code dependency where after defining these variables in edit 0, using them in edit 1 becomes the natural next step. Both edits are within the same function and form a single micro-task of replacing hardcoded values with configurable environment variables."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform identical structural transformations by adding getenv() calls to existing variable assignments in the same file. Edit 0 changes 'acted_lins = {0:lin} if include_0 else {}' to 'acted_lins, max_up, max_lcl = {0:lin} if include_0 else {}, getenv(\"BEAM_UPCAST_MAX\", 256), getenv(\"BEAM_LOCAL_MAX\", 256)' and Edit 1 changes 'default_parallel = 1 if lin.opts.device in {\"CUDA\", \"HIP\"} else 0' to 'default_parallel, min_progress_micros = 1 if lin.opts.device in {\"CUDA\", \"HIP\"} else 0, getenv(\"BEAM_MIN_PROGRESS\",0)'. Both follow the exact same pattern of extending a single variable assignment into a tuple assignment that includes additional getenv() calls. This represents a uniform, synchronized substitution pattern applied to the same type of syntactic construct (variable assignment statements) within the same file, making them part of a single contiguous refactoring operation."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform identical structural transformations by adding getenv() calls to existing variable assignments in the same file. Edit 0 changes 'acted_lins = {0:lin} if include_0 else {}' to 'acted_lins, max_up, max_lcl = {0:lin} if include_0 else {}, getenv(\"BEAM_UPCAST_MAX\", 256), getenv(\"BEAM_LOCAL_MAX\", 256)' and Edit 1 changes 'default_parallel = 1 if lin.opts.device in {\"CUDA\", \"HIP\"} else 0' to 'default_parallel, min_progress_micros = 1 if lin.opts.device in {\"CUDA\", \"HIP\"} else 0, getenv(\"BEAM_MIN_PROGRESS\",0)'. Both follow the exact same pattern of extending a single variable assignment into a tuple assignment that includes additional getenv() calls. This represents a uniform, synchronized substitution pattern applied to the same type of syntactic construct (variable assignment statements) within the same file, making them part of a single contiguous refactoring operation."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 introduces a new variable 'min_progress_micros' by adding it to the assignment alongside 'default_parallel'. Edit 1 then uses this exact same variable 'min_progress_micros' in a conditional expression. The changed line in edit 0 defines the variable, and the changed line in edit 1 references it. This creates a direct code dependency where edit 0 must come before edit 1 for the code to be parseable - if edit 1 were applied first, it would reference an undefined variable 'min_progress_micros', causing a NameError at runtime. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 introduces a new variable 'min_progress_micros' by adding it to the assignment alongside 'default_parallel'. Edit 1 then uses this exact same variable 'min_progress_micros' in a conditional expression. The changed line in edit 0 defines the variable, and the changed line in edit 1 references it. This creates a direct code dependency where edit 0 must come before edit 1 for the code to be parseable - if edit 1 were applied first, it would reference an undefined variable 'min_progress_micros', causing a NameError at runtime. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits modify the beam search algorithm's logic for handling the beam and opts variables within the same function. Edit 0 changes the exiting condition to use min_progress_micros, and Edit 1 adds an elif clause that references the same beam and opts variables and uses the same comparison logic (opts[0][1] < beam[0][1]). The edits are part of the same algorithmic change to the beam search termination and update logic, with Edit 1's elif condition being a natural continuation of the modified exiting logic from Edit 0. Both edits reference the exact same variables (beam, opts) and are part of a single coherent modification to the control flow."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits modify the beam search algorithm's logic for handling the beam and opts variables within the same function. Edit 0 changes the exiting condition to use min_progress_micros, and Edit 1 adds an elif clause that references the same beam and opts variables and uses the same comparison logic (opts[0][1] < beam[0][1]). The edits are part of the same algorithmic change to the beam search termination and update logic, with Edit 1's elif condition being a natural continuation of the modified exiting logic from Edit 0. Both edits reference the exact same variables (beam, opts) and are part of a single coherent modification to the control flow."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2,
+        5,
+        8
+    ]
+}

@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a third parameter 'n_samples' to a call to gen_even_slices function, while Edit 1 adds documentation explaining when to pass n_samples parameter to the same function. These edits reference the exact same function symbol (gen_even_slices) and are part of the same development task - adding the n_samples parameter and documenting its usage. The documentation change directly corresponds to the parameter addition in the function call. Either edit could be made first as both are syntactically valid independently, but they naturally prompt each other as part of implementing the same feature enhancement."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a third parameter 'n_samples' to a call to gen_even_slices function, while Edit 1 adds documentation explaining when to pass n_samples parameter to the same function. These edits reference the exact same function symbol (gen_even_slices) and are part of the same development task - adding the n_samples parameter and documenting its usage. The documentation change directly corresponds to the parameter addition in the function call. Either edit could be made first as both are syntactically valid independently, but they naturally prompt each other as part of implementing the same feature enhancement."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a third parameter 'n_samples' to a call to gen_even_slices(), while Edit 1 modifies the gen_even_slices function to handle this new n_samples parameter. These edits reference the exact same function symbol and create a direct code dependency - adding the parameter to the call site requires the function definition to accept that parameter. However, in Python, both edits can be written and parsed in either order (the call with extra parameter would only fail at runtime, not parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a third parameter 'n_samples' to a call to gen_even_slices(), while Edit 1 modifies the gen_even_slices function to handle this new n_samples parameter. These edits reference the exact same function symbol and create a direct code dependency - adding the parameter to the call site requires the function definition to accept that parameter. However, in Python, both edits can be written and parsed in either order (the call with extra parameter would only fail at runtime, not parse time), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports `csr_matrix` from `scipy.sparse`, and Edit 1 uses `csr_matrix` in the newly added test function. The changed line in Edit 1 (`X = csr_matrix(Xdigits[:4])`) directly references the exact same symbol that was imported in Edit 0. This creates an immediate code dependency where the import in Edit 0 enables the usage in Edit 1. In Python, using an undefined symbol like `csr_matrix` would result in a NameError at runtime, but both edits can be parsed and staged in either order since the usage is within a function body that won't be executed until the test runs. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports `csr_matrix` from `scipy.sparse`, and Edit 1 uses `csr_matrix` in the newly added test function. The changed line in Edit 1 (`X = csr_matrix(Xdigits[:4])`) directly references the exact same symbol that was imported in Edit 0. This creates an immediate code dependency where the import in Edit 0 enables the usage in Edit 1. In Python, using an undefined symbol like `csr_matrix` would result in a NameError at runtime, but both edits can be parsed and staged in either order since the usage is within a function body that won't be executed until the test runs. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 adds a new parameter 'n_samples=None' to the gen_even_slices function signature, while Edit 0 adds 'n_samples' as a third argument when calling that exact same function. The changed lines reference the exact same symbol (gen_even_slices function) - one edit modifies the function definition and the other modifies a call to that function. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step. Both edits can be staged in either order without causing parse errors (the call with extra argument would cause a runtime TypeError before the signature change, but both are syntactically valid), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 adds a new parameter 'n_samples=None' to the gen_even_slices function signature, while Edit 0 adds 'n_samples' as a third argument when calling that exact same function. The changed lines reference the exact same symbol (gen_even_slices function) - one edit modifies the function definition and the other modifies a call to that function. This creates a direct code dependency where either edit naturally prompts the other as the next mechanical step. Both edits can be staged in either order without causing parse errors (the call with extra argument would cause a runtime TypeError before the signature change, but both are syntactically valid), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 adds a parameter 'n_samples=None' to the function signature of gen_even_slices. Edit 1 uses this exact same parameter 'n_samples' in the function body with conditional logic and min() operation. The changed lines in both edits reference the exact same symbol 'n_samples'. After adding the parameter in edit 0, using it in the function body (edit 1) becomes the immediate, mechanically obvious next step to implement the parameter's functionality. Both edits can be staged in either order since Python allows parameter usage in function bodies even if the parameter isn't defined yet (would only cause runtime errors, not parse errors)."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds a parameter 'n_samples=None' to the function signature of gen_even_slices. Edit 1 uses this exact same parameter 'n_samples' in the function body with conditional logic and min() operation. The changed lines in both edits reference the exact same symbol 'n_samples'. After adding the parameter in edit 0, using it in the function body (edit 1) becomes the immediate, mechanically obvious next step to implement the parameter's functionality. Both edits can be staged in either order since Python allows parameter usage in function bodies even if the parameter isn't defined yet (would only cause runtime errors, not parse errors)."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'n_samples=None' to the function signature of gen_even_slices. Edit 1 adds documentation explaining what this new parameter is for. Both edits reference the exact same function and the exact same parameter. The documentation change directly corresponds to the code change for that specific parameter. After adding the parameter in edit 0, adding documentation for that parameter in edit 1 is the immediate, mechanically obvious next step in the same micro-task. Either edit could be made first - the parameter could be added before or after its documentation is written."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new parameter 'n_samples=None' to the function signature of gen_even_slices. Edit 1 adds documentation explaining what this new parameter is for. Both edits reference the exact same function and the exact same parameter. The documentation change directly corresponds to the code change for that specific parameter. After adding the parameter in edit 0, adding documentation for that parameter in edit 1 is the immediate, mechanically obvious next step in the same micro-task. Either edit could be made first - the parameter could be added before or after its documentation is written."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2
+    ]
+}

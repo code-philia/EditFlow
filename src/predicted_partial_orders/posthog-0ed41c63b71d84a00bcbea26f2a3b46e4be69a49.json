@@ -1,0 +1,69 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the validate_password method in OrganizationSignupSerializer to handle None values by adding a null check. Edit 1 changes code to use OrganizationSignupSerializer with password=None. The changed lines reference the exact same symbol (OrganizationSignupSerializer) and there's a direct code dependency - edit 1 creates usage of the serializer with password=None, which would trigger the validation logic modified in edit 0. Making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task of handling None password validation."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the validate_password method in OrganizationSignupSerializer to handle None values by adding a null check. Edit 1 changes code to use OrganizationSignupSerializer with password=None. The changed lines reference the exact same symbol (OrganizationSignupSerializer) and there's a direct code dependency - edit 1 creates usage of the serializer with password=None, which would trigger the validation logic modified in edit 0. Making either edit creates an immediate prompt for the other as the next contiguous action within the same micro-task of handling None password validation."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 changes the password field definition to allow null values by adding 'allow_null=True'. Edit 1 modifies the validate_password method to handle null values by adding a null check before validation. These edits reference the exact same password field symbol and form a direct code dependency - after allowing null passwords in the field definition, the validation method must be updated to handle null values to prevent runtime errors. The validation method directly operates on the same password field that was modified in edit 0."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 changes the password field definition to allow null values by adding 'allow_null=True'. Edit 1 modifies the validate_password method to handle null values by adding a null check before validation. These edits reference the exact same password field symbol and form a direct code dependency - after allowing null passwords in the field definition, the validation method must be updated to handle null values to prevent runtime errors. The validation method directly operates on the same password field that was modified in edit 0."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 imports OrganizationSignupSerializer from .api.organization, and Edit 1 uses that exact same imported symbol OrganizationSignupSerializer to create a serializer instance. The changed lines reference the exact same symbol - OrganizationSignupSerializer. After importing the symbol in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - after using the symbol in Edit 1, importing it in Edit 0 becomes necessary. Both edits can be staged in either order (the usage before import would cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 imports OrganizationSignupSerializer from .api.organization, and Edit 1 uses that exact same imported symbol OrganizationSignupSerializer to create a serializer instance. The changed lines reference the exact same symbol - OrganizationSignupSerializer. After importing the symbol in Edit 0, Edit 1 becomes the immediate next step to use it, and vice versa - after using the symbol in Edit 1, importing it in Edit 0 becomes necessary. Both edits can be staged in either order (the usage before import would cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the password field in OrganizationSignupSerializer to allow null values by adding allow_null=True. Edit 1 creates an instance of OrganizationSignupSerializer and passes password=None in the data dictionary. These edits reference the exact same symbol (OrganizationSignupSerializer and its password field) and have a direct code dependency - the serializer modification in edit 0 enables the usage pattern in edit 1 where password=None is passed. Either edit could be made first since both are syntactically valid, but they form a coherent pair where one naturally prompts the other as part of the same micro-task of enabling null password handling."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the password field in OrganizationSignupSerializer to allow null values by adding allow_null=True. Edit 1 creates an instance of OrganizationSignupSerializer and passes password=None in the data dictionary. These edits reference the exact same symbol (OrganizationSignupSerializer and its password field) and have a direct code dependency - the serializer modification in edit 0 enables the usage pattern in edit 1 where password=None is passed. Either edit could be made first since both are syntactically valid, but they form a coherent pair where one naturally prompts the other as part of the same micro-task of enabling null password handling."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'request' parameter to the function signature, and Edit 1 uses that exact same 'request' parameter in the context dictionary passed to OrganizationSignupSerializer. The changed lines reference the exact same symbol - the 'request' parameter. After adding the parameter in Edit 0, Edit 1 becomes the immediate next step to actually use that parameter, creating a direct code dependency where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'request' parameter to the function signature, and Edit 1 uses that exact same 'request' parameter in the context dictionary passed to OrganizationSignupSerializer. The changed lines reference the exact same symbol - the 'request' parameter. After adding the parameter in Edit 0, Edit 1 becomes the immediate next step to actually use that parameter, creating a direct code dependency where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 creates a variable 'serializer' by instantiating OrganizationSignupSerializer, and Edit 1 immediately uses that exact same 'serializer' variable by calling .is_valid() and .save() methods on it. The changed lines in Edit 1 directly reference the serializer variable that was created in Edit 0. This creates an explicit code dependency where Edit 1 cannot execute without the serializer variable being defined first in Edit 0. However, since both edits can be written and parsed in either order (Python allows referencing undefined variables at parse time), and the relationship is that either edit naturally prompts the other as the next mechanical step in the same micro-task, this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 creates a variable 'serializer' by instantiating OrganizationSignupSerializer, and Edit 1 immediately uses that exact same 'serializer' variable by calling .is_valid() and .save() methods on it. The changed lines in Edit 1 directly reference the serializer variable that was created in Edit 0. This creates an explicit code dependency where Edit 1 cannot execute without the serializer variable being defined first in Edit 0. However, since both edits can be written and parsed in either order (Python allows referencing undefined variables at parse time), and the relationship is that either edit naturally prompts the other as the next mechanical step in the same micro-task, this is bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3,
+        5
+    ]
+}

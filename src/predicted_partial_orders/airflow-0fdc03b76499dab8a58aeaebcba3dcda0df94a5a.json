@@ -1,0 +1,100 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits are part of a single refactoring operation within the same function. Edit 0 removes the response_types variable and inlines its usage, while also removing the conf_dict and config variable assignments. Edit 1 then adds those same conf_dict and config assignments back, but within a conditional block. The variables conf_dict and config that are removed in edit 0 are the exact same variables that are added back in edit 1. This creates a direct code dependency where the variables removed in one edit are restored in the other, making them part of a single contiguous refactoring task where the code is being restructured to add conditional logic."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits are part of a single refactoring operation within the same function. Edit 0 removes the response_types variable and inlines its usage, while also removing the conf_dict and config variable assignments. Edit 1 then adds those same conf_dict and config assignments back, but within a conditional block. The variables conf_dict and config that are removed in edit 0 are the exact same variables that are added back in edit 1. This creates a direct code dependency where the variables removed in one edit are restored in the other, making them part of a single contiguous refactoring task where the code is being restructured to add conditional logic."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 imports the PermissionDenied exception class, and Edit 1 uses that exact same PermissionDenied symbol to raise an exception. The changed lines reference the exact same symbol - PermissionDenied. After importing PermissionDenied in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 imports the PermissionDenied exception class, and Edit 1 uses that exact same PermissionDenied symbol to raise an exception. The changed lines reference the exact same symbol - PermissionDenied. After importing PermissionDenied in Edit 0, Edit 1 becomes the immediate next step to use that imported symbol. This is a classic import-usage pattern within the same file where both edits reference the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "These two edits are modifying the same conditional structure within the same function. Edit 0 changes the 'else:' clause to 'elif conf.getboolean(\"webserver\", \"expose_config\"):' and adds the logic for when the config should be exposed. Edit 1 adds a new 'else:' clause that handles the case when the config should not be exposed. Together, they form a complete if-elif-else structure. The edits are structurally dependent - edit 0 converts the original else into an elif, which creates an incomplete conditional structure that needs the new else clause added by edit 1. Both edits are part of the same micro-task of restructuring the conditional logic, and either edit can be applied first since both are syntactically valid Python code that can be parsed independently."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "These two edits are modifying the same conditional structure within the same function. Edit 0 changes the 'else:' clause to 'elif conf.getboolean(\"webserver\", \"expose_config\"):' and adds the logic for when the config should be exposed. Edit 1 adds a new 'else:' clause that handles the case when the config should not be exposed. Together, they form a complete if-elif-else structure. The edits are structurally dependent - edit 0 converts the original else into an elif, which creates an incomplete conditional structure that needs the new else clause added by edit 1. Both edits are part of the same micro-task of restructuring the conditional logic, and either edit can be applied first since both are syntactically valid Python code that can be parsed independently."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 adds a condition checking `conf.getboolean('webserver', 'expose_config')` in the production code, while Edit 1 sets up a test configuration with `('webserver', 'expose_config'): 'True'` to enable this exact same configuration setting. The test setup is directly configuring the same config key that the production code is checking, creating a direct dependency where the test needs this configuration to properly test the new conditional logic. Both edits reference the exact same configuration symbol ('webserver', 'expose_config'), making this a test-production synchronization case where either edit could be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 adds a condition checking `conf.getboolean('webserver', 'expose_config')` in the production code, while Edit 1 sets up a test configuration with `('webserver', 'expose_config'): 'True'` to enable this exact same configuration setting. The test setup is directly configuring the same config key that the production code is checking, creating a direct dependency where the test needs this configuration to properly test the new conditional logic. Both edits reference the exact same configuration symbol ('webserver', 'expose_config'), making this a test-production synchronization case where either edit could be made first and would prompt the other as the next logical step."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Edit 0 adds a new code path that raises PermissionDenied with a specific error message when configuration exposure is disabled. Edit 1 adds a test that specifically validates this new behavior by checking for a 403 status code and verifying the error message contains 'chose not to expose'. The test directly exercises the exact code path and error message added in edit 0, creating an immediate code-driven relationship where the implementation change prompts the need for corresponding test coverage."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new code path that raises PermissionDenied with a specific error message when configuration exposure is disabled. Edit 1 adds a test that specifically validates this new behavior by checking for a 403 status code and verifying the error message contains 'chose not to expose'. The test directly exercises the exact code path and error message added in edit 0, creating an immediate code-driven relationship where the implementation change prompts the need for corresponding test coverage."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 modifies the get_config() function to add a conditional check for conf.getboolean('webserver', 'expose_config'), changing the logic to only proceed with configuration exposure when this setting is True. Edit 1 adds a test method that specifically tests the behavior when 'expose_config' is set to False, expecting a 403 response. These edits reference the exact same configuration setting ('webserver', 'expose_config') and form a direct implementation-test pair where the test validates the specific behavior introduced by the implementation change. The test directly asserts on the behavior of the modified get_config function when the configuration setting is disabled."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the get_config() function to add a conditional check for conf.getboolean('webserver', 'expose_config'), changing the logic to only proceed with configuration exposure when this setting is True. Edit 1 adds a test method that specifically tests the behavior when 'expose_config' is set to False, expecting a 403 response. These edits reference the exact same configuration setting ('webserver', 'expose_config') and form a direct implementation-test pair where the test validates the specific behavior introduced by the implementation change. The test directly asserts on the behavior of the modified get_config function when the configuration setting is disabled."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports ExitStack from contextlib, and Edit 1 uses ExitStack() to create an instance. The changed lines reference the exact same symbol - ExitStack. After importing ExitStack in edit 0, edit 1 becomes the immediate next step to use the imported symbol. This is a classic import-usage pattern within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports ExitStack from contextlib, and Edit 1 uses ExitStack() to create an instance. The changed lines reference the exact same symbol - ExitStack. After importing ExitStack in edit 0, edit 1 becomes the immediate next step to use the imported symbol. This is a classic import-usage pattern within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 sets up a class-level configuration context that enables config exposure by setting 'expose_config' to 'True' in the setup_class method. Edit 1 adds a test method that specifically tests the behavior when 'expose_config' is 'False' using the @conf_vars decorator. These edits reference the exact same configuration parameter ('webserver', 'expose_config') but with opposite values - one enabling it globally for the test class, the other disabling it for a specific test. The changed lines in both edits explicitly reference the same configuration symbol, creating a direct code linkage where both edits are part of testing the same configuration parameter's behavior. Either edit could be made first as both are syntactically valid independently, but together they form a comprehensive test setup for the expose_config parameter."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 sets up a class-level configuration context that enables config exposure by setting 'expose_config' to 'True' in the setup_class method. Edit 1 adds a test method that specifically tests the behavior when 'expose_config' is 'False' using the @conf_vars decorator. These edits reference the exact same configuration parameter ('webserver', 'expose_config') but with opposite values - one enabling it globally for the test class, the other disabling it for a specific test. The changed lines in both edits explicitly reference the same configuration symbol, creating a direct code linkage where both edits are part of testing the same configuration parameter's behavior. Either edit could be made first as both are syntactically valid independently, but together they form a comprehensive test setup for the expose_config parameter."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'cls.exit_stack' - edit 0 creates/assigns to this class attribute, and edit 1 calls a method on this same attribute. After creating cls.exit_stack in edit 0, edit 1 becomes the natural next step to properly clean up the ExitStack resource. The relationship is bi-directional because either edit can be staged first (both are syntactically valid), and making either edit creates an immediate code-driven prompt for the other as part of the same micro-task of setting up and tearing down the ExitStack context manager."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'cls.exit_stack' - edit 0 creates/assigns to this class attribute, and edit 1 calls a method on this same attribute. After creating cls.exit_stack in edit 0, edit 1 becomes the natural next step to properly clean up the ExitStack resource. The relationship is bi-directional because either edit can be staged first (both are syntactically valid), and making either edit creates an immediate code-driven prompt for the other as part of the same micro-task of setting up and tearing down the ExitStack context manager."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        0,
+        4,
+        6
+    ]
+}

@@ -1,0 +1,147 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines three variables (chunk_size, chunks, frms) and Edit 1 uses all three of these exact same variables in its changed lines. The variables chunk_size and chunks are referenced in the list comprehension, and frms is used to set the FLAG_END_STREAM flag. After making Edit 0, Edit 1 becomes the immediate next step to complete the chunking implementation. The changed lines in both edits reference the exact same symbols, creating a direct code dependency where one edit creates variables that the other edit immediately uses."
+        },
+        {
+            "src": 0,
+            "tgt": 8,
+            "reason": "Edit 0 implements chunking logic in the _create_body method using SETTINGS_MAX_FRAME_SIZE, while Edit 1 creates a test that specifically tests this new chunking functionality by setting SETTINGS_MAX_FRAME_SIZE to 5 and verifying the method returns multiple frames. Both edits reference the exact same symbol (SETTINGS_MAX_FRAME_SIZE) and the test directly validates the implementation added in Edit 0. This is a classic test-production code synchronization where the implementation change and its corresponding test are mechanically linked."
+        },
+        {
+            "src": 8,
+            "tgt": 0,
+            "reason": "Edit 0 implements chunking logic in the _create_body method using SETTINGS_MAX_FRAME_SIZE, while Edit 1 creates a test that specifically tests this new chunking functionality by setting SETTINGS_MAX_FRAME_SIZE to 5 and verifying the method returns multiple frames. Both edits reference the exact same symbol (SETTINGS_MAX_FRAME_SIZE) and the test directly validates the implementation added in Edit 0. This is a classic test-production code synchronization where the implementation change and its corresponding test are mechanically linked."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 changes the variable name from 'frm' (singular) to 'frms' (plural) and changes the structure from creating a single DataFrame to creating a list of DataFrames. Edit 1 updates the usage of this variable to iterate over the list instead of using the single frame directly. The changed lines in both edits reference the exact same symbol - the variable that was renamed from 'frm' to 'frms'. After making edit 0, the code in edit 1 would have a NameError since 'frm' no longer exists, making edit 1 the immediate next step. Similarly, if edit 1 were made first, it would reference the non-existent 'frms' variable, making edit 0 necessary. This is a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 changes the variable name from 'frm' (singular) to 'frms' (plural) and changes the structure from creating a single DataFrame to creating a list of DataFrames. Edit 1 updates the usage of this variable to iterate over the list instead of using the single frame directly. The changed lines in both edits reference the exact same symbol - the variable that was renamed from 'frm' to 'frms'. After making edit 0, the code in edit 1 would have a NameError since 'frm' no longer exists, making edit 1 the immediate next step. Similarly, if edit 1 were made first, it would reference the non-existent 'frms' variable, making edit 0 necessary. This is a clear definition-usage relationship for the same symbol within the same function."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits are part of a single, contiguous refactoring task that transforms how body data is handled in the same DataFrame creation context. Edit 0 changes the flags from FLAG_END_STREAM to FLAG_NO_FLAGS, and Edit 1 implements chunking logic that explicitly sets FLAG_END_STREAM on the last frame (frms[-1].flags = frame.Frame.FLAG_END_STREAM). The edits work together to implement a chunking mechanism where intermediate frames have no flags and only the final frame gets the END_STREAM flag. Both edits reference the exact same FLAG_END_STREAM symbol and are mechanically linked - changing the initial flag setting naturally prompts the need to handle where the END_STREAM flag should actually be applied in the new chunking logic."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits are part of a single, contiguous refactoring task that transforms how body data is handled in the same DataFrame creation context. Edit 0 changes the flags from FLAG_END_STREAM to FLAG_NO_FLAGS, and Edit 1 implements chunking logic that explicitly sets FLAG_END_STREAM on the last frame (frms[-1].flags = frame.Frame.FLAG_END_STREAM). The edits work together to implement a chunking mechanism where intermediate frames have no flags and only the final frame gets the END_STREAM flag. Both edits reference the exact same FLAG_END_STREAM symbol and are mechanically linked - changing the initial flag setting naturally prompts the need to handle where the END_STREAM flag should actually be applied in the new chunking logic."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the variable name from 'frm' (singular) to 'frms' (plural) and restructures the code to create a list of frames instead of a single frame. Edit 1 updates the return statement to iterate over the new 'frms' variable that was created in edit 0. The changed lines reference the exact same symbol - the variable that holds the frame data structure. Edit 1 cannot function correctly without edit 0 because it references 'frms' which is only defined in edit 0, while edit 0 can stand alone syntactically. However, since this is Python and the reference to 'frms' in edit 1 would only cause a runtime NameError (not a parse error), both edits can be written and parsed in either order, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the variable name from 'frm' (singular) to 'frms' (plural) and restructures the code to create a list of frames instead of a single frame. Edit 1 updates the return statement to iterate over the new 'frms' variable that was created in edit 0. The changed lines reference the exact same symbol - the variable that holds the frame data structure. Edit 1 cannot function correctly without edit 0 because it references 'frms' which is only defined in edit 0, while edit 0 can stand alone syntactically. However, since this is Python and the reference to 'frms' in edit 1 would only cause a runtime NameError (not a parse error), both edits can be written and parsed in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the code to create a list of frames called 'frms' instead of a single frame 'frm', and edit 1 updates the debugging code to iterate over this new 'frms' list. The changed lines reference the exact same symbol - the variable that holds the frame data structure. Edit 0 creates 'frms' as a list, and edit 1 uses that same 'frms' variable. This creates an immediate code dependency where after making edit 0, the debugging code in edit 1 needs to be updated to handle the new list structure, making it the next mechanically obvious step."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the code to create a list of frames called 'frms' instead of a single frame 'frm', and edit 1 updates the debugging code to iterate over this new 'frms' list. The changed lines reference the exact same symbol - the variable that holds the frame data structure. Edit 0 creates 'frms' as a list, and edit 1 uses that same 'frms' variable. This creates an immediate code dependency where after making edit 0, the debugging code in edit 1 needs to be updated to handle the new list structure, making it the next mechanically obvious step."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'frms' (a list of frames) and modifies the code to create multiple frames with chunking logic. Edit 1 then references this exact same 'frms' variable in the return statement, changing from returning a single frame to returning all frames in the list. The changed line in edit 1 directly references the 'frms' symbol that was introduced in edit 0, creating an immediate code dependency where edit 1 cannot function without the 'frms' variable from edit 0."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Edit 0 modifies the implementation of the `_create_body` method in the HTTP2Protocol class to handle chunking of large bodies into multiple frames. Edit 1 adds a test case that specifically tests this new chunking functionality by calling the exact same `_create_body` method that was modified in Edit 0. The test verifies the behavior of the modified implementation by checking that multiple frames are created when the body exceeds the max frame size. Both edits reference the exact same symbol (`_create_body` method) and the test is directly validating the implementation changes made in Edit 0. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in the development flow."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the implementation of the `_create_body` method in the HTTP2Protocol class to handle chunking of large bodies into multiple frames. Edit 1 adds a test case that specifically tests this new chunking functionality by calling the exact same `_create_body` method that was modified in Edit 0. The test verifies the behavior of the modified implementation by checking that multiple frames are created when the body exceeds the max frame size. Both edits reference the exact same symbol (`_create_body` method) and the test is directly validating the implementation changes made in Edit 0. This creates a bi-directional relationship where either edit could prompt the other as the next logical step in the development flow."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'frm' and transform it from a single frame to multiple frames ('frms'). Edit 0 changes the print statement to iterate over 'frms' and print each 'frm', while Edit 1 changes the return statement to iterate over 'frms' and convert each 'frm' to bytes. Both edits are part of the same refactoring that changes the function from handling a single frame to handling multiple frames. The changed lines in both edits explicitly reference the same 'frm' symbol and are mechanically linked - after changing one to handle multiple frames, the other becomes the immediate next step to maintain consistency. Either edit can be made first since both are syntactically valid independently."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'frm' and transform it from a single frame to multiple frames ('frms'). Edit 0 changes the print statement to iterate over 'frms' and print each 'frm', while Edit 1 changes the return statement to iterate over 'frms' and convert each 'frm' to bytes. Both edits are part of the same refactoring that changes the function from handling a single frame to handling multiple frames. The changed lines in both edits explicitly reference the same 'frm' symbol and are mechanically linked - after changing one to handle multiple frames, the other becomes the immediate next step to maintain consistency. Either edit can be made first since both are syntactically valid independently."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Edit 0 changes the implementation of `_create_body` method to return a list comprehension `[frm.to_bytes() for frm in frms]` instead of `[frm.to_bytes()]`. Edit 1 implements a test for the exact same `_create_body` method, specifically testing the multiple frames scenario with assertions that expect the method to return a list of 3 byte strings. The test directly calls `protocol._create_body('foobarmehm42', 1)` and asserts on the returned value structure and content. Both edits reference the exact same method symbol `_create_body`, with the implementation change in edit 0 enabling the test expectations in edit 1. This is a clear test-production code synchronization where the implementation change directly supports the test assertions for the same method."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Edit 0 changes the implementation of `_create_body` method to return a list comprehension `[frm.to_bytes() for frm in frms]` instead of `[frm.to_bytes()]`. Edit 1 implements a test for the exact same `_create_body` method, specifically testing the multiple frames scenario with assertions that expect the method to return a list of 3 byte strings. The test directly calls `protocol._create_body('foobarmehm42', 1)` and asserts on the returned value structure and content. Both edits reference the exact same method symbol `_create_body`, with the implementation change in edit 0 enabling the test expectations in edit 1. This is a clear test-production code synchronization where the implementation change directly supports the test assertions for the same method."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the assignment 'protocol = HTTP2Protocol(c)' from line 254, while Edit 1 adds 'protocol = HTTP2Protocol(self.c)' on line 256 and changes the usage from 'self.protocol' to 'protocol' on line 257. Both edits reference the exact same symbol 'protocol' - Edit 0 removes its definition and Edit 1 adds it back in a different location while updating its usage. This appears to be a refactoring where the protocol variable is moved from being a class-level assignment to a local variable within the test method. The edits reference the same symbol and form a coherent refactoring operation that could be done in either order since both can be parsed independently."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes the assignment 'protocol = HTTP2Protocol(c)' from line 254, while Edit 1 adds 'protocol = HTTP2Protocol(self.c)' on line 256 and changes the usage from 'self.protocol' to 'protocol' on line 257. Both edits reference the exact same symbol 'protocol' - Edit 0 removes its definition and Edit 1 adds it back in a different location while updating its usage. This appears to be a refactoring where the protocol variable is moved from being a class-level assignment to a local variable within the test method. The edits reference the same symbol and form a coherent refactoring operation that could be done in either order since both can be parsed independently."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the assignment 'protocol = HTTP2Protocol(c)' from line 254, while Edit 1 adds 'protocol = HTTP2Protocol(self.c)' on line 261 and changes the usage from 'self.protocol' to 'protocol' on line 262. Both edits reference the exact same symbol 'protocol' - Edit 0 removes its definition and Edit 1 creates a new local definition and updates its usage. This appears to be a refactoring where the protocol instance is moved from being a class attribute to a local variable within the test method. The edits reference the same symbol and form a coherent refactoring pattern where either edit could be made first without causing parse errors."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 removes the assignment 'protocol = HTTP2Protocol(c)' from line 254, while Edit 1 adds 'protocol = HTTP2Protocol(self.c)' on line 261 and changes the usage from 'self.protocol' to 'protocol' on line 262. Both edits reference the exact same symbol 'protocol' - Edit 0 removes its definition and Edit 1 creates a new local definition and updates its usage. This appears to be a refactoring where the protocol instance is moved from being a class attribute to a local variable within the test method. The edits reference the same symbol and form a coherent refactoring pattern where either edit could be made first without causing parse errors."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural substitutions within the same test class. Each edit replaces 'self.protocol._create_body()' with a pattern of creating a local 'protocol = HTTP2Protocol(self.c)' variable and then calling 'protocol._create_body()'. This is a uniform refactoring pattern applied to the same type of syntactic construct (method calls) within related test methods of the same class. The edits are part of a single, contiguous refactor to change how the protocol object is accessed in these test methods."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform identical structural substitutions within the same test class. Each edit replaces 'self.protocol._create_body()' with a pattern of creating a local 'protocol = HTTP2Protocol(self.c)' variable and then calling 'protocol._create_body()'. This is a uniform refactoring pattern applied to the same type of syntactic construct (method calls) within related test methods of the same class. The edits are part of a single, contiguous refactor to change how the protocol object is accessed in these test methods."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits add the same line 'protocol = HTTP2Protocol(self.c)' to different test methods within the same test class. This represents a mirrored/synchronized addition pattern where identical code is being added to multiple test methods as part of what appears to be a single refactoring task. The changed lines perform identical textual substitution (adding the same protocol instantiation) and target the same type of syntactic construct (test method setup). This fits the bulk-edit and pattern synchronization criteria for bi-directional neighbors."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits add the same line 'protocol = HTTP2Protocol(self.c)' to different test methods within the same test class. This represents a mirrored/synchronized addition pattern where identical code is being added to multiple test methods as part of what appears to be a single refactoring task. The changed lines perform identical textual substitution (adding the same protocol instantiation) and target the same type of syntactic construct (test method setup). This fits the bulk-edit and pattern synchronization criteria for bi-directional neighbors."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits add the same line 'protocol = HTTP2Protocol(self.c)' to different test methods within the same test class. This represents a mirrored/synchronized addition pattern where the exact same code construct is being added to similar contexts (test methods in the same class). The changed lines perform identical textual substitution (adding the same protocol instantiation line) and target the same type of syntactic construct (variable assignment within test methods). This fits the criteria for bulk-edit & pattern synchronization as both edits are clearly part of a single, contiguous refactor to standardize how the protocol object is created in these test methods."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits add the same line 'protocol = HTTP2Protocol(self.c)' to different test methods within the same test class. This represents a mirrored/synchronized addition pattern where the exact same code construct is being added to similar contexts (test methods in the same class). The changed lines perform identical textual substitution (adding the same protocol instantiation line) and target the same type of syntactic construct (variable assignment within test methods). This fits the criteria for bulk-edit & pattern synchronization as both edits are clearly part of a single, contiguous refactor to standardize how the protocol object is created in these test methods."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

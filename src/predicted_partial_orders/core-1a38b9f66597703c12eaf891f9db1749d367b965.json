@@ -1,0 +1,51 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of 'async_dispatcher_send' from the imports section, while Edit 1 removes the usage of that same 'async_dispatcher_send' function in the code body. These edits reference the exact same symbol - the 'async_dispatcher_send' function. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed as the next mechanical step. Conversely, if the import is removed first in Edit 0, the usage in Edit 1 would need to be removed to avoid a NameError. Both edits are part of the same micro-task of cleaning up unused code, and either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of 'async_dispatcher_send' from the imports section, while Edit 1 removes the usage of that same 'async_dispatcher_send' function in the code body. These edits reference the exact same symbol - the 'async_dispatcher_send' function. After removing the usage in Edit 1, the import in Edit 0 becomes unused and should be removed as the next mechanical step. Conversely, if the import is removed first in Edit 0, the usage in Edit 1 would need to be removed to avoid a NameError. Both edits are part of the same micro-task of cleaning up unused code, and either edit naturally prompts the other as the immediate next step."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 changes the assignment of device_id from a conditional assignment with None check to a direct assignment. Edit 1 adds an assertion that device_id is a string type. Both edits reference the exact same symbol 'device_id' in their changed lines. After making edit 0 (removing the None check), adding the type assertion in edit 1 becomes the immediate next step to ensure type safety. The edits are part of a single micro-task of refactoring the device_id handling - first simplifying the assignment, then adding type validation. Either edit could be made first as both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 changes the assignment of device_id from a conditional assignment with None check to a direct assignment. Edit 1 adds an assertion that device_id is a string type. Both edits reference the exact same symbol 'device_id' in their changed lines. After making edit 0 (removing the None check), adding the type assertion in edit 1 becomes the immediate next step to ensure type safety. The edits are part of a single micro-task of refactoring the device_id handling - first simplifying the assignment, then adding type validation. Either edit could be made first as both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes the import of MQTT_DISCOVERY_DONE from the discovery module, while Edit 1 removes the usage of MQTT_DISCOVERY_DONE in the async_setup_trigger function. These edits reference the exact same symbol (MQTT_DISCOVERY_DONE) - one removes its import and the other removes its usage. This creates a direct code dependency where removing the usage makes the import unnecessary, or removing the import would cause a NameError when the symbol is used. Since Python allows referencing undefined symbols at parse time (they only fail at runtime), either edit can be staged first, making this bi-directional. Both edits are part of the same micro-task of removing the MQTT_DISCOVERY_DONE symbol from this file."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of MQTT_DISCOVERY_DONE from the discovery module, while Edit 1 removes the usage of MQTT_DISCOVERY_DONE in the async_setup_trigger function. These edits reference the exact same symbol (MQTT_DISCOVERY_DONE) - one removes its import and the other removes its usage. This creates a direct code dependency where removing the usage makes the import unnecessary, or removing the import would cause a NameError when the symbol is used. Since Python allows referencing undefined symbols at parse time (they only fail at runtime), either edit can be staged first, making this bi-directional. Both edits are part of the same micro-task of removing the MQTT_DISCOVERY_DONE symbol from this file."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 imports HomeAssistantError from homeassistant.exceptions, and Edit 1 uses HomeAssistantError in a pytest.raises() call. The changed lines reference the exact same symbol - HomeAssistantError. After importing HomeAssistantError in Edit 0, it becomes available for use in Edit 1. Conversely, if Edit 1 were made first, it would create an immediate code-driven prompt to import HomeAssistantError. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 imports HomeAssistantError from homeassistant.exceptions, and Edit 1 uses HomeAssistantError in a pytest.raises() call. The changed lines reference the exact same symbol - HomeAssistantError. After importing HomeAssistantError in Edit 0, it becomes available for use in Edit 1. Conversely, if Edit 1 were made first, it would create an immediate code-driven prompt to import HomeAssistantError. This is a classic import-usage relationship within the same file where both edits reference the exact same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3,
+        1,
+        4,
+        5
+    ]
+}

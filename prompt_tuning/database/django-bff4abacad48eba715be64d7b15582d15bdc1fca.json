@@ -1,0 +1,988 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/django/django/commit/bff4abacad48eba715be64d7b15582d15bdc1fca",
+    "commit_message": "Refs #15035 -- Corrected a bug and improved comments for a staticfiles test.",
+    "commit_snapshots": {
+        "tests/staticfiles_tests/storage.py": [
+            [
+                "import errno\n",
+                "import os\n",
+                "from datetime import datetime\n",
+                "\n",
+                "from django.conf import settings\n",
+                "from django.contrib.staticfiles.storage import CachedStaticFilesStorage\n",
+                "from django.core.files import storage\n",
+                "from django.utils import timezone\n",
+                "\n",
+                "\n",
+                "class DummyStorage(storage.Storage):\n",
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    A storage class that implements get_modified_time().\n"
+                ],
+                "after": [
+                    "    A storage class that implements get_modified_time() but raises\n",
+                    "    NotImplementedError for path().\n"
+                ],
+                "parent_version_range": {
+                    "start": 12,
+                    "end": 13
+                },
+                "child_version_range": {
+                    "start": 12,
+                    "end": 14
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "DummyStorage",
+                        "signature": "class DummyStorage(storage.Storage):",
+                        "at_line": 10
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: tests/staticfiles_tests/storage.py\nCode:\n 9  9    \n10 10    class DummyStorage(storage.Storage):\n11 11        \"\"\"\n12     -     A storage class that implements get_modified_time().\n   12  +     A storage class that implements get_modified_time() but raises\n   13  +     NotImplementedError for path().\n13 14        \"\"\"\n14 15        def _save(self, name, content):\n15 16            return 'dummy'\n       ...\n",
+                "file_path": "tests/staticfiles_tests/storage.py",
+                "identifiers_before": [
+                    "A",
+                    "get_modified_time",
+                    "implements",
+                    "storage",
+                    "that"
+                ],
+                "identifiers_after": [
+                    "A",
+                    "NotImplementedError",
+                    "but",
+                    "get_modified_time",
+                    "implements",
+                    "path",
+                    "raises",
+                    "storage",
+                    "that"
+                ],
+                "prefix": [
+                    "\n",
+                    "class DummyStorage(storage.Storage):\n",
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    def _save(self, name, content):\n",
+                    "        return 'dummy'\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    \"\"\"\n",
+                "    def _save(self, name, content):\n",
+                "        return 'dummy'\n",
+                "\n",
+                "    def delete(self, name):\n",
+                "        pass\n",
+                "\n",
+                "    def exists(self, name):\n",
+                "        pass\n",
+                "\n",
+                "    def get_modified_time(self, name):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)\n"
+                ],
+                "after": [
+                    "        return datetime(1970, 1, 1, tzinfo=timezone.utc)\n"
+                ],
+                "parent_version_range": {
+                    "start": 24,
+                    "end": 25
+                },
+                "child_version_range": {
+                    "start": 25,
+                    "end": 26
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "DummyStorage",
+                        "signature": "class DummyStorage(storage.Storage):",
+                        "at_line": 10
+                    },
+                    {
+                        "type": "function",
+                        "name": "get_modified_time",
+                        "signature": "def get_modified_time(self, name):",
+                        "at_line": 23
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: tests/staticfiles_tests/storage.py\nCode:\n         class DummyStorage(storage.Storage):\n             ...\n21 22            pass\n22 23    \n23 24        def get_modified_time(self, name):\n24     -         return datetime.datetime(1970, 1, 1, tzinfo=timezone.utc)\n   25  +         return datetime(1970, 1, 1, tzinfo=timezone.utc)\n25 26    \n26 27    \n27 28    class PathNotImplementedStorage(storage.Storage):\n       ...\n",
+                "file_path": "tests/staticfiles_tests/storage.py",
+                "identifiers_before": [
+                    "datetime",
+                    "timezone",
+                    "tzinfo",
+                    "utc"
+                ],
+                "identifiers_after": [
+                    "datetime",
+                    "timezone",
+                    "tzinfo",
+                    "utc"
+                ],
+                "prefix": [
+                    "        pass\n",
+                    "\n",
+                    "    def get_modified_time(self, name):\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class PathNotImplementedStorage(storage.Storage):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class PathNotImplementedStorage(storage.Storage):\n",
+                "\n",
+                "    def _save(self, name, content):\n",
+                "        return 'dummy'\n",
+                "\n",
+                "    def _path(self, name):\n",
+                "        return os.path.join(settings.STATIC_ROOT, name)\n",
+                "\n",
+                "    def exists(self, name):\n",
+                "        return os.path.exists(self._path(name))\n",
+                "\n",
+                "    def listdir(self, path):\n",
+                "        path = self._path(path)\n",
+                "        directories, files = [], []\n",
+                "        for entry in os.listdir(path):\n",
+                "            if os.path.isdir(os.path.join(path, entry)):\n",
+                "                directories.append(entry)\n",
+                "            else:\n",
+                "                files.append(entry)\n",
+                "        return directories, files\n",
+                "\n",
+                "    def delete(self, name):\n",
+                "        name = self._path(name)\n",
+                "        try:\n",
+                "            os.remove(name)\n",
+                "        except OSError as e:\n",
+                "            if e.errno != errno.ENOENT:\n",
+                "                raise\n",
+                "\n",
+                "    def path(self, name):\n",
+                "        raise NotImplementedError\n",
+                "\n",
+                "\n",
+                "class QueryStringStorage(storage.Storage):\n",
+                "    def url(self, path):\n",
+                "        return path + '?a=b&c=d'\n",
+                "\n",
+                "\n",
+                "class SimpleCachedStaticFilesStorage(CachedStaticFilesStorage):\n",
+                "\n",
+                "    def file_hash(self, name, content=None):\n",
+                "        return 'deploy12345'\n",
+                "\n",
+                "\n",
+                "class ExtraPatternsCachedStaticFilesStorage(CachedStaticFilesStorage):\n",
+                "    \"\"\"\n",
+                "    A storage class to test pattern substitutions with more than one pattern\n",
+                "    entry. The added pattern rewrites strings like \"url(...)\" to JS_URL(\"...\").\n",
+                "    \"\"\"\n",
+                "    patterns = tuple(CachedStaticFilesStorage.patterns) + (\n",
+                "        (\n",
+                "            \"*.js\", (\n",
+                "                (r\"\"\"(url\\(['\"]{0,1}\\s*(.*?)[\"']{0,1}\\))\"\"\", 'JS_URL(\"%s\")'),\n",
+                "            ),\n",
+                "        ),\n",
+                "    )"
+            ]
+        ],
+        "tests/staticfiles_tests/test_management.py": [
+            [
+                "from __future__ import unicode_literals\n",
+                "\n",
+                "import codecs\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "import datetime\n"
+                ],
+                "parent_version_range": {
+                    "start": 3,
+                    "end": 3
+                },
+                "child_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: tests/staticfiles_tests/test_management.py\nCode:\n  ...\n0 0    from __future__ import unicode_literals\n1 1    \n2 2    import codecs\n  3  + import datetime\n3 4    import os\n4 5    import shutil\n5 6    import tempfile\n     ...\n",
+                "file_path": "tests/staticfiles_tests/test_management.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "datetime"
+                ],
+                "prefix": [
+                    "from __future__ import unicode_literals\n",
+                    "\n",
+                    "import codecs\n"
+                ],
+                "suffix": [
+                    "import os\n",
+                    "import shutil\n",
+                    "import tempfile\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "datetime",
+                            "position": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/staticfiles_tests/test_management.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import os\n",
+                "import shutil\n",
+                "import tempfile\n",
+                "import unittest\n",
+                "\n",
+                "from admin_scripts.tests import AdminScriptTestCase\n",
+                "\n",
+                "from django.conf import settings\n",
+                "from django.contrib.staticfiles import storage\n",
+                "from django.contrib.staticfiles.management.commands import collectstatic\n",
+                "from django.core.exceptions import ImproperlyConfigured\n",
+                "from django.core.management import call_command\n",
+                "from django.test import mock, override_settings\n",
+                "from django.test.utils import extend_sys_path\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from django.utils import six\n"
+                ],
+                "after": [
+                    "from django.utils import six, timezone\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 18
+                },
+                "child_version_range": {
+                    "start": 18,
+                    "end": 19
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: tests/staticfiles_tests/test_management.py\nCode:\n  ...\n14 15    from django.core.management import call_command\n15 16    from django.test import mock, override_settings\n16 17    from django.test.utils import extend_sys_path\n17     - from django.utils import six\n   18  + from django.utils import six, timezone\n18 19    from django.utils._os import symlinks_supported\n19 20    from django.utils.encoding import force_text\n20 21    from django.utils.functional import empty\n       ...\n",
+                "file_path": "tests/staticfiles_tests/test_management.py",
+                "identifiers_before": [
+                    "django",
+                    "six",
+                    "utils"
+                ],
+                "identifiers_after": [
+                    "django",
+                    "six",
+                    "timezone",
+                    "utils"
+                ],
+                "prefix": [
+                    "from django.core.management import call_command\n",
+                    "from django.test import mock, override_settings\n",
+                    "from django.test.utils import extend_sys_path\n"
+                ],
+                "suffix": [
+                    "from django.utils._os import symlinks_supported\n",
+                    "from django.utils.encoding import force_text\n",
+                    "from django.utils.functional import empty\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "timezone",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/staticfiles_tests/test_management.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "from django.utils._os import symlinks_supported\n",
+                "from django.utils.encoding import force_text\n",
+                "from django.utils.functional import empty\n",
+                "\n",
+                "from .cases import CollectionTestCase, StaticFilesTestCase, TestDefaults\n",
+                "from .settings import TEST_ROOT, TEST_SETTINGS\n",
+                "from .storage import DummyStorage\n",
+                "\n",
+                "\n",
+                "class TestNoFilesCreated(object):\n",
+                "\n",
+                "    def test_no_files_created(self):\n",
+                "        \"\"\"\n",
+                "        Make sure no files were create in the destination directory.\n",
+                "        \"\"\"\n",
+                "        self.assertEqual(os.listdir(settings.STATIC_ROOT), [])\n",
+                "\n",
+                "\n",
+                "class TestFindStatic(TestDefaults, CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test ``findstatic`` management command.\n",
+                "    \"\"\"\n",
+                "    def _get_file(self, filepath):\n",
+                "        path = call_command('findstatic', filepath, all=False, verbosity=0, stdout=six.StringIO())\n",
+                "        with codecs.open(force_text(path), \"r\", \"utf-8\") as f:\n",
+                "            return f.read()\n",
+                "\n",
+                "    def test_all_files(self):\n",
+                "        \"\"\"\n",
+                "        findstatic returns all candidate files if run without --first and -v1.\n",
+                "        \"\"\"\n",
+                "        result = call_command('findstatic', 'test/file.txt', verbosity=1, stdout=six.StringIO())\n",
+                "        lines = [l.strip() for l in result.split('\\n')]\n",
+                "        self.assertEqual(len(lines), 3)  # three because there is also the \"Found <file> here\" line\n",
+                "        self.assertIn('project', force_text(lines[1]))\n",
+                "        self.assertIn('apps', force_text(lines[2]))\n",
+                "\n",
+                "    def test_all_files_less_verbose(self):\n",
+                "        \"\"\"\n",
+                "        findstatic returns all candidate files if run without --first and -v0.\n",
+                "        \"\"\"\n",
+                "        result = call_command('findstatic', 'test/file.txt', verbosity=0, stdout=six.StringIO())\n",
+                "        lines = [l.strip() for l in result.split('\\n')]\n",
+                "        self.assertEqual(len(lines), 2)\n",
+                "        self.assertIn('project', force_text(lines[0]))\n",
+                "        self.assertIn('apps', force_text(lines[1]))\n",
+                "\n",
+                "    def test_all_files_more_verbose(self):\n",
+                "        \"\"\"\n",
+                "        findstatic returns all candidate files if run without --first and -v2.\n",
+                "        Also, test that findstatic returns the searched locations with -v2.\n",
+                "        \"\"\"\n",
+                "        result = call_command('findstatic', 'test/file.txt', verbosity=2, stdout=six.StringIO())\n",
+                "        lines = [l.strip() for l in result.split('\\n')]\n",
+                "        self.assertIn('project', force_text(lines[1]))\n",
+                "        self.assertIn('apps', force_text(lines[2]))\n",
+                "        self.assertIn(\"Looking in the following locations:\", force_text(lines[3]))\n",
+                "        searched_locations = ', '.join(force_text(x) for x in lines[4:])\n",
+                "        # AppDirectoriesFinder searched locations\n",
+                "        self.assertIn(os.path.join('staticfiles_tests', 'apps', 'test', 'static'), searched_locations)\n",
+                "        self.assertIn(os.path.join('staticfiles_tests', 'apps', 'no_label', 'static'), searched_locations)\n",
+                "        # FileSystemFinder searched locations\n",
+                "        self.assertIn(TEST_SETTINGS['STATICFILES_DIRS'][1][1], searched_locations)\n",
+                "        self.assertIn(TEST_SETTINGS['STATICFILES_DIRS'][0], searched_locations)\n",
+                "        # DefaultStorageFinder searched locations\n",
+                "        self.assertIn(\n",
+                "            os.path.join('staticfiles_tests', 'project', 'site_media', 'media'),\n",
+                "            searched_locations\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "class TestConfiguration(StaticFilesTestCase):\n",
+                "    def test_location_empty(self):\n",
+                "        msg = 'without having set the STATIC_ROOT setting to a filesystem path'\n",
+                "        err = six.StringIO()\n",
+                "        for root in ['', None]:\n",
+                "            with override_settings(STATIC_ROOT=root):\n",
+                "                with self.assertRaisesMessage(ImproperlyConfigured, msg):\n",
+                "                    call_command('collectstatic', interactive=False, verbosity=0, stderr=err)\n",
+                "\n",
+                "    def test_local_storage_detection_helper(self):\n",
+                "        staticfiles_storage = storage.staticfiles_storage\n",
+                "        try:\n",
+                "            storage.staticfiles_storage._wrapped = empty\n",
+                "            with self.settings(STATICFILES_STORAGE='django.contrib.staticfiles.storage.StaticFilesStorage'):\n",
+                "                command = collectstatic.Command()\n",
+                "                self.assertTrue(command.is_local_storage())\n",
+                "\n",
+                "            storage.staticfiles_storage._wrapped = empty\n",
+                "            with self.settings(STATICFILES_STORAGE='staticfiles_tests.storage.DummyStorage'):\n",
+                "                command = collectstatic.Command()\n",
+                "                self.assertFalse(command.is_local_storage())\n",
+                "\n",
+                "            collectstatic.staticfiles_storage = storage.FileSystemStorage()\n",
+                "            command = collectstatic.Command()\n",
+                "            self.assertTrue(command.is_local_storage())\n",
+                "\n",
+                "            collectstatic.staticfiles_storage = DummyStorage()\n",
+                "            command = collectstatic.Command()\n",
+                "            self.assertFalse(command.is_local_storage())\n",
+                "        finally:\n",
+                "            staticfiles_storage._wrapped = empty\n",
+                "            collectstatic.staticfiles_storage = staticfiles_storage\n",
+                "            storage.staticfiles_storage = staticfiles_storage\n",
+                "\n",
+                "\n",
+                "class TestCollectionHelpSubcommand(AdminScriptTestCase):\n",
+                "    @override_settings(STATIC_ROOT=None)\n",
+                "    def test_missing_settings_dont_prevent_help(self):\n",
+                "        \"\"\"\n",
+                "        Even if the STATIC_ROOT setting is not set, one can still call the\n",
+                "        `manage.py help collectstatic` command.\n",
+                "        \"\"\"\n",
+                "        self.write_settings('settings.py', apps=['django.contrib.staticfiles'])\n",
+                "        out, err = self.run_manage(['help', 'collectstatic'])\n",
+                "        self.assertNoOutput(err)\n",
+                "\n",
+                "\n",
+                "class TestCollection(TestDefaults, CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test ``collectstatic`` management command.\n",
+                "    \"\"\"\n",
+                "    def test_ignore(self):\n",
+                "        \"\"\"\n",
+                "        -i patterns are ignored.\n",
+                "        \"\"\"\n",
+                "        self.assertFileNotFound('test/test.ignoreme')\n",
+                "\n",
+                "    def test_common_ignore_patterns(self):\n",
+                "        \"\"\"\n",
+                "        Common ignore patterns (*~, .*, CVS) are ignored.\n",
+                "        \"\"\"\n",
+                "        self.assertFileNotFound('test/.hidden')\n",
+                "        self.assertFileNotFound('test/backup~')\n",
+                "        self.assertFileNotFound('test/CVS')\n",
+                "\n",
+                "\n",
+                "class TestCollectionClear(CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test the ``--clear`` option of the ``collectstatic`` management command.\n",
+                "    \"\"\"\n",
+                "    def run_collectstatic(self, **kwargs):\n",
+                "        clear_filepath = os.path.join(settings.STATIC_ROOT, 'cleared.txt')\n",
+                "        with open(clear_filepath, 'w') as f:\n",
+                "            f.write('should be cleared')\n",
+                "        super(TestCollectionClear, self).run_collectstatic(clear=True)\n",
+                "\n",
+                "    def test_cleared_not_found(self):\n",
+                "        self.assertFileNotFound('cleared.txt')\n",
+                "\n",
+                "    def test_dir_not_exists(self, **kwargs):\n",
+                "        shutil.rmtree(six.text_type(settings.STATIC_ROOT))\n",
+                "        super(TestCollectionClear, self).run_collectstatic(clear=True)\n",
+                "\n",
+                "    @override_settings(STATICFILES_STORAGE='staticfiles_tests.storage.PathNotImplementedStorage')\n",
+                "    def test_handle_path_notimplemented(self):\n",
+                "        self.run_collectstatic()\n",
+                "        self.assertFileNotFound('cleared.txt')\n",
+                "\n",
+                "\n",
+                "class TestInteractiveMessages(CollectionTestCase):\n",
+                "    overwrite_warning_msg = \"This will overwrite existing files!\"\n",
+                "    delete_warning_msg = \"This will DELETE ALL FILES in this location!\"\n",
+                "    files_copied_msg = \"static files copied\"\n",
+                "\n",
+                "    @staticmethod\n",
+                "    def mock_input(stdout):\n",
+                "        def _input(msg):\n",
+                "            # Python 2 reads bytes from the console output, use bytes for the StringIO\n",
+                "            stdout.write(msg.encode('utf-8') if six.PY2 else msg)\n",
+                "            return 'yes'\n",
+                "        return _input\n",
+                "\n",
+                "    def test_warning_when_clearing_staticdir(self):\n",
+                "        stdout = six.StringIO()\n",
+                "        self.run_collectstatic()\n",
+                "        with mock.patch('django.contrib.staticfiles.management.commands.collectstatic.input',\n",
+                "                        side_effect=self.mock_input(stdout)):\n",
+                "            call_command('collectstatic', interactive=True, clear=True, stdout=stdout)\n",
+                "\n",
+                "        output = force_text(stdout.getvalue())\n",
+                "        self.assertNotIn(self.overwrite_warning_msg, output)\n",
+                "        self.assertIn(self.delete_warning_msg, output)\n",
+                "\n",
+                "    def test_warning_when_overwriting_files_in_staticdir(self):\n",
+                "        stdout = six.StringIO()\n",
+                "        self.run_collectstatic()\n",
+                "        with mock.patch('django.contrib.staticfiles.management.commands.collectstatic.input',\n",
+                "                        side_effect=self.mock_input(stdout)):\n",
+                "            call_command('collectstatic', interactive=True, stdout=stdout)\n",
+                "        output = force_text(stdout.getvalue())\n",
+                "        self.assertIn(self.overwrite_warning_msg, output)\n",
+                "        self.assertNotIn(self.delete_warning_msg, output)\n",
+                "\n",
+                "    def test_no_warning_when_staticdir_does_not_exist(self):\n",
+                "        stdout = six.StringIO()\n",
+                "        shutil.rmtree(six.text_type(settings.STATIC_ROOT))\n",
+                "        call_command('collectstatic', interactive=True, stdout=stdout)\n",
+                "        output = force_text(stdout.getvalue())\n",
+                "        self.assertNotIn(self.overwrite_warning_msg, output)\n",
+                "        self.assertNotIn(self.delete_warning_msg, output)\n",
+                "        self.assertIn(self.files_copied_msg, output)\n",
+                "\n",
+                "    def test_no_warning_for_empty_staticdir(self):\n",
+                "        stdout = six.StringIO()\n",
+                "        static_dir = tempfile.mkdtemp(prefix='collectstatic_empty_staticdir_test')\n",
+                "        with override_settings(STATIC_ROOT=static_dir):\n",
+                "            call_command('collectstatic', interactive=True, stdout=stdout)\n",
+                "        shutil.rmtree(six.text_type(static_dir))\n",
+                "        output = force_text(stdout.getvalue())\n",
+                "        self.assertNotIn(self.overwrite_warning_msg, output)\n",
+                "        self.assertNotIn(self.delete_warning_msg, output)\n",
+                "        self.assertIn(self.files_copied_msg, output)\n",
+                "\n",
+                "\n",
+                "class TestCollectionExcludeNoDefaultIgnore(TestDefaults, CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test ``--exclude-dirs`` and ``--no-default-ignore`` options of the\n",
+                "    ``collectstatic`` management command.\n",
+                "    \"\"\"\n",
+                "    def run_collectstatic(self):\n",
+                "        super(TestCollectionExcludeNoDefaultIgnore, self).run_collectstatic(\n",
+                "            use_default_ignore_patterns=False)\n",
+                "\n",
+                "    def test_no_common_ignore_patterns(self):\n",
+                "        \"\"\"\n",
+                "        With --no-default-ignore, common ignore patterns (*~, .*, CVS)\n",
+                "        are not ignored.\n",
+                "        \"\"\"\n",
+                "        self.assertFileContains('test/.hidden', 'should be ignored')\n",
+                "        self.assertFileContains('test/backup~', 'should be ignored')\n",
+                "        self.assertFileContains('test/CVS', 'should be ignored')\n",
+                "\n",
+                "\n",
+                "@override_settings(INSTALLED_APPS=[\n",
+                "    'staticfiles_tests.apps.staticfiles_config.IgnorePatternsAppConfig',\n",
+                "    'staticfiles_tests.apps.test',\n",
+                "])\n",
+                "class TestCollectionCustomIgnorePatterns(CollectionTestCase):\n",
+                "    def test_custom_ignore_patterns(self):\n",
+                "        \"\"\"\n",
+                "        A custom ignore_patterns list, ['*.css'] in this case, can be specified\n",
+                "        in an AppConfig definition.\n",
+                "        \"\"\"\n",
+                "        self.assertFileNotFound('test/nonascii.css')\n",
+                "        self.assertFileContains('test/.hidden', 'should be ignored')\n",
+                "\n",
+                "\n",
+                "class TestCollectionDryRun(TestNoFilesCreated, CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test ``--dry-run`` option for ``collectstatic`` management command.\n",
+                "    \"\"\"\n",
+                "    def run_collectstatic(self):\n",
+                "        super(TestCollectionDryRun, self).run_collectstatic(dry_run=True)\n",
+                "\n",
+                "\n",
+                "class TestCollectionFilesOverride(CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test overriding duplicated files by ``collectstatic`` management command.\n",
+                "    Check for proper handling of apps order in installed apps even if file modification\n",
+                "    dates are in different order:\n",
+                "        'staticfiles_test_app',\n",
+                "        'staticfiles_tests.apps.no_label',\n",
+                "    \"\"\"\n",
+                "    def setUp(self):\n",
+                "        self.temp_dir = tempfile.mkdtemp()\n",
+                "        self.addCleanup(shutil.rmtree, self.temp_dir)\n",
+                "\n",
+                "        # get modification and access times for no_label/static/file2.txt\n",
+                "        self.orig_path = os.path.join(TEST_ROOT, 'apps', 'no_label', 'static', 'file2.txt')\n",
+                "        self.orig_mtime = os.path.getmtime(self.orig_path)\n",
+                "        self.orig_atime = os.path.getatime(self.orig_path)\n",
+                "\n",
+                "        # prepare duplicate of file2.txt from a temporary app\n",
+                "        # this file will have modification time older than no_label/static/file2.txt\n",
+                "        # anyway it should be taken to STATIC_ROOT because the temporary app is before\n",
+                "        # 'no_label' app in installed apps\n",
+                "        self.temp_app_path = os.path.join(self.temp_dir, 'staticfiles_test_app')\n",
+                "        self.testfile_path = os.path.join(self.temp_app_path, 'static', 'file2.txt')\n",
+                "\n",
+                "        os.makedirs(self.temp_app_path)\n",
+                "        with open(os.path.join(self.temp_app_path, '__init__.py'), 'w+'):\n",
+                "            pass\n",
+                "\n",
+                "        os.makedirs(os.path.dirname(self.testfile_path))\n",
+                "        with open(self.testfile_path, 'w+') as f:\n",
+                "            f.write('duplicate of file2.txt')\n",
+                "\n",
+                "        os.utime(self.testfile_path, (self.orig_atime - 1, self.orig_mtime - 1))\n",
+                "\n",
+                "        self.settings_with_test_app = self.modify_settings(\n",
+                "            INSTALLED_APPS={'prepend': 'staticfiles_test_app'})\n",
+                "        with extend_sys_path(self.temp_dir):\n",
+                "            self.settings_with_test_app.enable()\n",
+                "\n",
+                "        super(TestCollectionFilesOverride, self).setUp()\n",
+                "\n",
+                "    def tearDown(self):\n",
+                "        super(TestCollectionFilesOverride, self).tearDown()\n",
+                "        self.settings_with_test_app.disable()\n",
+                "\n",
+                "    def test_ordering_override(self):\n",
+                "        \"\"\"\n",
+                "        Test if collectstatic takes files in proper order\n",
+                "        \"\"\"\n",
+                "        self.assertFileContains('file2.txt', 'duplicate of file2.txt')\n",
+                "\n",
+                "        # run collectstatic again\n",
+                "        self.run_collectstatic()\n",
+                "\n",
+                "        self.assertFileContains('file2.txt', 'duplicate of file2.txt')\n",
+                "\n",
+                "\n",
+                "# The collectstatic test suite already has conflicting files since both\n",
+                "# project/test/file.txt and apps/test/static/test/file.txt are collected. To\n",
+                "# properly test for the warning not happening unless we tell it to explicitly,\n",
+                "# we remove the project directory and will add back a conflicting file later.\n",
+                "@override_settings(STATICFILES_DIRS=[])\n",
+                "class TestCollectionOverwriteWarning(CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test warning in ``collectstatic`` output when a file is skipped because a\n",
+                "    previous file was already written to the same path.\n",
+                "    \"\"\"\n",
+                "    # If this string is in the collectstatic output, it means the warning we're\n",
+                "    # looking for was emitted.\n",
+                "    warning_string = 'Found another file'\n",
+                "\n",
+                "    def _collectstatic_output(self, **kwargs):\n",
+                "        \"\"\"\n",
+                "        Run collectstatic, and capture and return the output. We want to run\n",
+                "        the command at highest verbosity, which is why we can't\n",
+                "        just call e.g. BaseCollectionTestCase.run_collectstatic()\n",
+                "        \"\"\"\n",
+                "        out = six.StringIO()\n",
+                "        call_command('collectstatic', interactive=False, verbosity=3, stdout=out, **kwargs)\n",
+                "        return force_text(out.getvalue())\n",
+                "\n",
+                "    def test_no_warning(self):\n",
+                "        \"\"\"\n",
+                "        There isn't a warning if there isn't a duplicate destination.\n",
+                "        \"\"\"\n",
+                "        output = self._collectstatic_output(clear=True)\n",
+                "        self.assertNotIn(self.warning_string, output)\n",
+                "\n",
+                "    def test_warning(self):\n",
+                "        \"\"\"\n",
+                "        There is a warning when there are duplicate destinations.\n",
+                "        \"\"\"\n",
+                "        static_dir = tempfile.mkdtemp()\n",
+                "        self.addCleanup(shutil.rmtree, static_dir)\n",
+                "\n",
+                "        duplicate = os.path.join(static_dir, 'test', 'file.txt')\n",
+                "        os.mkdir(os.path.dirname(duplicate))\n",
+                "        with open(duplicate, 'w+') as f:\n",
+                "            f.write('duplicate of file.txt')\n",
+                "\n",
+                "        with self.settings(STATICFILES_DIRS=[static_dir]):\n",
+                "            output = self._collectstatic_output(clear=True)\n",
+                "        self.assertIn(self.warning_string, output)\n",
+                "\n",
+                "        os.remove(duplicate)\n",
+                "\n",
+                "        # Make sure the warning went away again.\n",
+                "        with self.settings(STATICFILES_DIRS=[static_dir]):\n",
+                "            output = self._collectstatic_output(clear=True)\n",
+                "        self.assertNotIn(self.warning_string, output)\n",
+                "\n",
+                "\n",
+                "@override_settings(STATICFILES_STORAGE='staticfiles_tests.storage.DummyStorage')\n",
+                "class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):\n",
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    Tests for #15035\n"
+                ],
+                "after": [
+                    "    Tests for a Storage that implements get_modified_time() but not path()\n",
+                    "    (#15035).\n"
+                ],
+                "parent_version_range": {
+                    "start": 389,
+                    "end": 390
+                },
+                "child_version_range": {
+                    "start": 390,
+                    "end": 392
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestCollectionNonLocalStorage",
+                        "signature": "class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):",
+                        "at_line": 387
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: tests/staticfiles_tests/test_management.py\nCode:\n386 387    @override_settings(STATICFILES_STORAGE='staticfiles_tests.storage.DummyStorage')\n387 388    class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):\n388 389        \"\"\"\n389      -     Tests for #15035\n    390  +     Tests for a Storage that implements get_modified_time() but not path()\n    391  +     (#15035).\n390 392        \"\"\"\n         ...\n",
+                "file_path": "tests/staticfiles_tests/test_management.py",
+                "identifiers_before": [
+                    "Tests",
+                    "for"
+                ],
+                "identifiers_after": [
+                    "Storage",
+                    "Tests",
+                    "a",
+                    "but",
+                    "get_modified_time",
+                    "implements",
+                    "path",
+                    "that"
+                ],
+                "prefix": [
+                    "@override_settings(STATICFILES_STORAGE='staticfiles_tests.storage.DummyStorage')\n",
+                    "class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):\n",
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    \"\"\"\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    pass\n"
+                ],
+                "after": [
+                    "    def test_storage_properties(self):\n",
+                    "        # Properties of the Storage as described in the ticket.\n",
+                    "        storage = DummyStorage()\n",
+                    "        self.assertEqual(storage.get_modified_time('name'), datetime.datetime(1970, 1, 1, tzinfo=timezone.utc))\n",
+                    "        with self.assertRaisesMessage(NotImplementedError, \"This backend doesn't support absolute paths.\"):\n",
+                    "            storage.path('name')\n"
+                ],
+                "parent_version_range": {
+                    "start": 391,
+                    "end": 392
+                },
+                "child_version_range": {
+                    "start": 393,
+                    "end": 399
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "TestCollectionNonLocalStorage",
+                        "signature": "class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):",
+                        "at_line": 387
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/staticfiles_tests/test_management.py\nCode:\n           class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):\n               ...\n390 392        \"\"\"\n391      -     pass\n    393  +     def test_storage_properties(self):\n    394  +         # Properties of the Storage as described in the ticket.\n    395  +         storage = DummyStorage()\n    396  +         self.assertEqual(storage.get_modified_time('name'), datetime.datetime(1970, 1, 1, tzinfo=timezone.utc))\n    397  +         with self.assertRaisesMessage(NotImplementedError, \"This backend doesn't support absolute paths.\"):\n    398  +             storage.path('name')\n392 399    \n393 400    \n394 401    @unittest.skipUnless(symlinks_supported(), \"Must be able to symlink to run this test.\")\n         ...\n",
+                "file_path": "tests/staticfiles_tests/test_management.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "DummyStorage",
+                    "NotImplementedError",
+                    "assertEqual",
+                    "assertRaisesMessage",
+                    "datetime",
+                    "get_modified_time",
+                    "path",
+                    "self",
+                    "storage",
+                    "test_storage_properties",
+                    "timezone",
+                    "tzinfo",
+                    "utc"
+                ],
+                "prefix": [
+                    "    \"\"\"\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "@unittest.skipUnless(symlinks_supported(), \"Must be able to symlink to run this test.\")\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "datetime",
+                            "position": {
+                                "start": {
+                                    "line": 396,
+                                    "column": 60
+                                },
+                                "end": {
+                                    "line": 396,
+                                    "column": 68
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/staticfiles_tests/test_management.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "timezone",
+                            "position": {
+                                "start": {
+                                    "line": 396,
+                                    "column": 97
+                                },
+                                "end": {
+                                    "line": 396,
+                                    "column": 105
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/staticfiles_tests/test_management.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "@unittest.skipUnless(symlinks_supported(), \"Must be able to symlink to run this test.\")\n",
+                "class TestCollectionLinks(TestDefaults, CollectionTestCase):\n",
+                "    \"\"\"\n",
+                "    Test ``--link`` option for ``collectstatic`` management command.\n",
+                "\n",
+                "    Note that by inheriting ``TestDefaults`` we repeat all\n",
+                "    the standard file resolving tests here, to make sure using\n",
+                "    ``--link`` does not change the file-selection semantics.\n",
+                "    \"\"\"\n",
+                "    def run_collectstatic(self, clear=False):\n",
+                "        super(TestCollectionLinks, self).run_collectstatic(link=True, clear=clear)\n",
+                "\n",
+                "    def test_links_created(self):\n",
+                "        \"\"\"\n",
+                "        With ``--link``, symbolic links are created.\n",
+                "        \"\"\"\n",
+                "        self.assertTrue(os.path.islink(os.path.join(settings.STATIC_ROOT, 'test.txt')))\n",
+                "\n",
+                "    def test_broken_symlink(self):\n",
+                "        \"\"\"\n",
+                "        Test broken symlink gets deleted.\n",
+                "        \"\"\"\n",
+                "        path = os.path.join(settings.STATIC_ROOT, 'test.txt')\n",
+                "        os.unlink(path)\n",
+                "        self.run_collectstatic()\n",
+                "        self.assertTrue(os.path.islink(path))\n",
+                "\n",
+                "    def test_clear_broken_symlink(self):\n",
+                "        \"\"\"\n",
+                "        With ``--clear``, broken symbolic links are deleted.\n",
+                "        \"\"\"\n",
+                "        nonexistent_file_path = os.path.join(settings.STATIC_ROOT, 'nonexistent.txt')\n",
+                "        broken_symlink_path = os.path.join(settings.STATIC_ROOT, 'symlink.txt')\n",
+                "        os.symlink(nonexistent_file_path, broken_symlink_path)\n",
+                "        self.run_collectstatic(clear=True)\n",
+                "        self.assertFalse(os.path.lexists(broken_symlink_path))"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "doc sync and implementation"
+        }
+    ]
+}

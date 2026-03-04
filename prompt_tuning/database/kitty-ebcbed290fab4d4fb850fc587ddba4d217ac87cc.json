@@ -1,0 +1,1587 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/kovidgoyal/kitty/commit/ebcbed290fab4d4fb850fc587ddba4d217ac87cc",
+    "commit_message": "Make loading of kitty options in kitten re-useable",
+    "commit_snapshots": {
+        "kittens/ssh/main.py": [
+            [
+                "#!/usr/bin/env python3\n",
+                "# License: GPL v3 Copyright: 2018, Kovid Goyal <kovid at kovidgoyal.net>\n",
+                "\n",
+                "import fnmatch\n",
+                "import glob\n",
+                "import io\n",
+                "import json\n",
+                "import os\n",
+                "import re\n",
+                "import secrets\n",
+                "import shlex\n",
+                "import shutil\n",
+                "import stat\n",
+                "import subprocess\n",
+                "import sys\n",
+                "import tarfile\n",
+                "import tempfile\n",
+                "import termios\n",
+                "import time\n",
+                "import traceback\n",
+                "from base64 import standard_b64decode, standard_b64encode\n",
+                "from contextlib import contextmanager, suppress\n",
+                "from getpass import getuser\n",
+                "from select import select\n",
+                "from typing import (\n",
+                "    Any, Callable, Dict, Iterator, List, NoReturn, Optional, Sequence, Set,\n",
+                "    Tuple, Union, cast\n",
+                ")\n",
+                "\n",
+                "from kittens.tui.operations import restore_colors, save_colors\n",
+                "from kitty.constants import (\n",
+                "    cache_dir, runtime_dir, shell_integration_dir, ssh_control_master_template,\n",
+                "    str_version, terminfo_dir\n",
+                ")\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from kitty.options.types import Options\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 34,
+                    "end": 35
+                },
+                "child_version_range": {
+                    "start": 34,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: kittens/ssh/main.py\nCode:\n  ...\n31 31        cache_dir, runtime_dir, shell_integration_dir, ssh_control_master_template,\n32 32        str_version, terminfo_dir\n33 33    )\n34     - from kitty.options.types import Options\n35 34    from kitty.shell_integration import as_str_literal\n36 35    from kitty.shm import SharedMemory\n37 36    from kitty.types import run_once\n       ...\n",
+                "file_path": "kittens/ssh/main.py",
+                "identifiers_before": [
+                    "Options",
+                    "kitty",
+                    "options",
+                    "types"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    cache_dir, runtime_dir, shell_integration_dir, ssh_control_master_template,\n",
+                    "    str_version, terminfo_dir\n",
+                    ")\n"
+                ],
+                "suffix": [
+                    "from kitty.shell_integration import as_str_literal\n",
+                    "from kitty.shm import SharedMemory\n",
+                    "from kitty.types import run_once\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "Options",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/ssh/main.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from kitty.shell_integration import as_str_literal\n",
+                "from kitty.shm import SharedMemory\n",
+                "from kitty.types import run_once\n",
+                "from kitty.utils import (\n",
+                "    SSHConnectionData, expandvars, resolve_abs_or_config_path,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    set_echo as turn_off_echo, suppress_error_logging\n"
+                ],
+                "after": [
+                    "    set_echo as turn_off_echo\n"
+                ],
+                "parent_version_range": {
+                    "start": 40,
+                    "end": 41
+                },
+                "child_version_range": {
+                    "start": 39,
+                    "end": 40
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: kittens/ssh/main.py\nCode:\n  ...\n37 36    from kitty.types import run_once\n38 37    from kitty.utils import (\n39 38        SSHConnectionData, expandvars, resolve_abs_or_config_path,\n40     -     set_echo as turn_off_echo, suppress_error_logging\n   39  +     set_echo as turn_off_echo\n41 40    )\n42 41    \n       ...\n",
+                "file_path": "kittens/ssh/main.py",
+                "identifiers_before": [
+                    "set_echo",
+                    "suppress_error_logging",
+                    "turn_off_echo"
+                ],
+                "identifiers_after": [
+                    "set_echo",
+                    "turn_off_echo"
+                ],
+                "prefix": [
+                    "from kitty.types import run_once\n",
+                    "from kitty.utils import (\n",
+                    "    SSHConnectionData, expandvars, resolve_abs_or_config_path,\n"
+                ],
+                "suffix": [
+                    ")\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "suppress_error_logging",
+                            "position": {
+                                "start": {
+                                    "line": 40,
+                                    "column": 31
+                                },
+                                "end": {
+                                    "line": 40,
+                                    "column": 53
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/ssh/main.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                ")\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from ..tui.utils import kitty_opts\n"
+                ],
+                "parent_version_range": {
+                    "start": 43,
+                    "end": 43
+                },
+                "child_version_range": {
+                    "start": 42,
+                    "end": 43
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: kittens/ssh/main.py\nCode:\n  ...\n41 40    )\n42 41    \n   42  + from ..tui.utils import kitty_opts\n43 43    from .config import init_config\n44 44    from .copy import CopyInstruction\n45 45    from .options.types import Options as SSHOptions\n       ...\n",
+                "file_path": "kittens/ssh/main.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "kitty_opts",
+                    "tui",
+                    "utils"
+                ],
+                "prefix": [
+                    ")\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from .config import init_config\n",
+                    "from .copy import CopyInstruction\n",
+                    "from .options.types import Options as SSHOptions\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "kitty_opts",
+                            "position": {
+                                "start": {
+                                    "line": 42,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 42,
+                                    "column": 34
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/ssh/main.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from .config import init_config\n",
+                "from .copy import CopyInstruction\n",
+                "from .options.types import Options as SSHOptions\n",
+                "from .options.utils import DELETE_ENV_VAR\n",
+                "from .utils import create_shared_memory, ssh_options\n",
+                "\n",
+                "\n",
+                "@run_once\n",
+                "def ssh_exe() -> str:\n",
+                "    return shutil.which('ssh') or 'ssh'\n",
+                "\n",
+                "\n",
+                "def read_data_from_shared_memory(shm_name: str) -> Any:\n",
+                "    with SharedMemory(shm_name, readonly=True) as shm:\n",
+                "        shm.unlink()\n",
+                "        if shm.stats.st_uid != os.geteuid() or shm.stats.st_gid != os.getegid():\n",
+                "            raise ValueError('Incorrect owner on pwfile')\n",
+                "        mode = stat.S_IMODE(shm.stats.st_mode)\n",
+                "        if mode != stat.S_IREAD:\n",
+                "            raise ValueError('Incorrect permissions on pwfile')\n",
+                "        return json.loads(shm.read_data_with_size())\n",
+                "\n",
+                "\n",
+                "# See https://www.gnu.org/software/bash/manual/html_node/Double-Quotes.html\n",
+                "quote_pat = re.compile('([\\\\`\"])')\n",
+                "\n",
+                "\n",
+                "def quote_env_val(x: str, literal_quote: bool = False) -> str:\n",
+                "    if literal_quote:\n",
+                "        return as_str_literal(x)\n",
+                "    x = quote_pat.sub(r'\\\\\\1', x)\n",
+                "    x = x.replace('$(', r'\\$(')  # prevent execution with $()\n",
+                "    return f'\"{x}\"'\n",
+                "\n",
+                "\n",
+                "def serialize_env(literal_env: Dict[str, str], env: Dict[str, str], base_env: Dict[str, str], for_python: bool = False) -> bytes:\n",
+                "    lines = []\n",
+                "    literal_quote = True\n",
+                "\n",
+                "    if for_python:\n",
+                "        def a(k: str, val: str = '', prefix: str = 'export') -> None:\n",
+                "            if val:\n",
+                "                lines.append(f'{prefix} {json.dumps((k, val, literal_quote))}')\n",
+                "            else:\n",
+                "                lines.append(f'{prefix} {json.dumps((k,))}')\n",
+                "    else:\n",
+                "        def a(k: str, val: str = '', prefix: str = 'export') -> None:\n",
+                "            if val:\n",
+                "                lines.append(f'{prefix} {shlex.quote(k)}={quote_env_val(val, literal_quote)}')\n",
+                "            else:\n",
+                "                lines.append(f'{prefix} {shlex.quote(k)}')\n",
+                "\n",
+                "    for k, v in literal_env.items():\n",
+                "        a(k, v)\n",
+                "\n",
+                "    literal_quote = False\n",
+                "    for k in sorted(env):\n",
+                "        v = env[k]\n",
+                "        if v == DELETE_ENV_VAR:\n",
+                "            a(k, prefix='unset')\n",
+                "        elif v == '_kitty_copy_env_var_':\n",
+                "            q = base_env.get(k)\n",
+                "            if q is not None:\n",
+                "                a(k, q)\n",
+                "        else:\n",
+                "            a(k, v)\n",
+                "    return '\\n'.join(lines).encode('utf-8')\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "@run_once\n",
+                    "def kitty_opts() -> Options:\n",
+                    "    from kitty.cli import create_default_opts\n",
+                    "    with suppress_error_logging():\n",
+                    "        return create_default_opts()\n",
+                    "\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 112,
+                    "end": 119
+                },
+                "child_version_range": {
+                    "start": 112,
+                    "end": 112
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: kittens/ssh/main.py\nCode:\n  ...\n109 109        return '\\n'.join(lines).encode('utf-8')\n110 110    \n111 111    \n112      - @run_once\n113      - def kitty_opts() -> Options:\n114      -     from kitty.cli import create_default_opts\n115      -     with suppress_error_logging():\n116      -         return create_default_opts()\n117      - \n118      - \n119 112    def make_tarfile(ssh_opts: SSHOptions, base_env: Dict[str, str], compression: str = 'gz', literal_env: Dict[str, str] = {}) -> bytes:\n120 113    \n121 114        def normalize_tarinfo(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo:\n         ...\n",
+                "file_path": "kittens/ssh/main.py",
+                "identifiers_before": [
+                    "Options",
+                    "cli",
+                    "create_default_opts",
+                    "kitty",
+                    "kitty_opts",
+                    "run_once",
+                    "suppress_error_logging"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "    return '\\n'.join(lines).encode('utf-8')\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def make_tarfile(ssh_opts: SSHOptions, base_env: Dict[str, str], compression: str = 'gz', literal_env: Dict[str, str] = {}) -> bytes:\n",
+                    "\n",
+                    "    def normalize_tarinfo(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo:\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "Options",
+                            "position": {
+                                "start": {
+                                    "line": 113,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 113,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/ssh/main.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "suppress_error_logging",
+                            "position": {
+                                "start": {
+                                    "line": 115,
+                                    "column": 9
+                                },
+                                "end": {
+                                    "line": 115,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/ssh/main.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "def make_tarfile(ssh_opts: SSHOptions, base_env: Dict[str, str], compression: str = 'gz', literal_env: Dict[str, str] = {}) -> bytes:\n",
+                "\n",
+                "    def normalize_tarinfo(tarinfo: tarfile.TarInfo) -> tarfile.TarInfo:\n",
+                "        tarinfo.uname = tarinfo.gname = ''\n",
+                "        tarinfo.uid = tarinfo.gid = 0\n",
+                "        # some distro's like nix mess with installed file permissions so ensure\n",
+                "        # files are at least readable and writable by owning user\n",
+                "        tarinfo.mode |= stat.S_IWUSR | stat.S_IRUSR\n",
+                "        return tarinfo\n",
+                "\n",
+                "    def add_data_as_file(tf: tarfile.TarFile, arcname: str, data: Union[str, bytes]) -> tarfile.TarInfo:\n",
+                "        ans = tarfile.TarInfo(arcname)\n",
+                "        ans.mtime = 0\n",
+                "        ans.type = tarfile.REGTYPE\n",
+                "        if isinstance(data, str):\n",
+                "            data = data.encode('utf-8')\n",
+                "        ans.size = len(data)\n",
+                "        normalize_tarinfo(ans)\n",
+                "        tf.addfile(ans, io.BytesIO(data))\n",
+                "        return ans\n",
+                "\n",
+                "    def filter_from_globs(*pats: str) -> Callable[[tarfile.TarInfo], Optional[tarfile.TarInfo]]:\n",
+                "        def filter(tarinfo: tarfile.TarInfo) -> Optional[tarfile.TarInfo]:\n",
+                "            for junk_dir in ('.DS_Store', '__pycache__'):\n",
+                "                for pat in (f'*/{junk_dir}', f'*/{junk_dir}/*'):\n",
+                "                    if fnmatch.fnmatch(tarinfo.name, pat):\n",
+                "                        return None\n",
+                "            for pat in pats:\n",
+                "                if fnmatch.fnmatch(tarinfo.name, pat):\n",
+                "                    return None\n",
+                "            return normalize_tarinfo(tarinfo)\n",
+                "        return filter\n",
+                "\n",
+                "    from kitty.shell_integration import get_effective_ksi_env_var\n",
+                "    if ssh_opts.shell_integration == 'inherited':\n",
+                "        ksi = get_effective_ksi_env_var(kitty_opts())\n",
+                "    else:\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        from kitty.options.types import Options\n"
+                ],
+                "parent_version_range": {
+                    "start": 156,
+                    "end": 156
+                },
+                "child_version_range": {
+                    "start": 149,
+                    "end": 150
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if ssh_opts.shell_integration == 'inherited':",
+                        "start_line": 153,
+                        "end_line": 157
+                    },
+                    {
+                        "type": "else_clause",
+                        "statement": "else:",
+                        "start_line": 155,
+                        "end_line": 157
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "make_tarfile",
+                        "signature": "def make_tarfile(ssh_opts: SSHOptions, base_env: Dict[str, str], compression: str = 'gz', literal_env: Dict[str, str] = {})->bytes:",
+                        "at_line": 119
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: kittens/ssh/main.py\nCode:\n           def make_tarfile(ssh_opts: SSHOptions, base_env: Dict[str, str], compression: str = 'gz', literal_env: Dict[str, str] = {})->bytes:\n               ...\n153 146        if ssh_opts.shell_integration == 'inherited':\n154 147            ksi = get_effective_ksi_env_var(kitty_opts())\n155 148        else:\n    149  +         from kitty.options.types import Options\n156 150            from kitty.options.utils import shell_integration\n157 151            ksi = get_effective_ksi_env_var(Options({'shell_integration': shell_integration(ssh_opts.shell_integration)}))\n158 152    \n         ...\n",
+                "file_path": "kittens/ssh/main.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Options",
+                    "kitty",
+                    "options",
+                    "types"
+                ],
+                "prefix": [
+                    "    if ssh_opts.shell_integration == 'inherited':\n",
+                    "        ksi = get_effective_ksi_env_var(kitty_opts())\n",
+                    "    else:\n"
+                ],
+                "suffix": [
+                    "        from kitty.options.utils import shell_integration\n",
+                    "        ksi = get_effective_ksi_env_var(Options({'shell_integration': shell_integration(ssh_opts.shell_integration)}))\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        from kitty.options.utils import shell_integration\n",
+                "        ksi = get_effective_ksi_env_var(Options({'shell_integration': shell_integration(ssh_opts.shell_integration)}))\n",
+                "\n",
+                "    env = {\n",
+                "        'TERM': os.environ.get('TERM') or kitty_opts().term,\n",
+                "        'COLORTERM': 'truecolor',\n",
+                "    }\n",
+                "    env.update(ssh_opts.env)\n",
+                "    for q in ('KITTY_WINDOW_ID', 'WINDOWID'):\n",
+                "        val = os.environ.get(q)\n",
+                "        if val is not None:\n",
+                "            env[q] = val\n",
+                "    env['KITTY_SHELL_INTEGRATION'] = ksi or DELETE_ENV_VAR\n",
+                "    env['KITTY_SSH_KITTEN_DATA_DIR'] = ssh_opts.remote_dir\n",
+                "    if ssh_opts.login_shell:\n",
+                "        env['KITTY_LOGIN_SHELL'] = ssh_opts.login_shell\n",
+                "    if ssh_opts.cwd:\n",
+                "        env['KITTY_LOGIN_CWD'] = ssh_opts.cwd\n",
+                "    if ssh_opts.remote_kitty != 'no':\n",
+                "        env['KITTY_REMOTE'] = ssh_opts.remote_kitty\n",
+                "    env_script = serialize_env(literal_env, env, base_env, for_python=compression != 'gz')\n",
+                "    buf = io.BytesIO()\n",
+                "    with tarfile.open(mode=f'w:{compression}', fileobj=buf, encoding='utf-8') as tf:\n",
+                "        rd = ssh_opts.remote_dir.rstrip('/')\n",
+                "        for ci in ssh_opts.copy.values():\n",
+                "            tf.add(ci.local_path, arcname=ci.arcname, filter=filter_from_globs(*ci.exclude_patterns))\n",
+                "        add_data_as_file(tf, 'data.sh', env_script)\n",
+                "        if compression == 'gz':\n",
+                "            tf.add(f'{shell_integration_dir}/ssh/bootstrap-utils.sh', arcname='bootstrap-utils.sh', filter=normalize_tarinfo)\n",
+                "        if ksi:\n",
+                "            arcname = 'home/' + rd + '/shell-integration'\n",
+                "            tf.add(shell_integration_dir, arcname=arcname, filter=filter_from_globs(\n",
+                "                f'{arcname}/ssh/*',          # bootstrap files are sent as command line args\n",
+                "                f'{arcname}/zsh/kitty.zsh',  # present for legacy compat not needed by ssh kitten\n",
+                "            ))\n",
+                "        if ssh_opts.remote_kitty != 'no':\n",
+                "            arcname = 'home/' + rd + '/kitty'\n",
+                "            add_data_as_file(tf, arcname + '/version', str_version.encode('ascii'))\n",
+                "            tf.add(shell_integration_dir + '/ssh/kitty', arcname=arcname + '/bin/kitty', filter=normalize_tarinfo)\n",
+                "        tf.add(f'{terminfo_dir}/kitty.terminfo', arcname='home/.terminfo/kitty.terminfo', filter=normalize_tarinfo)\n",
+                "        tf.add(glob.glob(f'{terminfo_dir}/*/xterm-kitty')[0], arcname='home/.terminfo/x/xterm-kitty', filter=normalize_tarinfo)\n",
+                "    return buf.getvalue()\n",
+                "\n",
+                "\n",
+                "def get_ssh_data(msg: str, request_id: str) -> Iterator[bytes]:\n",
+                "    yield b'\\nKITTY_DATA_START\\n'  # to discard leading data\n",
+                "    try:\n",
+                "        msg = standard_b64decode(msg).decode('utf-8')\n",
+                "        md = dict(x.split('=', 1) for x in msg.split(':'))\n",
+                "        pw = md['pw']\n",
+                "        pwfilename = md['pwfile']\n",
+                "        rq_id = md['id']\n",
+                "    except Exception:\n",
+                "        traceback.print_exc()\n",
+                "        yield b'invalid ssh data request message\\n'\n",
+                "    else:\n",
+                "        try:\n",
+                "            env_data = read_data_from_shared_memory(pwfilename)\n",
+                "            if pw != env_data['pw']:\n",
+                "                raise ValueError('Incorrect password')\n",
+                "            if rq_id != request_id:\n",
+                "                raise ValueError('Incorrect request id')\n",
+                "        except Exception as e:\n",
+                "            traceback.print_exc()\n",
+                "            yield f'{e}\\n'.encode('utf-8')\n",
+                "        else:\n",
+                "            yield b'OK\\n'\n",
+                "            ssh_opts = SSHOptions(env_data['opts'])\n",
+                "            ssh_opts.copy = {k: CopyInstruction(*v) for k, v in ssh_opts.copy.items()}\n",
+                "            encoded_data = memoryview(env_data['tarfile'].encode('ascii'))\n",
+                "            # macOS has a 255 byte limit on its input queue as per man stty.\n",
+                "            # Not clear if that applies to canonical mode input as well, but\n",
+                "            # better to be safe.\n",
+                "            line_sz = 254\n",
+                "            while encoded_data:\n",
+                "                yield encoded_data[:line_sz]\n",
+                "                yield b'\\n'\n",
+                "                encoded_data = encoded_data[line_sz:]\n",
+                "            yield b'KITTY_DATA_END\\n'\n",
+                "\n",
+                "\n",
+                "def safe_remove(x: str) -> None:\n",
+                "    with suppress(OSError):\n",
+                "        os.remove(x)\n",
+                "\n",
+                "\n",
+                "def prepare_script(ans: str, replacements: Dict[str, str], script_type: str) -> str:\n",
+                "    for k in ('EXEC_CMD', 'EXPORT_HOME_CMD'):\n",
+                "        replacements[k] = replacements.get(k, '')\n",
+                "\n",
+                "    def sub(m: 're.Match[str]') -> str:\n",
+                "        return replacements[m.group()]\n",
+                "\n",
+                "    return re.sub('|'.join(fr'\\b{k}\\b' for k in replacements), sub, ans)\n",
+                "\n",
+                "\n",
+                "def prepare_exec_cmd(remote_args: Sequence[str], is_python: bool) -> str:\n",
+                "    # ssh simply concatenates multiple commands using a space see\n",
+                "    # line 1129 of ssh.c and on the remote side sshd.c runs the\n",
+                "    # concatenated command as shell -c cmd\n",
+                "    if is_python:\n",
+                "        return standard_b64encode(' '.join(remote_args).encode('utf-8')).decode('ascii')\n",
+                "    args = ' '.join(c.replace(\"'\", \"\"\"'\"'\"'\"\"\") for c in remote_args)\n",
+                "    return f\"\"\"unset KITTY_SHELL_INTEGRATION; exec \"$login_shell\" -c '{args}'\"\"\"\n",
+                "\n",
+                "\n",
+                "def prepare_export_home_cmd(ssh_opts: SSHOptions, is_python: bool) -> str:\n",
+                "    home = ssh_opts.env.get('HOME')\n",
+                "    if home == '_kitty_copy_env_var_':\n",
+                "        home = os.environ.get('HOME')\n",
+                "    if home:\n",
+                "        if is_python:\n",
+                "            return standard_b64encode(home.encode('utf-8')).decode('ascii')\n",
+                "        else:\n",
+                "            return f'export HOME={quote_env_val(home)}; cd \"$HOME\"'\n",
+                "    return ''\n",
+                "\n",
+                "\n",
+                "def bootstrap_script(\n",
+                "    ssh_opts: SSHOptions, script_type: str = 'sh', remote_args: Sequence[str] = (),\n",
+                "    test_script: str = '', request_id: Optional[str] = None, cli_hostname: str = '', cli_uname: str = '',\n",
+                "    request_data: bool = False, echo_on: bool = True, literal_env: Dict[str, str] = {}\n",
+                ") -> Tuple[str, Dict[str, str], str]:\n",
+                "    if request_id is None:\n",
+                "        request_id = os.environ['KITTY_PID'] + '-' + os.environ['KITTY_WINDOW_ID']\n",
+                "    is_python = script_type == 'py'\n",
+                "    export_home_cmd = prepare_export_home_cmd(ssh_opts, is_python) if 'HOME' in ssh_opts.env else ''\n",
+                "    exec_cmd = prepare_exec_cmd(remote_args, is_python) if remote_args else ''\n",
+                "    with open(os.path.join(shell_integration_dir, 'ssh', f'bootstrap.{script_type}')) as f:\n",
+                "        ans = f.read()\n",
+                "    pw = secrets.token_hex()\n",
+                "    tfd = standard_b64encode(make_tarfile(ssh_opts, dict(os.environ), 'gz' if script_type == 'sh' else 'bz2', literal_env=literal_env)).decode('ascii')\n",
+                "    data = {'pw': pw, 'opts': ssh_opts._asdict(), 'hostname': cli_hostname, 'uname': cli_uname, 'tarfile': tfd}\n",
+                "    shm_name = create_shared_memory(data, prefix=f'kssh-{os.getpid()}-')\n",
+                "    sensitive_data = {'REQUEST_ID': request_id, 'DATA_PASSWORD': pw, 'PASSWORD_FILENAME': shm_name}\n",
+                "    replacements = {\n",
+                "        'EXPORT_HOME_CMD': export_home_cmd,\n",
+                "        'EXEC_CMD': exec_cmd, 'TEST_SCRIPT': test_script,\n",
+                "        'REQUEST_DATA': '1' if request_data else '0', 'ECHO_ON': '1' if echo_on else '0',\n",
+                "    }\n",
+                "    sd = replacements.copy()\n",
+                "    if request_data:\n",
+                "        sd.update(sensitive_data)\n",
+                "    replacements.update(sensitive_data)\n",
+                "    return prepare_script(ans, sd, script_type), replacements, shm_name\n",
+                "\n",
+                "\n",
+                "def get_ssh_cli() -> Tuple[Set[str], Set[str]]:\n",
+                "    other_ssh_args: Set[str] = set()\n",
+                "    boolean_ssh_args: Set[str] = set()\n",
+                "    for k, v in ssh_options().items():\n",
+                "        k = f'-{k}'\n",
+                "        if v:\n",
+                "            other_ssh_args.add(k)\n",
+                "        else:\n",
+                "            boolean_ssh_args.add(k)\n",
+                "    return boolean_ssh_args, other_ssh_args\n",
+                "\n",
+                "\n",
+                "def is_extra_arg(arg: str, extra_args: Tuple[str, ...]) -> str:\n",
+                "    for x in extra_args:\n",
+                "        if arg == x or arg.startswith(f'{x}='):\n",
+                "            return x\n",
+                "    return ''\n",
+                "\n",
+                "\n",
+                "def get_connection_data(args: List[str], cwd: str = '', extra_args: Tuple[str, ...] = ()) -> Optional[SSHConnectionData]:\n",
+                "    boolean_ssh_args, other_ssh_args = get_ssh_cli()\n",
+                "    port: Optional[int] = None\n",
+                "    expecting_port = expecting_identity = False\n",
+                "    expecting_option_val = False\n",
+                "    expecting_hostname = False\n",
+                "    expecting_extra_val = ''\n",
+                "    host_name = identity_file = found_ssh = ''\n",
+                "    found_extra_args: List[Tuple[str, str]] = []\n",
+                "\n",
+                "    for i, arg in enumerate(args):\n",
+                "        if not found_ssh:\n",
+                "            if os.path.basename(arg).lower() in ('ssh', 'ssh.exe'):\n",
+                "                found_ssh = arg\n",
+                "            continue\n",
+                "        if expecting_hostname:\n",
+                "            host_name = arg\n",
+                "            continue\n",
+                "        if arg.startswith('-') and not expecting_option_val:\n",
+                "            if arg in boolean_ssh_args:\n",
+                "                continue\n",
+                "            if arg == '--':\n",
+                "                expecting_hostname = True\n",
+                "            if arg.startswith('-p'):\n",
+                "                if arg[2:].isdigit():\n",
+                "                    with suppress(Exception):\n",
+                "                        port = int(arg[2:])\n",
+                "                    continue\n",
+                "                elif arg == '-p':\n",
+                "                    expecting_port = True\n",
+                "            elif arg.startswith('-i'):\n",
+                "                if arg == '-i':\n",
+                "                    expecting_identity = True\n",
+                "                else:\n",
+                "                    identity_file = arg[2:]\n",
+                "                    continue\n",
+                "            if arg.startswith('--') and extra_args:\n",
+                "                matching_ex = is_extra_arg(arg, extra_args)\n",
+                "                if matching_ex:\n",
+                "                    if '=' in arg:\n",
+                "                        exval = arg.partition('=')[-1]\n",
+                "                        found_extra_args.append((matching_ex, exval))\n",
+                "                        continue\n",
+                "                    expecting_extra_val = matching_ex\n",
+                "\n",
+                "            expecting_option_val = True\n",
+                "            continue\n",
+                "\n",
+                "        if expecting_option_val:\n",
+                "            if expecting_port:\n",
+                "                with suppress(Exception):\n",
+                "                    port = int(arg)\n",
+                "                expecting_port = False\n",
+                "            elif expecting_identity:\n",
+                "                identity_file = arg\n",
+                "            elif expecting_extra_val:\n",
+                "                found_extra_args.append((expecting_extra_val, arg))\n",
+                "                expecting_extra_val = ''\n",
+                "            expecting_option_val = False\n",
+                "            continue\n",
+                "\n",
+                "        if not host_name:\n",
+                "            host_name = arg\n",
+                "    if not host_name:\n",
+                "        return None\n",
+                "    if host_name.startswith('ssh://'):\n",
+                "        from urllib.parse import urlparse\n",
+                "        purl = urlparse(host_name)\n",
+                "        if purl.hostname:\n",
+                "            host_name = purl.hostname\n",
+                "        if purl.username:\n",
+                "            host_name = f'{purl.username}@{host_name}'\n",
+                "        if port is None and purl.port:\n",
+                "            port = purl.port\n",
+                "    if identity_file:\n",
+                "        if not os.path.isabs(identity_file):\n",
+                "            identity_file = os.path.expanduser(identity_file)\n",
+                "        if not os.path.isabs(identity_file):\n",
+                "            identity_file = os.path.normpath(os.path.join(cwd or os.getcwd(), identity_file))\n",
+                "\n",
+                "    return SSHConnectionData(found_ssh, host_name, port, identity_file, tuple(found_extra_args))\n",
+                "\n",
+                "\n",
+                "class InvalidSSHArgs(ValueError):\n",
+                "\n",
+                "    def __init__(self, msg: str = ''):\n",
+                "        super().__init__(msg)\n",
+                "        self.err_msg = msg\n",
+                "\n",
+                "    def system_exit(self) -> None:\n",
+                "        if self.err_msg:\n",
+                "            print(self.err_msg, file=sys.stderr)\n",
+                "        os.execlp(ssh_exe(), 'ssh')\n",
+                "\n",
+                "\n",
+                "def parse_ssh_args(args: List[str], extra_args: Tuple[str, ...] = ()) -> Tuple[List[str], List[str], bool, Tuple[str, ...]]:\n",
+                "    boolean_ssh_args, other_ssh_args = get_ssh_cli()\n",
+                "    passthrough_args = {f'-{x}' for x in 'NnfG'}\n",
+                "    ssh_args = []\n",
+                "    server_args: List[str] = []\n",
+                "    expecting_option_val = False\n",
+                "    passthrough = False\n",
+                "    stop_option_processing = False\n",
+                "    found_extra_args: List[str] = []\n",
+                "    expecting_extra_val = ''\n",
+                "    for argument in args:\n",
+                "        if len(server_args) > 1 or stop_option_processing:\n",
+                "            server_args.append(argument)\n",
+                "            continue\n",
+                "        if argument.startswith('-') and not expecting_option_val:\n",
+                "            if argument == '--':\n",
+                "                stop_option_processing = True\n",
+                "                continue\n",
+                "            if extra_args:\n",
+                "                matching_ex = is_extra_arg(argument, extra_args)\n",
+                "                if matching_ex:\n",
+                "                    if '=' in argument:\n",
+                "                        exval = argument.partition('=')[-1]\n",
+                "                        found_extra_args.extend((matching_ex, exval))\n",
+                "                    else:\n",
+                "                        expecting_extra_val = matching_ex\n",
+                "                        expecting_option_val = True\n",
+                "                    continue\n",
+                "            # could be a multi-character option\n",
+                "            all_args = argument[1:]\n",
+                "            for i, arg in enumerate(all_args):\n",
+                "                arg = f'-{arg}'\n",
+                "                if arg in passthrough_args:\n",
+                "                    passthrough = True\n",
+                "                if arg in boolean_ssh_args:\n",
+                "                    ssh_args.append(arg)\n",
+                "                    continue\n",
+                "                if arg in other_ssh_args:\n",
+                "                    ssh_args.append(arg)\n",
+                "                    rest = all_args[i+1:]\n",
+                "                    if rest:\n",
+                "                        ssh_args.append(rest)\n",
+                "                    else:\n",
+                "                        expecting_option_val = True\n",
+                "                    break\n",
+                "                raise InvalidSSHArgs(f'unknown option -- {arg[1:]}')\n",
+                "            continue\n",
+                "        if expecting_option_val:\n",
+                "            if expecting_extra_val:\n",
+                "                found_extra_args.extend((expecting_extra_val, argument))\n",
+                "                expecting_extra_val = ''\n",
+                "            else:\n",
+                "                ssh_args.append(argument)\n",
+                "            expecting_option_val = False\n",
+                "            continue\n",
+                "        server_args.append(argument)\n",
+                "    if not server_args:\n",
+                "        raise InvalidSSHArgs()\n",
+                "    return ssh_args, server_args, passthrough, tuple(found_extra_args)\n",
+                "\n",
+                "\n",
+                "def wrap_bootstrap_script(sh_script: str, interpreter: str) -> List[str]:\n",
+                "    # sshd will execute the command we pass it by join all command line\n",
+                "    # arguments with a space and passing it as a single argument to the users\n",
+                "    # login shell with -c. If the user has a non POSIX login shell it might\n",
+                "    # have different escaping semantics and syntax, so the command it should\n",
+                "    # execute has to be as simple as possible, basically of the form\n",
+                "    # interpreter -c unwrap_script escaped_bootstrap_script\n",
+                "    # The unwrap_script is responsible for unescaping the bootstrap script and\n",
+                "    # executing it.\n",
+                "    q = os.path.basename(interpreter).lower()\n",
+                "    is_python = 'python' in q\n",
+                "    if is_python:\n",
+                "        es = standard_b64encode(sh_script.encode('utf-8')).decode('ascii')\n",
+                "        unwrap_script = '''\"import base64, sys; eval(compile(base64.standard_b64decode(sys.argv[-1]), 'bootstrap.py', 'exec'))\"'''\n",
+                "    else:\n",
+                "        # We cant rely on base64 being available on the remote system, so instead\n",
+                "        # we quote the bootstrap script by replacing ' and \\ with \\v and \\f\n",
+                "        # also replacing \\n and ! with \\r and \\b for tcsh\n",
+                "        # finally surrounding with '\n",
+                "        es = \"'\" + sh_script.replace(\"'\", '\\v').replace('\\\\', '\\f').replace('\\n', '\\r').replace('!', '\\b') + \"'\"\n",
+                "        unwrap_script = r\"\"\"'eval \"$(echo \"$0\" | tr \\\\\\v\\\\\\f\\\\\\r\\\\\\b \\\\\\047\\\\\\134\\\\\\n\\\\\\041)\"' \"\"\"\n",
+                "    # exec is supported by all sh like shells, and fish and csh\n",
+                "    return ['exec', interpreter, '-c', unwrap_script, es]\n",
+                "\n",
+                "\n",
+                "def get_remote_command(\n",
+                "    remote_args: List[str], ssh_opts: SSHOptions, cli_hostname: str = '', cli_uname: str = '',\n",
+                "    echo_on: bool = True, request_data: bool = False, literal_env: Dict[str, str] = {}\n",
+                ") -> Tuple[List[str], Dict[str, str], str]:\n",
+                "    interpreter = ssh_opts.interpreter\n",
+                "    q = os.path.basename(interpreter).lower()\n",
+                "    is_python = 'python' in q\n",
+                "    sh_script, replacements, shm_name = bootstrap_script(\n",
+                "        ssh_opts, script_type='py' if is_python else 'sh', remote_args=remote_args, literal_env=literal_env,\n",
+                "        cli_hostname=cli_hostname, cli_uname=cli_uname, echo_on=echo_on, request_data=request_data)\n",
+                "    return wrap_bootstrap_script(sh_script, interpreter), replacements, shm_name\n",
+                "\n",
+                "\n",
+                "def connection_sharing_args(opts: SSHOptions, kitty_pid: int) -> List[str]:\n",
+                "    rd = runtime_dir()\n",
+                "    # Bloody OpenSSH generates a 40 char hash and in creating the socket\n",
+                "    # appends a 27 char temp suffix to it. Socket max path length is approx\n",
+                "    # ~104 chars. macOS has no system runtime dir so we use a cache dir in\n",
+                "    # /Users/WHY_DOES_ANYONE_USE_MACOS/Library/Caches/APPLE_ARE_IDIOTIC\n",
+                "    if len(rd) > 35 and os.path.isdir('/tmp'):\n",
+                "        idiotic_design = f'/tmp/kssh-rdir-{os.getuid()}'\n",
+                "        try:\n",
+                "            os.symlink(rd, idiotic_design)\n",
+                "        except FileExistsError:\n",
+                "            try:\n",
+                "                dest = os.readlink(idiotic_design)\n",
+                "            except OSError as e:\n",
+                "                raise ValueError(f'The {idiotic_design} symlink could not be created as something with that name exists already') from e\n",
+                "            else:\n",
+                "                if dest != rd:\n",
+                "                    with tempfile.TemporaryDirectory(dir='/tmp') as tdir:\n",
+                "                        tlink = os.path.join(tdir, 'sigh')\n",
+                "                        os.symlink(rd, tlink)\n",
+                "                        os.rename(tlink, idiotic_design)\n",
+                "        rd = idiotic_design\n",
+                "\n",
+                "    cp = os.path.join(rd, ssh_control_master_template.format(kitty_pid=kitty_pid, ssh_placeholder='%C'))\n",
+                "    ans: List[str] = [\n",
+                "        '-o', 'ControlMaster=auto',\n",
+                "        '-o', f'ControlPath={cp}',\n",
+                "        '-o', 'ControlPersist=yes',\n",
+                "        '-o', 'ServerAliveInterval=60',\n",
+                "        '-o', 'ServerAliveCountMax=5',\n",
+                "        '-o', 'TCPKeepAlive=no',\n",
+                "    ]\n",
+                "    return ans\n",
+                "\n",
+                "\n",
+                "@contextmanager\n",
+                "def restore_terminal_state() -> Iterator[bool]:\n",
+                "    with open(os.ctermid()) as f:\n",
+                "        val = termios.tcgetattr(f.fileno())\n",
+                "        try:\n",
+                "            yield bool(val[3] & termios.ECHO)\n",
+                "        finally:\n",
+                "            termios.tcsetattr(f.fileno(), termios.TCSAFLUSH, val)\n",
+                "\n",
+                "\n",
+                "def dcs_to_kitty(payload: Union[bytes, str], type: str = 'ssh') -> bytes:\n",
+                "    if isinstance(payload, str):\n",
+                "        payload = payload.encode('utf-8')\n",
+                "    payload = standard_b64encode(payload)\n",
+                "    return b'\\033P@kitty-' + type.encode('ascii') + b'|' + payload + b'\\033\\\\'\n",
+                "\n",
+                "\n",
+                "@run_once\n",
+                "def ssh_version() -> Tuple[int, int]:\n",
+                "    o = subprocess.check_output([ssh_exe(), '-V'], stderr=subprocess.STDOUT).decode()\n",
+                "    m = re.match(r'OpenSSH_(\\d+).(\\d+)', o)\n",
+                "    if m is None:\n",
+                "        raise ValueError(f'Invalid version string for OpenSSH: {o}')\n",
+                "    return int(m.group(1)), int(m.group(2))\n",
+                "\n",
+                "\n",
+                "@contextmanager\n",
+                "def drain_potential_tty_garbage(p: 'subprocess.Popen[bytes]', data_request: str) -> Iterator[None]:\n",
+                "    ssh_started_at = time.monotonic()\n",
+                "    with open(os.open(os.ctermid(), os.O_CLOEXEC | os.O_RDWR | os.O_NOCTTY), 'wb') as tty:\n",
+                "        if data_request:\n",
+                "            turn_off_echo(tty.fileno())\n",
+                "            tty.write(dcs_to_kitty(data_request))\n",
+                "            tty.flush()\n",
+                "        try:\n",
+                "            yield\n",
+                "        finally:\n",
+                "            if p.returncode and time.monotonic() - ssh_started_at < 30:\n",
+                "                # discard queued input data on tty in case data transmission was\n",
+                "                # interrupted due to SSH failure, avoids spewing garbage to\n",
+                "                # screen\n",
+                "                data = b''\n",
+                "                give_up_at = time.monotonic() + 1\n",
+                "                tty_fd = tty.fileno()\n",
+                "                while time.monotonic() < give_up_at and b'KITTY_DATA_END' not in data:\n",
+                "                    rd, wr, err = select([tty_fd], [], [tty_fd], max(0, give_up_at - time.monotonic()))\n",
+                "                    if err or not rd:\n",
+                "                        break\n",
+                "                    q = os.read(tty_fd, io.DEFAULT_BUFFER_SIZE)\n",
+                "                    if not q:\n",
+                "                        break\n",
+                "                    data += q\n",
+                "\n",
+                "\n",
+                "def change_colors(color_scheme: str) -> bool:\n",
+                "    if not color_scheme:\n",
+                "        return False\n",
+                "    from kittens.themes.collection import (\n",
+                "        NoCacheFound, load_themes, text_as_opts\n",
+                "    )\n",
+                "    from kittens.themes.main import colors_as_escape_codes\n",
+                "    if color_scheme.endswith('.conf'):\n",
+                "        conf_file = resolve_abs_or_config_path(color_scheme)\n",
+                "        try:\n",
+                "            with open(conf_file) as f:\n",
+                "                opts = text_as_opts(f.read())\n",
+                "        except FileNotFoundError:\n",
+                "            raise SystemExit(f'Failed to find the color conf file: {expandvars(conf_file)}')\n",
+                "    else:\n",
+                "        try:\n",
+                "            themes = load_themes(-1)\n",
+                "        except NoCacheFound:\n",
+                "            themes = load_themes()\n",
+                "        cs = expandvars(color_scheme)\n",
+                "        try:\n",
+                "            theme = themes[cs]\n",
+                "        except KeyError:\n",
+                "            raise SystemExit(f'Failed to find the color theme: {cs}')\n",
+                "        opts = theme.kitty_opts\n",
+                "    raw = colors_as_escape_codes(opts)\n",
+                "    print(save_colors(), sep='', end=raw, flush=True)\n",
+                "    return True\n",
+                "\n",
+                "\n",
+                "def add_cloned_env(shm_name: str) -> Dict[str, str]:\n",
+                "    try:\n",
+                "        return cast(Dict[str, str], read_data_from_shared_memory(shm_name))\n",
+                "    except FileNotFoundError:\n",
+                "        pass\n",
+                "    return {}\n",
+                "\n",
+                "\n",
+                "def run_ssh(ssh_args: List[str], server_args: List[str], found_extra_args: Tuple[str, ...]) -> NoReturn:\n",
+                "    cmd = [ssh_exe()] + ssh_args\n",
+                "    hostname, remote_args = server_args[0], server_args[1:]\n",
+                "    if not remote_args:\n",
+                "        cmd.append('-t')\n",
+                "    insertion_point = len(cmd)\n",
+                "    cmd.append('--')\n",
+                "    cmd.append(hostname)\n",
+                "    uname = getuser()\n",
+                "    if hostname.startswith('ssh://'):\n",
+                "        from urllib.parse import urlparse\n",
+                "        purl = urlparse(hostname)\n",
+                "        hostname_for_match = purl.hostname or hostname[6:].split('/', 1)[0]\n",
+                "        uname = purl.username or uname\n",
+                "    elif '@' in hostname and hostname[0] != '@':\n",
+                "        uname, hostname_for_match = hostname.split('@', 1)\n",
+                "    else:\n",
+                "        hostname_for_match = hostname\n",
+                "    hostname_for_match = hostname_for_match.split('@', 1)[-1].split(':', 1)[0]\n",
+                "    overrides: List[str] = []\n",
+                "    literal_env: Dict[str, str] = {}\n",
+                "    pat = re.compile(r'^([a-zA-Z0-9_]+)[ \\t]*=')\n",
+                "    for i, a in enumerate(found_extra_args):\n",
+                "        if i % 2 == 1:\n",
+                "            aq = pat.sub(r'\\1 ', a.lstrip())\n",
+                "            key = aq.split(maxsplit=1)[0]\n",
+                "            if key == 'clone_env':\n",
+                "                literal_env = add_cloned_env(aq.split(maxsplit=1)[1])\n",
+                "            elif key != 'hostname':\n",
+                "                overrides.append(aq)\n",
+                "    if overrides:\n",
+                "        overrides.insert(0, f'hostname {uname}@{hostname_for_match}')\n",
+                "    host_opts = init_config(hostname_for_match, uname, overrides)\n",
+                "    if host_opts.share_connections:\n",
+                "        cmd[insertion_point:insertion_point] = connection_sharing_args(host_opts, int(os.environ['KITTY_PID']))\n",
+                "    use_kitty_askpass = host_opts.askpass == 'native' or (host_opts.askpass == 'unless-set' and 'SSH_ASKPASS' not in os.environ)\n",
+                "    need_to_request_data = True\n",
+                "    if use_kitty_askpass:\n",
+                "        sentinel = os.path.join(cache_dir(), 'openssh-is-new-enough-for-askpass')\n",
+                "        sentinel_exists = os.path.exists(sentinel)\n",
+                "        if sentinel_exists or ssh_version() >= (8, 4):\n",
+                "            if not sentinel_exists:\n",
+                "                open(sentinel, 'w').close()\n",
+                "            # SSH_ASKPASS_REQUIRE was introduced in 8.4 release on 2020-09-27\n",
+                "            need_to_request_data = False\n",
+                "            os.environ['SSH_ASKPASS_REQUIRE'] = 'force'\n",
+                "        os.environ['SSH_ASKPASS'] = os.path.join(shell_integration_dir, 'ssh', 'askpass.py')\n",
+                "    if need_to_request_data and host_opts.share_connections:\n",
+                "        cp = subprocess.run(cmd[:1] + ['-O', 'check'] + cmd[1:], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)\n",
+                "        if cp.returncode == 0:\n",
+                "            # we will use the master connection so SSH does not need to use the tty\n",
+                "            need_to_request_data = False\n",
+                "    with restore_terminal_state() as echo_on:\n",
+                "        rcmd, replacements, shm_name = get_remote_command(\n",
+                "            remote_args, host_opts, hostname_for_match, uname, echo_on, request_data=need_to_request_data, literal_env=literal_env)\n",
+                "        cmd += rcmd\n",
+                "        colors_changed = change_colors(host_opts.color_scheme)\n",
+                "        try:\n",
+                "            p = subprocess.Popen(cmd)\n",
+                "        except FileNotFoundError:\n",
+                "            raise SystemExit('Could not find the ssh executable, is it in your PATH?')\n",
+                "        else:\n",
+                "            rq = '' if need_to_request_data else 'id={REQUEST_ID}:pwfile={PASSWORD_FILENAME}:pw={DATA_PASSWORD}'.format(**replacements)\n",
+                "            with drain_potential_tty_garbage(p, rq):\n",
+                "                try:\n",
+                "                    raise SystemExit(p.wait())\n",
+                "                except KeyboardInterrupt:\n",
+                "                    raise SystemExit(1)\n",
+                "        finally:\n",
+                "            if colors_changed:\n",
+                "                print(end=restore_colors(), flush=True)\n",
+                "\n",
+                "\n",
+                "def main(args: List[str]) -> NoReturn:\n",
+                "    args = args[1:]\n",
+                "    if args and args[0] == 'use-python':\n",
+                "        args = args[1:]  # backwards compat from when we had a python implementation\n",
+                "    try:\n",
+                "        ssh_args, server_args, passthrough, found_extra_args = parse_ssh_args(args, extra_args=('--kitten',))\n",
+                "    except InvalidSSHArgs as e:\n",
+                "        e.system_exit()\n",
+                "    if not os.environ.get('KITTY_WINDOW_ID') or not os.environ.get('KITTY_PID'):\n",
+                "        raise SystemExit('The SSH kitten is meant to run inside a kitty window')\n",
+                "    if passthrough:\n",
+                "        raise SystemExit('The SSH kitten is meant for interactive use via SSH only')\n",
+                "    if not sys.stdin.isatty():\n",
+                "        raise SystemExit('The SSH kitten is meant for interactive use only, STDIN must be a terminal')\n",
+                "    run_ssh(ssh_args, server_args, found_extra_args)\n",
+                "\n",
+                "\n",
+                "if __name__ == '__main__':\n",
+                "    main(sys.argv)\n",
+                "elif __name__ == '__completer__':\n",
+                "    from .completion import complete\n",
+                "    setattr(sys, 'kitten_completer', complete)\n",
+                "elif __name__ == '__conf__':\n",
+                "    from .options.definition import definition\n",
+                "    sys.options_definition = definition  # type: ignore"
+            ]
+        ],
+        "kittens/tui/utils.py": [
+            [
+                "#!/usr/bin/env python\n",
+                "# License: GPLv3 Copyright: 2020, Kovid Goyal <kovid at kovidgoyal.net>\n",
+                "\n",
+                "import sys\n",
+                "from contextlib import suppress\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from typing import Tuple\n"
+                ],
+                "after": [
+                    "from typing import TYPE_CHECKING, Tuple\n",
+                    "\n",
+                    "from kitty.types import run_once\n"
+                ],
+                "parent_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 5,
+                "hunk_diff": "File: kittens/tui/utils.py\nCode:\n  ...\n 2  2    \n 3  3    import sys\n 4  4    from contextlib import suppress\n 5     - from typing import Tuple\n    5  + from typing import TYPE_CHECKING, Tuple\n    6  + \n    7  + from kitty.types import run_once\n 6  8    \n 7  9    from .operations import raw_mode, set_cursor_visible\n 8 10    \n       ...\n",
+                "file_path": "kittens/tui/utils.py",
+                "identifiers_before": [
+                    "Tuple",
+                    "typing"
+                ],
+                "identifiers_after": [
+                    "TYPE_CHECKING",
+                    "Tuple",
+                    "kitty",
+                    "run_once",
+                    "types",
+                    "typing"
+                ],
+                "prefix": [
+                    "\n",
+                    "import sys\n",
+                    "from contextlib import suppress\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "from .operations import raw_mode, set_cursor_visible\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "TYPE_CHECKING",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "run_once",
+                            "position": {
+                                "start": {
+                                    "line": 7,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 7,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "from .operations import raw_mode, set_cursor_visible\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "if TYPE_CHECKING:\n",
+                    "    from kitty.options.types import Options\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 9,
+                    "end": 9
+                },
+                "child_version_range": {
+                    "start": 11,
+                    "end": 14
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: kittens/tui/utils.py\nCode:\n  ...\n 6  8    \n 7  9    from .operations import raw_mode, set_cursor_visible\n 8 10    \n   11  + if TYPE_CHECKING:\n   12  +     from kitty.options.types import Options\n   13  + \n 9 14    \n10 15    def get_key_press(allowed: str, default: str) -> str:\n11 16        response = default\n       ...\n",
+                "file_path": "kittens/tui/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Options",
+                    "TYPE_CHECKING",
+                    "kitty",
+                    "options",
+                    "types"
+                ],
+                "prefix": [
+                    "\n",
+                    "from .operations import raw_mode, set_cursor_visible\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "def get_key_press(allowed: str, default: str) -> str:\n",
+                    "    response = default\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "TYPE_CHECKING",
+                            "position": {
+                                "start": {
+                                    "line": 11,
+                                    "column": 3
+                                },
+                                "end": {
+                                    "line": 11,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "Options",
+                            "position": {
+                                "start": {
+                                    "line": 12,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 12,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "def get_key_press(allowed: str, default: str) -> str:\n",
+                "    response = default\n",
+                "    with raw_mode():\n",
+                "        print(set_cursor_visible(False), end='', flush=True)\n",
+                "        try:\n",
+                "            while True:\n",
+                "                q = sys.stdin.buffer.read(1)\n",
+                "                if q:\n",
+                "                    if q in b'\\x1b\\x03':\n",
+                "                        break\n",
+                "                    with suppress(Exception):\n",
+                "                        response = q.decode('utf-8').lower()\n",
+                "                        if response in allowed:\n",
+                "                            break\n",
+                "        except (KeyboardInterrupt, EOFError):\n",
+                "            pass\n",
+                "        finally:\n",
+                "            print(set_cursor_visible(True), end='', flush=True)\n",
+                "    return response\n",
+                "\n",
+                "\n",
+                "def format_number(val: float, max_num_of_decimals: int = 2) -> str:\n",
+                "    ans = str(val)\n",
+                "    pos = ans.find('.')\n",
+                "    if pos > -1:\n",
+                "        ans = ans[:pos + max_num_of_decimals + 1]\n",
+                "    return ans.rstrip('0').rstrip('.')\n",
+                "\n",
+                "\n",
+                "def human_size(\n",
+                "    size: int, sep: str = ' ',\n",
+                "    max_num_of_decimals: int = 2,\n",
+                "    unit_list: Tuple[str, ...] = ('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB')\n",
+                ") -> str:\n",
+                "    \"\"\" Convert a size in bytes into a human readable form \"\"\"\n",
+                "    if size < 2:\n",
+                "        return f'{size}{sep}{unit_list[0]}'\n",
+                "    from math import log\n",
+                "    exponent = min(int(log(size, 1024)), len(unit_list) - 1)\n",
+                "    return format_number(size / 1024**exponent, max_num_of_decimals) + sep + unit_list[exponent]\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "@run_once\n",
+                    "def kitty_opts() -> Options:\n",
+                    "    from kitty.cli import create_default_opts\n",
+                    "    from kitty.utils import suppress_error_logging\n",
+                    "    with suppress_error_logging():\n",
+                    "        return create_default_opts()\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 52,
+                    "end": 52
+                },
+                "child_version_range": {
+                    "start": 57,
+                    "end": 65
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 7,
+                "hunk_diff": "File: kittens/tui/utils.py\nCode:\n  ...\n49 54        return format_number(size / 1024**exponent, max_num_of_decimals) + sep + unit_list[exponent]\n50 55    \n51 56    \n   57  + @run_once\n   58  + def kitty_opts() -> Options:\n   59  +     from kitty.cli import create_default_opts\n   60  +     from kitty.utils import suppress_error_logging\n   61  +     with suppress_error_logging():\n   62  +         return create_default_opts()\n   63  + \n   64  + \n52 65    def report_error(msg: str = '', return_code: int = 1, print_exc: bool = False) -> None:\n53 66        ' Report an error also sending the overlay ready message to ensure kitten is visible '\n54 67        from .operations import overlay_ready\n       ...\n",
+                "file_path": "kittens/tui/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Options",
+                    "cli",
+                    "create_default_opts",
+                    "kitty",
+                    "kitty_opts",
+                    "run_once",
+                    "suppress_error_logging",
+                    "utils"
+                ],
+                "prefix": [
+                    "    return format_number(size / 1024**exponent, max_num_of_decimals) + sep + unit_list[exponent]\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "def report_error(msg: str = '', return_code: int = 1, print_exc: bool = False) -> None:\n",
+                    "    ' Report an error also sending the overlay ready message to ensure kitten is visible '\n",
+                    "    from .operations import overlay_ready\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "Options",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "run_once",
+                            "position": {
+                                "start": {
+                                    "line": 57,
+                                    "column": 1
+                                },
+                                "end": {
+                                    "line": 57,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "kitty_opts",
+                            "position": {
+                                "start": {
+                                    "line": 58,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 58,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/kitty/kittens/tui/utils.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "def report_error(msg: str = '', return_code: int = 1, print_exc: bool = False) -> None:\n",
+                "    ' Report an error also sending the overlay ready message to ensure kitten is visible '\n",
+                "    from .operations import overlay_ready\n",
+                "    print(end=overlay_ready())\n",
+                "    if msg:\n",
+                "        print(msg, file=sys.stderr)\n",
+                "    if print_exc:\n",
+                "        cls, e, tb = sys.exc_info()\n",
+                "        if e and not isinstance(e, (SystemExit, KeyboardInterrupt)):\n",
+                "            import traceback\n",
+                "            traceback.print_exc()\n",
+                "    with suppress(KeyboardInterrupt, EOFError):\n",
+                "        input('Press Enter to quit')\n",
+                "    raise SystemExit(return_code)\n",
+                "\n",
+                "\n",
+                "def report_unhandled_error(msg: str = '') -> None:\n",
+                "    ' Report an unhandled exception with the overlay ready message '\n",
+                "    return report_error(msg, print_exc=True)"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            3,
+            7,
+            6,
+            5,
+            2,
+            1,
+            0,
+            4
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                7,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "edit 0 uses the decorator `run_once` first, then imports it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the decorator `run_once` first, then uses it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "edit 0 uses the decorator `TYPE_CHECKING` first, then imports it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the decorator `TYPE_CHECKING` first, then uses it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "positional",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then edit 1 afterwards.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then edit 0 afterwards."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "0 before 1",
+            "reason": "Cut and paste to another location",
+            "scenario of 0 -> 1": "Edit 0 removes existing import and shift it in another location with edit 1.",
+            "scenario of 1 -> 0": ""
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                7
+            ],
+            "edit_order": "0 before 1",
+            "reason": "cut-paste",
+            "scenario of 0 -> 1": "Edit 0 removes existing import and shift it in another location with edit 1.",
+            "scenario of 1 -> 0": ""
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of kitty_opts",
+            "scenario of 0 -> 1": "import before define",
+            "scenario of 1 -> 0": "define before import"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of Options",
+            "scenario of 0 -> 1": "delete import before delete usage",
+            "scenario of 1 -> 0": "delete usage before delete import"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of suppress_error_logging",
+            "scenario of 0 -> 1": "delete import before delete usage",
+            "scenario of 1 -> 0": "delete usage before delete import"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "moving kitty_ops() meanwhile import it",
+            "scenario of 0 -> 1": "move before import",
+            "scenario of 1 -> 0": "import before move"
+        }
+    ]
+}

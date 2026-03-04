@@ -1,0 +1,247 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use the newly defined constant UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - the ADMINISTRATORS_GROUP_NAME constant. After defining the constant in Edit 0, using it in Edit 1 becomes the immediate next step to replace the hardcoded string. This is a classic definition-usage pattern where both edits reference the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use the newly defined constant UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - the ADMINISTRATORS_GROUP_NAME constant. After defining the constant in Edit 0, using it in Edit 1 becomes the immediate next step to replace the hardcoded string. This is a classic definition-usage pattern where both edits reference the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', and Edit 1 replaces the hardcoded string '@role:administrators' with a reference to the newly defined ADMINISTRATORS_GROUP_NAME constant. The changed lines reference the exact same symbol (ADMINISTRATORS_GROUP_NAME), creating a direct definition-usage relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - either defining the constant to replace the hardcoded string, or using the constant once it's defined. Both edits can be parsed and staged in either order without syntax errors."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', and Edit 1 replaces the hardcoded string '@role:administrators' with a reference to the newly defined ADMINISTRATORS_GROUP_NAME constant. The changed lines reference the exact same symbol (ADMINISTRATORS_GROUP_NAME), creating a direct definition-usage relationship. After making either edit, the other becomes the immediate next step to maintain code consistency - either defining the constant to replace the hardcoded string, or using the constant once it's defined. Both edits can be parsed and staged in either order without syntax errors."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits replace the hardcoded string '@role:administrators' with the constant ADMINISTRATORS_GROUP_NAME/UserGroup.ADMINISTRATORS_GROUP_NAME. Edit 0 changes the definition in the UserGroup model where the constant is being assigned, while Edit 1 changes the usage in a test that references this same constant. The changed lines in both edits reference the exact same symbol (the administrators group name), making this a bi-directional relationship where either edit naturally prompts the other as part of a single refactoring task to replace hardcoded strings with named constants."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits replace the hardcoded string '@role:administrators' with the constant ADMINISTRATORS_GROUP_NAME/UserGroup.ADMINISTRATORS_GROUP_NAME. Edit 0 changes the definition in the UserGroup model where the constant is being assigned, while Edit 1 changes the usage in a test that references this same constant. The changed lines in both edits reference the exact same symbol (the administrators group name), making this a bi-directional relationship where either edit naturally prompts the other as part of a single refactoring task to replace hardcoded strings with named constants."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use the newly defined constant UserGroup.ADMINISTRATORS_GROUP_NAME. Both edits reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - one defines it and the other uses it. This creates an immediate code dependency where defining the constant enables its usage in the test file. However, since this is Python, the usage can be written and parsed before the definition exists (it would only fail at runtime with a NameError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use the newly defined constant UserGroup.ADMINISTRATORS_GROUP_NAME. Both edits reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - one defines it and the other uses it. This creates an immediate code dependency where defining the constant enables its usage in the test file. However, since this is Python, the usage can be written and parsed before the definition exists (it would only fail at runtime with a NameError), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol - they are replacing the hardcoded string '@role:administrators' with the constant ADMINISTRATORS_GROUP_NAME/UserGroup.ADMINISTRATORS_GROUP_NAME. Edit 0 changes the definition/assignment of the name field in the UserGroup model, while Edit 1 updates the usage of that same name value in a test. This creates a direct code dependency where both edits are part of the same refactoring to replace a magic string with a named constant. Either edit can be made first since both involve referencing the same logical symbol (the administrators group name), and making either edit would prompt the other as the next mechanical step to complete the refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol - they are replacing the hardcoded string '@role:administrators' with the constant ADMINISTRATORS_GROUP_NAME/UserGroup.ADMINISTRATORS_GROUP_NAME. Edit 0 changes the definition/assignment of the name field in the UserGroup model, while Edit 1 updates the usage of that same name value in a test. This creates a direct code dependency where both edits are part of the same refactoring to replace a magic string with a named constant. Either edit can be made first since both involve referencing the same logical symbol (the administrators group name), and making either edit would prompt the other as the next mechanical step to complete the refactoring."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME in the UserGroup class, while Edit 1 replaces a hardcoded string '@role:administrators' with a reference to UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - UserGroup.ADMINISTRATORS_GROUP_NAME. After making either edit, the other becomes the immediate next step: if you define the constant first, you'd naturally want to use it to replace the hardcoded string; if you try to use the constant first, you'd need to define it. Both edits can be parsed and staged in either order (the usage would just cause a runtime AttributeError if the constant doesn't exist yet), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME in the UserGroup class, while Edit 1 replaces a hardcoded string '@role:administrators' with a reference to UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - UserGroup.ADMINISTRATORS_GROUP_NAME. After making either edit, the other becomes the immediate next step: if you define the constant first, you'd naturally want to use it to replace the hardcoded string; if you try to use the constant first, you'd need to define it. Both edits can be parsed and staged in either order (the usage would just cause a runtime AttributeError if the constant doesn't exist yet), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators' in the UserGroup model. Edit 1 changes a test to use this newly defined constant instead of the hardcoded string '@role:administrators'. The changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - edit 0 defines it and edit 1 uses it. This creates an immediate code-driven dependency where after defining the constant, the natural next step is to replace hardcoded usages with the constant reference. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators' in the UserGroup model. Edit 1 changes a test to use this newly defined constant instead of the hardcoded string '@role:administrators'. The changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - edit 0 defines it and edit 1 uses it. This creates an immediate code-driven dependency where after defining the constant, the natural next step is to replace hardcoded usages with the constant reference. Both edits can be staged in either order since Python allows referencing undefined attributes at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - UserGroup.ADMINISTRATORS_GROUP_NAME. After making either edit, the other becomes the immediate next step: if you define the constant first, you'd naturally want to use it to replace hardcoded strings; if you try to use the constant first, you'd need to define it. Both edits can be parsed and staged in either order (the usage would just cause a runtime AttributeError if the constant doesn't exist yet, but no parse-time syntax error)."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol - UserGroup.ADMINISTRATORS_GROUP_NAME. After making either edit, the other becomes the immediate next step: if you define the constant first, you'd naturally want to use it to replace hardcoded strings; if you try to use the constant first, you'd need to define it. Both edits can be parsed and staged in either order (the usage would just cause a runtime AttributeError if the constant doesn't exist yet, but no parse-time syntax error)."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - one defines it and the other uses it. This creates an immediate code-driven relationship where defining the constant naturally prompts replacing hardcoded strings with the constant reference, or vice versa. Both edits can be staged in either order without parser errors (the usage would just reference an undefined attribute until the definition is added), making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 defines a new class constant ADMINISTRATORS_GROUP_NAME with the value '@role:administrators', while Edit 1 changes a hardcoded string '@role:administrators' to use UserGroup.ADMINISTRATORS_GROUP_NAME. The changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) - one defines it and the other uses it. This creates an immediate code-driven relationship where defining the constant naturally prompts replacing hardcoded strings with the constant reference, or vice versa. Both edits can be staged in either order without parser errors (the usage would just reference an undefined attribute until the definition is added), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions, replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring pattern applied to the same type of syntactic construct (string literals referencing the same system group name). Both edits are part of a single refactoring effort to replace hardcoded strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions, replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring pattern applied to the same type of syntactic construct (string literals referencing the same system group name). Both edits are part of a single refactoring effort to replace hardcoded strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform textual substitution pattern where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and perform identical before\u2192after transformations ('@role:administrators' \u2192 UserGroup.ADMINISTRATORS_GROUP_NAME). This appears to be part of a single refactoring operation to replace hardcoded strings with named constants across the codebase. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform textual substitution pattern where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and perform identical before\u2192after transformations ('@role:administrators' \u2192 UserGroup.ADMINISTRATORS_GROUP_NAME). This appears to be part of a single refactoring operation to replace hardcoded strings with named constants across the codebase. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits replace the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a bulk uniform substitution pattern where both edits perform the identical textual substitution (same before\u2192after pattern) and target the same type of syntactic construct (string literals referencing the same system group). The edits are part of a single refactoring operation to replace hardcoded strings with named constants across the codebase. Either edit can be made first, and after making either one, the other becomes a natural continuation of the same refactoring pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits replace the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a bulk uniform substitution pattern where both edits perform the identical textual substitution (same before\u2192after pattern) and target the same type of syntactic construct (string literals referencing the same system group). The edits are part of a single refactoring operation to replace hardcoded strings with named constants across the codebase. Either edit can be made first, and after making either one, the other becomes a natural continuation of the same refactoring pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitution, replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring pattern applied to the same type of syntactic construct (string literals referencing the same system group). The edits are part of a single refactoring sweep to replace hardcoded group names with named constants, creating a mirrored substitution pattern where either edit naturally prompts the other as part of the same contiguous refactoring task."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitution, replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring pattern applied to the same type of syntactic construct (string literals referencing the same system group). The edits are part of a single refactoring sweep to replace hardcoded group names with named constants, creating a mirrored substitution pattern where either edit naturally prompts the other as part of the same contiguous refactoring task."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and apply the same before\u2192after transformation pattern. The edits target the same type of syntactic construct (string literals in function calls) and appear to be part of a single, contiguous refactor to replace hardcoded strings with named constants. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and apply the same before\u2192after transformation pattern. The edits target the same type of syntactic construct (string literals in function calls) and appear to be part of a single, contiguous refactor to replace hardcoded strings with named constants. Either edit can be made first, and after making either one, the other becomes an immediate, mechanically obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and follow the same before\u2192after pattern on the same type of syntactic construct (UserGroup.objects.get calls with name parameter). This represents a single, contiguous refactor to replace magic strings with named constants."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and follow the same before\u2192after pattern on the same type of syntactic construct (UserGroup.objects.get calls with name parameter). This represents a single, contiguous refactor to replace magic strings with named constants."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and apply the same before\u2192after pattern to the same type of syntactic construct (string literals in UserGroup.objects.get() calls). Both edits are part of a single contiguous refactor to replace hardcoded role names with constants, making either edit naturally prompt the other as the next mechanical step in the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and apply the same before\u2192after pattern to the same type of syntactic construct (string literals in UserGroup.objects.get() calls). Both edits are part of a single contiguous refactor to replace hardcoded role names with constants, making either edit naturally prompt the other as the next mechanical step in the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (string literals in UserGroup.objects.get() calls). Both edits are part of a single, contiguous refactor to replace hardcoded role group names with named constants. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the consistent substitution pattern across the codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (string literals in UserGroup.objects.get() calls). Both edits are part of a single, contiguous refactor to replace hardcoded role group names with named constants. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the consistent substitution pattern across the codebase."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and represent a single, contiguous refactor to eliminate hardcoded strings in favor of a named constant. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and represent a single, contiguous refactor to eliminate hardcoded strings in favor of a named constant. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a clear bulk refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single, contiguous refactor to replace hardcoded strings with named constants, and either edit could be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a clear bulk refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single, contiguous refactor to replace hardcoded strings with named constants, and either edit could be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (method calls with string parameters). Both edits reference the exact same constant and perform the same structural change, making this a clear case of bulk-edit pattern synchronization that would naturally occur in a single contiguous refactoring sweep."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (method calls with string parameters). Both edits reference the exact same constant and perform the same structural change, making this a clear case of bulk-edit pattern synchronization that would naturally occur in a single contiguous refactoring sweep."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single contiguous refactor to replace magic strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single contiguous refactor to replace magic strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and follow the same before\u2192after pattern on the same type of syntactic construct (UserGroup.objects.get name parameter). Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the consistent refactoring across the codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where both changed lines reference the exact same symbol (UserGroup.ADMINISTRATORS_GROUP_NAME) and follow the same before\u2192after pattern on the same type of syntactic construct (UserGroup.objects.get name parameter). Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the consistent refactoring across the codebase."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string \"@role:administrators\" with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single contiguous refactor to replace magic strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string \"@role:administrators\" with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get calls with name parameter). Both edits are part of a single contiguous refactor to replace magic strings with named constants, and either edit can be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get() method calls with name parameter). Both edits are part of a single contiguous refactor to replace hardcoded group names with named constants, and either edit could be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing the hardcoded string '@role:administrators' with the constant UserGroup.ADMINISTRATORS_GROUP_NAME in UserGroup.objects.get() calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (UserGroup.objects.get() method calls with name parameter). Both edits are part of a single contiguous refactor to replace hardcoded group names with named constants, and either edit could be made first as they are independent substitutions of the same pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

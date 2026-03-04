@@ -1,0 +1,1342 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/django/django/commit/2bc43ccbdb28b9d87da172ef119ff3b48e6ff71a",
+    "commit_message": "Removed redundant RemoteTestResultTest._test_error_exc_info() test hook.",
+    "commit_snapshots": {
+        "tests/test_runner/test_parallel.py": [
+            [
+                "import pickle\n",
+                "import sys\n",
+                "import unittest\n",
+                "from unittest.case import TestCase\n",
+                "from unittest.result import TestResult\n",
+                "from unittest.suite import TestSuite, _ErrorHolder\n",
+                "\n",
+                "from django.test import SimpleTestCase\n",
+                "from django.test.runner import ParallelTestSuite, RemoteTestResult\n",
+                "from django.utils.version import PY311, PY312\n",
+                "\n",
+                "try:\n",
+                "    import tblib.pickling_support\n",
+                "except ImportError:\n",
+                "    tblib = None\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "def _test_error_exc_info():\n",
+                    "    try:\n",
+                    "        raise ValueError(\"woops\")\n",
+                    "    except ValueError:\n",
+                    "        return sys.exc_info()\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 17
+                },
+                "child_version_range": {
+                    "start": 17,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n  ...\n14 14        tblib = None\n15 15    \n16 16    \n   17  + def _test_error_exc_info():\n   18  +     try:\n   19  +         raise ValueError(\"woops\")\n   20  +     except ValueError:\n   21  +         return sys.exc_info()\n   22  + \n   23  + \n17 24    class ExceptionThatFailsUnpickling(Exception):\n18 25        \"\"\"\n19 26        After pickling, this class fails unpickling with an error about incorrect\n       ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "ValueError",
+                    "_test_error_exc_info",
+                    "exc_info",
+                    "sys"
+                ],
+                "prefix": [
+                    "    tblib = None\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "class ExceptionThatFailsUnpickling(Exception):\n",
+                    "    \"\"\"\n",
+                    "    After pickling, this class fails unpickling with an error about incorrect\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "class ExceptionThatFailsUnpickling(Exception):\n",
+                "    \"\"\"\n",
+                "    After pickling, this class fails unpickling with an error about incorrect\n",
+                "    arguments passed to __init__().\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, arg):\n",
+                "        super().__init__()\n",
+                "\n",
+                "\n",
+                "class ParallelTestRunnerTest(SimpleTestCase):\n",
+                "    \"\"\"\n",
+                "    End-to-end tests of the parallel test runner.\n",
+                "\n",
+                "    These tests are only meaningful when running tests in parallel using\n",
+                "    the --parallel option, though it doesn't hurt to run them not in\n",
+                "    parallel.\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def test_subtest(self):\n",
+                "        \"\"\"\n",
+                "        Passing subtests work.\n",
+                "        \"\"\"\n",
+                "        for i in range(2):\n",
+                "            with self.subTest(index=i):\n",
+                "                self.assertEqual(i, i)\n",
+                "\n",
+                "\n",
+                "class SampleFailingSubtest(SimpleTestCase):\n",
+                "    # This method name doesn't begin with \"test\" to prevent test discovery\n",
+                "    # from seeing it.\n",
+                "    def dummy_test(self):\n",
+                "        \"\"\"\n",
+                "        A dummy test for testing subTest failures.\n",
+                "        \"\"\"\n",
+                "        for i in range(3):\n",
+                "            with self.subTest(index=i):\n",
+                "                self.assertEqual(i, 1)\n",
+                "\n",
+                "    # This method name doesn't begin with \"test\" to prevent test discovery\n",
+                "    # from seeing it.\n",
+                "    def pickle_error_test(self):\n",
+                "        with self.subTest(\"TypeError: cannot pickle memoryview object\"):\n",
+                "            self.x = memoryview(b\"\")\n",
+                "            self.fail(\"expected failure\")\n",
+                "\n",
+                "\n",
+                "class SampleErrorTest(SimpleTestCase):\n",
+                "    @classmethod\n",
+                "    def setUpClass(cls):\n",
+                "        raise ValueError(\"woops\")\n",
+                "        super().setUpClass()\n",
+                "\n",
+                "    # This method name doesn't begin with \"test\" to prevent test discovery\n",
+                "    # from seeing it.\n",
+                "    def dummy_test(self):\n",
+                "        raise AssertionError(\"SampleErrorTest.dummy_test() was called\")\n",
+                "\n",
+                "\n",
+                "class RemoteTestResultTest(SimpleTestCase):\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "    def _test_error_exc_info(self):\n",
+                    "        try:\n",
+                    "            raise ValueError(\"woops\")\n",
+                    "        except ValueError:\n",
+                    "            return sys.exc_info()\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 77,
+                    "end": 83
+                },
+                "child_version_range": {
+                    "start": 84,
+                    "end": 84
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RemoteTestResultTest",
+                        "signature": "class RemoteTestResultTest(SimpleTestCase):",
+                        "at_line": 76
+                    },
+                    {
+                        "type": "function",
+                        "name": "_test_error_exc_info",
+                        "signature": "def _test_error_exc_info(self):",
+                        "at_line": 77
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n74 81    \n75 82    \n76 83    class RemoteTestResultTest(SimpleTestCase):\n77     -     def _test_error_exc_info(self):\n78     -         try:\n79     -             raise ValueError(\"woops\")\n80     -         except ValueError:\n81     -             return sys.exc_info()\n82     - \n83 84        def test_was_successful_no_events(self):\n84 85            result = RemoteTestResult()\n85 86            self.assertIs(result.wasSuccessful(), True)\n       ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "ValueError",
+                    "_test_error_exc_info",
+                    "exc_info",
+                    "self",
+                    "sys"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "\n",
+                    "class RemoteTestResultTest(SimpleTestCase):\n"
+                ],
+                "suffix": [
+                    "    def test_was_successful_no_events(self):\n",
+                    "        result = RemoteTestResult()\n",
+                    "        self.assertIs(result.wasSuccessful(), True)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 77,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 77,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "    def test_was_successful_no_events(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        self.assertIs(result.wasSuccessful(), True)\n",
+                "\n",
+                "    def test_was_successful_one_success(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test = None\n",
+                "        result.startTest(test)\n",
+                "        try:\n",
+                "            result.addSuccess(test)\n",
+                "        finally:\n",
+                "            result.stopTest(test)\n",
+                "        self.assertIs(result.wasSuccessful(), True)\n",
+                "\n",
+                "    def test_was_successful_one_expected_failure(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test = None\n",
+                "        result.startTest(test)\n",
+                "        try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            result.addExpectedFailure(test, self._test_error_exc_info())\n"
+                ],
+                "after": [
+                    "            result.addExpectedFailure(test, _test_error_exc_info())\n"
+                ],
+                "parent_version_range": {
+                    "start": 102,
+                    "end": 103
+                },
+                "child_version_range": {
+                    "start": 103,
+                    "end": 104
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 101,
+                        "end_line": 104
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RemoteTestResultTest",
+                        "signature": "class RemoteTestResultTest(SimpleTestCase):",
+                        "at_line": 76
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_was_successful_one_expected_failure",
+                        "signature": "def test_was_successful_one_expected_failure(self):",
+                        "at_line": 97
+                    },
+                    {
+                        "type": "call",
+                        "name": "result.addExpectedFailure",
+                        "signature": "result.addExpectedFailure(test, self._test_error_exc_info())",
+                        "at_line": 102,
+                        "argument": "test"
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n           class RemoteTestResultTest(SimpleTestCase):\n               ...\n               def test_was_successful_one_expected_failure(self):\n                   ...\n 99 100            test = None\n100 101            result.startTest(test)\n101 102            try:\n102      -             result.addExpectedFailure(test, self._test_error_exc_info())\n    103  +             result.addExpectedFailure(test, _test_error_exc_info())\n103 104            finally:\n104 105                result.stopTest(test)\n105 106            self.assertIs(result.wasSuccessful(), True)\n         ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "_test_error_exc_info",
+                    "addExpectedFailure",
+                    "result",
+                    "self",
+                    "test"
+                ],
+                "identifiers_after": [
+                    "_test_error_exc_info",
+                    "addExpectedFailure",
+                    "result",
+                    "test"
+                ],
+                "prefix": [
+                    "        test = None\n",
+                    "        result.startTest(test)\n",
+                    "        try:\n"
+                ],
+                "suffix": [
+                    "        finally:\n",
+                    "            result.stopTest(test)\n",
+                    "        self.assertIs(result.wasSuccessful(), True)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 102,
+                                    "column": 49
+                                },
+                                "end": {
+                                    "line": 102,
+                                    "column": 69
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 103,
+                                    "column": 44
+                                },
+                                "end": {
+                                    "line": 103,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    3,
+                    4,
+                    5
+                ]
+            },
+            [
+                "        finally:\n",
+                "            result.stopTest(test)\n",
+                "        self.assertIs(result.wasSuccessful(), True)\n",
+                "\n",
+                "    def test_was_successful_one_skip(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test = None\n",
+                "        result.startTest(test)\n",
+                "        try:\n",
+                "            result.addSkip(test, \"Skipped\")\n",
+                "        finally:\n",
+                "            result.stopTest(test)\n",
+                "        self.assertIs(result.wasSuccessful(), True)\n",
+                "\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_was_successful_one_error(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test = None\n",
+                "        result.startTest(test)\n",
+                "        try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            result.addError(test, self._test_error_exc_info())\n"
+                ],
+                "after": [
+                    "            result.addError(test, _test_error_exc_info())\n"
+                ],
+                "parent_version_range": {
+                    "start": 123,
+                    "end": 124
+                },
+                "child_version_range": {
+                    "start": 124,
+                    "end": 125
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 122,
+                        "end_line": 125
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RemoteTestResultTest",
+                        "signature": "class RemoteTestResultTest(SimpleTestCase):",
+                        "at_line": 76
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_was_successful_one_error",
+                        "signature": "def test_was_successful_one_error(self):",
+                        "at_line": 118
+                    },
+                    {
+                        "type": "call",
+                        "name": "result.addError",
+                        "signature": "result.addError(test, self._test_error_exc_info())",
+                        "at_line": 123,
+                        "argument": "test"
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n           class RemoteTestResultTest(SimpleTestCase):\n               ...\n               def test_was_successful_one_error(self):\n                   ...\n120 121            test = None\n121 122            result.startTest(test)\n122 123            try:\n123      -             result.addError(test, self._test_error_exc_info())\n    124  +             result.addError(test, _test_error_exc_info())\n124 125            finally:\n125 126                result.stopTest(test)\n126 127            self.assertIs(result.wasSuccessful(), False)\n         ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "_test_error_exc_info",
+                    "addError",
+                    "result",
+                    "self",
+                    "test"
+                ],
+                "identifiers_after": [
+                    "_test_error_exc_info",
+                    "addError",
+                    "result",
+                    "test"
+                ],
+                "prefix": [
+                    "        test = None\n",
+                    "        result.startTest(test)\n",
+                    "        try:\n"
+                ],
+                "suffix": [
+                    "        finally:\n",
+                    "            result.stopTest(test)\n",
+                    "        self.assertIs(result.wasSuccessful(), False)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 39
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 59
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 124,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 124,
+                                    "column": 54
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    4,
+                    5
+                ]
+            },
+            [
+                "        finally:\n",
+                "            result.stopTest(test)\n",
+                "        self.assertIs(result.wasSuccessful(), False)\n",
+                "\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_was_successful_one_failure(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test = None\n",
+                "        result.startTest(test)\n",
+                "        try:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            result.addFailure(test, self._test_error_exc_info())\n"
+                ],
+                "after": [
+                    "            result.addFailure(test, _test_error_exc_info())\n"
+                ],
+                "parent_version_range": {
+                    "start": 134,
+                    "end": 135
+                },
+                "child_version_range": {
+                    "start": 135,
+                    "end": 136
+                },
+                "control_flow": [
+                    {
+                        "type": "try_statement",
+                        "statement": "try:",
+                        "start_line": 133,
+                        "end_line": 136
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RemoteTestResultTest",
+                        "signature": "class RemoteTestResultTest(SimpleTestCase):",
+                        "at_line": 76
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_was_successful_one_failure",
+                        "signature": "def test_was_successful_one_failure(self):",
+                        "at_line": 129
+                    },
+                    {
+                        "type": "call",
+                        "name": "result.addFailure",
+                        "signature": "result.addFailure(test, self._test_error_exc_info())",
+                        "at_line": 134,
+                        "argument": "test"
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n           class RemoteTestResultTest(SimpleTestCase):\n               ...\n               def test_was_successful_one_failure(self):\n                   ...\n131 132            test = None\n132 133            result.startTest(test)\n133 134            try:\n134      -             result.addFailure(test, self._test_error_exc_info())\n    135  +             result.addFailure(test, _test_error_exc_info())\n135 136            finally:\n136 137                result.stopTest(test)\n137 138            self.assertIs(result.wasSuccessful(), False)\n         ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "_test_error_exc_info",
+                    "addFailure",
+                    "result",
+                    "self",
+                    "test"
+                ],
+                "identifiers_after": [
+                    "_test_error_exc_info",
+                    "addFailure",
+                    "result",
+                    "test"
+                ],
+                "prefix": [
+                    "        test = None\n",
+                    "        result.startTest(test)\n",
+                    "        try:\n"
+                ],
+                "suffix": [
+                    "        finally:\n",
+                    "            result.stopTest(test)\n",
+                    "        self.assertIs(result.wasSuccessful(), False)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 134,
+                                    "column": 41
+                                },
+                                "end": {
+                                    "line": 134,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 135,
+                                    "column": 36
+                                },
+                                "end": {
+                                    "line": 135,
+                                    "column": 56
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    3,
+                    5
+                ]
+            },
+            [
+                "        finally:\n",
+                "            result.stopTest(test)\n",
+                "        self.assertIs(result.wasSuccessful(), False)\n",
+                "\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_add_error_before_first_test(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        test_id = \"test_foo (tests.test_foo.FooTest.test_foo)\"\n",
+                "        test = _ErrorHolder(test_id)\n",
+                "        # Call addError() without a call to startTest().\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        result.addError(test, self._test_error_exc_info())\n"
+                ],
+                "after": [
+                    "        result.addError(test, _test_error_exc_info())\n"
+                ],
+                "parent_version_range": {
+                    "start": 145,
+                    "end": 146
+                },
+                "child_version_range": {
+                    "start": 146,
+                    "end": 147
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "RemoteTestResultTest",
+                        "signature": "class RemoteTestResultTest(SimpleTestCase):",
+                        "at_line": 76
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_add_error_before_first_test",
+                        "signature": "def test_add_error_before_first_test(self):",
+                        "at_line": 140
+                    },
+                    {
+                        "type": "call",
+                        "name": "result.addError",
+                        "signature": "result.addError(test, self._test_error_exc_info())",
+                        "at_line": 145,
+                        "argument": "test"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n           class RemoteTestResultTest(SimpleTestCase):\n               ...\n               def test_add_error_before_first_test(self):\n                   ...\n142 143            test_id = \"test_foo (tests.test_foo.FooTest.test_foo)\"\n143 144            test = _ErrorHolder(test_id)\n144 145            # Call addError() without a call to startTest().\n145      -         result.addError(test, self._test_error_exc_info())\n    146  +         result.addError(test, _test_error_exc_info())\n146 147    \n147 148            (event,) = result.events\n148 149            self.assertEqual(event[0], \"addError\")\n         ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "_test_error_exc_info",
+                    "addError",
+                    "result",
+                    "self",
+                    "test"
+                ],
+                "identifiers_after": [
+                    "_test_error_exc_info",
+                    "addError",
+                    "result",
+                    "test"
+                ],
+                "prefix": [
+                    "        test_id = \"test_foo (tests.test_foo.FooTest.test_foo)\"\n",
+                    "        test = _ErrorHolder(test_id)\n",
+                    "        # Call addError() without a call to startTest().\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        (event,) = result.events\n",
+                    "        self.assertEqual(event[0], \"addError\")\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 145,
+                                    "column": 35
+                                },
+                                "end": {
+                                    "line": 145,
+                                    "column": 55
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "_test_error_exc_info",
+                            "position": {
+                                "start": {
+                                    "line": 146,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 146,
+                                    "column": 50
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/django/tests/test_runner/test_parallel.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2,
+                    3,
+                    4
+                ]
+            },
+            [
+                "\n",
+                "        (event,) = result.events\n",
+                "        self.assertEqual(event[0], \"addError\")\n",
+                "        self.assertEqual(event[1], -1)\n",
+                "        self.assertEqual(event[2], test_id)\n",
+                "        (error_type, _, _) = event[3]\n",
+                "        self.assertEqual(error_type, ValueError)\n",
+                "        self.assertIs(result.wasSuccessful(), False)\n",
+                "\n",
+                "    def test_picklable(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        loaded_result = pickle.loads(pickle.dumps(result))\n",
+                "        self.assertEqual(result.events, loaded_result.events)\n",
+                "\n",
+                "    def test_pickle_errors_detection(self):\n",
+                "        picklable_error = RuntimeError(\"This is fine\")\n",
+                "        not_unpicklable_error = ExceptionThatFailsUnpickling(\"arg\")\n",
+                "\n",
+                "        result = RemoteTestResult()\n",
+                "        result._confirm_picklable(picklable_error)\n",
+                "\n",
+                "        msg = \"__init__() missing 1 required positional argument\"\n",
+                "        with self.assertRaisesMessage(TypeError, msg):\n",
+                "            result._confirm_picklable(not_unpicklable_error)\n",
+                "\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_unpicklable_subtest(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        subtest_test = SampleFailingSubtest(methodName=\"pickle_error_test\")\n",
+                "        subtest_test.run(result=result)\n",
+                "\n",
+                "        events = result.events\n",
+                "        subtest_event = events[1]\n",
+                "        assertion_error = subtest_event[3]\n",
+                "        self.assertEqual(str(assertion_error[1]), \"expected failure\")\n",
+                "\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_add_failing_subtests(self):\n",
+                "        \"\"\"\n",
+                "        Failing subtests are added correctly using addSubTest().\n",
+                "        \"\"\"\n",
+                "        # Manually run a test with failing subtests to prevent the failures\n",
+                "        # from affecting the actual test run.\n",
+                "        result = RemoteTestResult()\n",
+                "        subtest_test = SampleFailingSubtest(methodName=\"dummy_test\")\n",
+                "        subtest_test.run(result=result)\n",
+                "\n",
+                "        events = result.events\n",
+                "        # addDurations added in Python 3.12.\n",
+                "        if PY312:\n",
+                "            self.assertEqual(len(events), 5)\n",
+                "        else:\n",
+                "            self.assertEqual(len(events), 4)\n",
+                "        self.assertIs(result.wasSuccessful(), False)\n",
+                "\n",
+                "        event = events[1]\n",
+                "        self.assertEqual(event[0], \"addSubTest\")\n",
+                "        self.assertEqual(\n",
+                "            str(event[2]),\n",
+                "            \"dummy_test (test_runner.test_parallel.SampleFailingSubtest%s) (index=0)\"\n",
+                "            # Python 3.11 uses fully qualified test name in the output.\n",
+                "            % (\".dummy_test\" if PY311 else \"\"),\n",
+                "        )\n",
+                "        self.assertEqual(repr(event[3][1]), \"AssertionError('0 != 1')\")\n",
+                "\n",
+                "        event = events[2]\n",
+                "        self.assertEqual(repr(event[3][1]), \"AssertionError('2 != 1')\")\n",
+                "\n",
+                "    @unittest.skipUnless(PY312, \"unittest --durations option requires Python 3.12\")\n",
+                "    def test_add_duration(self):\n",
+                "        result = RemoteTestResult()\n",
+                "        result.addDuration(None, 2.3)\n",
+                "        self.assertEqual(result.collectedDurations, [(\"None\", 2.3)])\n",
+                "\n",
+                "\n",
+                "class ParallelTestSuiteTest(SimpleTestCase):\n",
+                "    @unittest.skipUnless(tblib is not None, \"requires tblib to be installed\")\n",
+                "    def test_handle_add_error_before_first_test(self):\n",
+                "        dummy_subsuites = []\n",
+                "        pts = ParallelTestSuite(dummy_subsuites, processes=2)\n",
+                "        result = TestResult()\n",
+                "        remote_result = RemoteTestResult()\n",
+                "        test = SampleErrorTest(methodName=\"dummy_test\")\n",
+                "        suite = TestSuite([test])\n",
+                "        suite.run(remote_result)\n",
+                "        for event in remote_result.events:\n",
+                "            pts.handle_event(result, tests=list(suite), event=event)\n",
+                "\n",
+                "        self.assertEqual(len(result.errors), 1)\n",
+                "        actual_test, tb_and_details_str = result.errors[0]\n",
+                "        self.assertIsInstance(actual_test, _ErrorHolder)\n",
+                "        self.assertEqual(\n",
+                "            actual_test.id(), \"setUpClass (test_runner.test_parallel.SampleErrorTest)\"\n",
+                "        )\n",
+                "        self.assertIn(\"Traceback (most recent call last):\", tb_and_details_str)\n",
+                "        self.assertIn(\"ValueError: woops\", tb_and_details_str)\n",
+                "\n",
+                "    def test_handle_add_error_during_test(self):\n",
+                "        dummy_subsuites = []\n",
+                "        pts = ParallelTestSuite(dummy_subsuites, processes=2)\n",
+                "        result = TestResult()\n",
+                "        test = TestCase()\n",
+                "        err = _test_error_exc_info()\n",
+                "        event = (\"addError\", 0, err)\n",
+                "        pts.handle_event(result, tests=[test], event=event)\n",
+                "\n",
+                "        self.assertEqual(len(result.errors), 1)\n",
+                "        actual_test, tb_and_details_str = result.errors[0]\n",
+                "        self.assertIsInstance(actual_test, TestCase)\n",
+                "        self.assertEqual(actual_test.id(), \"unittest.case.TestCase.runTest\")\n",
+                "        self.assertIn(\"Traceback (most recent call last):\", tb_and_details_str)\n",
+                "        self.assertIn(\"ValueError: woops\", tb_and_details_str)\n",
+                "\n",
+                "    def test_handle_add_failure(self):\n",
+                "        dummy_subsuites = []\n",
+                "        pts = ParallelTestSuite(dummy_subsuites, processes=2)\n",
+                "        result = TestResult()\n",
+                "        test = TestCase()\n",
+                "        err = _test_error_exc_info()\n",
+                "        event = (\"addFailure\", 0, err)\n",
+                "        pts.handle_event(result, tests=[test], event=event)\n",
+                "\n",
+                "        self.assertEqual(len(result.failures), 1)\n",
+                "        actual_test, tb_and_details_str = result.failures[0]\n",
+                "        self.assertIsInstance(actual_test, TestCase)\n",
+                "        self.assertEqual(actual_test.id(), \"unittest.case.TestCase.runTest\")\n",
+                "        self.assertIn(\"Traceback (most recent call last):\", tb_and_details_str)\n",
+                "        self.assertIn(\"ValueError: woops\", tb_and_details_str)\n",
+                "\n",
+                "    def test_handle_add_success(self):\n",
+                "        dummy_subsuites = []\n",
+                "        pts = ParallelTestSuite(dummy_subsuites, processes=2)\n",
+                "        result = TestResult()\n",
+                "        test = TestCase()\n",
+                "        event = (\"addSuccess\", 0)\n",
+                "        pts.handle_event(result, tests=[test], event=event)\n",
+                "\n",
+                "        self.assertEqual(len(result.errors), 0)\n",
+                "        self.assertEqual(len(result.failures), 0)\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "\n",
+                    "\n",
+                    "def _test_error_exc_info():\n",
+                    "    try:\n",
+                    "        raise ValueError(\"woops\")\n",
+                    "    except ValueError:\n",
+                    "        return sys.exc_info()"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 285,
+                    "end": 292
+                },
+                "child_version_range": {
+                    "start": 286,
+                    "end": 286
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 6,
+                "hunk_diff": "File: tests/test_runner/test_parallel.py\nCode:\n  ...\n282 283    \n283 284            self.assertEqual(len(result.errors), 0)\n284 285            self.assertEqual(len(result.failures), 0)\n285      - \n286      - \n287      - def _test_error_exc_info():\n288      -     try:\n289      -         raise ValueError(\"woops\")\n290      -     except ValueError:\n291      -         return sys.exc_info()\n         ...\n",
+                "file_path": "tests/test_runner/test_parallel.py",
+                "identifiers_before": [
+                    "ValueError",
+                    "_test_error_exc_info",
+                    "exc_info",
+                    "sys"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "        self.assertEqual(len(result.errors), 0)\n",
+                    "        self.assertEqual(len(result.failures), 0)\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            }
+        ]
+    },
+    "edit_order": [
+        [
+            6,
+            1,
+            0,
+            2,
+            3,
+            4,
+            5
+        ],
+        [
+            6,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                6,
+                0
+            ],
+            "edit_order": "0 before 1",
+            "reason": "Exist a cut-paste relationship between this pair, where cut must happen before paste.",
+            "scenario of 0 -> 1": "edit 0 has to be removed first, before edit 1 re-introduces the function to avoid lint error.",
+            "scenario of 1 -> 0": ""
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                0
+            ],
+            "edit_order": "0 before 1",
+            "reason": "Exist a cut-paste relationship between this pair, where cut must happen before paste.",
+            "scenario of 0 -> 1": "edit 0 has to be removed first, before edit 1 re-introduces the function to avoid lint error.",
+            "scenario of 1 -> 0": ""
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 defines the function first, then uses it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 uses the function first, then defines it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 defines the function first, then uses it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 uses the function first, then defines it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 defines the function first, then uses it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 uses the function first, then defines it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 defines the function first, then uses it in edit 1.",
+            "scenario of 1 -> 0": "edit 1 uses the function first, then defines it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 1 removes the definition and edit 2 removes its usage.",
+            "scenario of 0 -> 1": "edit 0 removes the function first, then edit 1 removes its dependency.",
+            "scenario of 1 -> 0": "edit 1 removes the function first, then edit 0 removes the original definition."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 removes the function first, then edit 1 removes its dependency.",
+            "scenario of 1 -> 0": "edit 1 removes the function first, then edit 0 removes the original definition."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 removes the function first, then edit 1 removes its dependency.",
+            "scenario of 1 -> 0": "edit 1 removes the function first, then edit 0 removes the original definition."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a dependency relationship, where edit 0 defines the function and edit 1 uses it.",
+            "scenario of 0 -> 1": "edit 0 removes the function first, then edit 1 removes it's dependency.",
+            "scenario of 1 -> 0": "edit 1 removes the function first, then edit 0 removes the original definition."
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 removes the function first, then edit 1 removes it's dependency.",
+            "scenario of 1 -> 0": "edit 1 removes the function first, then edit 0 removes the original definition."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Exist a search-replace mental flow from user",
+            "scenario of 0 -> 1": "edit 0 updates the logic first, then copied pasted it to edit 1.",
+            "scenario of 1 -> 0": "edit 1 updates the logic first, then copied pasted it to edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "despite sharing `_test_error_exc_info` function, 2 edit has no dependnecy at all. Before the edit, edit 0 is depending on in-class same-named function, while edit 1 an external function. After the edit, edit 1 no longer exists, hence also has no dependency."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "despite sharing `_test_error_exc_info` function, 2 edit has no dependnecy at all. Before the edit, edit 0 is depending on in-class same-named function, while edit 1 an external function. After the edit, edit 1 no longer exists, hence also has no dependency."
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "despite sharing `_test_error_exc_info` function, 2 edit has no dependnecy at all. Before the edit, edit 0 is depending on in-class same-named function, while edit 1 an external function. After the edit, edit 1 no longer exists, hence also has no dependency."
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "no relation",
+            "reason": "despite sharing `_test_error_exc_info` function, 2 edit has no dependnecy at all. Before the edit, edit 0 is depending on in-class same-named function, while edit 1 an external function. After the edit, edit 1 no longer exists, hence also has no dependency."
+        }
+    ]
+}

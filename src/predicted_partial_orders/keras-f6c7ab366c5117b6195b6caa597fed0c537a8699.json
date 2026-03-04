@@ -1,0 +1,272 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines the variable `_v1_ones_initializer = tf.compat.v1.ones_initializer` and Edit 1 uses that exact same variable `_v1_ones_initializer` to replace the direct reference `tf.compat.v1.ones_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined variable. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable `_v1_ones_initializer = tf.compat.v1.ones_initializer` and Edit 1 uses that exact same variable `_v1_ones_initializer` to replace the direct reference `tf.compat.v1.ones_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined variable. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Both edits perform an identical structural transformation: they refactor keras_export decorator calls from directly wrapping tf.compat.v1 functions to first assigning those functions to intermediate variables (with _v1_ prefix) and then wrapping those variables. This is a uniform substitution pattern applied to the same type of syntactic construct (keras_export decorator calls) across different files. The before\u2192after pattern is identical in both cases, making this a synchronized bulk refactoring operation that would naturally occur as part of a single, contiguous micro-task."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural transformation: they refactor keras_export decorator calls from directly wrapping tf.compat.v1 functions to first assigning those functions to intermediate variables (with _v1_ prefix) and then wrapping those variables. This is a uniform substitution pattern applied to the same type of syntactic construct (keras_export decorator calls) across different files. The before\u2192after pattern is identical in both cases, making this a synchronized bulk refactoring operation that would naturally occur as part of a single, contiguous micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 defines the variable `_v1_variance_scaling_initializer` by assigning it to `tf.compat.v1.variance_scaling_initializer`. Edit 1 then uses this exact same variable `_v1_variance_scaling_initializer` to replace the direct reference to `tf.compat.v1.variance_scaling_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable `_v1_variance_scaling_initializer` by assigning it to `tf.compat.v1.variance_scaling_initializer`. Edit 1 then uses this exact same variable `_v1_variance_scaling_initializer` to replace the direct reference to `tf.compat.v1.variance_scaling_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making edit 0, edit 1 becomes the immediate next step to use the newly defined variable. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits follow the exact same pattern: they extract a TensorFlow v1 compatibility function into a local variable before passing it to keras_export. Edit 0 changes `tf.compat.v1.name_scope` to `_v1_name_scope`, and Edit 1 changes `tf.compat.v1.ones_initializer` to `_v1_ones_initializer`. This is a bulk uniform substitution where both edits apply the identical structural transformation (extract tf.compat.v1.X \u2192 _v1_X variable) to the same type of syntactic construct (keras_export function calls). Both edits can be applied in either order as they are independent refactoring operations on different files and symbols."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits follow the exact same pattern: they extract a TensorFlow v1 compatibility function into a local variable before passing it to keras_export. Edit 0 changes `tf.compat.v1.name_scope` to `_v1_name_scope`, and Edit 1 changes `tf.compat.v1.ones_initializer` to `_v1_ones_initializer`. This is a bulk uniform substitution where both edits apply the identical structural transformation (extract tf.compat.v1.X \u2192 _v1_X variable) to the same type of syntactic construct (keras_export function calls). Both edits can be applied in either order as they are independent refactoring operations on different files and symbols."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits follow the exact same refactoring pattern: they extract a tf.compat.v1 function call into a separate variable assignment before passing it to keras_export. Edit 0 changes 'tf.compat.v1.name_scope' to '_v1_name_scope' and Edit 1 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer'. This is a uniform structural substitution applying the same before\u2192after pattern (inline tf.compat.v1 call \u2192 extracted variable) to the same type of syntactic construct (keras_export function calls). Both edits are clearly part of a single, contiguous refactoring sweep to extract tf.compat.v1 references into variables."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits follow the exact same refactoring pattern: they extract a tf.compat.v1 function call into a separate variable assignment before passing it to keras_export. Edit 0 changes 'tf.compat.v1.name_scope' to '_v1_name_scope' and Edit 1 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer'. This is a uniform structural substitution applying the same before\u2192after pattern (inline tf.compat.v1 call \u2192 extracted variable) to the same type of syntactic construct (keras_export function calls). Both edits are clearly part of a single, contiguous refactoring sweep to extract tf.compat.v1 references into variables."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural transformation: they extract a tf.compat.v1 function call from within a keras_export decorator call and assign it to a local variable with a _v1_ prefix, then pass that variable to the decorator. This is a uniform refactoring pattern applied to the same type of syntactic construct (keras_export decorator calls with tf.compat.v1 functions). The edits follow the exact same before\u2192after substitution pattern and target the same construct type, making them part of a single, contiguous refactoring sweep."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural transformation: they extract a tf.compat.v1 function call from within a keras_export decorator call and assign it to a local variable with a _v1_ prefix, then pass that variable to the decorator. This is a uniform refactoring pattern applied to the same type of syntactic construct (keras_export decorator calls with tf.compat.v1 functions). The edits follow the exact same before\u2192after substitution pattern and target the same construct type, making them part of a single, contiguous refactoring sweep."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines the variable `_v1_zeros_initializer = tf.compat.v1.zeros_initializer` and Edit 1 uses that exact same variable `_v1_zeros_initializer` in place of the original `tf.compat.v1.zeros_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making edit 0 (defining the variable), edit 1 becomes the immediate next step to use that variable. Conversely, after making edit 1 (using the variable), edit 0 becomes necessary to define it. Both edits can be parsed and staged in either order in Python (usage before definition only causes a runtime NameError, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable `_v1_zeros_initializer = tf.compat.v1.zeros_initializer` and Edit 1 uses that exact same variable `_v1_zeros_initializer` in place of the original `tf.compat.v1.zeros_initializer`. This is a classic definition-usage pattern where the changed lines reference the exact same symbol. After making edit 0 (defining the variable), edit 1 becomes the immediate next step to use that variable. Conversely, after making edit 1 (using the variable), edit 0 becomes necessary to define it. Both edits can be parsed and staged in either order in Python (usage before definition only causes a runtime NameError, not a parse error), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits follow the exact same pattern: they extract a TensorFlow v1 compatibility function into a local variable with a '_v1_' prefix before passing it to keras_export. Edit 0 changes 'tf.compat.v1.name_scope' to '_v1_name_scope', while Edit 1 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer'. This is a bulk uniform substitution applying the identical structural transformation (extract tf.compat.v1.X \u2192 _v1_X variable) to the same type of syntactic construct (keras_export function calls). Both edits are clearly part of the same refactoring sweep to standardize how TensorFlow v1 compatibility functions are handled before being exported."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits follow the exact same pattern: they extract a TensorFlow v1 compatibility function into a local variable with a '_v1_' prefix before passing it to keras_export. Edit 0 changes 'tf.compat.v1.name_scope' to '_v1_name_scope', while Edit 1 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer'. This is a bulk uniform substitution applying the identical structural transformation (extract tf.compat.v1.X \u2192 _v1_X variable) to the same type of syntactic construct (keras_export function calls). Both edits are clearly part of the same refactoring sweep to standardize how TensorFlow v1 compatibility functions are handled before being exported."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 defines the variable `_v1_constant_initializer = tf.compat.v1.constant_initializer` on line 26, and Edit 1 uses this exact same variable `_v1_constant_initializer` on line 38, replacing the direct reference `tf.compat.v1.constant_initializer`. The changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined variable. After making Edit 1, Edit 0 becomes necessary to define the variable being referenced. This is a classic definition-usage relationship where both edits can be staged in either order (the usage before definition would only cause a runtime NameError in Python, not a parse error), making it bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable `_v1_constant_initializer = tf.compat.v1.constant_initializer` on line 26, and Edit 1 uses this exact same variable `_v1_constant_initializer` on line 38, replacing the direct reference `tf.compat.v1.constant_initializer`. The changed lines reference the exact same symbol. After making Edit 0, Edit 1 becomes the immediate next step to use the newly defined variable. After making Edit 1, Edit 0 becomes necessary to define the variable being referenced. This is a classic definition-usage relationship where both edits can be staged in either order (the usage before definition would only cause a runtime NameError in Python, not a parse error), making it bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Both edits follow the exact same structural pattern: they refactor a direct function call within a keras_export decorator by first assigning the function to a variable, then passing that variable to the decorator. Edit 0 changes `keras_export(...)(tf.compat.v1.name_scope)` to assign `tf.compat.v1.name_scope` to `_v1_name_scope` first, then pass `_v1_name_scope` to the decorator. Edit 1 changes `keras_export(...)(tf.compat.v1.orthogonal_initializer)` to pass `_v1_orthogonal_initializer` to the decorator (with the assignment presumably happening elsewhere in the file). This is a bulk uniform substitution pattern - both edits apply the identical before\u2192after transformation (direct function call in decorator \u2192 variable reference in decorator) to the same type of syntactic construct (keras_export decorator calls). Both edits can be applied in either order as they affect different files and different symbols, and either edit would naturally prompt applying the same refactoring pattern to other similar constructs."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Both edits follow the exact same structural pattern: they refactor a direct function call within a keras_export decorator by first assigning the function to a variable, then passing that variable to the decorator. Edit 0 changes `keras_export(...)(tf.compat.v1.name_scope)` to assign `tf.compat.v1.name_scope` to `_v1_name_scope` first, then pass `_v1_name_scope` to the decorator. Edit 1 changes `keras_export(...)(tf.compat.v1.orthogonal_initializer)` to pass `_v1_orthogonal_initializer` to the decorator (with the assignment presumably happening elsewhere in the file). This is a bulk uniform substitution pattern - both edits apply the identical before\u2192after transformation (direct function call in decorator \u2192 variable reference in decorator) to the same type of syntactic construct (keras_export decorator calls). Both edits can be applied in either order as they affect different files and different symbols, and either edit would naturally prompt applying the same refactoring pattern to other similar constructs."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' on the same type of syntactic construct (keras_export function call arguments). This is a bulk refactoring operation where the same before\u2192after pattern is applied to multiple similar constructs within the same file. Either edit can be made first, and both are part of the same contiguous refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' on the same type of syntactic construct (keras_export function call arguments). This is a bulk refactoring operation where the same before\u2192after pattern is applied to multiple similar constructs within the same file. Either edit can be made first, and both are part of the same contiguous refactoring task."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' in keras_export decorator calls. This is a uniform bulk substitution targeting the same type of syntactic construct (keras_export function calls with initializer references). Both edits are part of the same refactoring operation to replace TensorFlow v1 initializer references with internal _v1_ prefixed versions. Either edit can be made first, and both follow the exact same before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' in keras_export decorator calls. This is a uniform bulk substitution targeting the same type of syntactic construct (keras_export function calls with initializer references). Both edits are part of the same refactoring operation to replace TensorFlow v1 initializer references with internal _v1_ prefixed versions. Either edit can be made first, and both follow the exact same before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' on consecutive lines within the same file. This is a uniform bulk refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (function references in keras_export calls). Both edits are part of a single, contiguous refactor to replace TensorFlow v1 initializer references with local wrapper references. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' on consecutive lines within the same file. This is a uniform bulk refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (function references in keras_export calls). Both edits are part of a single, contiguous refactor to replace TensorFlow v1 initializer references with local wrapper references. Either edit can be made first, and after making either one, the other becomes an obvious next step to complete the uniform substitution pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern within the same file and same type of syntactic construct. Edit 0 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer' and Edit 1 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer'. Both follow the exact same before\u2192after pattern: replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer' in keras_export function calls. This represents a bulk refactoring operation where the same substitution pattern is being applied uniformly across multiple similar constructs in the same file. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the uniform pattern application."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern within the same file and same type of syntactic construct. Edit 0 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer' and Edit 1 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer'. Both follow the exact same before\u2192after pattern: replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer' in keras_export function calls. This represents a bulk refactoring operation where the same substitution pattern is being applied uniformly across multiple similar constructs in the same file. Either edit could be made first, and after making either one, the other becomes an obvious next step to complete the uniform pattern application."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer' in keras_export decorator calls. This is a uniform, synchronized refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (keras_export function calls). Both edits are part of a single, contiguous refactor to rename initializer references from the TensorFlow compat API to internal _v1_ prefixed versions. Either edit can be made first, and both represent the same mechanical substitution pattern being applied consistently across the file."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer' in keras_export decorator calls. This is a uniform, synchronized refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (keras_export function calls). Both edits are part of a single, contiguous refactor to rename initializer references from the TensorFlow compat API to internal _v1_ prefixed versions. Either edit can be made first, and both represent the same mechanical substitution pattern being applied consistently across the file."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 defines the variable `_v1_orthogonal_initializer` by assigning it to `tf.compat.v1.orthogonal_initializer`. Edit 1 uses this exact same variable `_v1_orthogonal_initializer` in place of the direct reference `tf.compat.v1.orthogonal_initializer`. The changed lines reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other - defining the variable makes it available for use, and using the variable requires it to be defined. Both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable `_v1_orthogonal_initializer` by assigning it to `tf.compat.v1.orthogonal_initializer`. Edit 1 uses this exact same variable `_v1_orthogonal_initializer` in place of the direct reference `tf.compat.v1.orthogonal_initializer`. The changed lines reference the exact same symbol, and making either edit creates an immediate code-driven prompt for the other - defining the variable makes it available for use, and using the variable requires it to be defined. Both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError in Python, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits perform identical textual substitutions within the same file and same syntactic context. Edit 0 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer' in a keras_export call, while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer' in similar keras_export calls. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across multiple keras_export decorators. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits perform identical textual substitutions within the same file and same syntactic context. Edit 0 changes 'tf.compat.v1.zeros_initializer' to '_v1_zeros_initializer' in a keras_export call, while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer' in similar keras_export calls. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across multiple keras_export decorators. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 defines three variables (_v1_identity, _v1_glorot_uniform_initializer, _v1_glorot_normal_initializer) by assigning them to tf.compat.v1 initializer functions. Edit 1 uses these exact same variables in keras_export function calls, replacing the direct tf.compat.v1 references with the newly defined variables. The changed lines in edit 1 reference the exact same symbols that are defined in edit 0. This creates an immediate code dependency where edit 0 must come before edit 1, as edit 1 references undefined variables without edit 0. In Python, while referencing undefined variables doesn't cause parse errors, these variables would cause NameError at import time, making this an ordered dependency."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits are performing identical textual substitutions on the same type of syntactic construct (keras_export decorator calls). Edit 0 changes 'tf.compat.v1.ones_initializer' to '_v1_ones_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where 'tf.compat.v1.*' references are being systematically replaced with '_v1_*' equivalents across multiple keras_export calls. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits are performing identical textual substitutions on the same type of syntactic construct (keras_export decorator calls). Edit 0 changes 'tf.compat.v1.ones_initializer' to '_v1_ones_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where 'tf.compat.v1.*' references are being systematically replaced with '_v1_*' equivalents across multiple keras_export calls. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern within the same file and same syntactic context. Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer' and Edit 1 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer'. Both follow the exact same before\u2192after pattern (tf.compat.v1.X_initializer \u2192 _v1_X_initializer) and target the same type of syntactic construct (keras_export decorator arguments). This is clearly part of a single, contiguous refactor to replace TensorFlow v1 initializer references with local wrapper functions. Either edit can be made first, and both are part of the same bulk substitution operation."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern within the same file and same syntactic context. Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer' and Edit 1 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer'. Both follow the exact same before\u2192after pattern (tf.compat.v1.X_initializer \u2192 _v1_X_initializer) and target the same type of syntactic construct (keras_export decorator arguments). This is clearly part of a single, contiguous refactor to replace TensorFlow v1 initializer references with local wrapper functions. Either edit can be made first, and both are part of the same bulk substitution operation."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural substitutions within the same file and context. Edit 0 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across keras_export decorators. Both edits are part of the same contiguous refactoring task and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform identical structural substitutions within the same file and context. Edit 0 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across keras_export decorators. Both edits are part of the same contiguous refactoring task and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct within the same file. Edit 0 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer', while Edit 1 changes multiple 'tf.compat.v1.*' references to their '_v1_*' equivalents. This is a uniform refactoring pattern where the same before\u2192after substitution (tf.compat.v1.* \u2192 _v1_*) is being applied to multiple keras_export decorator calls. Both edits are part of the same contiguous refactor to replace TensorFlow v1 compatibility references with internal _v1_ prefixed versions. Either edit could be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct within the same file. Edit 0 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer', while Edit 1 changes multiple 'tf.compat.v1.*' references to their '_v1_*' equivalents. This is a uniform refactoring pattern where the same before\u2192after substitution (tf.compat.v1.* \u2192 _v1_*) is being applied to multiple keras_export decorator calls. Both edits are part of the same contiguous refactor to replace TensorFlow v1 compatibility references with internal _v1_ prefixed versions. Either edit could be made first as they are independent substitutions of the same pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct. Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer' and Edit 1 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer'. Both are applying the same pattern (replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer') to keras_export decorator calls in the same file. This is a clear case of bulk-edit pattern synchronization where both edits are part of a single, contiguous refactor applying the same before\u2192after pattern to the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct. Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer' and Edit 1 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer'. Both are applying the same pattern (replacing 'tf.compat.v1.X_initializer' with '_v1_X_initializer') to keras_export decorator calls in the same file. This is a clear case of bulk-edit pattern synchronization where both edits are part of a single, contiguous refactor applying the same before\u2192after pattern to the same construct type."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' in consecutive lines of the same file. Edit 0 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer' and Edit 1 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer'. This is a bulk refactoring operation with the same before\u2192after pattern applied to the same type of syntactic construct (function references in keras_export decorators). Both edits would naturally occur in one contiguous micro-task as part of a systematic refactor."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' in consecutive lines of the same file. Edit 0 changes 'tf.compat.v1.variance_scaling_initializer' to '_v1_variance_scaling_initializer' and Edit 1 changes 'tf.compat.v1.orthogonal_initializer' to '_v1_orthogonal_initializer'. This is a bulk refactoring operation with the same before\u2192after pattern applied to the same type of syntactic construct (function references in keras_export decorators). Both edits would naturally occur in one contiguous micro-task as part of a systematic refactor."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' within keras_export decorator calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (keras_export function calls with initializer arguments). Both edits are part of a single, contiguous refactor to replace TensorFlow v1 initializer references with internal _v1_ prefixed versions. Either edit can be made first, and both follow the same mechanical substitution pattern."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' within keras_export decorator calls. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (keras_export function calls with initializer arguments). Both edits are part of a single, contiguous refactor to replace TensorFlow v1 initializer references with internal _v1_ prefixed versions. Either edit can be made first, and both follow the same mechanical substitution pattern."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' within keras_export decorator calls. This is a uniform bulk substitution targeting the same type of syntactic construct (keras_export function calls with initializer arguments). Both edits are part of the same refactoring operation to replace TensorFlow v1 initializers with custom _v1_ prefixed versions. Either edit can be made first, and both follow the exact same before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Both edits perform an identical textual substitution pattern: changing 'tf.compat.v1.X_initializer' to '_v1_X_initializer' within keras_export decorator calls. This is a uniform bulk substitution targeting the same type of syntactic construct (keras_export function calls with initializer arguments). Both edits are part of the same refactoring operation to replace TensorFlow v1 initializers with custom _v1_ prefixed versions. Either edit can be made first, and both follow the exact same before\u2192after pattern on the same construct type."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits are performing identical textual substitutions on the same type of syntactic construct (keras_export decorator calls). Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across multiple keras_export calls. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits are performing identical textual substitutions on the same type of syntactic construct (keras_export decorator calls). Edit 0 changes 'tf.compat.v1.constant_initializer' to '_v1_constant_initializer', while Edit 1 changes 'tf.compat.v1.initializers.identity' to '_v1_identity', 'tf.compat.v1.glorot_uniform_initializer' to '_v1_glorot_uniform_initializer', and 'tf.compat.v1.glorot_normal_initializer' to '_v1_glorot_normal_initializer'. This represents a bulk refactoring pattern where tf.compat.v1.* references are being systematically replaced with _v1_* references across multiple keras_export calls. Both edits are part of the same contiguous refactor operation and can be applied in either order without creating parsing issues."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

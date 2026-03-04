@@ -1,0 +1,884 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/nicolargo/glances/commit/25b6b5c797b348318bf3f1bf110944c4f37d5e2d",
+    "commit_message": "Fix unlock of password protected servers in browser mode\n\nClose #694.",
+    "commit_snapshots": {
+        "glances/core/glances_client_browser.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2015 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "\n",
+                "\"\"\"Manage the Glances client browser (list of Glances server).\"\"\"\n",
+                "\n",
+                "# Import system libs\n",
+                "import json\n",
+                "import socket\n",
+                "try:\n",
+                "    from xmlrpc.client import ServerProxy, Fault, ProtocolError\n",
+                "except ImportError:\n",
+                "    # Python 2\n",
+                "    from xmlrpclib import ServerProxy, Fault, ProtocolError\n",
+                "\n",
+                "# Import Glances libs\n",
+                "from glances.core.glances_autodiscover import GlancesAutoDiscoverServer\n",
+                "from glances.core.glances_client import GlancesClient, GlancesClientTransport\n",
+                "from glances.core.glances_logging import logger\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from glances.core.glances_passwordlist import GlancesPasswordList as GlancesPassword\n"
+                ],
+                "parent_version_range": {
+                    "start": 34,
+                    "end": 34
+                },
+                "child_version_range": {
+                    "start": 34,
+                    "end": 35
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: glances/core/glances_client_browser.py\nCode:\n  ...\n31 31    from glances.core.glances_autodiscover import GlancesAutoDiscoverServer\n32 32    from glances.core.glances_client import GlancesClient, GlancesClientTransport\n33 33    from glances.core.glances_logging import logger\n   34  + from glances.core.glances_passwordlist import GlancesPasswordList as GlancesPassword\n34 35    from glances.core.glances_staticlist import GlancesStaticServer\n       ...\n",
+                "file_path": "glances/core/glances_client_browser.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "GlancesPassword",
+                    "GlancesPasswordList",
+                    "core",
+                    "glances",
+                    "glances_passwordlist"
+                ],
+                "prefix": [
+                    "from glances.core.glances_autodiscover import GlancesAutoDiscoverServer\n",
+                    "from glances.core.glances_client import GlancesClient, GlancesClientTransport\n",
+                    "from glances.core.glances_logging import logger\n"
+                ],
+                "suffix": [
+                    "from glances.core.glances_staticlist import GlancesStaticServer\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "GlancesPasswordList",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 46
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 65
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_client_browser.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 34,
+                                    "column": 69
+                                },
+                                "end": {
+                                    "line": 34,
+                                    "column": 84
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_client_browser.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from glances.core.glances_staticlist import GlancesStaticServer\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "from glances.core.glances_passwordlist import GlancesPassword\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 35,
+                    "end": 36
+                },
+                "child_version_range": {
+                    "start": 36,
+                    "end": 36
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: glances/core/glances_client_browser.py\nCode:\n  ...\n34 35    from glances.core.glances_staticlist import GlancesStaticServer\n35     - from glances.core.glances_passwordlist import GlancesPassword\n36 36    from glances.outputs.glances_curses import GlancesCursesBrowser\n37 37    \n38 38    \n       ...\n",
+                "file_path": "glances/core/glances_client_browser.py",
+                "identifiers_before": [
+                    "GlancesPassword",
+                    "core",
+                    "glances",
+                    "glances_passwordlist"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "from glances.core.glances_staticlist import GlancesStaticServer\n"
+                ],
+                "suffix": [
+                    "from glances.outputs.glances_curses import GlancesCursesBrowser\n",
+                    "\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 35,
+                                    "column": 46
+                                },
+                                "end": {
+                                    "line": 35,
+                                    "column": 61
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_client_browser.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from glances.outputs.glances_curses import GlancesCursesBrowser\n",
+                "\n",
+                "\n",
+                "class GlancesClientBrowser(object):\n",
+                "\n",
+                "    \"\"\"This class creates and manages the TCP client browser (servers list).\"\"\"\n",
+                "\n",
+                "    def __init__(self, config=None, args=None):\n",
+                "        # Store the arg/config\n",
+                "        self.args = args\n",
+                "        self.config = config\n",
+                "        self.static_server = None\n",
+                "        self.password = None\n",
+                "\n",
+                "        # Load the configuration file\n",
+                "        self.load()\n",
+                "\n",
+                "        # Start the autodiscover mode (Zeroconf listener)\n",
+                "        if not self.args.disable_autodiscover:\n",
+                "            self.autodiscover_server = GlancesAutoDiscoverServer()\n",
+                "        else:\n",
+                "            self.autodiscover_server = None\n",
+                "\n",
+                "        # Init screen\n",
+                "        self.screen = GlancesCursesBrowser(args=self.args)\n",
+                "\n",
+                "    def load(self):\n",
+                "        \"\"\"Load server and password list from the confiuration file.\"\"\"\n",
+                "        # Init the static server list (if defined)\n",
+                "        self.static_server = GlancesStaticServer(config=self.config)\n",
+                "\n",
+                "        # Init the password list (if defined)\n",
+                "        self.password = GlancesPassword(config=self.config)\n",
+                "\n",
+                "    def get_servers_list(self):\n",
+                "        \"\"\"Return the current server list (list of dict).\n",
+                "\n",
+                "        Merge of static + autodiscover servers list.\n",
+                "        \"\"\"\n",
+                "        ret = []\n",
+                "\n",
+                "        if self.args.browser:\n",
+                "            ret = self.static_server.get_servers_list()\n",
+                "            if self.autodiscover_server is not None:\n",
+                "                ret = self.static_server.get_servers_list() + self.autodiscover_server.get_servers_list()\n",
+                "\n",
+                "        return ret\n",
+                "\n",
+                "    def __get_uri(self, server):\n",
+                "        \"\"\"Return the URI for the given server dict.\"\"\"\n",
+                "        # Select the connection mode (with or without password)\n",
+                "        if server['password'] != \"\":\n",
+                "            if server['status'] == 'PROTECTED':\n",
+                "                # Try with the preconfigure password (only if status is PROTECTED)\n",
+                "                clear_password = self.password.get_password(server['name'])\n",
+                "                if clear_password is not None:\n",
+                "                    server['password'] = self.password.sha256_hash(clear_password)\n",
+                "            return 'http://{0}:{1}@{2}:{3}'.format(server['username'], server['password'],\n",
+                "                                                   server['ip'], server['port'])\n",
+                "        else:\n",
+                "            return 'http://{0}:{1}'.format(server['ip'], server['port'])\n",
+                "\n",
+                "    def __serve_forever(self):\n",
+                "        \"\"\"Main client loop.\"\"\"\n",
+                "        while True:\n",
+                "            # No need to update the server list\n",
+                "            # It's done by the GlancesAutoDiscoverListener class (glances_autodiscover.py)\n",
+                "            # Or define staticaly in the configuration file (module glances_staticlist.py)\n",
+                "            # For each server in the list, grab elementary stats (CPU, LOAD, MEM, OS...)\n",
+                "            # logger.debug(self.get_servers_list())\n",
+                "            try:\n",
+                "                for v in self.get_servers_list():\n",
+                "                    # Do not retreive stats for statics server\n",
+                "                    # Why ? Because for each offline servers, the timeout will be reached\n",
+                "                    # So ? The curse interface freezes\n",
+                "                    if v['type'] == 'STATIC' and v['status'] in ['UNKNOWN', 'SNMP', 'OFFLINE']:\n",
+                "                        continue\n",
+                "\n",
+                "                    # Get the server URI\n",
+                "                    uri = self.__get_uri(v)\n",
+                "\n",
+                "                    # Try to connect to the server\n",
+                "                    t = GlancesClientTransport()\n",
+                "                    t.set_timeout(3)\n",
+                "\n",
+                "                    # Get common stats\n",
+                "                    try:\n",
+                "                        s = ServerProxy(uri, transport=t)\n",
+                "                    except Exception as e:\n",
+                "                        logger.warning(\n",
+                "                            \"Client browser couldn't create socket {0}: {1}\".format(uri, e))\n",
+                "                    else:\n",
+                "                        # Mandatory stats\n",
+                "                        try:\n",
+                "                            # CPU%\n",
+                "                            cpu_percent = 100 - json.loads(s.getCpu())['idle']\n",
+                "                            v['cpu_percent'] = '{0:.1f}'.format(cpu_percent)\n",
+                "                            # MEM%\n",
+                "                            v['mem_percent'] = json.loads(s.getMem())['percent']\n",
+                "                            # OS (Human Readable name)\n",
+                "                            v['hr_name'] = json.loads(s.getSystem())['hr_name']\n",
+                "                        except (socket.error, Fault, KeyError) as e:\n",
+                "                            logger.debug(\n",
+                "                                \"Error while grabbing stats form {0}: {1}\".format(uri, e))\n",
+                "                            v['status'] = 'OFFLINE'\n",
+                "                        except ProtocolError as e:\n",
+                "                            if str(e).find(\" 401 \") > 0:\n",
+                "                                # Error 401 (Authentication failed)\n",
+                "                                # Password is not the good one...\n",
+                "                                v['password'] = None\n",
+                "                                v['status'] = 'PROTECTED'\n",
+                "                            else:\n",
+                "                                v['status'] = 'OFFLINE'\n",
+                "                            logger.debug(\n",
+                "                                \"Cannot grab stats from {0}: {1}\".format(uri, e))\n",
+                "                        else:\n",
+                "                            # Status\n",
+                "                            v['status'] = 'ONLINE'\n",
+                "\n",
+                "                            # Optional stats (load is not available on Windows OS)\n",
+                "                            try:\n",
+                "                                # LOAD\n",
+                "                                load_min5 = json.loads(s.getLoad())['min5']\n",
+                "                                v['load_min5'] = '{0:.2f}'.format(load_min5)\n",
+                "                            except Exception as e:\n",
+                "                                logger.warning(\n",
+                "                                    \"Error while grabbing stats form {0}: {1}\".format(uri, e))\n",
+                "            # List can change size during iteration...\n",
+                "            except RuntimeError:\n",
+                "                logger.debug(\n",
+                "                    \"Server list dictionnary change inside the loop (wait next update)\")\n",
+                "\n",
+                "            # Update the screen (list or Glances client)\n",
+                "            if self.screen.active_server is None:\n",
+                "                #  Display the Glances browser\n",
+                "                self.screen.update(self.get_servers_list())\n",
+                "            else:\n",
+                "                # Display the Glances client for the selected server\n",
+                "                logger.debug(\"Selected server: {0}\".format(self.get_servers_list()[self.screen.active_server]))\n",
+                "\n",
+                "                # Connection can take time\n",
+                "                # Display a popup\n",
+                "                self.screen.display_popup(\n",
+                "                    'Connect to {0}:{1}'.format(v['name'], v['port']), duration=1)\n",
+                "\n",
+                "                # A password is needed to access to the server's stats\n",
+                "                if self.get_servers_list()[self.screen.active_server]['password'] is None:\n",
+                "                    # First of all, check if a password is available in the [passwords] section\n",
+                "                    clear_password = self.password.get_password(v['name'])\n",
+                "                    if (clear_password is None or self.get_servers_list()\n",
+                "                            [self.screen.active_server]['status'] == 'PROTECTED'):\n",
+                "                        # Else, the password should be enter by the user\n",
+                "                        # Display a popup to enter password\n",
+                "                        clear_password = self.screen.display_popup(\n",
+                "                            'Password needed for {0}: '.format(v['name']), is_input=True)\n",
+                "                    # Store the password for the selected server\n",
+                "                    if clear_password is not None:\n",
+                "                        self.set_in_selected('password', self.password.sha256_hash(clear_password))\n",
+                "\n",
+                "                # Display the Glance client on the selected server\n",
+                "                logger.info(\"Connect Glances client to the {0} server\".format(\n",
+                "                    self.get_servers_list()[self.screen.active_server]['key']))\n",
+                "\n",
+                "                # Init the client\n",
+                "                args_server = self.args\n",
+                "\n",
+                "                # Overwrite connection setting\n",
+                "                args_server.client = self.get_servers_list()[self.screen.active_server]['ip']\n",
+                "                args_server.port = self.get_servers_list()[self.screen.active_server]['port']\n",
+                "                args_server.username = self.get_servers_list()[self.screen.active_server]['username']\n",
+                "                args_server.password = self.get_servers_list()[self.screen.active_server]['password']\n",
+                "                client = GlancesClient(config=self.config, args=args_server, return_to_browser=True)\n",
+                "\n",
+                "                # Test if client and server are in the same major version\n",
+                "                if not client.login():\n",
+                "                    self.screen.display_popup(\n",
+                "                        \"Sorry, cannot connect to '{0}'\\n\"\n",
+                "                        \"See 'glances.log' for more details\".format(v['name']))\n",
+                "\n",
+                "                    # Set the ONLINE status for the selected server\n",
+                "                    self.set_in_selected('status', 'OFFLINE')\n",
+                "                else:\n",
+                "                    # Start the client loop\n",
+                "                    # Return connection type: 'glances' or 'snmp'\n",
+                "                    connection_type = client.serve_forever()\n",
+                "\n",
+                "                    try:\n",
+                "                        logger.debug(\"Disconnect Glances client from the {0} server\".format(\n",
+                "                            self.get_servers_list()[self.screen.active_server]['key']))\n",
+                "                    except IndexError:\n",
+                "                        # Server did not exist anymore\n",
+                "                        pass\n",
+                "                    else:\n",
+                "                        # Set the ONLINE status for the selected server\n",
+                "                        if connection_type == 'snmp':\n",
+                "                            self.set_in_selected('status', 'SNMP')\n",
+                "                        else:\n",
+                "                            self.set_in_selected('status', 'ONLINE')\n",
+                "\n",
+                "                # Return to the browser (no server selected)\n",
+                "                self.screen.active_server = None\n",
+                "\n",
+                "    def serve_forever(self):\n",
+                "        \"\"\"Wrapper to the serve_forever function.\n",
+                "\n",
+                "        This function will restore the terminal to a sane state\n",
+                "        before re-raising the exception and generating a traceback.\n",
+                "        \"\"\"\n",
+                "        try:\n",
+                "            return self.__serve_forever()\n",
+                "        finally:\n",
+                "            self.end()\n",
+                "\n",
+                "    def set_in_selected(self, key, value):\n",
+                "        \"\"\"Set the (key, value) for the selected server in the list.\"\"\"\n",
+                "        # Static list then dynamic one\n",
+                "        if self.screen.active_server >= len(self.static_server.get_servers_list()):\n",
+                "            self.autodiscover_server.set_server(\n",
+                "                self.screen.active_server - len(self.static_server.get_servers_list()),\n",
+                "                key, value)\n",
+                "        else:\n",
+                "            self.static_server.set_server(self.screen.active_server, key, value)\n",
+                "\n",
+                "    def end(self):\n",
+                "        \"\"\"End of the client browser session.\"\"\"\n",
+                "        self.screen.end()"
+            ]
+        ],
+        "glances/core/glances_passwordlist.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "#\n",
+                "# This file is part of Glances.\n",
+                "#\n",
+                "# Copyright (C) 2015 Nicolargo <nicolas@nicolargo.com>\n",
+                "#\n",
+                "# Glances is free software; you can redistribute it and/or modify\n",
+                "# it under the terms of the GNU Lesser General Public License as published by\n",
+                "# the Free Software Foundation, either version 3 of the License, or\n",
+                "# (at your option) any later version.\n",
+                "#\n",
+                "# Glances is distributed in the hope that it will be useful,\n",
+                "# but WITHOUT ANY WARRANTY; without even the implied warranty of\n",
+                "# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n",
+                "# GNU Lesser General Public License for more details.\n",
+                "#\n",
+                "# You should have received a copy of the GNU Lesser General Public License\n",
+                "# along with this program. If not, see <http://www.gnu.org/licenses/>.\n",
+                "\n",
+                "\"\"\"Manage the Glances passwords list.\"\"\"\n",
+                "\n",
+                "# Import Glances libs\n",
+                "from glances.core.glances_logging import logger\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from glances.core.glances_password import GlancesPassword\n"
+                ],
+                "parent_version_range": {
+                    "start": 23,
+                    "end": 23
+                },
+                "child_version_range": {
+                    "start": 23,
+                    "end": 24
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: glances/core/glances_passwordlist.py\nCode:\n  ...\n20 20    \n21 21    # Import Glances libs\n22 22    from glances.core.glances_logging import logger\n   23  + from glances.core.glances_password import GlancesPassword\n23 24    \n24 25    \n       ...\n",
+                "file_path": "glances/core/glances_passwordlist.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "GlancesPassword",
+                    "core",
+                    "glances",
+                    "glances_password"
+                ],
+                "prefix": [
+                    "\n",
+                    "# Import Glances libs\n",
+                    "from glances.core.glances_logging import logger\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 57
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 23,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 23,
+                                    "column": 57
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "class GlancesPassword(object):\n"
+                ],
+                "after": [
+                    "class GlancesPasswordList(GlancesPassword):\n"
+                ],
+                "parent_version_range": {
+                    "start": 25,
+                    "end": 26
+                },
+                "child_version_range": {
+                    "start": 26,
+                    "end": 27
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GlancesPassword",
+                        "signature": "class GlancesPassword(object):",
+                        "at_line": 25
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: glances/core/glances_passwordlist.py\nCode:\n23 24    \n24 25    \n25     - class GlancesPassword(object):\n   26  + class GlancesPasswordList(GlancesPassword):\n26 27    \n27 28        \"\"\"Manage the Glances passwords list for the client|browser/server.\"\"\"\n28 29    \n       ...\n",
+                "file_path": "glances/core/glances_passwordlist.py",
+                "identifiers_before": [
+                    "GlancesPassword",
+                    "object"
+                ],
+                "identifiers_after": [
+                    "GlancesPassword",
+                    "GlancesPasswordList"
+                ],
+                "prefix": [
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    \"\"\"Manage the Glances passwords list for the client|browser/server.\"\"\"\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 25,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 25,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "class",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "GlancesPasswordList",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "class",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 26,
+                                    "column": 26
+                                },
+                                "end": {
+                                    "line": 26,
+                                    "column": 41
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    \"\"\"Manage the Glances passwords list for the client|browser/server.\"\"\"\n",
+                "\n",
+                "    _section = \"passwords\"\n",
+                "\n",
+                "    def __init__(self, config=None, args=None):\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        super(GlancesPassword, self).__init__()\n"
+                ],
+                "parent_version_range": {
+                    "start": 32,
+                    "end": 32
+                },
+                "child_version_range": {
+                    "start": 33,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GlancesPassword",
+                        "signature": "class GlancesPassword(object):",
+                        "at_line": 25
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, config=None, args=None):",
+                        "at_line": 31
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: glances/core/glances_passwordlist.py\nCode:\n         class GlancesPassword(object):\n             ...\n29 30        _section = \"passwords\"\n30 31    \n31 32        def __init__(self, config=None, args=None):\n   33  +         super(GlancesPassword, self).__init__()\n32 34            # password_dict is a dict (JSON compliant)\n33 35            # {'host': 'password', ... }\n34 36            # Load the configuration file\n       ...\n",
+                "file_path": "glances/core/glances_passwordlist.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "GlancesPassword",
+                    "__init__",
+                    "self",
+                    "super"
+                ],
+                "prefix": [
+                    "    _section = \"passwords\"\n",
+                    "\n",
+                    "    def __init__(self, config=None, args=None):\n"
+                ],
+                "suffix": [
+                    "        # password_dict is a dict (JSON compliant)\n",
+                    "        # {'host': 'password', ... }\n",
+                    "        # Load the configuration file\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "GlancesPassword",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 14
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 29
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/glances/glances/core/glances_passwordlist.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        # password_dict is a dict (JSON compliant)\n",
+                "        # {'host': 'password', ... }\n",
+                "        # Load the configuration file\n",
+                "        self._password_dict = self.load(config)\n",
+                "\n",
+                "    def load(self, config):\n",
+                "        \"\"\"Load the password from the configuration file.\"\"\"\n",
+                "        password_dict = []\n",
+                "\n",
+                "        if config is None:\n",
+                "            logger.warning(\"No configuration file available. Cannot load password list.\")\n",
+                "        elif not config.has_section(self._section):\n",
+                "            logger.warning(\"No [%s] section in the configuration file. Cannot load password list.\" % self._section)\n",
+                "        else:\n",
+                "            logger.info(\"Start reading the [%s] section in the configuration file\" % self._section)\n",
+                "\n",
+                "            password_dict = dict(config.items(self._section))\n",
+                "\n",
+                "            # Password list loaded\n",
+                "            logger.info(\"%s password(s) loaded from the configuration file\" % len(password_dict))\n",
+                "            logger.debug(\"Password dictionary: %s\" % password_dict)\n",
+                "\n",
+                "        return password_dict\n",
+                "\n",
+                "    def get_password(self, host=None):\n",
+                "        \"\"\"\n",
+                "        If host=None, return the current server list (dict).\n",
+                "        Else, return the host's password (or the default one if defined or None)\n",
+                "        \"\"\"\n",
+                "        if host is None:\n",
+                "            return self._password_dict\n",
+                "        else:\n",
+                "            try:\n",
+                "                return self._password_dict[host]\n",
+                "            except (KeyError, TypeError):\n",
+                "                try:\n",
+                "                    return self._password_dict['default']\n",
+                "                except (KeyError, TypeError):\n",
+                "                    return None\n",
+                "                return None\n",
+                "\n",
+                "    def set_password(self, host, password):\n",
+                "        \"\"\"Set a password for a specific host.\"\"\"\n",
+                "        self._password_dict[host] = password"
+            ]
+        ]
+    },
+    "edit_order": [
+        [
+            1,
+            2,
+            3,
+            4,
+            0
+        ],
+        [
+            1,
+            0,
+            2,
+            3,
+            4
+        ]
+    ],
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                4,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Import-use",
+            "scenario of 0 -> 1": "edit 0 uses `GlancesPassword` first before it was imported by edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports `GlancesPassword` first, before it was used by edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "definition replacement or relocation",
+            "scenario of 0 -> 1": "first import the same thing from elsewhere, then delete current existing import",
+            "scenario of 1 -> 0": "first delete the current import, then import the same thing from elsewhere"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of GlancesPassword",
+            "scenario of 0 -> 1": "edit 0 uses `GlancesPassword` first before it was imported by edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports `GlancesPassword` first, before it was used by edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of GlancesPassword",
+            "scenario of 0 -> 1": "edit 0 defines `GlancesPassword` first, before it was used by edit 1.",
+            "scenario of 1 -> 0": "edit 1 uses `GlancesPassword` first, before edit 0 defines it."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                0
+            ],
+            "edit_order": "bi-directional",
+            "reason": "Declaration",
+            "scenario of 0 -> 1": "edit 0 defines the class `GlancesPassword` before it was imported in edit 1.",
+            "scenario of 1 -> 0": "edit 1 imports the class `GlancesPassword` first, then defines it in edit 0."
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "dependency of removing GlancesPassword",
+            "scenario of 0 -> 1": "edit 0 defines the class first, then removes the import in edit 1.",
+            "scenario of 1 -> 0": ""
+        }
+    ]
+}

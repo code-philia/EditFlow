@@ -1,0 +1,2381 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/scrapy/scrapy/commit/2bbbd02bda368c2f052f3aa38f99498a632328bb",
+    "commit_message": "Adding an option to set ACL while uploading the blob to GCS",
+    "commit_snapshots": {
+        "scrapy/extensions/feedexport.py": [
+            [
+                "\"\"\"\n",
+                "Feed Exports extension\n",
+                "\n",
+                "See documentation in docs/topics/feed-exports.rst\n",
+                "\"\"\"\n",
+                "\n",
+                "import os\n",
+                "import sys\n",
+                "import logging\n",
+                "import posixpath\n",
+                "from tempfile import NamedTemporaryFile\n",
+                "from datetime import datetime\n",
+                "import six\n",
+                "from six.moves.urllib.parse import urlparse\n",
+                "from ftplib import FTP\n",
+                "\n",
+                "from zope.interface import Interface, implementer\n",
+                "from twisted.internet import defer, threads\n",
+                "from w3lib.url import file_uri_to_path\n",
+                "\n",
+                "from scrapy import signals\n",
+                "from scrapy.utils.ftp import ftp_makedirs_cwd\n",
+                "from scrapy.exceptions import NotConfigured\n",
+                "from scrapy.utils.misc import create_instance, load_object\n",
+                "from scrapy.utils.log import failure_to_exc_info\n",
+                "from scrapy.utils.python import without_none_values\n",
+                "from scrapy.utils.boto import is_botocore\n",
+                "\n",
+                "logger = logging.getLogger(__name__)\n",
+                "\n",
+                "\n",
+                "class IFeedStorage(Interface):\n",
+                "    \"\"\"Interface that all Feed Storages must implement\"\"\"\n",
+                "\n",
+                "    def __init__(uri):\n",
+                "        \"\"\"Initialize the storage with the parameters given in the URI\"\"\"\n",
+                "\n",
+                "    def open(spider):\n",
+                "        \"\"\"Open the storage for the given spider. It must return a file-like\n",
+                "        object that will be used for the exporters\"\"\"\n",
+                "\n",
+                "    def store(file):\n",
+                "        \"\"\"Store the given file stream\"\"\"\n",
+                "\n",
+                "\n",
+                "@implementer(IFeedStorage)\n",
+                "class BlockingFeedStorage(object):\n",
+                "\n",
+                "    def open(self, spider):\n",
+                "        path = spider.crawler.settings['FEED_TEMPDIR']\n",
+                "        if path and not os.path.isdir(path):\n",
+                "            raise OSError('Not a Directory: ' + str(path))\n",
+                "\n",
+                "        return NamedTemporaryFile(prefix='feed-', dir=path)\n",
+                "\n",
+                "    def store(self, file):\n",
+                "        return threads.deferToThread(self._store_in_thread, file)\n",
+                "\n",
+                "    def _store_in_thread(self, file):\n",
+                "        raise NotImplementedError\n",
+                "\n",
+                "\n",
+                "@implementer(IFeedStorage)\n",
+                "class StdoutFeedStorage(object):\n",
+                "\n",
+                "    def __init__(self, uri, _stdout=None):\n",
+                "        if not _stdout:\n",
+                "            _stdout = sys.stdout if six.PY2 else sys.stdout.buffer\n",
+                "        self._stdout = _stdout\n",
+                "\n",
+                "    def open(self, spider):\n",
+                "        return self._stdout\n",
+                "\n",
+                "    def store(self, file):\n",
+                "        pass\n",
+                "\n",
+                "\n",
+                "@implementer(IFeedStorage)\n",
+                "class FileFeedStorage(object):\n",
+                "\n",
+                "    def __init__(self, uri):\n",
+                "        self.path = file_uri_to_path(uri)\n",
+                "\n",
+                "    def open(self, spider):\n",
+                "        dirname = os.path.dirname(self.path)\n",
+                "        if dirname and not os.path.exists(dirname):\n",
+                "            os.makedirs(dirname)\n",
+                "        return open(self.path, 'ab')\n",
+                "\n",
+                "    def store(self, file):\n",
+                "        file.close()\n",
+                "\n",
+                "\n",
+                "class S3FeedStorage(BlockingFeedStorage):\n",
+                "\n",
+                "    def __init__(self, uri, access_key=None, secret_key=None):\n",
+                "        # BEGIN Backwards compatibility for initialising without keys (and\n",
+                "        # without using from_crawler)\n",
+                "        no_defaults = access_key is None and secret_key is None\n",
+                "        if no_defaults:\n",
+                "            from scrapy.conf import settings\n",
+                "            if 'AWS_ACCESS_KEY_ID' in settings or 'AWS_SECRET_ACCESS_KEY' in settings:\n",
+                "                import warnings\n",
+                "                from scrapy.exceptions import ScrapyDeprecationWarning\n",
+                "                warnings.warn(\n",
+                "                    \"Initialising `scrapy.extensions.feedexport.S3FeedStorage` \"\n",
+                "                    \"without AWS keys is deprecated. Please supply credentials or \"\n",
+                "                    \"use the `from_crawler()` constructor.\",\n",
+                "                    category=ScrapyDeprecationWarning,\n",
+                "                    stacklevel=2\n",
+                "                )\n",
+                "                access_key = settings['AWS_ACCESS_KEY_ID']\n",
+                "                secret_key = settings['AWS_SECRET_ACCESS_KEY']\n",
+                "        # END Backwards compatibility\n",
+                "        u = urlparse(uri)\n",
+                "        self.bucketname = u.hostname\n",
+                "        self.access_key = u.username or access_key\n",
+                "        self.secret_key = u.password or secret_key\n",
+                "        self.is_botocore = is_botocore()\n",
+                "        self.keyname = u.path[1:]  # remove first \"/\"\n",
+                "        if self.is_botocore:\n",
+                "            import botocore.session\n",
+                "            session = botocore.session.get_session()\n",
+                "            self.s3_client = session.create_client(\n",
+                "                's3', aws_access_key_id=self.access_key,\n",
+                "                aws_secret_access_key=self.secret_key)\n",
+                "        else:\n",
+                "            import boto\n",
+                "            self.connect_s3 = boto.connect_s3\n",
+                "\n",
+                "    @classmethod\n",
+                "    def from_crawler(cls, crawler, uri):\n",
+                "        return cls(uri, crawler.settings['AWS_ACCESS_KEY_ID'],\n",
+                "                   crawler.settings['AWS_SECRET_ACCESS_KEY'])\n",
+                "\n",
+                "    def _store_in_thread(self, file):\n",
+                "        file.seek(0)\n",
+                "        if self.is_botocore:\n",
+                "            self.s3_client.put_object(\n",
+                "                Bucket=self.bucketname, Key=self.keyname, Body=file)\n",
+                "        else:\n",
+                "            conn = self.connect_s3(self.access_key, self.secret_key)\n",
+                "            bucket = conn.get_bucket(self.bucketname, validate=False)\n",
+                "            key = bucket.new_key(self.keyname)\n",
+                "            key.set_contents_from_file(file)\n",
+                "            key.close()\n",
+                "\n",
+                "\n",
+                "class GCSFeedStorage(BlockingFeedStorage):\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def __init__(self, uri, project_id):\n"
+                ],
+                "after": [
+                    "    def __init__(self, uri, project_id, acl):\n"
+                ],
+                "parent_version_range": {
+                    "start": 150,
+                    "end": 151
+                },
+                "child_version_range": {
+                    "start": 150,
+                    "end": 151
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorage",
+                        "signature": "class GCSFeedStorage(BlockingFeedStorage):",
+                        "at_line": 148
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, uri, project_id):",
+                        "at_line": 150
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: scrapy/extensions/feedexport.py\nCode:\n147 147    \n148 148    class GCSFeedStorage(BlockingFeedStorage):\n149 149    \n150      -     def __init__(self, uri, project_id):\n    150  +     def __init__(self, uri, project_id, acl):\n151 151            self.project_id = project_id\n         ...\n",
+                "file_path": "scrapy/extensions/feedexport.py",
+                "identifiers_before": [
+                    "__init__",
+                    "project_id",
+                    "self",
+                    "uri"
+                ],
+                "identifiers_after": [
+                    "__init__",
+                    "acl",
+                    "project_id",
+                    "self",
+                    "uri"
+                ],
+                "prefix": [
+                    "\n",
+                    "class GCSFeedStorage(BlockingFeedStorage):\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        self.project_id = project_id\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 150,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 150,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 150,
+                                    "column": 40
+                                },
+                                "end": {
+                                    "line": 150,
+                                    "column": 43
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    9
+                ]
+            },
+            [
+                "        self.project_id = project_id\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        self.acl = acl\n"
+                ],
+                "parent_version_range": {
+                    "start": 152,
+                    "end": 152
+                },
+                "child_version_range": {
+                    "start": 152,
+                    "end": 153
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorage",
+                        "signature": "class GCSFeedStorage(BlockingFeedStorage):",
+                        "at_line": 148
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, uri, project_id):",
+                        "at_line": 150
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: scrapy/extensions/feedexport.py\nCode:\n           class GCSFeedStorage(BlockingFeedStorage):\n               ...\n               def __init__(self, uri, project_id):\n                   ...\n151 151            self.project_id = project_id\n    152  +         self.acl = acl\n152 153            u = urlparse(uri)\n153 154            self.bucket_name = u.hostname\n154 155            self.blob_name = u.path[1:]  # remove first \"/\"\n         ...\n",
+                "file_path": "scrapy/extensions/feedexport.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "acl",
+                    "self"
+                ],
+                "prefix": [
+                    "        self.project_id = project_id\n"
+                ],
+                "suffix": [
+                    "        u = urlparse(uri)\n",
+                    "        self.bucket_name = u.hostname\n",
+                    "        self.blob_name = u.path[1:]  # remove first \"/\"\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "self",
+                            "position": {
+                                "start": {
+                                    "line": 152,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 152,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 152,
+                                    "column": 19
+                                },
+                                "end": {
+                                    "line": 152,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 152,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 152,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 152,
+                                    "column": 13
+                                },
+                                "end": {
+                                    "line": 152,
+                                    "column": 16
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        u = urlparse(uri)\n",
+                "        self.bucket_name = u.hostname\n",
+                "        self.blob_name = u.path[1:]  # remove first \"/\"\n",
+                "\n",
+                "    @classmethod\n",
+                "    def from_crawler(cls, crawler, uri):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return cls(uri, crawler.settings['GCS_PROJECT_ID'])\n"
+                ],
+                "after": [
+                    "        return cls(\n",
+                    "            uri,\n",
+                    "            crawler.settings['GCS_PROJECT_ID'],\n",
+                    "            crawler.settings['FEED_STORAGE_GCS_ACL']\n",
+                    "        )\n"
+                ],
+                "parent_version_range": {
+                    "start": 158,
+                    "end": 159
+                },
+                "child_version_range": {
+                    "start": 159,
+                    "end": 164
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorage",
+                        "signature": "class GCSFeedStorage(BlockingFeedStorage):",
+                        "at_line": 148
+                    },
+                    {
+                        "type": "function",
+                        "name": "from_crawler",
+                        "signature": "def from_crawler(cls, crawler, uri):",
+                        "at_line": 157
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: scrapy/extensions/feedexport.py\nCode:\n           class GCSFeedStorage(BlockingFeedStorage):\n               ...\n155 156    \n156 157        @classmethod\n157 158        def from_crawler(cls, crawler, uri):\n158      -         return cls(uri, crawler.settings['GCS_PROJECT_ID'])\n    159  +         return cls(\n    160  +             uri,\n    161  +             crawler.settings['GCS_PROJECT_ID'],\n    162  +             crawler.settings['FEED_STORAGE_GCS_ACL']\n    163  +         )\n159 164    \n160 165        def _store_in_thread(self, file):\n161 166            file.seek(0)\n         ...\n",
+                "file_path": "scrapy/extensions/feedexport.py",
+                "identifiers_before": [
+                    "cls",
+                    "crawler",
+                    "settings",
+                    "uri"
+                ],
+                "identifiers_after": [
+                    "cls",
+                    "crawler",
+                    "settings",
+                    "uri"
+                ],
+                "prefix": [
+                    "\n",
+                    "    @classmethod\n",
+                    "    def from_crawler(cls, crawler, uri):\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    def _store_in_thread(self, file):\n",
+                    "        file.seek(0)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    def _store_in_thread(self, file):\n",
+                "        file.seek(0)\n",
+                "        from google.cloud.storage import Client\n",
+                "        client = Client(project=self.project_id)\n",
+                "        bucket = client.get_bucket(self.bucket_name)\n",
+                "        blob = bucket.blob(self.blob_name)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        blob.upload_from_file(file)\n"
+                ],
+                "after": [
+                    "        blob.upload_from_file(file, predefined_acl=self.acl)\n"
+                ],
+                "parent_version_range": {
+                    "start": 166,
+                    "end": 167
+                },
+                "child_version_range": {
+                    "start": 171,
+                    "end": 172
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorage",
+                        "signature": "class GCSFeedStorage(BlockingFeedStorage):",
+                        "at_line": 148
+                    },
+                    {
+                        "type": "function",
+                        "name": "_store_in_thread",
+                        "signature": "def _store_in_thread(self, file):",
+                        "at_line": 160
+                    },
+                    {
+                        "type": "call",
+                        "name": "blob.upload_from_file",
+                        "signature": "blob.upload_from_file(file)",
+                        "at_line": 166,
+                        "argument": "file"
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: scrapy/extensions/feedexport.py\nCode:\n           class GCSFeedStorage(BlockingFeedStorage):\n               ...\n               def _store_in_thread(self, file):\n                   ...\n163 168            client = Client(project=self.project_id)\n164 169            bucket = client.get_bucket(self.bucket_name)\n165 170            blob = bucket.blob(self.blob_name)\n166      -         blob.upload_from_file(file)\n    171  +         blob.upload_from_file(file, predefined_acl=self.acl)\n167 172    \n168 173    \n169 174    class FTPFeedStorage(BlockingFeedStorage):\n         ...\n",
+                "file_path": "scrapy/extensions/feedexport.py",
+                "identifiers_before": [
+                    "blob",
+                    "file",
+                    "upload_from_file"
+                ],
+                "identifiers_after": [
+                    "acl",
+                    "blob",
+                    "file",
+                    "predefined_acl",
+                    "self",
+                    "upload_from_file"
+                ],
+                "prefix": [
+                    "        client = Client(project=self.project_id)\n",
+                    "        bucket = client.get_bucket(self.bucket_name)\n",
+                    "        blob = bucket.blob(self.blob_name)\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "class FTPFeedStorage(BlockingFeedStorage):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 171,
+                                    "column": 56
+                                },
+                                "end": {
+                                    "line": 171,
+                                    "column": 59
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/scrapy/extensions/feedexport.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "class FTPFeedStorage(BlockingFeedStorage):\n",
+                "\n",
+                "    def __init__(self, uri):\n",
+                "        u = urlparse(uri)\n",
+                "        self.host = u.hostname\n",
+                "        self.port = int(u.port or '21')\n",
+                "        self.username = u.username\n",
+                "        self.password = u.password\n",
+                "        self.path = u.path\n",
+                "\n",
+                "    def _store_in_thread(self, file):\n",
+                "        file.seek(0)\n",
+                "        ftp = FTP()\n",
+                "        ftp.connect(self.host, self.port)\n",
+                "        ftp.login(self.username, self.password)\n",
+                "        dirname, filename = posixpath.split(self.path)\n",
+                "        ftp_makedirs_cwd(ftp, dirname)\n",
+                "        ftp.storbinary('STOR %s' % filename, file)\n",
+                "        ftp.quit()\n",
+                "\n",
+                "\n",
+                "class SpiderSlot(object):\n",
+                "    def __init__(self, file, exporter, storage, uri):\n",
+                "        self.file = file\n",
+                "        self.exporter = exporter\n",
+                "        self.storage = storage\n",
+                "        self.uri = uri\n",
+                "        self.itemcount = 0\n",
+                "\n",
+                "\n",
+                "class FeedExporter(object):\n",
+                "\n",
+                "    def __init__(self, settings):\n",
+                "        self.settings = settings\n",
+                "        self.urifmt = settings['FEED_URI']\n",
+                "        if not self.urifmt:\n",
+                "            raise NotConfigured\n",
+                "        self.format = settings['FEED_FORMAT'].lower()\n",
+                "        self.export_encoding = settings['FEED_EXPORT_ENCODING']\n",
+                "        self.storages = self._load_components('FEED_STORAGES')\n",
+                "        self.exporters = self._load_components('FEED_EXPORTERS')\n",
+                "        if not self._storage_supported(self.urifmt):\n",
+                "            raise NotConfigured\n",
+                "        if not self._exporter_supported(self.format):\n",
+                "            raise NotConfigured\n",
+                "        self.store_empty = settings.getbool('FEED_STORE_EMPTY')\n",
+                "        self._exporting = False\n",
+                "        self.export_fields = settings.getlist('FEED_EXPORT_FIELDS') or None\n",
+                "        self.indent = None\n",
+                "        if settings.get('FEED_EXPORT_INDENT') is not None:\n",
+                "            self.indent = settings.getint('FEED_EXPORT_INDENT')\n",
+                "        uripar = settings['FEED_URI_PARAMS']\n",
+                "        self._uripar = load_object(uripar) if uripar else lambda x, y: None\n",
+                "\n",
+                "    @classmethod\n",
+                "    def from_crawler(cls, crawler):\n",
+                "        o = cls(crawler.settings)\n",
+                "        o.crawler = crawler\n",
+                "        crawler.signals.connect(o.open_spider, signals.spider_opened)\n",
+                "        crawler.signals.connect(o.close_spider, signals.spider_closed)\n",
+                "        crawler.signals.connect(o.item_scraped, signals.item_scraped)\n",
+                "        return o\n",
+                "\n",
+                "    def open_spider(self, spider):\n",
+                "        uri = self.urifmt % self._get_uri_params(spider)\n",
+                "        storage = self._get_storage(uri)\n",
+                "        file = storage.open(spider)\n",
+                "        exporter = self._get_exporter(file, fields_to_export=self.export_fields,\n",
+                "            encoding=self.export_encoding, indent=self.indent)\n",
+                "        if self.store_empty:\n",
+                "            exporter.start_exporting()\n",
+                "            self._exporting = True\n",
+                "        self.slot = SpiderSlot(file, exporter, storage, uri)\n",
+                "\n",
+                "    def close_spider(self, spider):\n",
+                "        slot = self.slot\n",
+                "        if not slot.itemcount and not self.store_empty:\n",
+                "            return\n",
+                "        if self._exporting:\n",
+                "            slot.exporter.finish_exporting()\n",
+                "            self._exporting = False\n",
+                "        logfmt = \"%s %%(format)s feed (%%(itemcount)d items) in: %%(uri)s\"\n",
+                "        log_args = {'format': self.format,\n",
+                "                    'itemcount': slot.itemcount,\n",
+                "                    'uri': slot.uri}\n",
+                "        d = defer.maybeDeferred(slot.storage.store, slot.file)\n",
+                "        d.addCallback(lambda _: logger.info(logfmt % \"Stored\", log_args,\n",
+                "                                            extra={'spider': spider}))\n",
+                "        d.addErrback(lambda f: logger.error(logfmt % \"Error storing\", log_args,\n",
+                "                                            exc_info=failure_to_exc_info(f),\n",
+                "                                            extra={'spider': spider}))\n",
+                "        return d\n",
+                "\n",
+                "    def item_scraped(self, item, spider):\n",
+                "        slot = self.slot\n",
+                "        if not self._exporting:\n",
+                "            slot.exporter.start_exporting()\n",
+                "            self._exporting = True\n",
+                "        slot.exporter.export_item(item)\n",
+                "        slot.itemcount += 1\n",
+                "        return item\n",
+                "\n",
+                "    def _load_components(self, setting_prefix):\n",
+                "        conf = without_none_values(self.settings.getwithbase(setting_prefix))\n",
+                "        d = {}\n",
+                "        for k, v in conf.items():\n",
+                "            try:\n",
+                "                d[k] = load_object(v)\n",
+                "            except NotConfigured:\n",
+                "                pass\n",
+                "        return d\n",
+                "\n",
+                "    def _exporter_supported(self, format):\n",
+                "        if format in self.exporters:\n",
+                "            return True\n",
+                "        logger.error(\"Unknown feed format: %(format)s\", {'format': format})\n",
+                "\n",
+                "    def _storage_supported(self, uri):\n",
+                "        scheme = urlparse(uri).scheme\n",
+                "        if scheme in self.storages:\n",
+                "            try:\n",
+                "                self._get_storage(uri)\n",
+                "                return True\n",
+                "            except NotConfigured as e:\n",
+                "                logger.error(\"Disabled feed storage scheme: %(scheme)s. \"\n",
+                "                             \"Reason: %(reason)s\",\n",
+                "                             {'scheme': scheme, 'reason': str(e)})\n",
+                "        else:\n",
+                "            logger.error(\"Unknown feed storage scheme: %(scheme)s\",\n",
+                "                         {'scheme': scheme})\n",
+                "\n",
+                "    def _get_instance(self, objcls, *args, **kwargs):\n",
+                "        return create_instance(\n",
+                "            objcls, self.settings, getattr(self, 'crawler', None),\n",
+                "            *args, **kwargs)\n",
+                "\n",
+                "    def _get_exporter(self, *args, **kwargs):\n",
+                "        return self._get_instance(self.exporters[self.format], *args, **kwargs)\n",
+                "\n",
+                "    def _get_storage(self, uri):\n",
+                "        return self._get_instance(self.storages[urlparse(uri).scheme], uri)\n",
+                "\n",
+                "    def _get_uri_params(self, spider):\n",
+                "        params = {}\n",
+                "        for k in dir(spider):\n",
+                "            params[k] = getattr(spider, k)\n",
+                "        ts = datetime.utcnow().replace(microsecond=0).isoformat().replace(':', '-')\n",
+                "        params['time'] = ts\n",
+                "        self._uripar(params, spider)\n",
+                "        return params"
+            ]
+        ],
+        "scrapy/settings/default_settings.py": [
+            [
+                "\"\"\"\n",
+                "This module contains the default values for all settings used by Scrapy.\n",
+                "\n",
+                "For more information about these settings you can read the settings\n",
+                "documentation in docs/topics/settings.rst\n",
+                "\n",
+                "Scrapy developers, if you add a setting here remember to:\n",
+                "\n",
+                "* add it in alphabetical order\n",
+                "* group similar settings without leaving blank lines\n",
+                "* add its documentation to the available settings documentation\n",
+                "  (docs/topics/settings.rst)\n",
+                "\n",
+                "\"\"\"\n",
+                "\n",
+                "import sys\n",
+                "from importlib import import_module\n",
+                "from os.path import join, abspath, dirname\n",
+                "\n",
+                "import six\n",
+                "\n",
+                "AJAXCRAWL_ENABLED = False\n",
+                "\n",
+                "AUTOTHROTTLE_ENABLED = False\n",
+                "AUTOTHROTTLE_DEBUG = False\n",
+                "AUTOTHROTTLE_MAX_DELAY = 60.0\n",
+                "AUTOTHROTTLE_START_DELAY = 5.0\n",
+                "AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0\n",
+                "\n",
+                "BOT_NAME = 'scrapybot'\n",
+                "\n",
+                "CLOSESPIDER_TIMEOUT = 0\n",
+                "CLOSESPIDER_PAGECOUNT = 0\n",
+                "CLOSESPIDER_ITEMCOUNT = 0\n",
+                "CLOSESPIDER_ERRORCOUNT = 0\n",
+                "\n",
+                "COMMANDS_MODULE = ''\n",
+                "\n",
+                "COMPRESSION_ENABLED = True\n",
+                "\n",
+                "CONCURRENT_ITEMS = 100\n",
+                "\n",
+                "CONCURRENT_REQUESTS = 16\n",
+                "CONCURRENT_REQUESTS_PER_DOMAIN = 8\n",
+                "CONCURRENT_REQUESTS_PER_IP = 0\n",
+                "\n",
+                "COOKIES_ENABLED = True\n",
+                "COOKIES_DEBUG = False\n",
+                "\n",
+                "DEFAULT_ITEM_CLASS = 'scrapy.item.Item'\n",
+                "\n",
+                "DEFAULT_REQUEST_HEADERS = {\n",
+                "    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',\n",
+                "    'Accept-Language': 'en',\n",
+                "}\n",
+                "\n",
+                "DEPTH_LIMIT = 0\n",
+                "DEPTH_STATS_VERBOSE = False\n",
+                "DEPTH_PRIORITY = 0\n",
+                "\n",
+                "DNSCACHE_ENABLED = True\n",
+                "DNSCACHE_SIZE = 10000\n",
+                "DNS_TIMEOUT = 60\n",
+                "\n",
+                "DOWNLOAD_DELAY = 0\n",
+                "\n",
+                "DOWNLOAD_HANDLERS = {}\n",
+                "DOWNLOAD_HANDLERS_BASE = {\n",
+                "    'data': 'scrapy.core.downloader.handlers.datauri.DataURIDownloadHandler',\n",
+                "    'file': 'scrapy.core.downloader.handlers.file.FileDownloadHandler',\n",
+                "    'http': 'scrapy.core.downloader.handlers.http.HTTPDownloadHandler',\n",
+                "    'https': 'scrapy.core.downloader.handlers.http.HTTPDownloadHandler',\n",
+                "    's3': 'scrapy.core.downloader.handlers.s3.S3DownloadHandler',\n",
+                "    'ftp': 'scrapy.core.downloader.handlers.ftp.FTPDownloadHandler',\n",
+                "}\n",
+                "\n",
+                "DOWNLOAD_TIMEOUT = 180      # 3mins\n",
+                "\n",
+                "DOWNLOAD_MAXSIZE = 1024*1024*1024   # 1024m\n",
+                "DOWNLOAD_WARNSIZE = 32*1024*1024    # 32m\n",
+                "\n",
+                "DOWNLOAD_FAIL_ON_DATALOSS = True\n",
+                "\n",
+                "DOWNLOADER = 'scrapy.core.downloader.Downloader'\n",
+                "\n",
+                "DOWNLOADER_HTTPCLIENTFACTORY = 'scrapy.core.downloader.webclient.ScrapyHTTPClientFactory'\n",
+                "DOWNLOADER_CLIENTCONTEXTFACTORY = 'scrapy.core.downloader.contextfactory.ScrapyClientContextFactory'\n",
+                "DOWNLOADER_CLIENT_TLS_METHOD = 'TLS' # Use highest TLS/SSL protocol version supported by the platform,\n",
+                "                                     # also allowing negotiation\n",
+                "\n",
+                "DOWNLOADER_MIDDLEWARES = {}\n",
+                "\n",
+                "DOWNLOADER_MIDDLEWARES_BASE = {\n",
+                "    # Engine side\n",
+                "    'scrapy.downloadermiddlewares.robotstxt.RobotsTxtMiddleware': 100,\n",
+                "    'scrapy.downloadermiddlewares.httpauth.HttpAuthMiddleware': 300,\n",
+                "    'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware': 350,\n",
+                "    'scrapy.downloadermiddlewares.defaultheaders.DefaultHeadersMiddleware': 400,\n",
+                "    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': 500,\n",
+                "    'scrapy.downloadermiddlewares.retry.RetryMiddleware': 550,\n",
+                "    'scrapy.downloadermiddlewares.ajaxcrawl.AjaxCrawlMiddleware': 560,\n",
+                "    'scrapy.downloadermiddlewares.redirect.MetaRefreshMiddleware': 580,\n",
+                "    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 590,\n",
+                "    'scrapy.downloadermiddlewares.redirect.RedirectMiddleware': 600,\n",
+                "    'scrapy.downloadermiddlewares.cookies.CookiesMiddleware': 700,\n",
+                "    'scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware': 750,\n",
+                "    'scrapy.downloadermiddlewares.stats.DownloaderStats': 850,\n",
+                "    'scrapy.downloadermiddlewares.httpcache.HttpCacheMiddleware': 900,\n",
+                "    # Downloader side\n",
+                "}\n",
+                "\n",
+                "DOWNLOADER_STATS = True\n",
+                "\n",
+                "DUPEFILTER_CLASS = 'scrapy.dupefilters.RFPDupeFilter'\n",
+                "\n",
+                "EDITOR = 'vi'\n",
+                "if sys.platform == 'win32':\n",
+                "    EDITOR = '%s -m idlelib.idle'\n",
+                "\n",
+                "EXTENSIONS = {}\n",
+                "\n",
+                "EXTENSIONS_BASE = {\n",
+                "    'scrapy.extensions.corestats.CoreStats': 0,\n",
+                "    'scrapy.extensions.telnet.TelnetConsole': 0,\n",
+                "    'scrapy.extensions.memusage.MemoryUsage': 0,\n",
+                "    'scrapy.extensions.memdebug.MemoryDebugger': 0,\n",
+                "    'scrapy.extensions.closespider.CloseSpider': 0,\n",
+                "    'scrapy.extensions.feedexport.FeedExporter': 0,\n",
+                "    'scrapy.extensions.logstats.LogStats': 0,\n",
+                "    'scrapy.extensions.spiderstate.SpiderState': 0,\n",
+                "    'scrapy.extensions.throttle.AutoThrottle': 0,\n",
+                "}\n",
+                "\n",
+                "FEED_TEMPDIR = None\n",
+                "FEED_URI = None\n",
+                "FEED_URI_PARAMS = None  # a function to extend uri arguments\n",
+                "FEED_FORMAT = 'jsonlines'\n",
+                "FEED_STORE_EMPTY = False\n",
+                "FEED_EXPORT_ENCODING = None\n",
+                "FEED_EXPORT_FIELDS = None\n",
+                "FEED_STORAGES = {}\n",
+                "FEED_STORAGES_BASE = {\n",
+                "    '': 'scrapy.extensions.feedexport.FileFeedStorage',\n",
+                "    'file': 'scrapy.extensions.feedexport.FileFeedStorage',\n",
+                "    'ftp': 'scrapy.extensions.feedexport.FTPFeedStorage',\n",
+                "    'gcs': 'scrapy.extensions.feedexport.GCSFeedStorage',\n",
+                "    's3': 'scrapy.extensions.feedexport.S3FeedStorage',\n",
+                "    'stdout': 'scrapy.extensions.feedexport.StdoutFeedStorage',\n",
+                "}\n",
+                "FEED_EXPORTERS = {}\n",
+                "FEED_EXPORTERS_BASE = {\n",
+                "    'json': 'scrapy.exporters.JsonItemExporter',\n",
+                "    'jsonlines': 'scrapy.exporters.JsonLinesItemExporter',\n",
+                "    'jl': 'scrapy.exporters.JsonLinesItemExporter',\n",
+                "    'csv': 'scrapy.exporters.CsvItemExporter',\n",
+                "    'xml': 'scrapy.exporters.XmlItemExporter',\n",
+                "    'marshal': 'scrapy.exporters.MarshalItemExporter',\n",
+                "    'pickle': 'scrapy.exporters.PickleItemExporter',\n",
+                "}\n",
+                "FEED_EXPORT_INDENT = 0\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "FEED_STORAGE_GCS_ACL = None\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 161,
+                    "end": 161
+                },
+                "child_version_range": {
+                    "start": 161,
+                    "end": 163
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: scrapy/settings/default_settings.py\nCode:\n  ...\n158 158    }\n159 159    FEED_EXPORT_INDENT = 0\n160 160    \n    161  + FEED_STORAGE_GCS_ACL = None\n    162  + \n161 163    FILES_STORE_S3_ACL = 'private'\n162 164    FILES_STORE_GCS_ACL = ''\n163 165    \n         ...\n",
+                "file_path": "scrapy/settings/default_settings.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "FEED_STORAGE_GCS_ACL"
+                ],
+                "prefix": [
+                    "}\n",
+                    "FEED_EXPORT_INDENT = 0\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "FILES_STORE_S3_ACL = 'private'\n",
+                    "FILES_STORE_GCS_ACL = ''\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "FILES_STORE_S3_ACL = 'private'\n",
+                "FILES_STORE_GCS_ACL = ''\n",
+                "\n",
+                "FTP_USER = 'anonymous'\n",
+                "FTP_PASSWORD = 'guest'\n",
+                "FTP_PASSIVE_MODE = True\n",
+                "\n",
+                "HTTPCACHE_ENABLED = False\n",
+                "HTTPCACHE_DIR = 'httpcache'\n",
+                "HTTPCACHE_IGNORE_MISSING = False\n",
+                "HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'\n",
+                "HTTPCACHE_EXPIRATION_SECS = 0\n",
+                "HTTPCACHE_ALWAYS_STORE = False\n",
+                "HTTPCACHE_IGNORE_HTTP_CODES = []\n",
+                "HTTPCACHE_IGNORE_SCHEMES = ['file']\n",
+                "HTTPCACHE_IGNORE_RESPONSE_CACHE_CONTROLS = []\n",
+                "HTTPCACHE_DBM_MODULE = 'anydbm' if six.PY2 else 'dbm'\n",
+                "HTTPCACHE_POLICY = 'scrapy.extensions.httpcache.DummyPolicy'\n",
+                "HTTPCACHE_GZIP = False\n",
+                "\n",
+                "HTTPPROXY_ENABLED = True\n",
+                "HTTPPROXY_AUTH_ENCODING = 'latin-1'\n",
+                "\n",
+                "IMAGES_STORE_S3_ACL = 'private'\n",
+                "IMAGES_STORE_GCS_ACL = ''\n",
+                "\n",
+                "ITEM_PROCESSOR = 'scrapy.pipelines.ItemPipelineManager'\n",
+                "\n",
+                "ITEM_PIPELINES = {}\n",
+                "ITEM_PIPELINES_BASE = {}\n",
+                "\n",
+                "LOG_ENABLED = True\n",
+                "LOG_ENCODING = 'utf-8'\n",
+                "LOG_FORMATTER = 'scrapy.logformatter.LogFormatter'\n",
+                "LOG_FORMAT = '%(asctime)s [%(name)s] %(levelname)s: %(message)s'\n",
+                "LOG_DATEFORMAT = '%Y-%m-%d %H:%M:%S'\n",
+                "LOG_STDOUT = False\n",
+                "LOG_LEVEL = 'DEBUG'\n",
+                "LOG_FILE = None\n",
+                "LOG_SHORT_NAMES = False\n",
+                "\n",
+                "SCHEDULER_DEBUG = False\n",
+                "\n",
+                "LOGSTATS_INTERVAL = 60.0\n",
+                "\n",
+                "MAIL_HOST = 'localhost'\n",
+                "MAIL_PORT = 25\n",
+                "MAIL_FROM = 'scrapy@localhost'\n",
+                "MAIL_PASS = None\n",
+                "MAIL_USER = None\n",
+                "\n",
+                "MEMDEBUG_ENABLED = False        # enable memory debugging\n",
+                "MEMDEBUG_NOTIFY = []            # send memory debugging report by mail at engine shutdown\n",
+                "\n",
+                "MEMUSAGE_CHECK_INTERVAL_SECONDS = 60.0\n",
+                "MEMUSAGE_ENABLED = True\n",
+                "MEMUSAGE_LIMIT_MB = 0\n",
+                "MEMUSAGE_NOTIFY_MAIL = []\n",
+                "MEMUSAGE_WARNING_MB = 0\n",
+                "\n",
+                "METAREFRESH_ENABLED = True\n",
+                "METAREFRESH_MAXDELAY = 100\n",
+                "\n",
+                "NEWSPIDER_MODULE = ''\n",
+                "\n",
+                "RANDOMIZE_DOWNLOAD_DELAY = True\n",
+                "\n",
+                "REACTOR_THREADPOOL_MAXSIZE = 10\n",
+                "\n",
+                "REDIRECT_ENABLED = True\n",
+                "REDIRECT_MAX_TIMES = 20  # uses Firefox default setting\n",
+                "REDIRECT_PRIORITY_ADJUST = +2\n",
+                "\n",
+                "REFERER_ENABLED = True\n",
+                "REFERRER_POLICY = 'scrapy.spidermiddlewares.referer.DefaultReferrerPolicy'\n",
+                "\n",
+                "RETRY_ENABLED = True\n",
+                "RETRY_TIMES = 2  # initial response + 2 retries = 3 requests\n",
+                "RETRY_HTTP_CODES = [500, 502, 503, 504, 522, 524, 408]\n",
+                "RETRY_PRIORITY_ADJUST = -1\n",
+                "\n",
+                "ROBOTSTXT_OBEY = False\n",
+                "\n",
+                "SCHEDULER = 'scrapy.core.scheduler.Scheduler'\n",
+                "SCHEDULER_DISK_QUEUE = 'scrapy.squeues.PickleLifoDiskQueue'\n",
+                "SCHEDULER_MEMORY_QUEUE = 'scrapy.squeues.LifoMemoryQueue'\n",
+                "SCHEDULER_PRIORITY_QUEUE = 'queuelib.PriorityQueue'\n",
+                "\n",
+                "SPIDER_LOADER_CLASS = 'scrapy.spiderloader.SpiderLoader'\n",
+                "SPIDER_LOADER_WARN_ONLY = False\n",
+                "\n",
+                "SPIDER_MIDDLEWARES = {}\n",
+                "\n",
+                "SPIDER_MIDDLEWARES_BASE = {\n",
+                "    # Engine side\n",
+                "    'scrapy.spidermiddlewares.httperror.HttpErrorMiddleware': 50,\n",
+                "    'scrapy.spidermiddlewares.offsite.OffsiteMiddleware': 500,\n",
+                "    'scrapy.spidermiddlewares.referer.RefererMiddleware': 700,\n",
+                "    'scrapy.spidermiddlewares.urllength.UrlLengthMiddleware': 800,\n",
+                "    'scrapy.spidermiddlewares.depth.DepthMiddleware': 900,\n",
+                "    # Spider side\n",
+                "}\n",
+                "\n",
+                "SPIDER_MODULES = []\n",
+                "\n",
+                "STATS_CLASS = 'scrapy.statscollectors.MemoryStatsCollector'\n",
+                "STATS_DUMP = True\n",
+                "\n",
+                "STATSMAILER_RCPTS = []\n",
+                "\n",
+                "TEMPLATES_DIR = abspath(join(dirname(__file__), '..', 'templates'))\n",
+                "\n",
+                "URLLENGTH_LIMIT = 2083\n",
+                "\n",
+                "USER_AGENT = 'Scrapy/%s (+https://scrapy.org)' % import_module('scrapy').__version__\n",
+                "\n",
+                "TELNETCONSOLE_ENABLED = 1\n",
+                "TELNETCONSOLE_PORT = [6023, 6073]\n",
+                "TELNETCONSOLE_HOST = '127.0.0.1'\n",
+                "TELNETCONSOLE_USERNAME = 'scrapy'\n",
+                "TELNETCONSOLE_PASSWORD = None\n",
+                "\n",
+                "SPIDER_CONTRACTS = {}\n",
+                "SPIDER_CONTRACTS_BASE = {\n",
+                "    'scrapy.contracts.default.UrlContract': 1,\n",
+                "    'scrapy.contracts.default.ReturnsContract': 2,\n",
+                "    'scrapy.contracts.default.ScrapesContract': 3,\n",
+                "}"
+            ]
+        ],
+        "tests/test_feedexport.py": [
+            [
+                "from __future__ import absolute_import\n",
+                "import os\n",
+                "import csv\n",
+                "import json\n",
+                "import warnings\n",
+                "from io import BytesIO\n",
+                "import tempfile\n",
+                "import shutil\n",
+                "from six.moves.urllib.parse import urljoin, urlparse\n",
+                "from six.moves.urllib.request import pathname2url\n",
+                "\n",
+                "from zope.interface.verify import verifyObject\n",
+                "from twisted.trial import unittest\n",
+                "from twisted.internet import defer\n",
+                "from scrapy.crawler import CrawlerRunner\n",
+                "from scrapy.settings import Settings\n",
+                "from tests import mock\n",
+                "from tests.mockserver import MockServer\n",
+                "from w3lib.url import path_to_file_uri\n",
+                "\n",
+                "import scrapy\n",
+                "from scrapy.exporters import CsvItemExporter\n",
+                "from scrapy.extensions.feedexport import (\n",
+                "    IFeedStorage, FileFeedStorage, FTPFeedStorage, GCSFeedStorage,\n",
+                "    S3FeedStorage, StdoutFeedStorage,\n",
+                "    BlockingFeedStorage)\n",
+                "from scrapy.utils.test import (assert_aws_environ, get_s3_content_and_delete,\n",
+                "    get_crawler, mock_google_cloud_storage)\n",
+                "from scrapy.utils.python import to_native_str\n",
+                "\n",
+                "\n",
+                "class FileFeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    def test_store_file_uri(self):\n",
+                "        path = os.path.abspath(self.mktemp())\n",
+                "        uri = path_to_file_uri(path)\n",
+                "        return self._assert_stores(FileFeedStorage(uri), path)\n",
+                "\n",
+                "    def test_store_file_uri_makedirs(self):\n",
+                "        path = os.path.abspath(self.mktemp())\n",
+                "        path = os.path.join(path, 'more', 'paths', 'file.txt')\n",
+                "        uri = path_to_file_uri(path)\n",
+                "        return self._assert_stores(FileFeedStorage(uri), path)\n",
+                "\n",
+                "    def test_store_direct_path(self):\n",
+                "        path = os.path.abspath(self.mktemp())\n",
+                "        return self._assert_stores(FileFeedStorage(path), path)\n",
+                "\n",
+                "    def test_store_direct_path_relative(self):\n",
+                "        path = self.mktemp()\n",
+                "        return self._assert_stores(FileFeedStorage(path), path)\n",
+                "\n",
+                "    def test_interface(self):\n",
+                "        path = self.mktemp()\n",
+                "        st = FileFeedStorage(path)\n",
+                "        verifyObject(IFeedStorage, st)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def _assert_stores(self, storage, path):\n",
+                "        spider = scrapy.Spider(\"default\")\n",
+                "        file = storage.open(spider)\n",
+                "        file.write(b\"content\")\n",
+                "        yield storage.store(file)\n",
+                "        self.assertTrue(os.path.exists(path))\n",
+                "        try:\n",
+                "            with open(path, 'rb') as fp:\n",
+                "                self.assertEqual(fp.read(), b\"content\")\n",
+                "        finally:\n",
+                "            os.unlink(path)\n",
+                "\n",
+                "\n",
+                "class FTPFeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    def test_store(self):\n",
+                "        uri = os.environ.get('FEEDTEST_FTP_URI')\n",
+                "        path = os.environ.get('FEEDTEST_FTP_PATH')\n",
+                "        if not (uri and path):\n",
+                "            raise unittest.SkipTest(\"No FTP server available for testing\")\n",
+                "        st = FTPFeedStorage(uri)\n",
+                "        verifyObject(IFeedStorage, st)\n",
+                "        return self._assert_stores(st, path)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def _assert_stores(self, storage, path):\n",
+                "        spider = scrapy.Spider(\"default\")\n",
+                "        file = storage.open(spider)\n",
+                "        file.write(b\"content\")\n",
+                "        yield storage.store(file)\n",
+                "        self.assertTrue(os.path.exists(path))\n",
+                "        try:\n",
+                "            with open(path, 'rb') as fp:\n",
+                "                self.assertEqual(fp.read(), b\"content\")\n",
+                "            # again, to check s3 objects are overwritten\n",
+                "            yield storage.store(BytesIO(b\"new content\"))\n",
+                "            with open(path, 'rb') as fp:\n",
+                "                self.assertEqual(fp.read(), b\"new content\")\n",
+                "        finally:\n",
+                "            os.unlink(path)\n",
+                "\n",
+                "\n",
+                "class BlockingFeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    def get_test_spider(self, settings=None):\n",
+                "        class TestSpider(scrapy.Spider):\n",
+                "            name = 'test_spider'\n",
+                "        crawler = get_crawler(settings_dict=settings)\n",
+                "        spider = TestSpider.from_crawler(crawler)\n",
+                "        return spider\n",
+                "\n",
+                "    def test_default_temp_dir(self):\n",
+                "        b = BlockingFeedStorage()\n",
+                "\n",
+                "        tmp = b.open(self.get_test_spider())\n",
+                "        tmp_path = os.path.dirname(tmp.name)\n",
+                "        self.assertEqual(tmp_path, tempfile.gettempdir())\n",
+                "\n",
+                "    def test_temp_file(self):\n",
+                "        b = BlockingFeedStorage()\n",
+                "\n",
+                "        tests_path = os.path.dirname(os.path.abspath(__file__))\n",
+                "        spider = self.get_test_spider({'FEED_TEMPDIR': tests_path})\n",
+                "        tmp = b.open(spider)\n",
+                "        tmp_path = os.path.dirname(tmp.name)\n",
+                "        self.assertEqual(tmp_path, tests_path)\n",
+                "\n",
+                "    def test_invalid_folder(self):\n",
+                "        b = BlockingFeedStorage()\n",
+                "\n",
+                "        tests_path = os.path.dirname(os.path.abspath(__file__))\n",
+                "        invalid_path = os.path.join(tests_path, 'invalid_path')\n",
+                "        spider = self.get_test_spider({'FEED_TEMPDIR': invalid_path})\n",
+                "\n",
+                "        self.assertRaises(OSError, b.open, spider=spider)\n",
+                "\n",
+                "\n",
+                "class S3FeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    @mock.patch('scrapy.conf.settings', new={'AWS_ACCESS_KEY_ID': 'conf_key',\n",
+                "                'AWS_SECRET_ACCESS_KEY': 'conf_secret'}, create=True)\n",
+                "    def test_parse_credentials(self):\n",
+                "        try:\n",
+                "            import boto\n",
+                "        except ImportError:\n",
+                "            raise unittest.SkipTest(\"S3FeedStorage requires boto\")\n",
+                "        aws_credentials = {'AWS_ACCESS_KEY_ID': 'settings_key',\n",
+                "                           'AWS_SECRET_ACCESS_KEY': 'settings_secret'}\n",
+                "        crawler = get_crawler(settings_dict=aws_credentials)\n",
+                "        # Instantiate with crawler\n",
+                "        storage = S3FeedStorage.from_crawler(crawler,\n",
+                "                                             's3://mybucket/export.csv')\n",
+                "        self.assertEqual(storage.access_key, 'settings_key')\n",
+                "        self.assertEqual(storage.secret_key, 'settings_secret')\n",
+                "        # Instantiate directly\n",
+                "        storage = S3FeedStorage('s3://mybucket/export.csv',\n",
+                "                                aws_credentials['AWS_ACCESS_KEY_ID'],\n",
+                "                                aws_credentials['AWS_SECRET_ACCESS_KEY'])\n",
+                "        self.assertEqual(storage.access_key, 'settings_key')\n",
+                "        self.assertEqual(storage.secret_key, 'settings_secret')\n",
+                "        # URI priority > settings priority\n",
+                "        storage = S3FeedStorage('s3://uri_key:uri_secret@mybucket/export.csv',\n",
+                "                                aws_credentials['AWS_ACCESS_KEY_ID'],\n",
+                "                                aws_credentials['AWS_SECRET_ACCESS_KEY'])\n",
+                "        self.assertEqual(storage.access_key, 'uri_key')\n",
+                "        self.assertEqual(storage.secret_key, 'uri_secret')\n",
+                "        # Backwards compatibility for initialising without settings\n",
+                "        with warnings.catch_warnings(record=True) as w:\n",
+                "            storage = S3FeedStorage('s3://mybucket/export.csv')\n",
+                "            self.assertEqual(storage.access_key, 'conf_key')\n",
+                "            self.assertEqual(storage.secret_key, 'conf_secret')\n",
+                "            self.assertTrue('without AWS keys' in str(w[-1].message))\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_store(self):\n",
+                "        assert_aws_environ()\n",
+                "        uri = os.environ.get('S3_TEST_FILE_URI')\n",
+                "        if not uri:\n",
+                "            raise unittest.SkipTest(\"No S3 URI available for testing\")\n",
+                "        access_key = os.environ.get('AWS_ACCESS_KEY_ID')\n",
+                "        secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')\n",
+                "        storage = S3FeedStorage(uri, access_key, secret_key)\n",
+                "        verifyObject(IFeedStorage, storage)\n",
+                "        file = storage.open(scrapy.Spider(\"default\"))\n",
+                "        expected_content = b\"content: \\xe2\\x98\\x83\"\n",
+                "        file.write(expected_content)\n",
+                "        yield storage.store(file)\n",
+                "        u = urlparse(uri)\n",
+                "        content = get_s3_content_and_delete(u.hostname, u.path[1:])\n",
+                "        self.assertEqual(content, expected_content)\n",
+                "\n",
+                "\n",
+                "class GCSFeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    @mock.patch('scrapy.conf.settings',\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "                new={'GCS_PROJECT_ID': 'conf_id' }, create=True)\n"
+                ],
+                "after": [
+                    "                new={'GCS_PROJECT_ID': 'conf_id', 'FEED_STORAGE_GCS_ACL': None }, create=True)\n"
+                ],
+                "parent_version_range": {
+                    "start": 193,
+                    "end": 194
+                },
+                "child_version_range": {
+                    "start": 193,
+                    "end": 194
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "call",
+                        "name": "mock.patch",
+                        "signature": "mock.patch('scrapy.conf.settings',\n                new={'GCS_PROJECT_ID': 'conf_id' }, create=True)",
+                        "at_line": 192,
+                        "argument": "new=..."
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n190 190    class GCSFeedStorageTest(unittest.TestCase):\n191 191    \n192 192        @mock.patch('scrapy.conf.settings',\n193      -                 new={'GCS_PROJECT_ID': 'conf_id' }, create=True)\n    193  +                 new={'GCS_PROJECT_ID': 'conf_id', 'FEED_STORAGE_GCS_ACL': None }, create=True)\n194 194        def test_parse_settings(self):\n195 195            try:\n196 196                from google.cloud.storage import Client\n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [
+                    "create",
+                    "new"
+                ],
+                "identifiers_after": [
+                    "create",
+                    "new"
+                ],
+                "prefix": [
+                    "class GCSFeedStorageTest(unittest.TestCase):\n",
+                    "\n",
+                    "    @mock.patch('scrapy.conf.settings',\n"
+                ],
+                "suffix": [
+                    "    def test_parse_settings(self):\n",
+                    "        try:\n",
+                    "            from google.cloud.storage import Client\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def test_parse_settings(self):\n",
+                "        try:\n",
+                "            from google.cloud.storage import Client\n",
+                "        except ImportError:\n",
+                "            raise unittest.SkipTest(\"GCSFeedStorage requires google-cloud-storage\")\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        settings = {'GCS_PROJECT_ID': '123' }\n"
+                ],
+                "after": [
+                    "        settings = {'GCS_PROJECT_ID': '123', 'FEED_STORAGE_GCS_ACL': 'publicRead' }\n"
+                ],
+                "parent_version_range": {
+                    "start": 200,
+                    "end": 201
+                },
+                "child_version_range": {
+                    "start": 200,
+                    "end": 201
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_parse_settings",
+                        "signature": "def test_parse_settings(self):",
+                        "at_line": 194
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n           class GCSFeedStorageTest(unittest.TestCase):\n               ...\n               def test_parse_settings(self):\n                   ...\n197 197            except ImportError:\n198 198                raise unittest.SkipTest(\"GCSFeedStorage requires google-cloud-storage\")\n199 199    \n200      -         settings = {'GCS_PROJECT_ID': '123' }\n    200  +         settings = {'GCS_PROJECT_ID': '123', 'FEED_STORAGE_GCS_ACL': 'publicRead' }\n201 201            crawler = get_crawler(settings_dict=settings)\n202 202            storage = GCSFeedStorage.from_crawler(crawler, 'gcs://mybucket/export.csv')\n203 203            assert storage.project_id == '123'\n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [
+                    "settings"
+                ],
+                "identifiers_after": [
+                    "settings"
+                ],
+                "prefix": [
+                    "        except ImportError:\n",
+                    "            raise unittest.SkipTest(\"GCSFeedStorage requires google-cloud-storage\")\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        crawler = get_crawler(settings_dict=settings)\n",
+                    "        storage = GCSFeedStorage.from_crawler(crawler, 'gcs://mybucket/export.csv')\n",
+                    "        assert storage.project_id == '123'\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        crawler = get_crawler(settings_dict=settings)\n",
+                "        storage = GCSFeedStorage.from_crawler(crawler, 'gcs://mybucket/export.csv')\n",
+                "        assert storage.project_id == '123'\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        assert storage.acl == 'publicRead'\n"
+                ],
+                "parent_version_range": {
+                    "start": 204,
+                    "end": 204
+                },
+                "child_version_range": {
+                    "start": 204,
+                    "end": 205
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_parse_settings",
+                        "signature": "def test_parse_settings(self):",
+                        "at_line": 194
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n           class GCSFeedStorageTest(unittest.TestCase):\n               ...\n               def test_parse_settings(self):\n                   ...\n201 201            crawler = get_crawler(settings_dict=settings)\n202 202            storage = GCSFeedStorage.from_crawler(crawler, 'gcs://mybucket/export.csv')\n203 203            assert storage.project_id == '123'\n    204  +         assert storage.acl == 'publicRead'\n204 205            assert storage.bucket_name == 'mybucket'\n205 206            assert storage.blob_name == 'export.csv'\n206 207    \n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "acl",
+                    "storage"
+                ],
+                "prefix": [
+                    "        crawler = get_crawler(settings_dict=settings)\n",
+                    "        storage = GCSFeedStorage.from_crawler(crawler, 'gcs://mybucket/export.csv')\n",
+                    "        assert storage.project_id == '123'\n"
+                ],
+                "suffix": [
+                    "        assert storage.bucket_name == 'mybucket'\n",
+                    "        assert storage.blob_name == 'export.csv'\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 204,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 204,
+                                    "column": 26
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/tests/test_feedexport.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        assert storage.bucket_name == 'mybucket'\n",
+                "        assert storage.blob_name == 'export.csv'\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_store(self):\n",
+                "        try:\n",
+                "            from google.cloud.storage import Client\n",
+                "        except ImportError:\n",
+                "            raise unittest.SkipTest(\"GCSFeedStorage requires google-cloud-storage\")\n",
+                "\n",
+                "        uri = 'gcs://mybucket/export.csv'\n",
+                "        project_id = 'myproject-123'\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        acl = 'publicRead'\n"
+                ],
+                "parent_version_range": {
+                    "start": 216,
+                    "end": 216
+                },
+                "child_version_range": {
+                    "start": 217,
+                    "end": 218
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_store",
+                        "signature": "def test_store(self):",
+                        "at_line": 208
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n           class GCSFeedStorageTest(unittest.TestCase):\n               ...\n               def test_store(self):\n                   ...\n213 214    \n214 215            uri = 'gcs://mybucket/export.csv'\n215 216            project_id = 'myproject-123'\n    217  +         acl = 'publicRead'\n216 218            (client_mock, bucket_mock, blob_mock) = mock_google_cloud_storage()\n217 219            with mock.patch('google.cloud.storage.Client') as m:    \n218 220                m.return_value = client_mock\n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "acl"
+                ],
+                "prefix": [
+                    "\n",
+                    "        uri = 'gcs://mybucket/export.csv'\n",
+                    "        project_id = 'myproject-123'\n"
+                ],
+                "suffix": [
+                    "        (client_mock, bucket_mock, blob_mock) = mock_google_cloud_storage()\n",
+                    "        with mock.patch('google.cloud.storage.Client') as m:    \n",
+                    "            m.return_value = client_mock\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 217,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 217,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/tests/test_feedexport.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 217,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 217,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/tests/test_feedexport.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "        (client_mock, bucket_mock, blob_mock) = mock_google_cloud_storage()\n",
+                "        with mock.patch('google.cloud.storage.Client') as m:    \n",
+                "            m.return_value = client_mock\n",
+                "\n",
+                "            f = mock.Mock()\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            storage = GCSFeedStorage(uri, project_id)\n"
+                ],
+                "after": [
+                    "            storage = GCSFeedStorage(uri, project_id, acl)\n"
+                ],
+                "parent_version_range": {
+                    "start": 221,
+                    "end": 222
+                },
+                "child_version_range": {
+                    "start": 223,
+                    "end": 224
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with mock.patch('google.cloud.storage.Client') as m:",
+                        "start_line": 217,
+                        "end_line": 228
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_store",
+                        "signature": "def test_store(self):",
+                        "at_line": 208
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n           class GCSFeedStorageTest(unittest.TestCase):\n               ...\n               def test_store(self):\n                   ...\n218 220                m.return_value = client_mock\n219 221    \n220 222                f = mock.Mock()\n221      -             storage = GCSFeedStorage(uri, project_id)\n    223  +             storage = GCSFeedStorage(uri, project_id, acl)\n222 224                yield storage.store(f)\n223 225    \n224 226                f.seek.assert_called_once_with(0)\n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [
+                    "GCSFeedStorage",
+                    "project_id",
+                    "storage",
+                    "uri"
+                ],
+                "identifiers_after": [
+                    "GCSFeedStorage",
+                    "acl",
+                    "project_id",
+                    "storage",
+                    "uri"
+                ],
+                "prefix": [
+                    "            m.return_value = client_mock\n",
+                    "\n",
+                    "            f = mock.Mock()\n"
+                ],
+                "suffix": [
+                    "            yield storage.store(f)\n",
+                    "\n",
+                    "            f.seek.assert_called_once_with(0)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 223,
+                                    "column": 54
+                                },
+                                "end": {
+                                    "line": 223,
+                                    "column": 57
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/tests/test_feedexport.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "            yield storage.store(f)\n",
+                "\n",
+                "            f.seek.assert_called_once_with(0)\n",
+                "            m.assert_called_once_with(project=project_id)\n",
+                "            client_mock.get_bucket.assert_called_once_with('mybucket')\n",
+                "            bucket_mock.blob.assert_called_once_with('export.csv')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            blob_mock.upload_from_file.assert_called_once_with(f)\n"
+                ],
+                "after": [
+                    "            blob_mock.upload_from_file.assert_called_once_with(f, predefined_acl=acl)\n"
+                ],
+                "parent_version_range": {
+                    "start": 228,
+                    "end": 229
+                },
+                "child_version_range": {
+                    "start": 230,
+                    "end": 231
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with mock.patch('google.cloud.storage.Client') as m:",
+                        "start_line": 217,
+                        "end_line": 228
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "GCSFeedStorageTest",
+                        "signature": "class GCSFeedStorageTest(unittest.TestCase):",
+                        "at_line": 190
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_store",
+                        "signature": "def test_store(self):",
+                        "at_line": 208
+                    },
+                    {
+                        "type": "call",
+                        "name": "blob_mock.upload_from_file.assert_called_once_with",
+                        "signature": "blob_mock.upload_from_file.assert_called_once_with(f)",
+                        "at_line": 228,
+                        "argument": "f"
+                    }
+                ],
+                "idx": 10,
+                "hunk_diff": "File: tests/test_feedexport.py\nCode:\n           class GCSFeedStorageTest(unittest.TestCase):\n               ...\n               def test_store(self):\n                   ...\n225 227                m.assert_called_once_with(project=project_id)\n226 228                client_mock.get_bucket.assert_called_once_with('mybucket')\n227 229                bucket_mock.blob.assert_called_once_with('export.csv')\n228      -             blob_mock.upload_from_file.assert_called_once_with(f)\n    230  +             blob_mock.upload_from_file.assert_called_once_with(f, predefined_acl=acl)\n229 231    \n230 232    class StdoutFeedStorageTest(unittest.TestCase):\n231 233    \n         ...\n",
+                "file_path": "tests/test_feedexport.py",
+                "identifiers_before": [
+                    "assert_called_once_with",
+                    "blob_mock",
+                    "f",
+                    "upload_from_file"
+                ],
+                "identifiers_after": [
+                    "acl",
+                    "assert_called_once_with",
+                    "blob_mock",
+                    "f",
+                    "predefined_acl",
+                    "upload_from_file"
+                ],
+                "prefix": [
+                    "            m.assert_called_once_with(project=project_id)\n",
+                    "            client_mock.get_bucket.assert_called_once_with('mybucket')\n",
+                    "            bucket_mock.blob.assert_called_once_with('export.csv')\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "class StdoutFeedStorageTest(unittest.TestCase):\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "acl",
+                            "position": {
+                                "start": {
+                                    "line": 230,
+                                    "column": 81
+                                },
+                                "end": {
+                                    "line": 230,
+                                    "column": 84
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/scrapy/tests/test_feedexport.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "class StdoutFeedStorageTest(unittest.TestCase):\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_store(self):\n",
+                "        out = BytesIO()\n",
+                "        storage = StdoutFeedStorage('stdout:', _stdout=out)\n",
+                "        file = storage.open(scrapy.Spider(\"default\"))\n",
+                "        file.write(b\"content\")\n",
+                "        yield storage.store(file)\n",
+                "        self.assertEqual(out.getvalue(), b\"content\")\n",
+                "\n",
+                "\n",
+                "class FromCrawlerMixin(object):\n",
+                "    init_with_crawler = False\n",
+                "\n",
+                "    @classmethod\n",
+                "    def from_crawler(cls, crawler, *args, **kwargs):\n",
+                "        cls.init_with_crawler = True\n",
+                "        return cls(*args, **kwargs)\n",
+                "\n",
+                "\n",
+                "class FromCrawlerCsvItemExporter(CsvItemExporter, FromCrawlerMixin):\n",
+                "    pass\n",
+                "\n",
+                "\n",
+                "class FromCrawlerFileFeedStorage(FileFeedStorage, FromCrawlerMixin):\n",
+                "    pass\n",
+                "\n",
+                "\n",
+                "class FeedExportTest(unittest.TestCase):\n",
+                "\n",
+                "    class MyItem(scrapy.Item):\n",
+                "        foo = scrapy.Field()\n",
+                "        egg = scrapy.Field()\n",
+                "        baz = scrapy.Field()\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def run_and_export(self, spider_cls, settings=None):\n",
+                "        \"\"\" Run spider with specified settings; return exported data. \"\"\"\n",
+                "        tmpdir = tempfile.mkdtemp()\n",
+                "        res_path = os.path.join(tmpdir, 'res')\n",
+                "        res_uri = urljoin('file:', pathname2url(res_path))\n",
+                "        defaults = {\n",
+                "            'FEED_URI': res_uri,\n",
+                "            'FEED_FORMAT': 'csv',\n",
+                "        }\n",
+                "        defaults.update(settings or {})\n",
+                "        try:\n",
+                "            with MockServer() as s:\n",
+                "                runner = CrawlerRunner(Settings(defaults))\n",
+                "                spider_cls.start_urls = [s.url('/')]\n",
+                "                yield runner.crawl(spider_cls)\n",
+                "\n",
+                "            with open(res_path, 'rb') as f:\n",
+                "                content = f.read()\n",
+                "\n",
+                "        finally:\n",
+                "            shutil.rmtree(tmpdir, ignore_errors=True)\n",
+                "\n",
+                "        defer.returnValue(content)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def exported_data(self, items, settings):\n",
+                "        \"\"\"\n",
+                "        Return exported data which a spider yielding ``items`` would return.\n",
+                "        \"\"\"\n",
+                "        class TestSpider(scrapy.Spider):\n",
+                "            name = 'testspider'\n",
+                "\n",
+                "            def parse(self, response):\n",
+                "                for item in items:\n",
+                "                    yield item\n",
+                "\n",
+                "        data = yield self.run_and_export(TestSpider, settings)\n",
+                "        defer.returnValue(data)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def exported_no_data(self, settings):\n",
+                "        \"\"\"\n",
+                "        Return exported data which a spider yielding no ``items`` would return.\n",
+                "        \"\"\"\n",
+                "        class TestSpider(scrapy.Spider):\n",
+                "            name = 'testspider'\n",
+                "\n",
+                "            def parse(self, response):\n",
+                "                pass\n",
+                "\n",
+                "        data = yield self.run_and_export(TestSpider, settings)\n",
+                "        defer.returnValue(data)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExportedCsv(self, items, header, rows, settings=None, ordered=True):\n",
+                "        settings = settings or {}\n",
+                "        settings.update({'FEED_FORMAT': 'csv'})\n",
+                "        data = yield self.exported_data(items, settings)\n",
+                "\n",
+                "        reader = csv.DictReader(to_native_str(data).splitlines())\n",
+                "        got_rows = list(reader)\n",
+                "        if ordered:\n",
+                "            self.assertEqual(reader.fieldnames, header)\n",
+                "        else:\n",
+                "            self.assertEqual(set(reader.fieldnames), set(header))\n",
+                "\n",
+                "        self.assertEqual(rows, got_rows)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExportedJsonLines(self, items, rows, settings=None):\n",
+                "        settings = settings or {}\n",
+                "        settings.update({'FEED_FORMAT': 'jl'})\n",
+                "        data = yield self.exported_data(items, settings)\n",
+                "        parsed = [json.loads(to_native_str(line)) for line in data.splitlines()]\n",
+                "        rows = [{k: v for k, v in row.items() if v} for row in rows]\n",
+                "        self.assertEqual(rows, parsed)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExportedXml(self, items, rows, settings=None):\n",
+                "        settings = settings or {}\n",
+                "        settings.update({'FEED_FORMAT': 'xml'})\n",
+                "        data = yield self.exported_data(items, settings)\n",
+                "        rows = [{k: v for k, v in row.items() if v} for row in rows]\n",
+                "        import lxml.etree\n",
+                "        root = lxml.etree.fromstring(data)\n",
+                "        got_rows = [{e.tag: e.text for e in it} for it in root.findall('item')]\n",
+                "        self.assertEqual(rows, got_rows)\n",
+                "\n",
+                "    def _load_until_eof(self, data, load_func):\n",
+                "        bytes_output = BytesIO(data)\n",
+                "        result = []\n",
+                "        while True:\n",
+                "            try:\n",
+                "                result.append(load_func(bytes_output))\n",
+                "            except EOFError:\n",
+                "                break\n",
+                "        return result\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExportedPickle(self, items, rows, settings=None):\n",
+                "        settings = settings or {}\n",
+                "        settings.update({'FEED_FORMAT': 'pickle'})\n",
+                "        data = yield self.exported_data(items, settings)\n",
+                "        expected = [{k: v for k, v in row.items() if v} for row in rows]\n",
+                "        import pickle\n",
+                "        result = self._load_until_eof(data, load_func=pickle.load)\n",
+                "        self.assertEqual(expected, result)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExportedMarshal(self, items, rows, settings=None):\n",
+                "        settings = settings or {}\n",
+                "        settings.update({'FEED_FORMAT': 'marshal'})\n",
+                "        data = yield self.exported_data(items, settings)\n",
+                "        expected = [{k: v for k, v in row.items() if v} for row in rows]\n",
+                "        import marshal\n",
+                "        result = self._load_until_eof(data, load_func=marshal.load)\n",
+                "        self.assertEqual(expected, result)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def assertExported(self, items, header, rows, settings=None, ordered=True):\n",
+                "        yield self.assertExportedCsv(items, header, rows, settings, ordered)\n",
+                "        yield self.assertExportedJsonLines(items, rows, settings)\n",
+                "        yield self.assertExportedXml(items, rows, settings)\n",
+                "        yield self.assertExportedPickle(items, rows, settings)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_items(self):\n",
+                "        # feed exporters use field names from Item\n",
+                "        items = [\n",
+                "            self.MyItem({'foo': 'bar1', 'egg': 'spam1'}),\n",
+                "            self.MyItem({'foo': 'bar2', 'egg': 'spam2', 'baz': 'quux2'}),\n",
+                "        ]\n",
+                "        rows = [\n",
+                "            {'egg': 'spam1', 'foo': 'bar1', 'baz': ''},\n",
+                "            {'egg': 'spam2', 'foo': 'bar2', 'baz': 'quux2'}\n",
+                "        ]\n",
+                "        header = self.MyItem.fields.keys()\n",
+                "        yield self.assertExported(items, header, rows, ordered=False)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_no_items_not_store_empty(self):\n",
+                "        formats = ('json',\n",
+                "                   'jsonlines',\n",
+                "                   'xml',\n",
+                "                   'csv',)\n",
+                "\n",
+                "        for fmt in formats:\n",
+                "            settings = {'FEED_FORMAT': fmt}\n",
+                "            data = yield self.exported_no_data(settings)\n",
+                "            self.assertEqual(data, b'')\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_no_items_store_empty(self):\n",
+                "        formats = (\n",
+                "            ('json', b'[]'),\n",
+                "            ('jsonlines', b''),\n",
+                "            ('xml', b'<?xml version=\"1.0\" encoding=\"utf-8\"?>\\n<items></items>'),\n",
+                "            ('csv', b''),\n",
+                "        )\n",
+                "\n",
+                "        for fmt, expctd in formats:\n",
+                "            settings = {'FEED_FORMAT': fmt, 'FEED_STORE_EMPTY': True, 'FEED_EXPORT_INDENT': None}\n",
+                "            data = yield self.exported_no_data(settings)\n",
+                "            self.assertEqual(data, expctd)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_multiple_item_classes(self):\n",
+                "\n",
+                "        class MyItem2(scrapy.Item):\n",
+                "            foo = scrapy.Field()\n",
+                "            hello = scrapy.Field()\n",
+                "\n",
+                "        items = [\n",
+                "            self.MyItem({'foo': 'bar1', 'egg': 'spam1'}),\n",
+                "            MyItem2({'hello': 'world2', 'foo': 'bar2'}),\n",
+                "            self.MyItem({'foo': 'bar3', 'egg': 'spam3', 'baz': 'quux3'}),\n",
+                "            {'hello': 'world4', 'egg': 'spam4'},\n",
+                "        ]\n",
+                "\n",
+                "        # by default, Scrapy uses fields of the first Item for CSV and\n",
+                "        # all fields for JSON Lines\n",
+                "        header = self.MyItem.fields.keys()\n",
+                "        rows_csv = [\n",
+                "            {'egg': 'spam1', 'foo': 'bar1', 'baz': ''},\n",
+                "            {'egg': '',      'foo': 'bar2', 'baz': ''},\n",
+                "            {'egg': 'spam3', 'foo': 'bar3', 'baz': 'quux3'},\n",
+                "            {'egg': 'spam4', 'foo': '',     'baz': ''},\n",
+                "        ]\n",
+                "        rows_jl = [dict(row) for row in items]\n",
+                "        yield self.assertExportedCsv(items, header, rows_csv, ordered=False)\n",
+                "        yield self.assertExportedJsonLines(items, rows_jl)\n",
+                "\n",
+                "        # edge case: FEED_EXPORT_FIELDS==[] means the same as default None\n",
+                "        settings = {'FEED_EXPORT_FIELDS': []}\n",
+                "        yield self.assertExportedCsv(items, header, rows_csv, ordered=False)\n",
+                "        yield self.assertExportedJsonLines(items, rows_jl, settings)\n",
+                "\n",
+                "        # it is possible to override fields using FEED_EXPORT_FIELDS\n",
+                "        header = [\"foo\", \"baz\", \"hello\"]\n",
+                "        settings = {'FEED_EXPORT_FIELDS': header}\n",
+                "        rows = [\n",
+                "            {'foo': 'bar1', 'baz': '',      'hello': ''},\n",
+                "            {'foo': 'bar2', 'baz': '',      'hello': 'world2'},\n",
+                "            {'foo': 'bar3', 'baz': 'quux3', 'hello': ''},\n",
+                "            {'foo': '',     'baz': '',      'hello': 'world4'},\n",
+                "        ]\n",
+                "        yield self.assertExported(items, header, rows,\n",
+                "                                  settings=settings, ordered=True)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_dicts(self):\n",
+                "        # When dicts are used, only keys from the first row are used as\n",
+                "        # a header for CSV, and all fields are used for JSON Lines.\n",
+                "        items = [\n",
+                "            {'foo': 'bar', 'egg': 'spam'},\n",
+                "            {'foo': 'bar', 'egg': 'spam', 'baz': 'quux'},\n",
+                "        ]\n",
+                "        rows_csv = [\n",
+                "            {'egg': 'spam', 'foo': 'bar'},\n",
+                "            {'egg': 'spam', 'foo': 'bar'}\n",
+                "        ]\n",
+                "        rows_jl = items\n",
+                "        yield self.assertExportedCsv(items, ['egg', 'foo'], rows_csv, ordered=False)\n",
+                "        yield self.assertExportedJsonLines(items, rows_jl)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_feed_export_fields(self):\n",
+                "        # FEED_EXPORT_FIELDS option allows to order export fields\n",
+                "        # and to select a subset of fields to export, both for Items and dicts.\n",
+                "\n",
+                "        for item_cls in [self.MyItem, dict]:\n",
+                "            items = [\n",
+                "                item_cls({'foo': 'bar1', 'egg': 'spam1'}),\n",
+                "                item_cls({'foo': 'bar2', 'egg': 'spam2', 'baz': 'quux2'}),\n",
+                "            ]\n",
+                "\n",
+                "            # export all columns\n",
+                "            settings = {'FEED_EXPORT_FIELDS': 'foo,baz,egg'}\n",
+                "            rows = [\n",
+                "                {'egg': 'spam1', 'foo': 'bar1', 'baz': ''},\n",
+                "                {'egg': 'spam2', 'foo': 'bar2', 'baz': 'quux2'}\n",
+                "            ]\n",
+                "            yield self.assertExported(items, ['foo', 'baz', 'egg'], rows,\n",
+                "                                      settings=settings, ordered=True)\n",
+                "\n",
+                "            # export a subset of columns\n",
+                "            settings = {'FEED_EXPORT_FIELDS': 'egg,baz'}\n",
+                "            rows = [\n",
+                "                {'egg': 'spam1', 'baz': ''},\n",
+                "                {'egg': 'spam2', 'baz': 'quux2'}\n",
+                "            ]\n",
+                "            yield self.assertExported(items, ['egg', 'baz'], rows,\n",
+                "                                      settings=settings, ordered=True)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_encoding(self):\n",
+                "        items = [dict({'foo': u'Test\\xd6'})]\n",
+                "        header = ['foo']\n",
+                "\n",
+                "        formats = {\n",
+                "            'json': u'[{\"foo\": \"Test\\\\u00d6\"}]'.encode('utf-8'),\n",
+                "            'jsonlines': u'{\"foo\": \"Test\\\\u00d6\"}\\n'.encode('utf-8'),\n",
+                "            'xml': u'<?xml version=\"1.0\" encoding=\"utf-8\"?>\\n<items><item><foo>Test\\xd6</foo></item></items>'.encode('utf-8'),\n",
+                "            'csv': u'foo\\r\\nTest\\xd6\\r\\n'.encode('utf-8'),\n",
+                "        }\n",
+                "\n",
+                "        for format, expected in formats.items():\n",
+                "            settings = {'FEED_FORMAT': format, 'FEED_EXPORT_INDENT': None}\n",
+                "            data = yield self.exported_data(items, settings)\n",
+                "            self.assertEqual(expected, data)\n",
+                "\n",
+                "        formats = {\n",
+                "            'json': u'[{\"foo\": \"Test\\xd6\"}]'.encode('latin-1'),\n",
+                "            'jsonlines': u'{\"foo\": \"Test\\xd6\"}\\n'.encode('latin-1'),\n",
+                "            'xml': u'<?xml version=\"1.0\" encoding=\"latin-1\"?>\\n<items><item><foo>Test\\xd6</foo></item></items>'.encode('latin-1'),\n",
+                "            'csv': u'foo\\r\\nTest\\xd6\\r\\n'.encode('latin-1'),\n",
+                "        }\n",
+                "\n",
+                "        settings = {'FEED_EXPORT_INDENT': None, 'FEED_EXPORT_ENCODING': 'latin-1'}\n",
+                "        for format, expected in formats.items():\n",
+                "            settings['FEED_FORMAT'] = format\n",
+                "            data = yield self.exported_data(items, settings)\n",
+                "            self.assertEqual(expected, data)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_export_indentation(self):\n",
+                "        items = [\n",
+                "            {'foo': ['bar']},\n",
+                "            {'key': 'value'},\n",
+                "        ]\n",
+                "\n",
+                "        test_cases = [\n",
+                "            # JSON\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': None,\n",
+                "                'expected': b'[{\"foo\": [\"bar\"]},{\"key\": \"value\"}]',\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': -1,\n",
+                "                'expected': b\"\"\"[\n",
+                "{\"foo\": [\"bar\"]},\n",
+                "{\"key\": \"value\"}\n",
+                "]\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': 0,\n",
+                "                'expected': b\"\"\"[\n",
+                "{\"foo\": [\"bar\"]},\n",
+                "{\"key\": \"value\"}\n",
+                "]\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': 2,\n",
+                "                'expected': b\"\"\"[\n",
+                "{\n",
+                "  \"foo\": [\n",
+                "    \"bar\"\n",
+                "  ]\n",
+                "},\n",
+                "{\n",
+                "  \"key\": \"value\"\n",
+                "}\n",
+                "]\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': 4,\n",
+                "                'expected': b\"\"\"[\n",
+                "{\n",
+                "    \"foo\": [\n",
+                "        \"bar\"\n",
+                "    ]\n",
+                "},\n",
+                "{\n",
+                "    \"key\": \"value\"\n",
+                "}\n",
+                "]\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'json',\n",
+                "                'indent': 5,\n",
+                "                'expected': b\"\"\"[\n",
+                "{\n",
+                "     \"foo\": [\n",
+                "          \"bar\"\n",
+                "     ]\n",
+                "},\n",
+                "{\n",
+                "     \"key\": \"value\"\n",
+                "}\n",
+                "]\"\"\",\n",
+                "            },\n",
+                "\n",
+                "            # XML\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': None,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items><item><foo><value>bar</value></foo></item><item><key>value</key></item></items>\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': -1,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items>\n",
+                "<item><foo><value>bar</value></foo></item>\n",
+                "<item><key>value</key></item>\n",
+                "</items>\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': 0,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items>\n",
+                "<item><foo><value>bar</value></foo></item>\n",
+                "<item><key>value</key></item>\n",
+                "</items>\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': 2,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items>\n",
+                "  <item>\n",
+                "    <foo>\n",
+                "      <value>bar</value>\n",
+                "    </foo>\n",
+                "  </item>\n",
+                "  <item>\n",
+                "    <key>value</key>\n",
+                "  </item>\n",
+                "</items>\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': 4,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items>\n",
+                "    <item>\n",
+                "        <foo>\n",
+                "            <value>bar</value>\n",
+                "        </foo>\n",
+                "    </item>\n",
+                "    <item>\n",
+                "        <key>value</key>\n",
+                "    </item>\n",
+                "</items>\"\"\",\n",
+                "            },\n",
+                "            {\n",
+                "                'format': 'xml',\n",
+                "                'indent': 5,\n",
+                "                'expected': b\"\"\"<?xml version=\"1.0\" encoding=\"utf-8\"?>\n",
+                "<items>\n",
+                "     <item>\n",
+                "          <foo>\n",
+                "               <value>bar</value>\n",
+                "          </foo>\n",
+                "     </item>\n",
+                "     <item>\n",
+                "          <key>value</key>\n",
+                "     </item>\n",
+                "</items>\"\"\",\n",
+                "            },\n",
+                "        ]\n",
+                "\n",
+                "        for row in test_cases:\n",
+                "            settings = {'FEED_FORMAT': row['format'], 'FEED_EXPORT_INDENT': row['indent']}\n",
+                "            data = yield self.exported_data(items, settings)\n",
+                "            print(row['format'], row['indent'])\n",
+                "            self.assertEqual(row['expected'], data)\n",
+                "\n",
+                "    @defer.inlineCallbacks\n",
+                "    def test_init_exporters_storages_with_crawler(self):\n",
+                "        settings = {\n",
+                "            'FEED_EXPORTERS': {'csv': 'tests.test_feedexport.'\n",
+                "                                      'FromCrawlerCsvItemExporter'},\n",
+                "            'FEED_STORAGES': {'file': 'tests.test_feedexport.'\n",
+                "                                      'FromCrawlerFileFeedStorage'},\n",
+                "        }\n",
+                "        yield self.exported_data({}, settings)\n",
+                "        self.assertTrue(FromCrawlerCsvItemExporter.init_with_crawler)\n",
+                "        self.assertTrue(FromCrawlerFileFeedStorage.init_with_crawler)"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "sync action"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "sync action"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and test"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and test param"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and test"
+        },
+        {
+            "edit_hunk_pair": [
+                6,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                8,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

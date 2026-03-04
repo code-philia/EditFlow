@@ -1,0 +1,76 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds an `available` property method to the `FritzBoxEntity` base class, while Edit 1 removes the same `available` property method from the `FritzboxSwitch` class which inherits from `FritzBoxEntity`. This is a classic refactoring pattern where functionality is being moved from a child class to its parent class. The `FritzboxSwitch` class will now inherit the `available` property from `FritzBoxEntity` instead of defining its own. Both edits reference the exact same method (`available`) and form a cohesive refactoring operation where the removal in the child class only makes sense after the addition in the parent class, as removing it first would eliminate the functionality entirely until the parent class implementation is added."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds an `available` property to the base `FritzBoxEntity` class that returns `super().available and self.device.present`. Edit 1 removes a check for `self.device.present` from a method in `FritzboxBinarySensor`, which inherits from `FritzBoxEntity`. The removal of the device presence check in the subclass makes sense because the base class now handles this logic in its `available` property - Home Assistant will automatically use the `available` property to determine if an entity should be considered available, making the explicit check in `is_on` redundant. Both edits reference the same `self.device.present` attribute and work together to refactor presence checking from individual methods to the base class's availability mechanism."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds an `available` property to the base `FritzBoxEntity` class that returns `super().available and self.device.present`. Edit 1 removes a check for `self.device.present` from a method in `FritzboxBinarySensor`, which inherits from `FritzBoxEntity`. The removal of the device presence check in the subclass makes sense because the base class now handles this logic in its `available` property - Home Assistant will automatically use the `available` property to determine if an entity should be considered available, making the explicit check in `is_on` redundant. Both edits reference the same `self.device.present` attribute and work together to refactor presence checking from individual methods to the base class's availability mechanism."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds an `available` property method to the `FritzBoxEntity` base class, while Edit 1 removes the same `available` property method from the `FritzboxThermostat` class which inherits from `FritzBoxEntity`. This is a classic refactoring pattern where functionality is moved from a child class to a parent class. The `FritzboxThermostat` class will now inherit the `available` property from its parent `FritzBoxEntity`. Both edits reference the exact same method (`available`) and form a cohesive refactoring operation - moving the method implementation up the inheritance hierarchy. This creates a direct code dependency where both edits work together to achieve the same functionality through inheritance rather than duplication."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds an `available` property method to the `FritzBoxEntity` base class, while Edit 1 removes the same `available` property method from the `FritzboxThermostat` class which inherits from `FritzBoxEntity`. This is a classic refactoring pattern where functionality is moved from a child class to a parent class. The `FritzboxThermostat` class will now inherit the `available` property from its parent `FritzBoxEntity`. Both edits reference the exact same method (`available`) and form a cohesive refactoring operation - moving the method implementation up the inheritance hierarchy. This creates a direct code dependency where both edits work together to achieve the same functionality through inheritance rather than duplication."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits remove identical `available` property methods with the same implementation (`return self.device.present`) from different classes (FritzboxThermostat and FritzboxSwitch). This represents a bulk cleanup operation removing duplicate code patterns across multiple files. The edits perform identical structural substitutions (removing the same method definition) on the same type of syntactic construct (property method definitions). This is a synchronized refactoring operation that would naturally occur as part of a single, contiguous cleanup task."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits remove identical `available` property methods with the same implementation (`return self.device.present`) from different classes (FritzboxThermostat and FritzboxSwitch). This represents a bulk cleanup operation removing duplicate code patterns across multiple files. The edits perform identical structural substitutions (removing the same method definition) on the same type of syntactic construct (property method definitions). This is a synchronized refactoring operation that would naturally occur as part of a single, contiguous cleanup task."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural transformation on similar sensor classes. Edit 0 changes the power sensor's state method from a direct division operation to a walrus operator pattern with null checking, and Edit 1 applies the exact same pattern to the energy sensor's state method. Both edits replace a simple division with the same conditional structure: 'if value := self.device.attribute: return value / 1000; return 0.0'. This is a uniform refactoring pattern applied to the same type of syntactic construct (state methods in sensor classes), making them part of a single, contiguous refactoring sweep. Either edit could be made first, and both represent the same mechanical transformation."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform an identical structural transformation on similar sensor classes. Edit 0 changes the power sensor's state method from a direct division operation to a walrus operator pattern with null checking, and Edit 1 applies the exact same pattern to the energy sensor's state method. Both edits replace a simple division with the same conditional structure: 'if value := self.device.attribute: return value / 1000; return 0.0'. This is a uniform refactoring pattern applied to the same type of syntactic construct (state methods in sensor classes), making them part of a single, contiguous refactoring sweep. Either edit could be made first, and both represent the same mechanical transformation."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol STATE_UNAVAILABLE. Edit 0 adds STATE_UNAVAILABLE to the imports, and Edit 1 uses STATE_UNAVAILABLE in a test assertion. This creates a direct definition-usage relationship where the import makes the symbol available for use in the test. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol STATE_UNAVAILABLE. Edit 0 adds STATE_UNAVAILABLE to the imports, and Edit 1 uses STATE_UNAVAILABLE in a test assertion. This creates a direct definition-usage relationship where the import makes the symbol available for use in the test. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits involve removing references to the same symbol 'STATE_OFF' from the same test file. Edit 0 removes the import of STATE_OFF, while Edit 1 removes its usage in a test assertion and replaces it with STATE_UNAVAILABLE. These edits reference the exact same symbol and are part of a single refactoring task to replace STATE_OFF with STATE_UNAVAILABLE. After making either edit, the other becomes the immediate next step - if you remove the import first, the usage becomes undefined; if you change the usage first, the import becomes unused. Both edits can be staged in either order without parser errors (Python allows undefined references at parse time), making this a bi-directional relationship."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits involve removing references to the same symbol 'STATE_OFF' from the same test file. Edit 0 removes the import of STATE_OFF, while Edit 1 removes its usage in a test assertion and replaces it with STATE_UNAVAILABLE. These edits reference the exact same symbol and are part of a single refactoring task to replace STATE_OFF with STATE_UNAVAILABLE. After making either edit, the other becomes the immediate next step - if you remove the import first, the usage becomes undefined; if you change the usage first, the import becomes unused. Both edits can be staged in either order without parser errors (Python allows undefined references at parse time), making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        3,
+        4,
+        7,
+        6
+    ]
+}

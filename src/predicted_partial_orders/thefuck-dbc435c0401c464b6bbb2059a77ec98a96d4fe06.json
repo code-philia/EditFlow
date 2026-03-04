@@ -1,0 +1,138 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of 'fix' from the import statement, while Edit 1 removes the usage of 'fix' in the test code and replaces the parametrized test with a simpler direct test. Both edits reference the exact same symbol 'fix' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit can be made first since Python allows unused imports and undefined variable references at parse time (they only fail at runtime). Both edits are part of the same micro-task of removing the 'fix' symbol from the test file."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of 'fix' from the import statement, while Edit 1 removes the usage of 'fix' in the test code and replaces the parametrized test with a simpler direct test. Both edits reference the exact same symbol 'fix' - Edit 0 removes its import and Edit 1 removes its usage. This creates a direct code dependency where removing the import makes the usage invalid, and removing the usage makes the import unnecessary. Either edit can be made first since Python allows unused imports and undefined variable references at parse time (they only fail at runtime). Both edits are part of the same micro-task of removing the 'fix' symbol from the test file."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import of pytest, while Edit 1 removes the usage of pytest.mark.parametrize decorator. These edits reference the exact same symbol (pytest) - Edit 0 removes the import statement and Edit 1 removes the usage of that imported module. After removing the pytest import, the pytest.mark.parametrize usage becomes undefined, making Edit 1 the immediate next step. However, since both edits can be staged in either order (the pytest usage removal would just reference an undefined name if done first, which is allowed at parse time in Python), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 removes the import of pytest, while Edit 1 removes the usage of pytest.mark.parametrize decorator. These edits reference the exact same symbol (pytest) - Edit 0 removes the import statement and Edit 1 removes the usage of that imported module. After removing the pytest import, the pytest.mark.parametrize usage becomes undefined, making Edit 1 the immediate next step. However, since both edits can be staged in either order (the pytest usage removal would just reference an undefined name if done first, which is allowed at parse time in Python), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'match' from the same module. Edit 0 removes 'fix' from the import statement while keeping 'match', and Edit 1 modifies a test function that calls the same 'match' function. The changed lines in both edits explicitly reference the same symbol 'match', creating a direct code linkage. After making either edit, the other would be a natural next step in the same micro-task of refactoring this test file. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'match' from the same module. Edit 0 removes 'fix' from the import statement while keeping 'match', and Edit 1 modifies a test function that calls the same 'match' function. The changed lines in both edits explicitly reference the same symbol 'match', creating a direct code linkage. After making either edit, the other would be a natural next step in the same micro-task of refactoring this test file. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 1 removes the definition of the 'fix' symbol from the module, while Edit 0 removes the import of that same 'fix' symbol from the test file. Both edits reference the exact same symbol 'fix' from the same module. After removing the definition in Edit 1, the import in Edit 0 becomes unnecessary and should be removed as the next mechanical step. However, both edits can be staged in either order without causing parse errors - removing the import first would cause a runtime ImportError only when the test tries to use 'fix', and removing the definition first would cause the same runtime error. Since both can be written and parsed in either order, this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 1 removes the definition of the 'fix' symbol from the module, while Edit 0 removes the import of that same 'fix' symbol from the test file. Both edits reference the exact same symbol 'fix' from the same module. After removing the definition in Edit 1, the import in Edit 0 becomes unnecessary and should be removed as the next mechanical step. However, both edits can be staged in either order without causing parse errors - removing the import first would cause a runtime ImportError only when the test tries to use 'fix', and removing the definition first would cause the same runtime error. Since both can be written and parsed in either order, this is bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 8,
+            "reason": "Edit 0 removes the import of 'fix' from the git_push_without_commits module, while Edit 1 changes the implementation of get_new_command to no longer use the 'fix' variable (replacing 'fix.format(command=command.script)' with a direct shell.and_ call). These edits reference the exact same symbol 'fix' - Edit 0 removes its import and Edit 1 removes its usage. After making either edit, the other becomes the immediate next step to maintain code consistency. The edits can be made in either order since removing an unused import or changing implementation to not use a variable are both valid intermediate states."
+        },
+        {
+            "src": 8,
+            "tgt": 1,
+            "reason": "Edit 0 removes the import of 'fix' from the git_push_without_commits module, while Edit 1 changes the implementation of get_new_command to no longer use the 'fix' variable (replacing 'fix.format(command=command.script)' with a direct shell.and_ call). These edits reference the exact same symbol 'fix' - Edit 0 removes its import and Edit 1 removes its usage. After making either edit, the other becomes the immediate next step to maintain code consistency. The edits can be made in either order since removing an unused import or changing implementation to not use a variable are both valid intermediate states."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits are part of refactoring the same test file from a parametrized test structure to inline test functions. Edit 0 removes the variable definitions (command and expected_error) and creates a new test_match function, while Edit 1 removes the parametrized test that used those same variables and creates a new test_get_new_command function. The variables removed in Edit 0 are the exact same variables referenced in the parametrized decorator removed in Edit 1. This creates a direct code dependency - after removing the variable definitions in Edit 0, the parametrized test in Edit 1 would reference undefined variables, making it natural to refactor that test as well. Both edits are part of the same contiguous refactoring micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits are part of refactoring the same test file from a parametrized test structure to inline test functions. Edit 0 removes the variable definitions (command and expected_error) and creates a new test_match function, while Edit 1 removes the parametrized test that used those same variables and creates a new test_get_new_command function. The variables removed in Edit 0 are the exact same variables referenced in the parametrized decorator removed in Edit 1. This creates a direct code dependency - after removing the variable definitions in Edit 0, the parametrized test in Edit 1 would reference undefined variables, making it natural to refactor that test as well. Both edits are part of the same contiguous refactoring micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes a parametrized test that uses the variable 'fix' (specifically 'fix.format(command=command)'), while Edit 1 removes the definition of that same 'fix' variable. The changed lines reference the exact same symbol 'fix'. However, both edits can be staged in either order - removing the usage before the definition would cause a NameError at runtime but not a parse error, and removing the definition before the usage would also cause a NameError at runtime but not prevent the code from being written or parsed. Since both edits reference the same symbol and either edit naturally prompts the other as cleanup, this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes a parametrized test that uses the variable 'fix' (specifically 'fix.format(command=command)'), while Edit 1 removes the definition of that same 'fix' variable. The changed lines reference the exact same symbol 'fix'. However, both edits can be staged in either order - removing the usage before the definition would cause a NameError at runtime but not a parse error, and removing the definition before the usage would also cause a NameError at runtime but not prevent the code from being written or parsed. Since both edits reference the same symbol and either edit naturally prompts the other as cleanup, this is bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "These edits are bi-directional neighbours because they both modify the exact same function `get_new_command` - one edit changes the implementation in the production code, and the other edit updates the corresponding test for that same function. The test edit removes the parametrized test structure and replaces it with a direct test that validates the new implementation behavior. Both edits reference the same symbol (the `get_new_command` function) and either edit naturally prompts the other as the next mechanical step when modifying this function's behavior and its corresponding test."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "These edits are bi-directional neighbours because they both modify the exact same function `get_new_command` - one edit changes the implementation in the production code, and the other edit updates the corresponding test for that same function. The test edit removes the parametrized test structure and replaces it with a direct test that validates the new implementation behavior. Both edits reference the same symbol (the `get_new_command` function) and either edit naturally prompts the other as the next mechanical step when modifying this function's behavior and its corresponding test."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses 're.search()' in the changed line. The import creates an immediate code dependency - after importing 're', using 're.search()' becomes the natural next step. Both edits reference the exact same symbol 're' - Edit 0 makes it available via import, Edit 1 uses it directly. This is a classic import-usage pattern within the same file where the changed lines reference the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 're' module, and Edit 1 uses 're.search()' in the changed line. The import creates an immediate code dependency - after importing 're', using 're.search()' becomes the natural next step. Both edits reference the exact same symbol 're' - Edit 0 makes it available via import, Edit 1 uses it directly. This is a classic import-usage pattern within the same file where the changed lines reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 8,
+            "reason": "Edit 0 imports the 'shell' module from thefuck.shells, and Edit 1 uses that exact same 'shell' symbol in the changed line by calling shell.and_(). This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, both edits can be staged in either order since referencing an undefined import only causes a runtime NameError, not a parse error. After making either edit, the other becomes the mechanically obvious next step to complete the code dependency."
+        },
+        {
+            "src": 8,
+            "tgt": 5,
+            "reason": "Edit 0 imports the 'shell' module from thefuck.shells, and Edit 1 uses that exact same 'shell' symbol in the changed line by calling shell.and_(). This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, both edits can be staged in either order since referencing an undefined import only causes a runtime NameError, not a parse error. After making either edit, the other becomes the mechanically obvious next step to complete the code dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Edit 0 removes the definition of the variable 'fix' from line 3, while Edit 1 removes the usage of that same variable 'fix' from line 13 and replaces it with an inline implementation. Both edits reference the exact same symbol 'fix'. After removing the definition in Edit 0, the usage in Edit 1 would cause a NameError at runtime, making Edit 1 the immediate next step to complete the refactoring. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the 'fix' variable."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Edit 0 removes the definition of the variable 'fix' from line 3, while Edit 1 removes the usage of that same variable 'fix' from line 13 and replaces it with an inline implementation. Both edits reference the exact same symbol 'fix'. After removing the definition in Edit 0, the usage in Edit 1 would cause a NameError at runtime, making Edit 1 the immediate next step to complete the refactoring. However, since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order without parser errors. This is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing the 'fix' variable."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definition of the variable 'refspec_does_not_match' (line 4), while Edit 1 removes the usage of that same variable in the match function (line 9) and replaces it with an inline regex pattern. These edits reference the exact same symbol 'refspec_does_not_match'. After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the variable definition, you must update its usage, and vice versa. Both edits can be staged in either order without causing parse errors (the usage would just reference an undefined variable at runtime), making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 removes the definition of the variable 'refspec_does_not_match' (line 4), while Edit 1 removes the usage of that same variable in the match function (line 9) and replaces it with an inline regex pattern. These edits reference the exact same symbol 'refspec_does_not_match'. After making either edit, the other becomes the immediate next step to maintain code consistency - if you remove the variable definition, you must update its usage, and vice versa. Both edits can be staged in either order without causing parse errors (the usage would just reference an undefined variable at runtime), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'match' from the same module. Edit 0 imports the 'match' function, and edit 1 uses that imported 'match' function in a test assertion. The changed lines in both edits explicitly reference the same symbol - edit 0's changed line imports 'match' and edit 1's changed line calls 'match'. This creates an immediate code dependency where importing the function naturally prompts its usage in the test, and either edit can be staged first since Python allows referencing undefined symbols at parse time (only failing at runtime)."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'match' from the same module. Edit 0 imports the 'match' function, and edit 1 uses that imported 'match' function in a test assertion. The changed lines in both edits explicitly reference the same symbol - edit 0's changed line imports 'match' and edit 1's changed line calls 'match'. This creates an immediate code dependency where importing the function naturally prompts its usage in the test, and either edit can be staged first since Python allows referencing undefined symbols at parse time (only failing at runtime)."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        3
+    ]
+}

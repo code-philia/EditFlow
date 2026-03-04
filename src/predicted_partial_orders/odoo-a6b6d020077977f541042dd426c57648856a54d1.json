@@ -1,0 +1,87 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'self.forum_id.karma_gen_question_downvote * 5' with 'self.forum_id.karma_gen_answer_flagged' in the same type of syntactic construct (method calls to add_karma). This is a uniform refactoring operation that would naturally be performed as part of a single, contiguous search-and-replace task. The edits target the same structural pattern and perform the same before\u2192after transformation, making them part of a synchronized bulk edit operation."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern: replacing 'self.forum_id.karma_gen_question_downvote * 5' with 'self.forum_id.karma_gen_answer_flagged' in the same type of syntactic construct (method calls to add_karma). This is a uniform refactoring operation that would naturally be performed as part of a single, contiguous search-and-replace task. The edits target the same structural pattern and perform the same before\u2192after transformation, making them part of a synchronized bulk edit operation."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 changes code to reference 'karma_gen_answer_flagged' attribute, while Edit 1 adds the 'karma_gen_answer_flagged' field to a Forum model creation in test setup. These edits reference the exact same symbol (karma_gen_answer_flagged) where Edit 0 uses it in production code and Edit 1 defines it in test configuration. After making either edit, the other becomes the immediate next step to ensure the symbol is properly defined and used. This is a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 changes code to reference 'karma_gen_answer_flagged' attribute, while Edit 1 adds the 'karma_gen_answer_flagged' field to a Forum model creation in test setup. These edits reference the exact same symbol (karma_gen_answer_flagged) where Edit 0 uses it in production code and Edit 1 defines it in test configuration. After making either edit, the other becomes the immediate next step to ensure the symbol is properly defined and used. This is a definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits change the karma calculation for marking a post as offensive, but they reference different karma values. Edit 0 changes from 'karma_gen_question_downvote * 5' to 'karma_gen_answer_flagged', while Edit 1 changes from '5 * KARMA['gen_que_dwv']' to 'KARMA['gen_ans_flag']'. These appear to be the same logical change (switching from question downvote karma to answer flagged karma) applied to both the implementation and its corresponding test. The test assertion in Edit 1 is testing the exact behavior that Edit 0 implements - both reference the same karma calculation logic for the same feature (marking posts as offensive). This is a test-production code synchronization where the test assertion updates to match the implementation change for the same method/feature."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits change the karma calculation for marking a post as offensive, but they reference different karma values. Edit 0 changes from 'karma_gen_question_downvote * 5' to 'karma_gen_answer_flagged', while Edit 1 changes from '5 * KARMA['gen_que_dwv']' to 'KARMA['gen_ans_flag']'. These appear to be the same logical change (switching from question downvote karma to answer flagged karma) applied to both the implementation and its corresponding test. The test assertion in Edit 1 is testing the exact behavior that Edit 0 implements - both reference the same karma calculation logic for the same feature (marking posts as offensive). This is a test-production code synchronization where the test assertion updates to match the implementation change for the same method/feature."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Both edits are changing karma calculation logic from using 'gen_que_dwv' (question downvote) to 'gen_ans_flag' (answer flagged). Edit 0 changes the implementation in the forum model from 'karma_gen_question_downvote * -5' to 'karma_gen_answer_flagged * -1', while Edit 1 updates the corresponding test assertion from '5 * KARMA['gen_que_dwv']' to 'KARMA['gen_ans_flag']'. The test is directly asserting the behavior of the exact same karma calculation logic being modified in the implementation. This creates a bi-directional relationship where either edit can be made first, but after making one, the other becomes the immediate next step to maintain test-implementation synchronization."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Both edits are changing karma calculation logic from using 'gen_que_dwv' (question downvote) to 'gen_ans_flag' (answer flagged). Edit 0 changes the implementation in the forum model from 'karma_gen_question_downvote * -5' to 'karma_gen_answer_flagged * -1', while Edit 1 updates the corresponding test assertion from '5 * KARMA['gen_que_dwv']' to 'KARMA['gen_ans_flag']'. The test is directly asserting the behavior of the exact same karma calculation logic being modified in the implementation. This creates a bi-directional relationship where either edit can be made first, but after making one, the other becomes the immediate next step to maintain test-implementation synchronization."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'KARMA['gen_ans_flag']'. Edit 0 adds this karma parameter to the Forum.create() configuration, while Edit 1 updates a test assertion to use this same karma value. The changed lines in both edits explicitly reference the identical symbol, creating a direct code dependency where adding the karma configuration parameter naturally prompts updating the test that validates karma calculations using that same parameter. This represents a test-production code synchronization pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'KARMA['gen_ans_flag']'. Edit 0 adds this karma parameter to the Forum.create() configuration, while Edit 1 updates a test assertion to use this same karma value. The changed lines in both edits explicitly reference the identical symbol, creating a direct code dependency where adding the karma configuration parameter naturally prompts updating the test that validates karma calculations using that same parameter. This represents a test-production code synchronization pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits change the karma calculation for marking a post as offensive. Edit 0 changes the implementation from `karma_gen_question_downvote * 5` to `karma_gen_answer_flagged`, while Edit 1 updates the corresponding test assertion from `5 * KARMA['gen_que_dwv']` to `KARMA['gen_ans_flag']`. These edits reference the same functionality - the karma calculation in the mark_as_offensive method - and form a synchronized implementation-test pair where both must be updated together to maintain test validity. The test directly asserts on the exact behavior being modified in the implementation."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits change the karma calculation for marking a post as offensive. Edit 0 changes the implementation from `karma_gen_question_downvote * 5` to `karma_gen_answer_flagged`, while Edit 1 updates the corresponding test assertion from `5 * KARMA['gen_que_dwv']` to `KARMA['gen_ans_flag']`. These edits reference the same functionality - the karma calculation in the mark_as_offensive method - and form a synchronized implementation-test pair where both must be updated together to maintain test validity. The test directly asserts on the exact behavior being modified in the implementation."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'gen_ans_flag': -45 to the KARMA dictionary, and Edit 1 uses KARMA['gen_ans_flag'] in the Forum.create() call. The changed lines reference the exact same symbol - the 'gen_ans_flag' key in the KARMA dictionary. After adding the key-value pair in Edit 0, Edit 1 becomes the natural next step to use this newly defined karma value in the forum configuration. This is a definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'gen_ans_flag': -45 to the KARMA dictionary, and Edit 1 uses KARMA['gen_ans_flag'] in the Forum.create() call. The changed lines reference the exact same symbol - the 'gen_ans_flag' key in the KARMA dictionary. After adding the key-value pair in Edit 0, Edit 1 becomes the natural next step to use this newly defined karma value in the forum configuration. This is a definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new key 'gen_ans_flag' with value -45 to the KARMA dictionary in the test common module. Edit 1 updates a test assertion to use this newly added 'gen_ans_flag' key instead of the previous calculation '5 * KARMA['gen_que_dwv']'. The changed lines reference the exact same symbol - KARMA['gen_ans_flag']. Edit 0 defines this new dictionary key, and Edit 1 uses it in a test assertion. This creates a direct code dependency where adding the key enables its usage in the test. Both edits can be staged in either order (the usage would just cause a KeyError at runtime if staged before the definition), making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new key 'gen_ans_flag' with value -45 to the KARMA dictionary in the test common module. Edit 1 updates a test assertion to use this newly added 'gen_ans_flag' key instead of the previous calculation '5 * KARMA['gen_que_dwv']'. The changed lines reference the exact same symbol - KARMA['gen_ans_flag']. Edit 0 defines this new dictionary key, and Edit 1 uses it in a test assertion. This creates a direct code dependency where adding the key enables its usage in the test. Both edits can be staged in either order (the usage would just cause a KeyError at runtime if staged before the definition), making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

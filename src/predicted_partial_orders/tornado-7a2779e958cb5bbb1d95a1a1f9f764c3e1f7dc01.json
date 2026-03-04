@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 1 renames the method from `__call__` to `decompress` in the GzipDecompressor class, and Edit 0 changes the usage from calling `self._decompressor(data)` to calling `self._decompressor.decompress(data)`. The changed lines reference the exact same symbol - the method being renamed in Edit 1 is the same method being called in Edit 0. This creates a direct code dependency where renaming the method requires updating all call sites to use the new method name. Either edit can be made first since both are syntactically valid (the old method name would just result in a runtime AttributeError), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 renames the method from `__call__` to `decompress` in the GzipDecompressor class, and Edit 0 changes the usage from calling `self._decompressor(data)` to calling `self._decompressor.decompress(data)`. The changed lines reference the exact same symbol - the method being renamed in Edit 1 is the same method being called in Edit 0. This creates a direct code dependency where renaming the method requires updating all call sites to use the new method name. Either edit can be made first since both are syntactically valid (the old method name would just result in a runtime AttributeError), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 calls the flush() method on self._decompressor (line 442: self._decompressor.flush()), while Edit 1 defines the flush() method in what appears to be a decompressor class (lines 40-46). The changed lines reference the exact same symbol - the flush method. Edit 0 cannot function properly without the flush method being defined, as it would result in an AttributeError at runtime when flush() is called. However, since Python allows referencing undefined methods at parse time (only failing at runtime), both edits can be written and staged in either order. After making either edit, the other becomes the immediate next step to complete the functionality - either defining the method that's being called, or using the method that's been defined."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 calls the flush() method on self._decompressor (line 442: self._decompressor.flush()), while Edit 1 defines the flush() method in what appears to be a decompressor class (lines 40-46). The changed lines reference the exact same symbol - the flush method. Edit 0 cannot function properly without the flush method being defined, as it would result in an AttributeError at runtime when flush() is called. However, since Python allows referencing undefined methods at parse time (only failing at runtime), both edits can be written and staged in either order. After making either edit, the other becomes the immediate next step to complete the functionality - either defining the method that's being called, or using the method that's been defined."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits modify how the `_decompressor` object is used within the same class `_HTTPConnection`. Edit 0 changes the decompression method call from `self._decompressor(data)` to `self._decompressor.decompress(data) + self._decompressor.flush()`. Edit 1 adds explicit handling of `self._decompressor.flush()` in the chunk length processing. Both edits reference the exact same `self._decompressor` object and both involve calling the `.flush()` method on it. The changes appear to be part of a coordinated refactor to properly handle decompressor flushing across different methods in the same class. However, the edits modify different methods and don't have a direct syntactic dependency - either edit could be applied independently without causing parse errors or requiring the other to be present first."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits modify how the `_decompressor` object is used within the same class `_HTTPConnection`. Edit 0 changes the decompression method call from `self._decompressor(data)` to `self._decompressor.decompress(data) + self._decompressor.flush()`. Edit 1 adds explicit handling of `self._decompressor.flush()` in the chunk length processing. Both edits reference the exact same `self._decompressor` object and both involve calling the `.flush()` method on it. The changes appear to be part of a coordinated refactor to properly handle decompressor flushing across different methods in the same class. However, the edits modify different methods and don't have a direct syntactic dependency - either edit could be applied independently without causing parse errors or requiring the other to be present first."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits change how the `_decompressor` object is used, but they reference the same `_decompressor` instance variable and apply similar API changes (from callable to method call). Edit 0 changes `self._decompressor(data)` to `self._decompressor.decompress(data) + self._decompressor.flush()` and Edit 1 changes `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. This appears to be part of a uniform refactoring to update the decompressor API usage pattern across the class. Both edits reference the exact same symbol (`self._decompressor`) and represent synchronized changes to how this decompressor object is used throughout the class. This is a bulk-edit pattern where the same API change is being applied to multiple usage sites of the same object."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits change how the `_decompressor` object is used, but they reference the same `_decompressor` instance variable and apply similar API changes (from callable to method call). Edit 0 changes `self._decompressor(data)` to `self._decompressor.decompress(data) + self._decompressor.flush()` and Edit 1 changes `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. This appears to be part of a uniform refactoring to update the decompressor API usage pattern across the class. Both edits reference the exact same symbol (`self._decompressor`) and represent synchronized changes to how this decompressor object is used throughout the class. This is a bulk-edit pattern where the same API change is being applied to multiple usage sites of the same object."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "These edits both modify how the `_decompressor` object is used within the same class `_HTTPConnection`. Edit 0 adds a call to `self._decompressor.flush()` and edit 1 changes `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. Both edits reference the exact same symbol `self._decompressor` and appear to be part of a coordinated change to how the decompressor API is used - switching from calling the decompressor object directly to using its explicit `decompress()` method, while also adding proper cleanup with `flush()`. This represents a synchronized API change where both modifications work together to update the decompressor usage pattern throughout the class. Either edit could be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "These edits both modify how the `_decompressor` object is used within the same class `_HTTPConnection`. Edit 0 adds a call to `self._decompressor.flush()` and edit 1 changes `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. Both edits reference the exact same symbol `self._decompressor` and appear to be part of a coordinated change to how the decompressor API is used - switching from calling the decompressor object directly to using its explicit `decompress()` method, while also adding proper cleanup with `flush()`. This represents a synchronized API change where both modifications work together to update the decompressor usage pattern throughout the class. Either edit could be made first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 1 renames the method from `__call__` to `decompress` in the GzipDecompressor class, and edit 0 changes the call site from `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. Both edits reference the exact same symbol - the method being renamed from `__call__` to `decompress` on the GzipDecompressor class. This is a classic signature change \u2194 call-site update pattern where both edits must reference the same method symbol. After making either edit, the other becomes the immediate next step to maintain code consistency. Since both edits can be written and parsed in either order (the call to a non-existent method would only fail at runtime, not parse time), this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 1 renames the method from `__call__` to `decompress` in the GzipDecompressor class, and edit 0 changes the call site from `self._decompressor(chunk)` to `self._decompressor.decompress(chunk)`. Both edits reference the exact same symbol - the method being renamed from `__call__` to `decompress` on the GzipDecompressor class. This is a classic signature change \u2194 call-site update pattern where both edits must reference the same method symbol. After making either edit, the other becomes the immediate next step to maintain code consistency. Since both edits can be written and parsed in either order (the call to a non-existent method would only fail at runtime, not parse time), this is bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        3,
+        4
+    ]
+}

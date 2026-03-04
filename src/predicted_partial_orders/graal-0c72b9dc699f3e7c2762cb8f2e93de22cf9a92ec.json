@@ -1,0 +1,137 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'self.main_module = main_module' to the AbstractNativeImageConfig.__init__ method, while Edit 1 removes the same assignment 'self.main_module = main_module' from the LauncherConfig.__init__ method. LauncherConfig inherits from AbstractNativeImageConfig, so this appears to be moving the main_module assignment from the child class to the parent class. The changed lines reference the exact same symbol (self.main_module) and this represents a refactoring where the assignment is being moved up the inheritance hierarchy. Both edits can be staged in either order without causing parse errors, and either edit naturally prompts the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'self.main_module = main_module' to the AbstractNativeImageConfig.__init__ method, while Edit 1 removes the same assignment 'self.main_module = main_module' from the LauncherConfig.__init__ method. LauncherConfig inherits from AbstractNativeImageConfig, so this appears to be moving the main_module assignment from the child class to the parent class. The changed lines reference the exact same symbol (self.main_module) and this represents a refactoring where the assignment is being moved up the inheritance hierarchy. Both edits can be staged in either order without causing parse errors, and either edit naturally prompts the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds a 'main_module=None' parameter to the AbstractNativeImageConfig.__init__ method signature. Edit 1 updates the super().__init__ call in LauncherConfig to pass the main_module parameter to the parent class constructor. These edits reference the exact same symbol (the AbstractNativeImageConfig.__init__ method) and have a direct code dependency - after adding the parameter to the parent class signature, the child class call must be updated to match the new signature. This creates an immediate, mechanically obvious prompt for the other edit within the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'main_module=None' parameter to the AbstractNativeImageConfig.__init__ method signature. Edit 1 updates the super().__init__ call in LauncherConfig to pass the main_module parameter to the parent class constructor. These edits reference the exact same symbol (the AbstractNativeImageConfig.__init__ method) and have a direct code dependency - after adding the parameter to the parent class signature, the child class call must be updated to match the new signature. This creates an immediate, mechanically obvious prompt for the other edit within the same micro-task."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits add the same parameter 'main_module=None' to constructor signatures within the same class hierarchy. Edit 0 adds it to the parent class AbstractNativeImageConfig.__init__, and Edit 1 adds it to the child class LibraryConfig.__init__. Since LibraryConfig inherits from AbstractNativeImageConfig, these parameter additions are synchronized to maintain API consistency between parent and child constructors. The changed lines in both edits explicitly reference the same parameter name 'main_module' in identical structural contexts (constructor parameter lists), creating a direct code linkage through parameter threading in an inheritance hierarchy."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits add the same parameter 'main_module=None' to constructor signatures within the same class hierarchy. Edit 0 adds it to the parent class AbstractNativeImageConfig.__init__, and Edit 1 adds it to the child class LibraryConfig.__init__. Since LibraryConfig inherits from AbstractNativeImageConfig, these parameter additions are synchronized to maintain API consistency between parent and child constructors. The changed lines in both edits explicitly reference the same parameter name 'main_module' in identical structural contexts (constructor parameter lists), creating a direct code linkage through parameter threading in an inheritance hierarchy."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 adds a 'main_module' parameter to the AbstractNativeImageConfig.__init__ method signature. Edit 1 modifies the super().__init__ call in LibraryConfig to explicitly pass 'use_modules' and 'main_module' parameters instead of using **kwargs. These edits reference the exact same __init__ method - Edit 0 changes the parent class signature and Edit 1 updates the child class call to match that signature. This creates a direct code dependency where changing the parent signature necessitates updating the child class call to maintain proper parameter passing. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'main_module' parameter to the AbstractNativeImageConfig.__init__ method signature. Edit 1 modifies the super().__init__ call in LibraryConfig to explicitly pass 'use_modules' and 'main_module' parameters instead of using **kwargs. These edits reference the exact same __init__ method - Edit 0 changes the parent class signature and Edit 1 updates the child class call to match that signature. This creates a direct code dependency where changing the parent signature necessitates updating the child class call to maintain proper parameter passing. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a `main_module` parameter assignment to the `AbstractNativeImageConfig.__init__` method, while Edit 1 updates the `LauncherConfig` subclass to pass `main_module` to its parent constructor and adds an assertion that references `self.main_module`. Both edits reference the exact same symbol (`main_module`) - Edit 0 defines it in the parent class and Edit 1 uses it in the subclass. This creates a direct code dependency where the parent class must accept and store the `main_module` parameter before the subclass can pass it and reference it. However, both edits can be written and parsed independently without syntax errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a `main_module` parameter assignment to the `AbstractNativeImageConfig.__init__` method, while Edit 1 updates the `LauncherConfig` subclass to pass `main_module` to its parent constructor and adds an assertion that references `self.main_module`. Both edits reference the exact same symbol (`main_module`) - Edit 0 defines it in the parent class and Edit 1 uses it in the subclass. This creates a direct code dependency where the parent class must accept and store the `main_module` parameter before the subclass can pass it and reference it. However, both edits can be written and parsed independently without syntax errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Both edits involve the same parameter 'main_module' in related class constructors within the same inheritance hierarchy. Edit 0 adds 'main_module=None' parameter to the parent class AbstractNativeImageConfig.__init__, while Edit 1 removes code that references this same parameter in the child class LauncherConfig.__init__. The changed lines in both edits explicitly reference the exact same symbol 'main_module'. This creates a direct code dependency where adding the parameter to the parent class enables the removal of the assertion and assignment in the child class, as the parameter is now handled by the parent. Either edit could be made first and would prompt the other as the next mechanical step in refactoring this parameter handling."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Both edits involve the same parameter 'main_module' in related class constructors within the same inheritance hierarchy. Edit 0 adds 'main_module=None' parameter to the parent class AbstractNativeImageConfig.__init__, while Edit 1 removes code that references this same parameter in the child class LauncherConfig.__init__. The changed lines in both edits explicitly reference the exact same symbol 'main_module'. This creates a direct code dependency where adding the parameter to the parent class enables the removal of the assertion and assignment in the child class, as the parameter is now handled by the parent. Either edit could be made first and would prompt the other as the next mechanical step in refactoring this parameter handling."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'main_module' to the __init__ method of AbstractNativeImageConfig class by adding the line 'self.main_module = main_module'. Edit 1 modifies the super().__init__ call in LibraryConfig to explicitly pass 'main_module' as a parameter. These edits reference the exact same symbol 'main_module' - edit 0 introduces it as a parameter that gets assigned to self.main_module, and edit 1 ensures that this parameter is properly passed through the inheritance chain. This creates a direct code dependency where adding the parameter assignment in the parent class naturally prompts updating the child class constructor call to pass that parameter. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'main_module' to the __init__ method of AbstractNativeImageConfig class by adding the line 'self.main_module = main_module'. Edit 1 modifies the super().__init__ call in LibraryConfig to explicitly pass 'main_module' as a parameter. These edits reference the exact same symbol 'main_module' - edit 0 introduces it as a parameter that gets assigned to self.main_module, and edit 1 ensures that this parameter is properly passed through the inheritance chain. This creates a direct code dependency where adding the parameter assignment in the parent class naturally prompts updating the child class constructor call to pass that parameter. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'main_module' parameter to the __init__ method signature, and Edit 1 adds the corresponding assignment 'self.main_module = main_module' in the method body. Both edits reference the exact same symbol 'main_module' - Edit 0 defines it as a parameter and Edit 1 uses it in an assignment. This is a classic parameter addition with corresponding body reference pattern within the same function. Either edit can be staged first without causing parse errors (the parameter can exist without being used, and the assignment can reference a parameter that will be added), making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'main_module' parameter to the __init__ method signature, and Edit 1 adds the corresponding assignment 'self.main_module = main_module' in the method body. Both edits reference the exact same symbol 'main_module' - Edit 0 defines it as a parameter and Edit 1 uses it in an assignment. This is a classic parameter addition with corresponding body reference pattern within the same function. Either edit can be staged first without causing parse errors (the parameter can exist without being used, and the assignment can reference a parameter that will be added), making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits perform an identical structural substitution on super() calls within the same file. They both add the exact same parameters 'use_modules, main_module' to super().__init__() calls in different subclasses of AbstractNativeImageConfig. This represents a synchronized pattern where the same parameters are being threaded through multiple class constructors as part of a single refactoring operation. The edits target the same type of syntactic construct (super() calls) with identical before\u2192after patterns, making them part of a contiguous bulk edit operation where either could be performed first."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits perform an identical structural substitution on super() calls within the same file. They both add the exact same parameters 'use_modules, main_module' to super().__init__() calls in different subclasses of AbstractNativeImageConfig. This represents a synchronized pattern where the same parameters are being threaded through multiple class constructors as part of a single refactoring operation. The edits target the same type of syntactic construct (super() calls) with identical before\u2192after patterns, making them part of a contiguous bulk edit operation where either could be performed first."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits add the same two parameters (use_modules=None, main_module=None) to constructor signatures of different classes (LauncherConfig and LibraryConfig) that inherit from the same parent class AbstractNativeImageConfig. This represents a bulk-edit pattern where identical parameter additions are being synchronized across related class constructors. The edits perform the same structural substitution (adding the same parameters with identical default values) to the same type of syntactic construct (constructor signatures). This appears to be part of a single refactoring operation to standardize the parameter interface across these related configuration classes."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits add the same two parameters (use_modules=None, main_module=None) to constructor signatures of different classes (LauncherConfig and LibraryConfig) that inherit from the same parent class AbstractNativeImageConfig. This represents a bulk-edit pattern where identical parameter additions are being synchronized across related class constructors. The edits perform the same structural substitution (adding the same parameters with identical default values) to the same type of syntactic construct (constructor signatures). This appears to be part of a single refactoring operation to standardize the parameter interface across these related configuration classes."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'main_module' as a parameter to the super().__init__() call and adds an assertion 'assert self.use_modules is None or self.main_module'. Edit 1 removes the original assertion 'assert use_modules is None or main_module' and the assignment 'self.main_module = main_module'. These edits reference the exact same symbol 'main_module' and represent a refactoring where the main_module parameter handling is being moved from the LauncherConfig constructor to the parent class AbstractNativeImageConfig. The edits are part of a single micro-task to relocate main_module handling, and either edit naturally prompts the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 adds 'main_module' as a parameter to the super().__init__() call and adds an assertion 'assert self.use_modules is None or self.main_module'. Edit 1 removes the original assertion 'assert use_modules is None or main_module' and the assignment 'self.main_module = main_module'. These edits reference the exact same symbol 'main_module' and represent a refactoring where the main_module parameter handling is being moved from the LauncherConfig constructor to the parent class AbstractNativeImageConfig. The edits are part of a single micro-task to relocate main_module handling, and either edit naturally prompts the other as the next mechanical step in this refactoring."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds two new parameters (use_modules=None, main_module=None) to the LibraryConfig.__init__ method signature. Edit 1 updates the super().__init__ call within the same method to pass these exact same parameters to the parent class. This creates an immediate, mechanically obvious code dependency: after adding parameters to the method signature, the super() call must be updated to pass those parameters through, otherwise the parent class won't receive the new arguments. Both edits reference the exact same symbols (use_modules and main_module parameters) and form part of a single uninterrupted micro-task of updating a constructor to handle new parameters. Either edit can be made first and both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds two new parameters (use_modules=None, main_module=None) to the LibraryConfig.__init__ method signature. Edit 1 updates the super().__init__ call within the same method to pass these exact same parameters to the parent class. This creates an immediate, mechanically obvious code dependency: after adding parameters to the method signature, the super() call must be updated to pass those parameters through, otherwise the parent class won't receive the new arguments. Both edits reference the exact same symbols (use_modules and main_module parameters) and form part of a single uninterrupted micro-task of updating a constructor to handle new parameters. Either edit can be made first and both can be parsed independently, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds assignment of `self.main_module = main_module` in the parent class `AbstractNativeImageConfig.__init__`, while Edit 1 adds the `main_module=None` parameter to the child class `LibraryConfig.__init__` signature. These edits reference the exact same symbol `main_module` - Edit 1 adds it as a parameter that would be passed to the parent constructor, and Edit 0 assigns that parameter to an instance variable. This creates a direct code dependency where the parameter added in Edit 1 needs to be handled by the assignment in Edit 0. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds assignment of `self.main_module = main_module` in the parent class `AbstractNativeImageConfig.__init__`, while Edit 1 adds the `main_module=None` parameter to the child class `LibraryConfig.__init__` signature. These edits reference the exact same symbol `main_module` - Edit 1 adds it as a parameter that would be passed to the parent constructor, and Edit 0 assigns that parameter to an instance variable. This creates a direct code dependency where the parameter added in Edit 1 needs to be handled by the assignment in Edit 0. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        6
+    ]
+}

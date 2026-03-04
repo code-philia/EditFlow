@@ -1,0 +1,93 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new method `_test_adamw` and Edit 1 contains two method definitions that call the exact same `_test_adamw` method. The changed lines in Edit 1 explicitly reference the same symbol that is being defined in Edit 0. This creates an immediate, mechanically obvious code-driven prompt - after defining `_test_adamw` in Edit 0, the natural next step would be to create test methods that use it (Edit 1), or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `_test_adamw` and Edit 1 contains two method definitions that call the exact same `_test_adamw` method. The changed lines in Edit 1 explicitly reference the same symbol that is being defined in Edit 0. This creates an immediate, mechanically obvious code-driven prompt - after defining `_test_adamw` in Edit 0, the natural next step would be to create test methods that use it (Edit 1), or vice versa. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 1 defines a new function 'Adam' in the optim module, and Edit 0 imports that exact same 'Adam' function from the same module. The changed lines reference the exact same symbol - the Adam function being defined in optim.py and imported in test_optim.py. This creates a direct definition-usage relationship where defining the Adam function enables its import and usage. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the definition doesn't exist, not at parse time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 1 defines a new function 'Adam' in the optim module, and Edit 0 imports that exact same 'Adam' function from the same module. The changed lines reference the exact same symbol - the Adam function being defined in optim.py and imported in test_optim.py. This creates a direct definition-usage relationship where defining the Adam function enables its import and usage. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time if the definition doesn't exist, not at parse time. Therefore, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'AdamW' to the import statement, and Edit 1 uses that exact same 'AdamW' symbol in a new method definition. The changed line in Edit 1 explicitly references the AdamW symbol that was imported in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'AdamW' to the import statement, and Edit 1 uses that exact same 'AdamW' symbol in a new method definition. The changed line in Edit 1 explicitly references the AdamW symbol that was imported in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new method `_test_adamw` and Edit 1 adds two test methods that call this exact same method. The changed lines in Edit 1 explicitly reference the same symbol `_test_adamw` that is defined in Edit 0. This creates a direct definition-usage relationship where defining the method in Edit 0 enables its usage in Edit 1. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the definition is missing), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 defines a new method `_test_adamw` and Edit 1 adds two test methods that call this exact same method. The changed lines in Edit 1 explicitly reference the same symbol `_test_adamw` that is defined in Edit 0. This creates a direct definition-usage relationship where defining the method in Edit 0 enables its usage in Edit 1. Since this is Python, both edits can be parsed and staged in either order (the usage would only fail at runtime if the definition is missing), making this a bi-directional relationship rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 1 defines a new class 'AdamW' by renaming the existing 'Adam' class, while Edit 0 adds a test method that references this exact same 'AdamW' class. The changed line in Edit 0 explicitly calls 'AdamW' which is the same symbol being defined in Edit 1's changed line. This creates a direct definition-usage relationship where both edits reference the exact same symbol. Either edit can be made first - if Edit 1 is made first, it creates the AdamW class that Edit 0 then uses; if Edit 0 is made first, it creates a reference to AdamW that will be resolved when Edit 1 defines it (Python allows forward references that fail only at runtime). This is a clear case of bi-directional relationship where making either edit creates an immediate, code-driven prompt for the other."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 1 defines a new class 'AdamW' by renaming the existing 'Adam' class, while Edit 0 adds a test method that references this exact same 'AdamW' class. The changed line in Edit 0 explicitly calls 'AdamW' which is the same symbol being defined in Edit 1's changed line. This creates a direct definition-usage relationship where both edits reference the exact same symbol. Either edit can be made first - if Edit 1 is made first, it creates the AdamW class that Edit 0 then uses; if Edit 0 is made first, it creates a reference to AdamW that will be resolved when Edit 1 defines it (Python allows forward references that fail only at runtime). This is a clear case of bi-directional relationship where making either edit creates an immediate, code-driven prompt for the other."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits are modifying the same class constructor (Adam/AdamW) to add a new parameter 'wd'. Edit 0 adds the 'wd' parameter to the function signature, and Edit 1 adds the assignment of that parameter to self.wd in the constructor body. The changed lines reference the exact same symbol 'wd' - it's defined as a parameter in edit 0 and referenced/assigned in edit 1. This creates an immediate code dependency where adding the parameter to the signature naturally prompts adding its assignment in the body as the next mechanical step, and vice versa. Both edits are part of the same micro-task of adding weight decay functionality to the optimizer."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits are modifying the same class constructor (Adam/AdamW) to add a new parameter 'wd'. Edit 0 adds the 'wd' parameter to the function signature, and Edit 1 adds the assignment of that parameter to self.wd in the constructor body. The changed lines reference the exact same symbol 'wd' - it's defined as a parameter in edit 0 and referenced/assigned in edit 1. This creates an immediate code dependency where adding the parameter to the signature naturally prompts adding its assignment in the body as the next mechanical step, and vice versa. Both edits are part of the same micro-task of adding weight decay functionality to the optimizer."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 changes the class name from 'Adam' to 'AdamW' and adds a weight decay parameter 'wd=0.01' to the constructor. Edit 1 modifies the step method implementation to include weight decay functionality by adding '- self.lr * self.wd * t.detach()' to the parameter update formula. Both edits are part of converting the Adam optimizer to AdamW optimizer - edit 0 sets up the new class signature and weight decay parameter, while edit 1 implements the weight decay in the optimization step. The changed lines in edit 1 reference 'self.wd' which is the parameter added in edit 0's constructor. This creates a direct code dependency where edit 1's implementation relies on the 'wd' parameter defined in edit 0."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 renames the Adam class to AdamW and adds a weight decay parameter. Edit 1 creates a new Adam function that calls the newly renamed AdamW class. The changed lines reference the exact same symbol 'AdamW' - edit 0 defines the AdamW class and edit 1 references it in the function call. This creates an immediate code dependency where after renaming Adam to AdamW, creating a compatibility function that calls AdamW becomes the natural next step. Both edits can be staged in either order since Python allows forward references in function bodies, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 renames the Adam class to AdamW and adds a weight decay parameter. Edit 1 creates a new Adam function that calls the newly renamed AdamW class. The changed lines reference the exact same symbol 'AdamW' - edit 0 defines the AdamW class and edit 1 references it in the function call. This creates an immediate code dependency where after renaming Adam to AdamW, creating a compatibility function that calls AdamW becomes the natural next step. Both edits can be staged in either order since Python allows forward references in function bodies, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbols 'self.lr', 'self.eps', and 'self.wd' within the same Adam class. Edit 0 adds 'self.wd' to the constructor's assignment and modifies the assignment to include 'self.lr'. Edit 1 uses these exact same symbols ('self.lr', 'self.eps', 'self.wd') in the step method. The changed lines in both edits reference the same instance attributes of the Adam class. After making either edit, the other becomes a natural next step to maintain consistency - if you add 'wd' parameter handling in the constructor, you need to use it in the step method, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbols 'self.lr', 'self.eps', and 'self.wd' within the same Adam class. Edit 0 adds 'self.wd' to the constructor's assignment and modifies the assignment to include 'self.lr'. Edit 1 uses these exact same symbols ('self.lr', 'self.eps', 'self.wd') in the step method. The changed lines in both edits reference the same instance attributes of the Adam class. After making either edit, the other becomes a natural next step to maintain consistency - if you add 'wd' parameter handling in the constructor, you need to use it in the step method, and vice versa. Both edits can be staged in either order without causing parse errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3
+    ]
+}

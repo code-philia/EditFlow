@@ -1,0 +1,72 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 removes the definition of the variable `num_gpus` (lines 145-146), while Edit 1 shows usage of `num_gpus` in line 152 within a range() function call. After Edit 0 is applied, the variable `num_gpus` is no longer defined, which would cause a NameError when Edit 1's code tries to execute `range(num_gpus)`. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be written and staged in either order. The relationship is bi-directional because both edits reference the exact same symbol `num_gpus` - one removes its definition and the other uses it, creating an immediate code-driven prompt for the complementary action."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 removes the definition of the variable `num_gpus` (lines 145-146), while Edit 1 shows usage of `num_gpus` in line 152 within a range() function call. After Edit 0 is applied, the variable `num_gpus` is no longer defined, which would cause a NameError when Edit 1's code tries to execute `range(num_gpus)`. However, since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be written and staged in either order. The relationship is bi-directional because both edits reference the exact same symbol `num_gpus` - one removes its definition and the other uses it, creating an immediate code-driven prompt for the complementary action."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 1 adds a command-line argument '--gpus' to the argument parser, while Edit 0 uses 'args.gpus' in the Train function to determine which GPUs to use. The changed lines in Edit 0 explicitly reference 'args.gpus' which is the exact same symbol being defined in Edit 1's argument parser addition. This creates a direct definition-usage relationship where the argument definition in Edit 1 enables the usage in Edit 0. However, since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in implementing GPU device selection functionality."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 1 adds a command-line argument '--gpus' to the argument parser, while Edit 0 uses 'args.gpus' in the Train function to determine which GPUs to use. The changed lines in Edit 0 explicitly reference 'args.gpus' which is the exact same symbol being defined in Edit 1's argument parser addition. This creates a direct definition-usage relationship where the argument definition in Edit 1 enables the usage in Edit 0. However, since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order without causing parser errors. The relationship is bi-directional because either edit naturally prompts the other as the next mechanical step in implementing GPU device selection functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 removes the lines that define `num_gpus` and `batch_per_device` variables. Edit 1 adds new code that redefines both `num_gpus` and `batch_per_device` variables with more complex logic. The changed lines in both edits reference the exact same symbols (`num_gpus` and `batch_per_device`). Edit 0 removes these definitions, making them undefined, while Edit 1 provides new definitions for the same symbols. Since Edit 1 cannot be parsed/executed successfully without the symbols being defined (they would be undefined after Edit 0), Edit 1 depends on Edit 0 being applied first to remove the old definitions before the new ones can be added. This creates a direct code dependency where Edit 0 must occur before Edit 1."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'gpus' that is assigned different values based on whether args.gpus is specified or not. Edit 1 then uses this exact same 'gpus' variable in a log statement. The changed lines in edit 1 directly reference the 'gpus' symbol that was defined/assigned in edit 0. After making edit 0, the next logical step would be to update the logging statement to use the new 'gpus' variable instead of the old range(num_gpus). This creates an immediate, mechanically obvious prompt for edit 1 as the next contiguous action."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits are adding/modifying argument parser options related to GPU configuration in the same argument parser within the same function. Edit 0 adds a new '--gpus' argument for specifying a comma-separated list of GPU devices, while Edit 1 modifies the help text of the existing '--num_gpus' argument to clarify it's an alternative to the '--gpus' option. The help text change in Edit 1 explicitly references the '--gpus' option that is being added in Edit 0, creating a direct code dependency. These edits appear to be part of a single micro-task to provide two different ways to specify GPU configuration, where the help text modification directly references the newly added option."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits are adding/modifying argument parser options related to GPU configuration in the same argument parser within the same function. Edit 0 adds a new '--gpus' argument for specifying a comma-separated list of GPU devices, while Edit 1 modifies the help text of the existing '--num_gpus' argument to clarify it's an alternative to the '--gpus' option. The help text change in Edit 1 explicitly references the '--gpus' option that is being added in Edit 0, creating a direct code dependency. These edits appear to be part of a single micro-task to provide two different ways to specify GPU configuration, where the help text modification directly references the newly added option."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits perform an identical textual substitution pattern: removing a period from the end of help strings in parser.add_argument() calls. This is a uniform, mechanical change applied to the same type of syntactic construct (help parameter strings in argument parser definitions). Both edits are part of a single, contiguous refactor to standardize help string formatting by removing trailing periods. Either edit could be made first, and after making either one, the other becomes an obvious next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern: removing a period from the end of help strings in parser.add_argument() calls. This is a uniform, mechanical change applied to the same type of syntactic construct (help parameter strings in argument parser definitions). Both edits are part of a single, contiguous refactor to standardize help string formatting by removing trailing periods. Either edit could be made first, and after making either one, the other becomes an obvious next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 adds an else clause that initializes self.external_loggers to an empty list when external_loggers is None/falsy. Edit 1 removes the conditional check 'if self.external_loggers:' and always iterates over self.external_loggers. These edits reference the exact same attribute (self.external_loggers) and work together to ensure the attribute is always a list that can be safely iterated over. Edit 0 ensures external_loggers is never None/falsy by providing an empty list default, which enables Edit 1 to remove the safety check and always iterate. Either edit can be made first - if Edit 0 is made first, it provides the guarantee that external_loggers is always iterable; if Edit 1 is made first, it will work as long as external_loggers was already properly initialized. Both edits are part of the same micro-task of making the external_loggers iteration unconditional and safe."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 adds an else clause that initializes self.external_loggers to an empty list when external_loggers is None/falsy. Edit 1 removes the conditional check 'if self.external_loggers:' and always iterates over self.external_loggers. These edits reference the exact same attribute (self.external_loggers) and work together to ensure the attribute is always a list that can be safely iterated over. Edit 0 ensures external_loggers is never None/falsy by providing an empty list default, which enables Edit 1 to remove the safety check and always iterate. Either edit can be made first - if Edit 0 is made first, it provides the guarantee that external_loggers is always iterable; if Edit 1 is made first, it will work as long as external_loggers was already properly initialized. Both edits are part of the same micro-task of making the external_loggers iteration unconditional and safe."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        5,
+        6,
+        7,
+        8
+    ]
+}

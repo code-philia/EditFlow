@@ -1,0 +1,41 @@
+{
+    "partial_orders": [
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes lines that extract and validate the 'priority' property from jvm_config, while Edit 1 adds back similar lines but with enhanced functionality (supporting callable priority). The removed code in Edit 0 directly conflicts with the added code in Edit 1 - they operate on the exact same lines and the same 'priority' variable. Edit 0 must be applied first to remove the old priority handling logic before Edit 1 can add the new enhanced priority handling logic. This is a classic refactoring pattern where old code is removed and then replaced with improved code."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 changes the 'priority' value from a static integer (-1) to a lambda function that returns either 1 or -1 based on a condition. Edit 1 adds code to handle callable priority values by checking if priority is callable and calling it to get the actual integer value. The changed lines in edit 1 directly process the exact same 'priority' property that edit 0 modified to be callable. Edit 0 creates an immediate code-driven need for edit 1 - without edit 1's handling of callable priorities, the lambda function in edit 0 would not be properly processed. This is a clear definition-usage relationship where edit 0 introduces a callable priority and edit 1 implements the mechanism to handle callable priorities."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits modify code that handles the 'priority' variable in the same function and context. Edit 0 adds validation logic for the priority variable, extracting it from jvm_config and ensuring it's an integer. Edit 1 modifies an error message that uses the same priority variable to provide more detailed information when duplicate priorities are found. The changed lines in both edits reference the exact same 'priority' symbol - edit 0 defines/validates it, and edit 1 uses it in the error handling logic. After making edit 0 (which extracts and validates priority), edit 1 (which uses priority in error reporting) becomes the natural next step in the same micro-task of improving priority handling. This represents a definition-usage relationship for the same symbol within the same function context."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits modify code that handles the 'priority' variable in the same function and context. Edit 0 adds validation logic for the priority variable, extracting it from jvm_config and ensuring it's an integer. Edit 1 modifies an error message that uses the same priority variable to provide more detailed information when duplicate priorities are found. The changed lines in both edits reference the exact same 'priority' symbol - edit 0 defines/validates it, and edit 1 uses it in the error handling logic. After making edit 0 (which extracts and validates priority), edit 1 (which uses priority in error reporting) becomes the natural next step in the same micro-task of improving priority handling. This represents a definition-usage relationship for the same symbol within the same function context."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes the 'priority' value from a static integer (-1) to a lambda function that returns either 1 or -1 based on a condition. Edit 1 removes the type checking code that validates the 'priority' property must be an integer. These edits are directly related because the type validation in edit 1 would fail after edit 0's change from int to lambda function. The validation code removal enables the lambda function change to work properly. Both edits reference the exact same 'priority' property in jvm_config structures, and removing the type check is the immediate next step needed after changing the type from int to lambda."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 removes the assignment of `priority = jvm_config['priority']` and its type validation, while Edit 1 modifies a line that uses the `priority` variable. After Edit 0, the `priority` variable would be undefined when Edit 1 tries to use it in the error message and dictionary access. This creates a direct code dependency where Edit 0 must be applied before Edit 1 to avoid a NameError at runtime. The changed lines reference the exact same symbol `priority`."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        0,
+        1,
+        2,
+        3
+    ]
+}

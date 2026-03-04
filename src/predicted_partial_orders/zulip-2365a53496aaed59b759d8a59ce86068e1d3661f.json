@@ -1,0 +1,47 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits are modifying the same docstring within the same test method. Edit 0 closes the docstring by adding the closing triple quotes, while Edit 1 removes the continuation of that same docstring. These are part of a single, contiguous operation to shorten/clean up the docstring - they reference the exact same docstring element and would naturally be done together as one micro-task. Either edit could be done first, and after making either edit, the other becomes the immediate next step to complete the docstring modification."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits are modifying the same docstring within the same test method. Edit 0 closes the docstring by adding the closing triple quotes, while Edit 1 removes the continuation of that same docstring. These are part of a single, contiguous operation to shorten/clean up the docstring - they reference the exact same docstring element and would naturally be done together as one micro-task. Either edit could be done first, and after making either edit, the other becomes the immediate next step to complete the docstring modification."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'self.idle' - edit 0 initializes it to True in the initialize_statistics method, and edit 1 sets it to True in the do_consume method. The changed lines in both edits directly reference the same instance attribute. After initializing the idle attribute in edit 0, it becomes available for use in edit 1, and vice versa - if edit 1 were made first, it would create an undefined attribute that would naturally prompt the initialization in edit 0. This represents a definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'self.idle' - edit 0 initializes it to True in the initialize_statistics method, and edit 1 sets it to True in the do_consume method. The changed lines in both edits directly reference the same instance attribute. After initializing the idle attribute in edit 0, it becomes available for use in edit 1, and vice versa - if edit 1 were made first, it would create an undefined attribute that would naturally prompt the initialization in edit 0. This represents a definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 initializes the `self.idle` attribute to `True` in the `initialize_statistics` method, while Edit 1 uses this exact same attribute by checking `if self.idle:` and then setting `self.idle = False`. The changed lines in both edits reference the exact same symbol (`self.idle`). After making Edit 0 (adding the attribute initialization), Edit 1 becomes the natural next step to use this newly initialized attribute. Conversely, Edit 1 cannot function properly without the attribute being initialized in Edit 0, but both edits can be written and parsed in either order since Python allows referencing attributes that may not exist (resulting in AttributeError at runtime, not parse-time error). This is a clear definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the `self.idle` attribute to `True` in the `initialize_statistics` method, while Edit 1 uses this exact same attribute by checking `if self.idle:` and then setting `self.idle = False`. The changed lines in both edits reference the exact same symbol (`self.idle`). After making Edit 0 (adding the attribute initialization), Edit 1 becomes the natural next step to use this newly initialized attribute. Conversely, Edit 1 cannot function properly without the attribute being initialized in Edit 0, but both edits can be written and parsed in either order since Python allows referencing attributes that may not exist (resulting in AttributeError at runtime, not parse-time error). This is a clear definition-usage relationship for the same symbol within the same class."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits modify the same `self.idle` attribute within the same method `do_consume`. Edit 0 sets `self.idle = False` when reactivating from idle state, while Edit 1 sets `self.idle = True` when the queue becomes empty. These are complementary state transitions for the same boolean attribute - one sets it to False when work begins, the other sets it to True when work is complete. The changed lines in both edits directly reference and assign to the exact same symbol `self.idle`, creating a direct code dependency where both edits are part of implementing the idle state management logic. Either edit can be made first since both are syntactically valid assignments to the same attribute, and making either edit creates an immediate prompt to implement the complementary state transition."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits modify the same `self.idle` attribute within the same method `do_consume`. Edit 0 sets `self.idle = False` when reactivating from idle state, while Edit 1 sets `self.idle = True` when the queue becomes empty. These are complementary state transitions for the same boolean attribute - one sets it to False when work begins, the other sets it to True when work is complete. The changed lines in both edits directly reference and assign to the exact same symbol `self.idle`, creating a direct code dependency where both edits are part of implementing the idle state management logic. Either edit can be made first since both are syntactically valid assignments to the same attribute, and making either edit creates an immediate prompt to implement the complementary state transition."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

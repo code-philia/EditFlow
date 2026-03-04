@@ -1,0 +1,53 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new class attribute `_deprecations` to the DirNamesMixin class, and Edit 1 immediately uses this newly added attribute in the `_dir_deletions` method by referencing `self._deprecations`. The changed line in Edit 1 explicitly references the exact same symbol (`_deprecations`) that was just defined in Edit 0. This creates a direct definition-usage relationship where Edit 0 defines the attribute and Edit 1 uses it. In Python, both edits can be staged in either order since referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new class attribute `_deprecations` to the DirNamesMixin class, and Edit 1 immediately uses this newly added attribute in the `_dir_deletions` method by referencing `self._deprecations`. The changed line in Edit 1 explicitly references the exact same symbol (`_deprecations`) that was just defined in Edit 0. This creates a direct definition-usage relationship where Edit 0 defines the attribute and Edit 1 uses it. In Python, both edits can be staged in either order since referencing an undefined attribute only causes a runtime AttributeError, not a parse-time syntax error. After making either edit, the other becomes the immediate, mechanically obvious next step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 modifies the `_dir_deletions` method to return `self._accessors | self._deprecations`, which creates a direct dependency on the `_deprecations` attribute. Edit 1 defines the `_deprecations` attribute in the NDFrame class. Since edit 0's changed line explicitly references `_deprecations` which is defined in edit 1, there is a direct code dependency. However, both edits can be parsed and staged independently - edit 0 would result in an AttributeError at runtime if `_deprecations` doesn't exist, but this is not a parse-time error in Python. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes the natural next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 modifies the `_dir_deletions` method to return `self._accessors | self._deprecations`, which creates a direct dependency on the `_deprecations` attribute. Edit 1 defines the `_deprecations` attribute in the NDFrame class. Since edit 0's changed line explicitly references `_deprecations` which is defined in edit 1, there is a direct code dependency. However, both edits can be parsed and staged independently - edit 0 would result in an AttributeError at runtime if `_deprecations` doesn't exist, but this is not a parse-time error in Python. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes the natural next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 1 defines the `_deprecations` attribute in the NDFrame class, while Edit 0 references `NDFrame._deprecations` in the DataFrame class (which inherits from NDFrame). The changed line in Edit 0 explicitly references the exact same symbol being defined in Edit 1. This creates a direct code dependency where Edit 1 must come before Edit 0, as Edit 0 cannot access `NDFrame._deprecations` until it is defined. This is a definition-usage relationship where the usage cannot be parsed/executed until the definition exists."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 defines the `_deprecations` attribute in the `NDFrame` class, and Edit 1 references this exact same attribute via `generic.NDFrame._deprecations` in the changed line. This creates a direct definition-usage relationship where the symbol defined in Edit 0 is immediately referenced in Edit 1. Since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 defines the `_deprecations` attribute in the `NDFrame` class, and Edit 1 references this exact same attribute via `generic.NDFrame._deprecations` in the changed line. This creates a direct definition-usage relationship where the symbol defined in Edit 0 is immediately referenced in Edit 1. Since Python allows referencing undefined attributes at parse time (only failing at runtime), both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits add nearly identical test methods named 'test_tab_complete_warning' to different test classes. They follow the same structural pattern: same imports, same pytest.importorskip call, same provisionalcompleter usage, and same testing logic. The only differences are the variable names (df vs s) and object creation (DataFrame vs Series). This represents a bulk-edit pattern where the same test functionality is being added to both DataFrame and Series test suites as part of a single, contiguous refactoring task. Both edits perform an identical structural substitution (adding the same test method template) and target the same type of syntactic construct (test method definitions). This fits the criteria for bulk-edit & pattern synchronization."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits add nearly identical test methods named 'test_tab_complete_warning' to different test classes. They follow the same structural pattern: same imports, same pytest.importorskip call, same provisionalcompleter usage, and same testing logic. The only differences are the variable names (df vs s) and object creation (DataFrame vs Series). This represents a bulk-edit pattern where the same test functionality is being added to both DataFrame and Series test suites as part of a single, contiguous refactoring task. Both edits perform an identical structural substitution (adding the same test method template) and target the same type of syntactic construct (test method definitions). This fits the criteria for bulk-edit & pattern synchronization."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3
+    ]
+}

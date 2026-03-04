@@ -1,0 +1,72 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'start_at_done' to the PlayIterator.__init__ method signature. Edit 1 adds the same parameter 'start_at_done' to a PlayIterator constructor call in a different file. These edits reference the exact same symbol (the start_at_done parameter of PlayIterator.__init__) and form a definition-usage relationship. After adding the parameter to the constructor signature, the call site needs to be updated to pass the parameter, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'start_at_done' to the PlayIterator.__init__ method signature. Edit 1 adds the same parameter 'start_at_done' to a PlayIterator constructor call in a different file. These edits reference the exact same symbol (the start_at_done parameter of PlayIterator.__init__) and form a definition-usage relationship. After adding the parameter to the constructor signature, the call site needs to be updated to pass the parameter, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'start_at_done' to the __init__ method signature, and Edit 1 uses that exact same parameter in a conditional expression within the same method body. The changed lines reference the exact same symbol 'start_at_done' - one defines it as a parameter, the other references it in usage. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the method body as part of the same micro-task of implementing the new functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds a new parameter 'start_at_done' to the __init__ method signature, and Edit 1 uses that exact same parameter in a conditional expression within the same method body. The changed lines reference the exact same symbol 'start_at_done' - one defines it as a parameter, the other references it in usage. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the method body as part of the same micro-task of implementing the new functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'play_context' within the same function context. Edit 0 adds a parameter 'start_at_done=False' to the __init__ method signature where play_context is already a parameter. Edit 1 adds code that modifies play_context.start_at_task within the same __init__ method body. The changed lines in both edits explicitly reference the same play_context parameter symbol. After making either edit, the other becomes a natural next step in the same micro-task of modifying how play_context is handled in this constructor. This represents a bi-directional relationship where both edits are part of the same contiguous development task involving the play_context parameter."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'play_context' within the same function context. Edit 0 adds a parameter 'start_at_done=False' to the __init__ method signature where play_context is already a parameter. Edit 1 adds code that modifies play_context.start_at_task within the same __init__ method body. The changed lines in both edits explicitly reference the same play_context parameter symbol. After making either edit, the other becomes a natural next step in the same micro-task of modifying how play_context is handled in this constructor. This represents a bi-directional relationship where both edits are part of the same contiguous development task involving the play_context parameter."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds a parameter 'start_at_done = self._start_at_done' to a PlayIterator constructor call, while Edit 1 adds code that sets 'self._start_at_done = True' under certain conditions. The changed lines reference the exact same symbol 'self._start_at_done' - Edit 1 defines/assigns to this attribute and Edit 0 uses it as a parameter value. This creates a direct code dependency where the assignment in Edit 1 must occur before the usage in Edit 0, as the attribute needs to be defined before it can be referenced."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new instance variable `self._start_at_done = False` in the `__init__` method of TaskQueueManager. Edit 1 uses this exact same instance variable by passing `self._start_at_done` as a parameter to PlayIterator. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After adding the instance variable in edit 0, it becomes immediately available for use in edit 1. Since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime), this is a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new instance variable `self._start_at_done = False` in the `__init__` method of TaskQueueManager. Edit 1 uses this exact same instance variable by passing `self._start_at_done` as a parameter to PlayIterator. This creates a direct definition-usage relationship where the changed lines reference the exact same symbol. After adding the instance variable in edit 0, it becomes immediately available for use in edit 1. Since both edits can be staged in either order (Python allows referencing undefined attributes at parse time, only failing at runtime), this is a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol 'play_context.start_at_task' and implement a coordinated mechanism where edit 0 sets the field to None to signal completion, and edit 1 checks for this None value to detect the signal. Edit 0 creates the signal by clearing the field, and edit 1 responds to that signal by checking the cleared state. This creates a direct code dependency where the behavior in edit 1 depends on the state change made in edit 0, making them part of the same coordinated signaling mechanism."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'play_context.start_at_task' and implement a coordinated mechanism where edit 0 sets the field to None to signal completion, and edit 1 checks for this None value to detect the signal. Edit 0 creates the signal by clearing the field, and edit 1 responds to that signal by checking the cleared state. This creates a direct code dependency where the behavior in edit 1 depends on the state change made in edit 0, making them part of the same coordinated signaling mechanism."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 initializes the instance variable `self._start_at_done = False` in the constructor, and Edit 1 assigns a value to this same instance variable (`self._start_at_done = True`) in the run method. Both edits reference the exact same symbol `self._start_at_done`. The initialization in the constructor creates the attribute, and the assignment in the run method uses that attribute. This represents a definition-usage relationship for the same symbol within the same class instance. Either edit could be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 initializes the instance variable `self._start_at_done = False` in the constructor, and Edit 1 assigns a value to this same instance variable (`self._start_at_done = True`) in the run method. Both edits reference the exact same symbol `self._start_at_done`. The initialization in the constructor creates the attribute, and the assignment in the run method uses that attribute. This represents a definition-usage relationship for the same symbol within the same class instance. Either edit could be staged first without causing parse errors, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        1
+    ]
+}

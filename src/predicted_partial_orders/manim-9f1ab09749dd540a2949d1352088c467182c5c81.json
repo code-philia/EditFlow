@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits reference the exact same symbol 'use_simple_quadratic_approx'. Edit 0 adds this parameter to the function signature, and Edit 1 uses that same parameter in the super().__init__() call within the same function. This creates a direct code dependency where the parameter added in Edit 0 is immediately referenced in Edit 1. Either edit can be made first since Python allows referencing parameters in function bodies even if the parameter isn't defined yet (would only cause a runtime NameError, not a parse error). This is a classic parameter addition followed by parameter usage pattern within the same function."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'use_simple_quadratic_approx'. Edit 0 adds this parameter to the function signature, and Edit 1 uses that same parameter in the super().__init__() call within the same function. This creates a direct code dependency where the parameter added in Edit 0 is immediately referenced in Edit 1. Either edit can be made first since Python allows referencing parameters in function bodies even if the parameter isn't defined yet (would only cause a runtime NameError, not a parse error). This is a classic parameter addition followed by parameter usage pattern within the same function."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 1 renames a parameter from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx' in the VMobject class constructor. Edit 0 then passes this newly renamed parameter 'use_simple_quadratic_approx' to the super().__init__() call in VMobjectFromSVGPath, which inherits from VMobject. However, Edit 0 references a parameter that doesn't exist until Edit 1 is applied - the parameter name 'use_simple_quadratic_approx' is only created by Edit 1's rename operation. If Edit 0 were applied first, it would pass an undefined parameter name to the parent constructor, causing a TypeError at runtime when the VMobject constructor receives an unexpected keyword argument. Therefore, Edit 1 must be applied before Edit 0 to ensure the parameter name exists when it's referenced."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "These edits involve renaming the same parameter from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx' in two different but related classes. Edit 1 changes the parameter name in the VMobject class constructor, while Edit 0 updates the super().__init__() call in VMobjectFromSVGPath to use the new parameter name. Since VMobjectFromSVGPath inherits from VMobject, the parameter name change in the parent class (Edit 1) must happen before the child class can reference the new parameter name (Edit 0). If Edit 0 were applied first, it would reference a non-existent parameter 'use_simple_quadratic_approx' in the parent constructor, causing a TypeError at runtime when the constructor is called."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol being renamed from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the parameter name in the function signature, and Edit 1 changes the assignment of that parameter to the instance variable. This is a parameter rename with corresponding body reference update within the same function - both changed lines reference the exact same symbol. Either edit can be made first since both are syntactically valid in either order (the parameter name and its usage are being consistently renamed)."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol being renamed from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the parameter name in the function signature, and Edit 1 changes the assignment of that parameter to the instance variable. This is a parameter rename with corresponding body reference update within the same function - both changed lines reference the exact same symbol. Either edit can be made first since both are syntactically valid in either order (the parameter name and its usage are being consistently renamed)."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits change references to the exact same attribute symbol from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the attribute assignment in the constructor, while Edit 1 changes the attribute access in a method. Since both edits reference the same symbol and this appears to be a coordinated rename refactor, either edit can be made first and both would naturally prompt the other as the next mechanical step to complete the rename."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits change references to the exact same attribute symbol from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the attribute assignment in the constructor, while Edit 1 changes the attribute access in a method. Since both edits reference the same symbol and this appears to be a coordinated rename refactor, either edit can be made first and both would naturally prompt the other as the next mechanical step to complete the rename."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol - a parameter that was renamed from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the parameter name in the constructor signature, while Edit 1 updates the usage of that same parameter in the method body. The changed lines in both edits reference the exact same symbol (the parameter), creating a direct code dependency where either edit naturally prompts the other as the next mechanical step. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol - a parameter that was renamed from 'allow_cubic_to_quad_approx' to 'use_simple_quadratic_approx'. Edit 0 changes the parameter name in the constructor signature, while Edit 1 updates the usage of that same parameter in the method body. The changed lines in both edits reference the exact same symbol (the parameter), creating a direct code dependency where either edit naturally prompts the other as the next mechanical step. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol being changed in the function signature. Edit 0 changes the parameter from 'angle_threshold' to 'tuple_to_subdivisions' in the function signature, and Edit 1 updates the function body to use the new parameter name 'tuple_to_subdivisions' instead of the old 'angle_threshold'. The changed lines in both edits reference the same parameter symbol that is being renamed. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the parameter name in the signature, you must update its usage in the body, and vice versa. This is a classic parameter rename scenario where both the definition and usage of the exact same symbol are being updated."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits reference the exact same symbol being changed in the function signature. Edit 0 changes the parameter from 'angle_threshold' to 'tuple_to_subdivisions' in the function signature, and Edit 1 updates the function body to use the new parameter name 'tuple_to_subdivisions' instead of the old 'angle_threshold'. The changed lines in both edits reference the same parameter symbol that is being renamed. After making either edit, the other becomes the immediate next step to maintain code consistency - if you change the parameter name in the signature, you must update its usage in the body, and vice versa. This is a classic parameter rename scenario where both the definition and usage of the exact same symbol are being updated."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits are modifying the same function signature - edit 0 changes the function name from 'subdivide_sharp_curves' to 'subdivide_curves_by_condition', and edit 1 changes a parameter from 'angle_threshold: float = 30 * DEGREES' to 'tuple_to_subdivisions: Callable'. These are both part of refactoring the same function signature and would naturally be done together as part of a single micro-task. The changed lines reference the exact same function symbol being modified, creating a direct code linkage where both edits are mechanically required to complete the signature refactor."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits are modifying the same function signature - edit 0 changes the function name from 'subdivide_sharp_curves' to 'subdivide_curves_by_condition', and edit 1 changes a parameter from 'angle_threshold: float = 30 * DEGREES' to 'tuple_to_subdivisions: Callable'. These are both part of refactoring the same function signature and would naturally be done together as part of a single micro-task. The changed lines reference the exact same function symbol being modified, creating a direct code linkage where both edits are mechanically required to complete the signature refactor."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

@@ -1,0 +1,1302 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/streamlit/streamlit/commit/c1da121dd3f0284739209ec9649cfd2433be1f53",
+    "commit_message": "Preheat: run the user's script before the first browser connects. (#976)\n\n* Preheat: run the user's script before the first browser connects.\n\n* Fix preheat bug.",
+    "commit_snapshots": {
+        "lib/streamlit/Server.py": [
+            [
+                "# Copyright 2019 Streamlit Inc. All rights reserved.\n",
+                "# -*- coding: utf-8 -*-\n",
+                "\n",
+                "import json\n",
+                "import logging\n",
+                "import threading\n",
+                "import urllib\n",
+                "\n",
+                "import tornado.concurrent\n",
+                "import tornado.gen\n",
+                "import tornado.web\n",
+                "import tornado.websocket\n",
+                "import tornado.ioloop\n",
+                "\n",
+                "from streamlit import config\n",
+                "from streamlit import protobuf\n",
+                "from streamlit import util\n",
+                "from streamlit.ReportContext import ReportContext\n",
+                "from streamlit.logger import get_logger\n",
+                "\n",
+                "LOGGER = get_logger(__name__)\n",
+                "\n",
+                "\n",
+                "# Largest message that can be sent via the WebSocket connection.\n",
+                "# (Limit was picked by trial and error)\n",
+                "# TODO: Break message in several chunks if too large.\n",
+                "MESSAGE_SIZE_LIMIT = 10466493\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "# Dictionary key used to mark the script execution context that starts\n",
+                    "# up before the first browser connects.\n",
+                    "PREHEATED_REPORT_CONTEXT = 'PREHEATED_REPORT_CONTEXT'\n",
+                    "\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 29,
+                    "end": 29
+                },
+                "child_version_range": {
+                    "start": 29,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n  ...\n26 26    MESSAGE_SIZE_LIMIT = 10466493\n27 27    \n28 28    \n   29  + # Dictionary key used to mark the script execution context that starts\n   30  + # up before the first browser connects.\n   31  + PREHEATED_REPORT_CONTEXT = 'PREHEATED_REPORT_CONTEXT'\n   32  + \n   33  + \n29 34    class State(object):\n30 35        INITIAL = 'INITIAL'\n31 36        WAITING_FOR_FIRST_BROWSER = 'WAITING_FOR_FIRST_BROWSER'\n       ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "PREHEATED_REPORT_CONTEXT"
+                ],
+                "prefix": [
+                    "MESSAGE_SIZE_LIMIT = 10466493\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "class State(object):\n",
+                    "    INITIAL = 'INITIAL'\n",
+                    "    WAITING_FOR_FIRST_BROWSER = 'WAITING_FOR_FIRST_BROWSER'\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 24
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "class State(object):\n",
+                "    INITIAL = 'INITIAL'\n",
+                "    WAITING_FOR_FIRST_BROWSER = 'WAITING_FOR_FIRST_BROWSER'\n",
+                "    ONE_OR_MORE_BROWSERS_CONNECTED = 'ONE_OR_MORE_BROWSERS_CONNECTED'\n",
+                "    NO_BROWSERS_CONNECTED = 'NO_BROWSERS_CONNECTED'\n",
+                "    STOPPING = 'STOPPING'\n",
+                "    STOPPED = 'STOPPED'\n",
+                "\n",
+                "\n",
+                "class Server(object):\n",
+                "\n",
+                "    _singleton = None\n",
+                "\n",
+                "    @classmethod\n",
+                "    def get_current(cls):\n",
+                "        \"\"\"Return the singleton instance.\"\"\"\n",
+                "        if cls._singleton is None:\n",
+                "            Server()\n",
+                "\n",
+                "        return Server._singleton\n",
+                "\n",
+                "    def __init__(self, script_path, script_argv, on_server_start_callback):\n",
+                "        \"\"\"Initialize server.\"\"\"\n",
+                "        LOGGER.debug('Initializing server...')\n",
+                "\n",
+                "        if Server._singleton is not None:\n",
+                "            raise RuntimeError(\n",
+                "                'Server already initialized. Use .get_current() instead')\n",
+                "\n",
+                "        Server._singleton = self\n",
+                "\n",
+                "        _set_tornado_log_levels()\n",
+                "\n",
+                "        self._script_path = script_path\n",
+                "        self._script_argv = script_argv\n",
+                "        self._on_server_start_callback = on_server_start_callback\n",
+                "\n",
+                "        # Mapping of WebSocket->ReportContext.\n",
+                "        self._report_contexts = {}\n",
+                "\n",
+                "        self._must_stop = threading.Event()\n",
+                "        self._state = None\n",
+                "        self._set_state(State.INITIAL)\n",
+                "        self._ioloop = tornado.ioloop.IOLoop.current()\n",
+                "\n",
+                "        port = config.get_option('server.port')\n",
+                "        app = tornado.web.Application(self._get_routes())\n",
+                "        app.listen(port)\n",
+                "\n",
+                "        LOGGER.debug('Server started on port %s', port)\n",
+                "\n",
+                "    def get_debug(self):\n",
+                "        return {\n",
+                "            'report': self._report.get_debug(),\n",
+                "        }\n",
+                "\n",
+                "    def _get_routes(self):\n",
+                "        routes = [\n",
+                "            (r'/stream', _BrowserWebSocketHandler, dict(server=self)),\n",
+                "            (r'/healthz', _HealthHandler, dict(server=self)),\n",
+                "            (r'/debugz', _DebugHandler, dict(server=self)),\n",
+                "        ]\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        if not config.get_option('global.developmentMode') or not config.get_option('global.useNode'):\n"
+                ],
+                "after": [
+                    "        if (not config.get_option('global.developmentMode')\n",
+                    "                or not config.get_option('global.useNode')):\n"
+                ],
+                "parent_version_range": {
+                    "start": 92,
+                    "end": 93
+                },
+                "child_version_range": {
+                    "start": 97,
+                    "end": 99
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if not config.get_option('global.developmentMode') or not config.get_option('global.useNode'):",
+                        "start_line": 92,
+                        "end_line": 106
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Server",
+                        "signature": "class Server(object):",
+                        "at_line": 38
+                    },
+                    {
+                        "type": "function",
+                        "name": "_get_routes",
+                        "signature": "def _get_routes(self):",
+                        "at_line": 85
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class Server(object):\n               ...\n               def _get_routes(self):\n                   ...\n 89  94                (r'/debugz', _DebugHandler, dict(server=self)),\n 90  95            ]\n 91  96    \n 92      -         if not config.get_option('global.developmentMode') or not config.get_option('global.useNode'):\n     97  +         if (not config.get_option('global.developmentMode')\n     98  +                 or not config.get_option('global.useNode')):\n 93  99                # If we're not using the node development server, then the proxy\n 94 100                # will serve up the development pages.\n 95 101                static_path = util.get_static_dir()\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [
+                    "config",
+                    "get_option"
+                ],
+                "identifiers_after": [
+                    "config",
+                    "get_option"
+                ],
+                "prefix": [
+                    "            (r'/debugz', _DebugHandler, dict(server=self)),\n",
+                    "        ]\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "            # If we're not using the node development server, then the proxy\n",
+                    "            # will serve up the development pages.\n",
+                    "            static_path = util.get_static_dir()\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            # If we're not using the node development server, then the proxy\n",
+                "            # will serve up the development pages.\n",
+                "            static_path = util.get_static_dir()\n",
+                "            LOGGER.debug('Serving static content from %s', static_path)\n",
+                "\n",
+                "            routes.extend([\n",
+                "                (r\"/()$\", _StaticFileHandler,\n",
+                "                    {'path': '%s/index.html' % static_path}),\n",
+                "                (r\"/(.*)\", _StaticFileHandler, {'path': '%s/' % static_path}),\n",
+                "            ])\n",
+                "        else:\n",
+                "            LOGGER.debug(\n",
+                "                'developmentMode == True, '\n",
+                "                'not serving static content from python.')\n",
+                "\n",
+                "        return routes\n",
+                "\n",
+                "    def _set_state(self, new_state):\n",
+                "        LOGGER.debug('Server state: %s -> %s' % (self._state, new_state))\n",
+                "        self._state = new_state\n",
+                "\n",
+                "    @property\n",
+                "    def is_ready_for_browser_connection(self):\n",
+                "        return self._state not in (\n",
+                "            State.INITIAL,\n",
+                "            State.STOPPING,\n",
+                "            State.STOPPED,\n",
+                "        )\n",
+                "\n",
+                "    @property\n",
+                "    def browser_is_connected(self):\n",
+                "        return self._state == State.ONE_OR_MORE_BROWSERS_CONNECTED\n",
+                "\n",
+                "    @tornado.gen.coroutine\n",
+                "    def loop_coroutine(self):\n",
+                "        self._set_state(State.WAITING_FOR_FIRST_BROWSER)\n",
+                "\n",
+                "        self._on_server_start_callback(self)\n",
+                "\n",
+                "        while not self._must_stop.is_set():\n",
+                "            if self._state == State.WAITING_FOR_FIRST_BROWSER:\n",
+                "                pass\n",
+                "\n",
+                "            elif self._state == State.ONE_OR_MORE_BROWSERS_CONNECTED:\n",
+                "\n",
+                "                # Shallow-clone _report_contexts into a list, so we can iterate\n",
+                "                # over it and not worry about whether it's being changed\n",
+                "                # outside this coroutine.\n",
+                "                ws_ctx_pairs = list(self._report_contexts.items())\n",
+                "\n",
+                "                for ws, report_ctx in ws_ctx_pairs:\n",
+                "                    if ws is None:\n",
+                "                        continue\n",
+                "                    msg_list = report_ctx.flush_browser_queue()\n",
+                "                    for msg in msg_list:\n",
+                "                        msg_str = _serialize(msg)\n",
+                "                        try:\n",
+                "                            ws.write_message(msg_str, binary=True)\n",
+                "                        except tornado.websocket.WebSocketClosedError:\n",
+                "                            self._remove_browser_connection(ws)\n",
+                "                        yield\n",
+                "                    yield\n",
+                "\n",
+                "            elif self._state == State.NO_BROWSERS_CONNECTED:\n",
+                "                pass\n",
+                "\n",
+                "            else:\n",
+                "                # Break out of the thread loop if we encounter any other state.\n",
+                "                break\n",
+                "\n",
+                "            yield tornado.gen.sleep(0.01)\n",
+                "\n",
+                "        # Shut down all ReportContexts\n",
+                "        for report_ctx in list(self._report_contexts.values()):\n",
+                "            report_ctx.shutdown()\n",
+                "\n",
+                "        self._set_state(State.STOPPED)\n",
+                "\n",
+                "        # Stop the ioloop. This will end our process.\n",
+                "        self._ioloop.stop()\n",
+                "\n",
+                "    def stop(self):\n",
+                "        self._set_state(State.STOPPING)\n",
+                "        self._must_stop.set()\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    def add_preheated_report_context(self):\n",
+                    "        \"\"\"Register a fake browser with the server and run the script.\n",
+                    "\n",
+                    "        This is used to start running the user's script even before the first\n",
+                    "        browser connects.\n",
+                    "        \"\"\"\n",
+                    "        report_ctx = self._add_browser_connection(PREHEATED_REPORT_CONTEXT)\n",
+                    "        report_ctx.handle_rerun_script_request()\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 178,
+                    "end": 178
+                },
+                "child_version_range": {
+                    "start": 184,
+                    "end": 193
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Server",
+                        "signature": "class Server(object):",
+                        "at_line": 38
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class Server(object):\n               ...\n175 181            self._set_state(State.STOPPING)\n176 182            self._must_stop.set()\n177 183    \n    184  +     def add_preheated_report_context(self):\n    185  +         \"\"\"Register a fake browser with the server and run the script.\n    186  + \n    187  +         This is used to start running the user's script even before the first\n    188  +         browser connects.\n    189  +         \"\"\"\n    190  +         report_ctx = self._add_browser_connection(PREHEATED_REPORT_CONTEXT)\n    191  +         report_ctx.handle_rerun_script_request()\n    192  + \n178 193        def _add_browser_connection(self, ws):\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "PREHEATED_REPORT_CONTEXT",
+                    "_add_browser_connection",
+                    "add_preheated_report_context",
+                    "handle_rerun_script_request",
+                    "report_ctx",
+                    "self"
+                ],
+                "prefix": [
+                    "        self._set_state(State.STOPPING)\n",
+                    "        self._must_stop.set()\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def _add_browser_connection(self, ws):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 190,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 190,
+                                    "column": 74
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "add_preheated_report_context",
+                            "position": {
+                                "start": {
+                                    "line": 184,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 184,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    def _add_browser_connection(self, ws):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        \"\"\"Registers a connected browser to the server\n"
+                ],
+                "after": [
+                    "        \"\"\"Register a connected browser with the server\n"
+                ],
+                "parent_version_range": {
+                    "start": 179,
+                    "end": 180
+                },
+                "child_version_range": {
+                    "start": 194,
+                    "end": 195
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Server",
+                        "signature": "class Server(object):",
+                        "at_line": 38
+                    },
+                    {
+                        "type": "function",
+                        "name": "_add_browser_connection",
+                        "signature": "def _add_browser_connection(self, ws):",
+                        "at_line": 178
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class Server(object):\n               ...\n178 193        def _add_browser_connection(self, ws):\n179      -         \"\"\"Registers a connected browser to the server\n    194  +         \"\"\"Register a connected browser with the server\n180 195    \n181 196            Parameters\n182 197            ----------\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [
+                    "Registers",
+                    "a",
+                    "browser",
+                    "connected",
+                    "server",
+                    "the",
+                    "to"
+                ],
+                "identifiers_after": [
+                    "Register",
+                    "a",
+                    "browser",
+                    "connected",
+                    "server",
+                    "the"
+                ],
+                "prefix": [
+                    "    def _add_browser_connection(self, ws):\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        Parameters\n",
+                    "        ----------\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        Parameters\n",
+                "        ----------\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        ws : _BrowserWebSocketHandler\n"
+                ],
+                "after": [
+                    "        ws : _BrowserWebSocketHandler or PREHEATED_REPORT_CONTEXT\n"
+                ],
+                "parent_version_range": {
+                    "start": 183,
+                    "end": 184
+                },
+                "child_version_range": {
+                    "start": 198,
+                    "end": 199
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Server",
+                        "signature": "class Server(object):",
+                        "at_line": 38
+                    },
+                    {
+                        "type": "function",
+                        "name": "_add_browser_connection",
+                        "signature": "def _add_browser_connection(self, ws):",
+                        "at_line": 178
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class Server(object):\n               ...\n               def _add_browser_connection(self, ws):\n                   ...\n180 195    \n181 196            Parameters\n182 197            ----------\n183      -         ws : _BrowserWebSocketHandler\n    198  +         ws : _BrowserWebSocketHandler or PREHEATED_REPORT_CONTEXT\n184 199                The newly-connected websocket handler\n185 200    \n186 201            Returns\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [
+                    "_BrowserWebSocketHandler",
+                    "ws"
+                ],
+                "identifiers_after": [
+                    "PREHEATED_REPORT_CONTEXT",
+                    "_BrowserWebSocketHandler",
+                    "ws"
+                ],
+                "prefix": [
+                    "\n",
+                    "        Parameters\n",
+                    "        ----------\n"
+                ],
+                "suffix": [
+                    "            The newly-connected websocket handler\n",
+                    "\n",
+                    "        Returns\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            The newly-connected websocket handler\n",
+                "\n",
+                "        Returns\n",
+                "        -------\n",
+                "        ReportContext\n",
+                "            The ReportContext associated with this browser connection\n",
+                "\n",
+                "        \"\"\"\n",
+                "        if ws not in self._report_contexts:\n",
+                "            LOGGER.debug('Registering new browser connection')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            self._report_contexts[ws] = ReportContext(\n",
+                    "                ioloop=self._ioloop,\n",
+                    "                script_path=self._script_path,\n",
+                    "                script_argv=self._script_argv)\n"
+                ],
+                "after": [
+                    "\n",
+                    "            if (len(self._report_contexts) == 1 and\n",
+                    "                    PREHEATED_REPORT_CONTEXT in self._report_contexts):\n",
+                    "                report_ctx = self._report_contexts[PREHEATED_REPORT_CONTEXT]\n",
+                    "                del self._report_contexts[PREHEATED_REPORT_CONTEXT]\n",
+                    "            else:\n",
+                    "                report_ctx = ReportContext(\n",
+                    "                    ioloop=self._ioloop,\n",
+                    "                    script_path=self._script_path,\n",
+                    "                    script_argv=self._script_argv)\n",
+                    "\n",
+                    "            self._report_contexts[ws] = report_ctx\n"
+                ],
+                "parent_version_range": {
+                    "start": 194,
+                    "end": 198
+                },
+                "child_version_range": {
+                    "start": 209,
+                    "end": 221
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if ws not in self._report_contexts:",
+                        "start_line": 192,
+                        "end_line": 198
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Server",
+                        "signature": "class Server(object):",
+                        "at_line": 38
+                    },
+                    {
+                        "type": "function",
+                        "name": "_add_browser_connection",
+                        "signature": "def _add_browser_connection(self, ws):",
+                        "at_line": 178
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class Server(object):\n               ...\n               def _add_browser_connection(self, ws):\n                   ...\n191 206            \"\"\"\n192 207            if ws not in self._report_contexts:\n193 208                LOGGER.debug('Registering new browser connection')\n194      -             self._report_contexts[ws] = ReportContext(\n195      -                 ioloop=self._ioloop,\n196      -                 script_path=self._script_path,\n197      -                 script_argv=self._script_argv)\n    209  + \n    210  +             if (len(self._report_contexts) == 1 and\n    211  +                     PREHEATED_REPORT_CONTEXT in self._report_contexts):\n    212  +                 report_ctx = self._report_contexts[PREHEATED_REPORT_CONTEXT]\n    213  +                 del self._report_contexts[PREHEATED_REPORT_CONTEXT]\n    214  +             else:\n    215  +                 report_ctx = ReportContext(\n    216  +                     ioloop=self._ioloop,\n    217  +                     script_path=self._script_path,\n    218  +                     script_argv=self._script_argv)\n    219  + \n    220  +             self._report_contexts[ws] = report_ctx\n198 221                self._set_state(State.ONE_OR_MORE_BROWSERS_CONNECTED)\n199 222    \n200 223            return self._report_contexts[ws]\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [
+                    "ReportContext",
+                    "_ioloop",
+                    "_report_contexts",
+                    "_script_argv",
+                    "_script_path",
+                    "ioloop",
+                    "script_argv",
+                    "script_path",
+                    "self",
+                    "ws"
+                ],
+                "identifiers_after": [
+                    "PREHEATED_REPORT_CONTEXT",
+                    "ReportContext",
+                    "_ioloop",
+                    "_report_contexts",
+                    "_script_argv",
+                    "_script_path",
+                    "ioloop",
+                    "len",
+                    "report_ctx",
+                    "script_argv",
+                    "script_path",
+                    "self",
+                    "ws"
+                ],
+                "prefix": [
+                    "        \"\"\"\n",
+                    "        if ws not in self._report_contexts:\n",
+                    "            LOGGER.debug('Registering new browser connection')\n"
+                ],
+                "suffix": [
+                    "            self._set_state(State.ONE_OR_MORE_BROWSERS_CONNECTED)\n",
+                    "\n",
+                    "        return self._report_contexts[ws]\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 211,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 211,
+                                    "column": 44
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 212,
+                                    "column": 51
+                                },
+                                "end": {
+                                    "line": 212,
+                                    "column": 75
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "PREHEATED_REPORT_CONTEXT",
+                            "position": {
+                                "start": {
+                                    "line": 213,
+                                    "column": 42
+                                },
+                                "end": {
+                                    "line": 213,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/Server.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            self._set_state(State.ONE_OR_MORE_BROWSERS_CONNECTED)\n",
+                "\n",
+                "        return self._report_contexts[ws]\n",
+                "\n",
+                "    def _remove_browser_connection(self, ws):\n",
+                "        if ws in self._report_contexts:\n",
+                "            ctx = self._report_contexts[ws]\n",
+                "            del self._report_contexts[ws]\n",
+                "            ctx.shutdown()\n",
+                "\n",
+                "        if len(self._report_contexts) == 0:\n",
+                "            self._set_state(State.NO_BROWSERS_CONNECTED)\n",
+                "\n",
+                "\n",
+                "class _StaticFileHandler(tornado.web.StaticFileHandler):\n",
+                "    def set_extra_headers(self, path):\n",
+                "        \"\"\"Disable cache.\"\"\"\n",
+                "        self.set_header('Cache-Control', 'no-cache')\n",
+                "\n",
+                "    def check_origin(self, origin):\n",
+                "        \"\"\"Set up CORS.\"\"\"\n",
+                "        return _is_url_from_allowed_origins(origin)\n",
+                "\n",
+                "\n",
+                "class _HealthHandler(tornado.web.RequestHandler):\n",
+                "    def initialize(self, server):\n",
+                "        self._server = server\n",
+                "\n",
+                "    def check_origin(self, origin):\n",
+                "        \"\"\"Set up CORS.\"\"\"\n",
+                "        return _is_url_from_allowed_origins(origin)\n",
+                "\n",
+                "    def get(self):\n",
+                "        self.add_header('Cache-Control', 'no-cache')\n",
+                "        if self._server.is_ready_for_browser_connection:\n",
+                "            self.write('ok')\n",
+                "        else:\n",
+                "            # 503 = SERVICE_UNAVAILABLE\n",
+                "            self.set_status(503)\n",
+                "            self.write('unavailable')\n",
+                "\n",
+                "\n",
+                "class _DebugHandler(tornado.web.RequestHandler):\n",
+                "    def initialize(self, server):\n",
+                "        self._server = server\n",
+                "\n",
+                "    def check_origin(self, origin):\n",
+                "        \"\"\"Set up CORS.\"\"\"\n",
+                "        return _is_url_from_allowed_origins(origin)\n",
+                "\n",
+                "    def get(self):\n",
+                "        self.add_header('Cache-Control', 'no-cache')\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self.write('<code><pre>%s</pre><code>' %\n"
+                ],
+                "after": [
+                    "        self.write(\n",
+                    "            '<code><pre>%s</pre><code>' %\n"
+                ],
+                "parent_version_range": {
+                    "start": 250,
+                    "end": 251
+                },
+                "child_version_range": {
+                    "start": 273,
+                    "end": 275
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "_DebugHandler",
+                        "signature": "class _DebugHandler(tornado.web.RequestHandler):",
+                        "at_line": 240
+                    },
+                    {
+                        "type": "function",
+                        "name": "get",
+                        "signature": "def get(self):",
+                        "at_line": 248
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.write",
+                        "signature": "self.write('<code><pre>%s</pre><code>' %\n            json.dumps(\n                self._server.get_debug(),\n                indent=2,\n            ))",
+                        "at_line": 250,
+                        "argument": "'<code><pre>%s</pre><code>' %\n..."
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: lib/streamlit/Server.py\nCode:\n           class _DebugHandler(tornado.web.RequestHandler):\n               ...\n247 270    \n248 271        def get(self):\n249 272            self.add_header('Cache-Control', 'no-cache')\n250      -         self.write('<code><pre>%s</pre><code>' %\n    273  +         self.write(\n    274  +             '<code><pre>%s</pre><code>' %\n251 275                json.dumps(\n252 276                    self._server.get_debug(),\n253 277                    indent=2,\n         ...\n",
+                "file_path": "lib/streamlit/Server.py",
+                "identifiers_before": [
+                    "self",
+                    "write"
+                ],
+                "identifiers_after": [
+                    "self",
+                    "write"
+                ],
+                "prefix": [
+                    "\n",
+                    "    def get(self):\n",
+                    "        self.add_header('Cache-Control', 'no-cache')\n"
+                ],
+                "suffix": [
+                    "            json.dumps(\n",
+                    "                self._server.get_debug(),\n",
+                    "                indent=2,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "            json.dumps(\n",
+                "                self._server.get_debug(),\n",
+                "                indent=2,\n",
+                "            ))\n",
+                "\n",
+                "\n",
+                "class _BrowserWebSocketHandler(tornado.websocket.WebSocketHandler):\n",
+                "    \"\"\"Handles a WebSocket connection from the browser\"\"\"\n",
+                "    def initialize(self, server):\n",
+                "        self._server = server\n",
+                "\n",
+                "    def check_origin(self, origin):\n",
+                "        \"\"\"Set up CORS.\"\"\"\n",
+                "        return _is_url_from_allowed_origins(origin)\n",
+                "\n",
+                "    def open(self):\n",
+                "        self._ctx = self._server._add_browser_connection(self)\n",
+                "\n",
+                "    def on_close(self):\n",
+                "        self._server._remove_browser_connection(self)\n",
+                "\n",
+                "    @tornado.gen.coroutine\n",
+                "    def on_message(self, payload):\n",
+                "        msg = protobuf.BackMsg()\n",
+                "\n",
+                "        try:\n",
+                "            msg.ParseFromString(payload)\n",
+                "            LOGGER.debug('Received the following backend message: %s' % msg)\n",
+                "\n",
+                "            msg_type = msg.WhichOneof('type')\n",
+                "\n",
+                "            if msg_type == 'cloud_upload':\n",
+                "                yield self._ctx.handle_save_request(self)\n",
+                "            elif msg_type == 'rerun_script':\n",
+                "                self._ctx.handle_rerun_script_request(\n",
+                "                    command_line=msg.rerun_script)\n",
+                "            elif msg_type == 'clear_cache':\n",
+                "                self._ctx.handle_clear_cache_request()\n",
+                "            elif msg_type == 'set_run_on_save':\n",
+                "                self._ctx.handle_set_run_on_save_request(msg.set_run_on_save)\n",
+                "            elif msg_type == 'stop_report':\n",
+                "                self._ctx.handle_stop_script_request()\n",
+                "            elif msg_type == 'update_widgets':\n",
+                "                self._ctx.handle_rerun_script_request(\n",
+                "                    widget_state=msg.update_widgets)\n",
+                "            else:\n",
+                "                LOGGER.warning('No handler for \"%s\"', msg_type)\n",
+                "\n",
+                "        except BaseException as e:\n",
+                "            LOGGER.error(e)\n",
+                "            self._ctx.enqueue_exception(e)\n",
+                "\n",
+                "\n",
+                "def _set_tornado_log_levels():\n",
+                "    if not config.get_option('global.developmentMode'):\n",
+                "        # Hide logs unless they're super important.\n",
+                "        # Example of stuff we don't care about: 404 about .js.map files.\n",
+                "        logging.getLogger('tornado.access').setLevel(logging.ERROR)\n",
+                "        logging.getLogger('tornado.application').setLevel(logging.ERROR)\n",
+                "        logging.getLogger('tornado.general').setLevel(logging.ERROR)\n",
+                "\n",
+                "\n",
+                "def _serialize(msg):\n",
+                "    msg_str = msg.SerializeToString()\n",
+                "\n",
+                "    if len(msg_str) > MESSAGE_SIZE_LIMIT:\n",
+                "        _convert_msg_to_exception_msg(msg, RuntimeError('Data too large'))\n",
+                "        msg_str = msg.SerializeToString()\n",
+                "\n",
+                "    return msg_str\n",
+                "\n",
+                "\n",
+                "def _convert_msg_to_exception_msg(msg, e):\n",
+                "    import streamlit.elements.exception_proto as exception_proto\n",
+                "\n",
+                "    delta_id = msg.delta.id\n",
+                "    msg.Clear()\n",
+                "    msg.delta.id = delta_id\n",
+                "\n",
+                "    exception_proto.marshall(msg.delta.new_element, e)\n",
+                "\n",
+                "\n",
+                "def _is_url_from_allowed_origins(url):\n",
+                "    \"\"\"Return True if URL is from allowed origins (for CORS purpose).\n",
+                "\n",
+                "    Allowed origins:\n",
+                "    1. localhost\n",
+                "    2. The internal and external IP addresses of the machine where this\n",
+                "       function was called from.\n",
+                "    3. The cloud storage domain configured in `s3.bucket`.\n",
+                "\n",
+                "    If `server.enableCORS` is False, this allows all origins.\n",
+                "\n",
+                "    Parameters\n",
+                "    ----------\n",
+                "    url : str\n",
+                "        The URL to check\n",
+                "\n",
+                "    Returns\n",
+                "    -------\n",
+                "    bool\n",
+                "        True if URL is accepted. False otherwise.\n",
+                "\n",
+                "    \"\"\"\n",
+                "    if not config.get_option('server.enableCORS'):\n",
+                "        # Allow everything when CORS is disabled.\n",
+                "        return True\n",
+                "\n",
+                "    hostname = urllib.parse.urlparse(url).hostname\n",
+                "\n",
+                "    # Allow connections from bucket.\n",
+                "    if hostname == config.get_option('s3.bucket'):\n",
+                "        return True\n",
+                "\n",
+                "    # Allow connections from watcher's machine or localhost.\n",
+                "    allowed_domains = [\n",
+                "        'localhost',\n",
+                "        '127.0.0.1',\n",
+                "        util.get_internal_ip(),\n",
+                "        util.get_external_ip(),\n",
+                "    ]\n",
+                "\n",
+                "    s3_url = config.get_option('s3.url')\n",
+                "\n",
+                "    if s3_url is not None:\n",
+                "        parsed = urllib.parse.urlparse(s3_url)\n",
+                "        allowed_domains.append(parsed.hostname)\n",
+                "\n",
+                "    if config.is_manually_set('browser.serverAddress'):\n",
+                "        allowed_domains.append(config.get_option('browser.serverAddress'))\n",
+                "\n",
+                "    return any(hostname == d for d in allowed_domains)"
+            ]
+        ],
+        "lib/streamlit/bootstrap.py": [
+            [
+                "# Copyright 2019 Streamlit Inc. All rights reserved.\n",
+                "# -*- coding: utf-8 -*-\n",
+                "\n",
+                "import os\n",
+                "import signal\n",
+                "import sys\n",
+                "\n",
+                "import click\n",
+                "import tornado.ioloop\n",
+                "\n",
+                "from streamlit import config\n",
+                "from streamlit import util\n",
+                "from streamlit.Report import Report\n",
+                "from streamlit.Server import Server\n",
+                "\n",
+                "from streamlit.logger import get_logger\n",
+                "LOGGER = get_logger(__name__)\n",
+                "\n",
+                "\n",
+                "# Wait for 1 second before opening a browser. This gives old tabs a chance to\n",
+                "# reconnect.\n",
+                "# This must be >= 2 * WebSocketConnection.ts#RECONNECT_WAIT_TIME_MS.\n",
+                "BROWSER_WAIT_TIMEOUT_SEC = 1\n",
+                "\n",
+                "\n",
+                "def _set_up_signal_handler():\n",
+                "    LOGGER.debug('Setting up signal handler')\n",
+                "\n",
+                "    def signal_handler(signal_number, stack_frame):\n",
+                "        # The server will shut down its threads and stop the ioloop\n",
+                "        Server.get_current().stop()\n",
+                "\n",
+                "    signal.signal(signal.SIGTERM, signal_handler)\n",
+                "    signal.signal(signal.SIGINT, signal_handler)\n",
+                "    signal.signal(signal.SIGQUIT, signal_handler)\n",
+                "\n",
+                "\n",
+                "def _fix_sys_path(script_path):\n",
+                "    \"\"\"Add the script's folder to the sys path.\n",
+                "\n",
+                "    Python normally does this automatically, but since we exec the script\n",
+                "    ourselves we need to do it instead.\n",
+                "    \"\"\"\n",
+                "    sys.path.insert(0, os.path.dirname(script_path))\n",
+                "\n",
+                "\n",
+                "def _on_server_start(server):\n",
+                "    _print_url()\n",
+                "\n",
+                "    def maybe_open_browser():\n",
+                "        if config.get_option('server.headless'):\n",
+                "            # Don't open browser when in headless mode.\n",
+                "            return\n",
+                "\n",
+                "        if server.browser_is_connected:\n",
+                "            # Don't auto-open browser if there's already a browser connected.\n",
+                "            # This can happen if there's an old tab repeatedly trying to\n",
+                "            # connect, and it happens to success before we launch the browser.\n",
+                "            return\n",
+                "\n",
+                "        if config.is_manually_set('browser.serverAddress'):\n",
+                "            addr = config.get_option('browser.serverAddress')\n",
+                "        else:\n",
+                "            addr = 'localhost'\n",
+                "\n",
+                "        util.open_browser(Report.get_url(addr))\n",
+                "\n",
+                "    # Schedule the browser to open using the IO Loop on the main thread, but\n",
+                "    # only if no other browser connects within 1s.\n",
+                "    ioloop = tornado.ioloop.IOLoop.current()\n",
+                "    ioloop.call_later(BROWSER_WAIT_TIMEOUT_SEC, maybe_open_browser)\n",
+                "\n",
+                "\n",
+                "def _print_url():\n",
+                "    title_message = 'You can now view your Streamlit report in your browser.'\n",
+                "    named_urls = []\n",
+                "\n",
+                "    if config.is_manually_set('browser.serverAddress'):\n",
+                "        named_urls = [\n",
+                "            ('URL',\n",
+                "                Report.get_url(config.get_option('browser.serverAddress'))),\n",
+                "        ]\n",
+                "\n",
+                "    elif config.get_option('server.headless'):\n",
+                "        named_urls = [\n",
+                "            ('Network URL', Report.get_url(util.get_internal_ip())),\n",
+                "            ('External URL', Report.get_url(util.get_external_ip())),\n",
+                "        ]\n",
+                "\n",
+                "    else:\n",
+                "        named_urls = [\n",
+                "            ('Local URL', Report.get_url('localhost')),\n",
+                "            ('Network URL', Report.get_url(util.get_internal_ip())),\n",
+                "        ]\n",
+                "\n",
+                "    click.secho('')\n",
+                "    click.secho('  %s' % title_message, fg='green')\n",
+                "    click.secho('')\n",
+                "\n",
+                "    for url_name, url in named_urls:\n",
+                "        util.print_url(url_name, url)\n",
+                "\n",
+                "    click.secho('')\n",
+                "\n",
+                "\n",
+                "def run(script_path):\n",
+                "    \"\"\"Run a script in a separate thread and start a server for the report.\n",
+                "\n",
+                "    This starts a blocking ioloop.\n",
+                "\n",
+                "    Parameters\n",
+                "    ----------\n",
+                "    script_path : str\n",
+                "\n",
+                "    \"\"\"\n",
+                "    _fix_sys_path(script_path)\n",
+                "\n",
+                "    # Install a signal handler that will shut down the ioloop\n",
+                "    # and close all our threads\n",
+                "    _set_up_signal_handler()\n",
+                "\n",
+                "    # Schedule the server to start using the IO Loop on the main thread.\n",
+                "    server = Server(\n",
+                "        script_path, sys.argv, on_server_start_callback=_on_server_start)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    server.add_preheated_report_context()\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 125,
+                    "end": 125
+                },
+                "child_version_range": {
+                    "start": 125,
+                    "end": 127
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "run",
+                        "signature": "def run(script_path):",
+                        "at_line": 105
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: lib/streamlit/bootstrap.py\nCode:\n           def run(script_path):\n               ...\n122 122        server = Server(\n123 123            script_path, sys.argv, on_server_start_callback=_on_server_start)\n124 124    \n    125  +     server.add_preheated_report_context()\n    126  + \n125 127        ioloop = tornado.ioloop.IOLoop.current()\n126 128        ioloop.spawn_callback(server.loop_coroutine)\n127 129    \n         ...\n",
+                "file_path": "lib/streamlit/bootstrap.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "add_preheated_report_context",
+                    "server"
+                ],
+                "prefix": [
+                    "    server = Server(\n",
+                    "        script_path, sys.argv, on_server_start_callback=_on_server_start)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    ioloop = tornado.ioloop.IOLoop.current()\n",
+                    "    ioloop.spawn_callback(server.loop_coroutine)\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "add_preheated_report_context",
+                            "position": {
+                                "start": {
+                                    "line": 125,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 125,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/streamlit/lib/streamlit/bootstrap.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    ioloop = tornado.ioloop.IOLoop.current()\n",
+                "    ioloop.spawn_callback(server.loop_coroutine)\n",
+                "\n",
+                "    ioloop.start()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "const def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "const def and doc sync"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "const def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "func use and implement"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "func def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "semantic update"
+        }
+    ]
+}

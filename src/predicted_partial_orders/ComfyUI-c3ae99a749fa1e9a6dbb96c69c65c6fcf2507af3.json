@@ -1,0 +1,89 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines the variable 'orig_dtype' by assigning it the value of samples.dtype, and edit 1 uses this exact same variable 'orig_dtype' in the return statement. The changed lines reference the exact same symbol - the variable 'orig_dtype'. After making edit 0, edit 1 becomes the immediate next step to use the stored dtype, and after making edit 1, edit 0 becomes necessary to define the variable being referenced. Both edits are part of a single micro-task of preserving the original dtype through a conversion operation."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines the variable 'orig_dtype' by assigning it the value of samples.dtype, and edit 1 uses this exact same variable 'orig_dtype' in the return statement. The changed lines reference the exact same symbol - the variable 'orig_dtype'. After making edit 0, edit 1 becomes the immediate next step to use the stored dtype, and after making edit 1, edit 0 becomes necessary to define the variable being referenced. Both edits are part of a single micro-task of preserving the original dtype through a conversion operation."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines a class attribute `upscale_methods` as a list of strings, and Edit 1 uses this exact same attribute `s.upscale_methods` in two places within the INPUT_TYPES method of the same class. The changed lines in Edit 1 directly reference the symbol defined in Edit 0. This creates an immediate code dependency where defining the attribute naturally prompts its usage in the input specification, and both edits can be staged in either order since Python allows referencing class attributes that are defined elsewhere in the class."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines a class attribute `upscale_methods` as a list of strings, and Edit 1 uses this exact same attribute `s.upscale_methods` in two places within the INPUT_TYPES method of the same class. The changed lines in Edit 1 directly reference the symbol defined in Edit 0. This creates an immediate code dependency where defining the attribute naturally prompts its usage in the input specification, and both edits can be staged in either order since Python allows referencing class attributes that are defined elsewhere in the class."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 imports 'comfy.utils' and Edit 1 uses 'comfy.utils.common_upscale()' in the changed line. The import creates the exact symbol that is then referenced in the usage. This is a classic import-usage pattern where both edits reference the exact same symbol 'comfy.utils'. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 imports 'comfy.utils' and Edit 1 uses 'comfy.utils.common_upscale()' in the changed line. The import creates the exact symbol that is then referenced in the usage. This is a classic import-usage pattern where both edits reference the exact same symbol 'comfy.utils'. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 adds two new parameters ('downscale_method' and 'upscale_method') to the INPUT_TYPES method, while Edit 1 adds the exact same two parameters to the patch method signature. These edits reference the same symbols (the parameter names) and create a direct code dependency - after adding parameters to INPUT_TYPES, the patch method signature must be updated to accept these parameters, or vice versa. This is a classic signature synchronization pattern where both edits are part of the same micro-task of adding new functionality parameters."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 adds two new parameters ('downscale_method' and 'upscale_method') to the INPUT_TYPES method, while Edit 1 adds the exact same two parameters to the patch method signature. These edits reference the same symbols (the parameter names) and create a direct code dependency - after adding parameters to INPUT_TYPES, the patch method signature must be updated to accept these parameters, or vice versa. This is a classic signature synchronization pattern where both edits are part of the same micro-task of adding new functionality parameters."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural substitutions, replacing torch.nn.functional.interpolate calls with comfy.utils.common_upscale calls. They follow the same before\u2192after pattern (torch interpolation \u2192 comfy upscale) and target the same type of syntactic construct (function calls for image resizing). This represents a uniform refactoring operation that would naturally be performed as part of a single, contiguous micro-task to standardize the upscaling method across the codebase."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits perform identical structural substitutions, replacing torch.nn.functional.interpolate calls with comfy.utils.common_upscale calls. They follow the same before\u2192after pattern (torch interpolation \u2192 comfy upscale) and target the same type of syntactic construct (function calls for image resizing). This represents a uniform refactoring operation that would naturally be performed as part of a single, contiguous micro-task to standardize the upscaling method across the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 imports 'comfy.utils' and Edit 1 uses 'comfy.utils.common_upscale()' in the changed line. The import in Edit 0 makes the module available for use, and Edit 1 directly references the exact same imported module. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors since either edit can be staged first (the usage would cause a runtime NameError if imported first, but both can be parsed and staged in either order in Python)."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 imports 'comfy.utils' and Edit 1 uses 'comfy.utils.common_upscale()' in the changed line. The import in Edit 0 makes the module available for use, and Edit 1 directly references the exact same imported module. This creates an immediate code dependency where the import enables the usage, making them bi-directional neighbors since either edit can be staged first (the usage would cause a runtime NameError if imported first, but both can be parsed and staged in either order in Python)."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 adds 'upscale_method' as a parameter to the patch method signature, and Edit 1 uses that exact same 'upscale_method' parameter in the method body. The changed lines reference the exact same symbol - the 'upscale_method' parameter. After adding the parameter in the signature (Edit 0), using it in the body (Edit 1) becomes the immediate next step, and vice versa - if you use a parameter in the body, you need it defined in the signature. Both edits can be staged in either order without parser errors in Python."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 adds 'upscale_method' as a parameter to the patch method signature, and Edit 1 uses that exact same 'upscale_method' parameter in the method body. The changed lines reference the exact same symbol - the 'upscale_method' parameter. After adding the parameter in the signature (Edit 0), using it in the body (Edit 1) becomes the immediate next step, and vice versa - if you use a parameter in the body, you need it defined in the signature. Both edits can be staged in either order without parser errors in Python."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new parameter 'downscale_method' to the function signature, and Edit 1 uses that exact same parameter in the function body. The changed lines reference the same symbol 'downscale_method' - one defines it as a parameter, the other uses it as an argument. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the implementation, making them part of a single uninterrupted micro-task. Both edits can be staged in either order without parser errors (the usage before definition would only cause a runtime NameError in Python), so this is bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new parameter 'downscale_method' to the function signature, and Edit 1 uses that exact same parameter in the function body. The changed lines reference the same symbol 'downscale_method' - one defines it as a parameter, the other uses it as an argument. This creates an immediate code dependency where adding the parameter naturally prompts its usage in the implementation, making them part of a single uninterrupted micro-task. Both edits can be staged in either order without parser errors (the usage before definition would only cause a runtime NameError in Python), so this is bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1,
+        3
+    ]
+}

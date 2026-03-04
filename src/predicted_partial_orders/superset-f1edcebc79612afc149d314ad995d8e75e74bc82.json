@@ -1,0 +1,77 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 1 defines the type aliases DbapiResult and DbapiDescription in the typing module, while Edit 0 uses these exact same type aliases as parameter type annotations in the SupersetResultSet constructor. The changed lines in Edit 0 directly reference the symbols defined in Edit 1's changed lines. This creates a definition-usage relationship where both edits reference the exact same symbols. Since Python allows forward references in type annotations and both edits can be parsed independently (type checking happens later), either edit can be made first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 1 defines the type aliases DbapiResult and DbapiDescription in the typing module, while Edit 0 uses these exact same type aliases as parameter type annotations in the SupersetResultSet constructor. The changed lines in Edit 0 directly reference the symbols defined in Edit 1's changed lines. This creates a definition-usage relationship where both edits reference the exact same symbols. Since Python allows forward references in type annotations and both edits can be parsed independently (type checking happens later), either edit can be made first, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 1 defines the types DbapiDescription and DbapiResult in superset/typing.py, while Edit 0 imports these exact same types in superset/result_set.py. The changed lines in Edit 0 explicitly reference the same symbols (DbapiDescription and DbapiResult) that are being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, imports can be written before the symbols are defined (resulting in runtime ImportError only, not parse error), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 1 defines the types DbapiDescription and DbapiResult in superset/typing.py, while Edit 0 imports these exact same types in superset/result_set.py. The changed lines in Edit 0 explicitly reference the same symbols (DbapiDescription and DbapiResult) that are being defined in Edit 1. This creates a direct definition-usage relationship where both edits reference the exact same symbols. In Python, imports can be written before the symbols are defined (resulting in runtime ImportError only, not parse error), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes the parameter types in the __init__ method signature from List[Tuple[Any, ...]] to DbapiResult and from Tuple[Any, ...] to DbapiDescription. Edit 1 modifies the implementation within the same __init__ method to handle the case where data might not be a standard list of tuples, converting it if necessary. These edits reference the exact same 'data' parameter symbol - edit 0 changes its type annotation and edit 1 adapts the implementation to handle the broader type. The implementation change in edit 1 is a direct response to the type broadening in edit 0, making them part of the same micro-task of updating the constructor to accept more flexible input types."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes the parameter types in the __init__ method signature from List[Tuple[Any, ...]] to DbapiResult and from Tuple[Any, ...] to DbapiDescription. Edit 1 modifies the implementation within the same __init__ method to handle the case where data might not be a standard list of tuples, converting it if necessary. These edits reference the exact same 'data' parameter symbol - edit 0 changes its type annotation and edit 1 adapts the implementation to handle the broader type. The implementation change in edit 1 is a direct response to the type broadening in edit 0, making them part of the same micro-task of updating the constructor to accept more flexible input types."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes the parameter types in the SupersetResultSet constructor from List[Tuple[Any, ...]] and Tuple[Any, ...] to DbapiResult and DbapiDescription. Edit 1 adds a test that creates a SupersetResultSet instance using the old parameter types (data as a list of lists and cursor_descr as a list of tuples). These edits reference the exact same constructor but are incompatible - the test in edit 1 would fail after edit 0 is applied because it's using the old parameter format. However, both edits can be written and parsed independently without syntax errors. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes an immediate next step to maintain consistency between the constructor signature and its test usage."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes the parameter types in the SupersetResultSet constructor from List[Tuple[Any, ...]] and Tuple[Any, ...] to DbapiResult and DbapiDescription. Edit 1 adds a test that creates a SupersetResultSet instance using the old parameter types (data as a list of lists and cursor_descr as a list of tuples). These edits reference the exact same constructor but are incompatible - the test in edit 1 would fail after edit 0 is applied because it's using the old parameter format. However, both edits can be written and parsed independently without syntax errors. The relationship is bi-directional because either edit can be made first, and after making either edit, the other becomes an immediate next step to maintain consistency between the constructor signature and its test usage."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'Tuple' to the import statement, and Edit 1 uses 'Tuple' in multiple type definitions (DbapiDescriptionRow, DbapiDescription, DbapiResult). The changed lines in Edit 1 directly reference the exact same 'Tuple' symbol that was added to the import in Edit 0. This creates an immediate code dependency where adding the import enables the usage, making them bi-directional neighbors in the same micro-task of defining new type aliases."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'Tuple' to the import statement, and Edit 1 uses 'Tuple' in multiple type definitions (DbapiDescriptionRow, DbapiDescription, DbapiResult). The changed lines in Edit 1 directly reference the exact same 'Tuple' symbol that was added to the import in Edit 0. This creates an immediate code dependency where adding the import enables the usage, making them bi-directional neighbors in the same micro-task of defining new type aliases."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports DbapiDescription and DbapiResult from superset.typing, and Edit 1 uses these exact same imported symbols as type annotations in the SupersetResultSet.__init__ method parameters. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where using the imported types (Edit 1) requires the import statement (Edit 0) to be present. However, in Python, type annotations can be written before their corresponding imports are added since they don't cause parse-time errors, only runtime/import-time errors. Both edits can be staged in either order without causing syntax errors."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports DbapiDescription and DbapiResult from superset.typing, and Edit 1 uses these exact same imported symbols as type annotations in the SupersetResultSet.__init__ method parameters. The changed lines in Edit 1 directly reference the symbols imported in Edit 0. This creates an immediate code dependency where using the imported types (Edit 1) requires the import statement (Edit 0) to be present. However, in Python, type annotations can be written before their corresponding imports are added since they don't cause parse-time errors, only runtime/import-time errors. Both edits can be staged in either order without causing syntax errors."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 modifies the SupersetResultSet constructor to handle data that is not a standard list of tuples by converting it to the expected format. Edit 1 adds a test case that specifically tests this new functionality by passing data as a list of lists (not tuples) to verify the conversion works correctly. The test directly exercises the exact code path added in edit 0 - it creates a SupersetResultSet with list-of-lists data and verifies it produces the expected output. This is a classic test-production code synchronization where the test is written to validate the specific behavior change made in the production code."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 modifies the SupersetResultSet constructor to handle data that is not a standard list of tuples by converting it to the expected format. Edit 1 adds a test case that specifically tests this new functionality by passing data as a list of lists (not tuples) to verify the conversion works correctly. The test directly exercises the exact code path added in edit 0 - it creates a SupersetResultSet with list-of-lists data and verifies it produces the expected output. This is a classic test-production code synchronization where the test is written to validate the specific behavior change made in the production code."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

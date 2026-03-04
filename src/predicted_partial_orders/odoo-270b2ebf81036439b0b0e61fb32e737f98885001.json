@@ -1,0 +1,46 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Edit 0 adds an import for the tempfile module, and Edit 1 uses that exact same tempfile module in the changed lines (tempfile.NamedTemporaryFile). This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, usage before import would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is in a function body that won't be executed until called. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import for the tempfile module, and Edit 1 uses that exact same tempfile module in the changed lines (tempfile.NamedTemporaryFile). This creates a direct import-usage relationship where the imported symbol in Edit 0 is immediately referenced in Edit 1. In Python, usage before import would cause a NameError at runtime, but both edits can be parsed and staged in either order since the usage is in a function body that won't be executed until called. This makes it a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a helper function 'chunks' within the exp_restore function, and Edit 1 uses that exact same 'chunks' function in a for loop. The changed lines reference the exact same symbol - the 'chunks' function defined in edit 0 is called in edit 1. This creates an immediate code dependency where defining the chunks function naturally prompts its usage as the next step in the same micro-task of refactoring the data writing logic. Both edits are part of the same function and represent a single refactoring operation to process data in chunks rather than all at once."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a helper function 'chunks' within the exp_restore function, and Edit 1 uses that exact same 'chunks' function in a for loop. The changed lines reference the exact same symbol - the 'chunks' function defined in edit 0 is called in edit 1. This creates an immediate code dependency where defining the chunks function naturally prompts its usage as the next step in the same micro-task of refactoring the data writing logic. Both edits are part of the same function and represent a single refactoring operation to process data in chunks rather than all at once."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 creates a variable 'data_file' within a with statement context, and Edit 1 references this exact same variable 'data_file' in a finally block to clean it up. The changed lines reference the exact same symbol - the 'data_file' variable created in Edit 0 is directly referenced in Edit 1. However, Edit 1 cannot be parsed or staged before Edit 0 because 'data_file' would be undefined, creating a NameError at the parser/compilation level when the code is loaded. Edit 0 must come first to define the variable that Edit 1 references."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 imports the 'db' module from 'odoo.service', and Edit 1 uses that exact same 'db' symbol in the changed line 'db.restore_db(name, data_file.name, str2bool(copy))'. The import in Edit 0 makes the 'db' symbol available for use in Edit 1. This is a classic import-usage relationship where both edits reference the exact same symbol 'db'. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 'db' module from 'odoo.service', and Edit 1 uses that exact same 'db' symbol in the changed line 'db.restore_db(name, data_file.name, str2bool(copy))'. The import in Edit 0 makes the 'db' symbol available for use in Edit 1. This is a classic import-usage relationship where both edits reference the exact same symbol 'db'. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        4,
+        5,
+        3,
+        1
+    ]
+}

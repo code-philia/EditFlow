@@ -1,0 +1,43 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "This is a cut-and-paste move operation where the same line 'cmd = GO_LAMBDA_RUNTIME' is being removed from one location (line 1195) and added to another location (line 1202) within the same function. Edit 0 removes the line and edit 1 adds it back in a different position. For this to work correctly, the removal must happen before the addition, otherwise there would be a duplicate line. This creates an ordered dependency where edit 0 must be applied before edit 1."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 modifies a regex pattern in the parse_additional_flags method to allow spaces and dots in host and container paths by changing [\\w\\\\\\/:\\-] to [\\w\\s\\\\\\/:\\-.]. Edit 1 adds a test case that specifically tests parsing a path with spaces ('C:\\Users\\Some User\\Some Path') which directly exercises the new regex pattern capability added in Edit 0. The test calls the exact same method (Util.parse_additional_flags) that was modified in Edit 0, and the test case is specifically designed to validate the regex change. This is a classic test-production code synchronization where the production change enables the test case to pass."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 modifies a regex pattern in the parse_additional_flags method to allow spaces and dots in host and container paths by changing [\\w\\\\\\/:\\-] to [\\w\\s\\\\\\/:\\-.]. Edit 1 adds a test case that specifically tests parsing a path with spaces ('C:\\Users\\Some User\\Some Path') which directly exercises the new regex pattern capability added in Edit 0. The test calls the exact same method (Util.parse_additional_flags) that was modified in Edit 0, and the test case is specifically designed to validate the regex change. This is a classic test-production code synchronization where the production change enables the test case to pass."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 modifies a regex pattern in the parse_additional_flags method to include spaces and dots in file paths (adding \\s and \\. to the character classes). Edit 1 adds test cases that specifically test file paths with spaces and dashes/underscores, calling the exact same parse_additional_flags method that was modified in Edit 0. The test cases in Edit 1 directly validate the regex changes made in Edit 0 - without the regex modification, the test cases with spaces in paths would fail. This is a classic test-production code synchronization where the production code change enables the test cases to pass."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 modifies a regex pattern in the parse_additional_flags method to include spaces and dots in file paths (adding \\s and \\. to the character classes). Edit 1 adds test cases that specifically test file paths with spaces and dashes/underscores, calling the exact same parse_additional_flags method that was modified in Edit 0. The test cases in Edit 1 directly validate the regex changes made in Edit 0 - without the regex modification, the test cases with spaces in paths would fail. This is a classic test-production code synchronization where the production code change enables the test cases to pass."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds error handling and logging to the parse_additional_flags method when volume mount parsing fails. Edit 1 adds test cases that call the exact same parse_additional_flags method to test file path parsing scenarios. Both edits reference the same symbol (Util.parse_additional_flags) - edit 0 modifies its implementation while edit 1 tests its behavior. The test cases in edit 1 would exercise the new error handling code path added in edit 0, making them part of the same development flow where implementation changes are immediately tested."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds error handling and logging to the parse_additional_flags method when volume mount parsing fails. Edit 1 adds test cases that call the exact same parse_additional_flags method to test file path parsing scenarios. Both edits reference the same symbol (Util.parse_additional_flags) - edit 0 modifies its implementation while edit 1 tests its behavior. The test cases in edit 1 would exercise the new error handling code path added in edit 0, making them part of the same development flow where implementation changes are immediately tested."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

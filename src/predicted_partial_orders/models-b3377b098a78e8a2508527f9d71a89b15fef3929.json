@@ -1,0 +1,98 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a variable 'hidden_size = 16' and Edit 1 uses that exact same variable 'hidden_size' in two assertion statements. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'hidden_size = 16' and Edit 1 uses that exact same variable 'hidden_size' in two assertion statements. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 defines a variable `hidden_size = 16` and Edit 1 uses that exact same variable `hidden_size` in multiple assertion statements, replacing the hardcoded value 16. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. This creates a direct code dependency where defining the variable naturally prompts its usage in the assertions, and both edits can be staged in either order since Python allows referencing variables before they are defined (resulting in a runtime NameError, not a parse error)."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable `hidden_size = 16` and Edit 1 uses that exact same variable `hidden_size` in multiple assertion statements, replacing the hardcoded value 16. The changed lines in Edit 1 explicitly reference the same symbol that was defined in Edit 0. This creates a direct code dependency where defining the variable naturally prompts its usage in the assertions, and both edits can be staged in either order since Python allows referencing variables before they are defined (resulting in a runtime NameError, not a parse error)."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines a variable 'hidden_size = 16' and Edit 1 changes the BertConfig parameter from the hardcoded value 'hidden_size=16' to use the variable 'hidden_size=hidden_size'. Both edits reference the exact same symbol 'hidden_size' - Edit 0 creates the variable definition and Edit 1 uses that variable in place of the hardcoded value. This creates an immediate, mechanically obvious code dependency where defining the variable naturally prompts using it to replace the hardcoded value, and both actions would occur in a single uninterrupted micro-task of extracting a magic number into a variable."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 defines a variable 'hidden_size = 16' and Edit 1 changes the BertConfig parameter from the hardcoded value 'hidden_size=16' to use the variable 'hidden_size=hidden_size'. Both edits reference the exact same symbol 'hidden_size' - Edit 0 creates the variable definition and Edit 1 uses that variable in place of the hardcoded value. This creates an immediate, mechanically obvious code dependency where defining the variable naturally prompts using it to replace the hardcoded value, and both actions would occur in a single uninterrupted micro-task of extracting a magic number into a variable."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Both edits reference the same variable 'hidden_size' within the same test method. Edit 0 changes a hardcoded value (16) to use the variable 'hidden_size' in the BertConfig constructor, while Edit 1 changes hardcoded values (16) to use the same 'hidden_size' variable in test assertions. The changed lines in both edits explicitly reference the exact same symbol 'hidden_size', and making either edit creates an immediate prompt for the other to maintain consistency - if you parameterize the config with hidden_size, you naturally need to update the corresponding test assertions to use the same variable, and vice versa. This represents a synchronized refactoring within a single micro-task where hardcoded values are being replaced with a parameterized variable."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Both edits reference the same variable 'hidden_size' within the same test method. Edit 0 changes a hardcoded value (16) to use the variable 'hidden_size' in the BertConfig constructor, while Edit 1 changes hardcoded values (16) to use the same 'hidden_size' variable in test assertions. The changed lines in both edits explicitly reference the exact same symbol 'hidden_size', and making either edit creates an immediate prompt for the other to maintain consistency - if you parameterize the config with hidden_size, you naturally need to update the corresponding test assertions to use the same variable, and vice versa. This represents a synchronized refactoring within a single micro-task where hardcoded values are being replaced with a parameterized variable."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable `seq_length = 10` and uses it to replace the hardcoded value 10 in the numpy array creation. Edit 1 then uses this exact same `seq_length` variable in multiple locations within the same test method - in the Input layer shape definitions and in the assertion. The changed lines in both edits reference the exact same symbol `seq_length`. After making edit 0, edit 1 becomes the immediate next step to utilize the newly defined variable throughout the rest of the test method. This is a clear definition-usage relationship within the same function scope where both edits reference the identical symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable `seq_length = 10` and uses it to replace the hardcoded value 10 in the numpy array creation. Edit 1 then uses this exact same `seq_length` variable in multiple locations within the same test method - in the Input layer shape definitions and in the assertion. The changed lines in both edits reference the exact same symbol `seq_length`. After making edit 0, edit 1 becomes the immediate next step to utilize the newly defined variable throughout the rest of the test method. This is a clear definition-usage relationship within the same function scope where both edits reference the identical symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 introduces a new variable `seq_length = 10` and uses it to replace the hardcoded value 10 in the dummy_ids array shape. Edit 1 uses this exact same `seq_length` variable in a test assertion to replace another hardcoded value 10. The changed lines in both edits reference the exact same symbol `seq_length` - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after introducing the variable in edit 0, using it consistently in related code (edit 1) becomes the natural next step in the same refactoring micro-task. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable `seq_length = 10` and uses it to replace the hardcoded value 10 in the dummy_ids array shape. Edit 1 uses this exact same `seq_length` variable in a test assertion to replace another hardcoded value 10. The changed lines in both edits reference the exact same symbol `seq_length` - edit 0 defines it and edit 1 uses it. This creates an immediate code dependency where after introducing the variable in edit 0, using it consistently in related code (edit 1) becomes the natural next step in the same refactoring micro-task. Both edits can be staged in either order since Python allows referencing undefined variables at parse time (would only fail at runtime), making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference the same variables 'hidden_size' and 'seq_length' in their changed lines. Edit 0 changes hardcoded values (16, 10) to use these variables in assertEqual statements, while Edit 1 adds new test code that also uses these same variables in shape assertions. However, the variables 'hidden_size' and 'seq_length' are not defined in either edit - they must be defined elsewhere in the test method. Since both edits reference the exact same symbols and appear to be part of the same refactoring effort to replace hardcoded values with variables, making either edit creates an immediate prompt for the other as part of a unified pattern substitution within the same test method."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference the same variables 'hidden_size' and 'seq_length' in their changed lines. Edit 0 changes hardcoded values (16, 10) to use these variables in assertEqual statements, while Edit 1 adds new test code that also uses these same variables in shape assertions. However, the variables 'hidden_size' and 'seq_length' are not defined in either edit - they must be defined elsewhere in the test method. Since both edits reference the exact same symbols and appear to be part of the same refactoring effort to replace hardcoded values with variables, making either edit creates an immediate prompt for the other as part of a unified pattern substitution within the same test method."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes the import of tf_utils module, while Edit 1 removes a line that uses tf_utils.get_shape_list(). These edits reference the exact same symbol (tf_utils) - one removes the import and the other removes the usage. However, in Python, the usage can be removed before the import without causing a parse error (it would only cause a runtime NameError if executed). Both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing tf_utils dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import of tf_utils module, while Edit 1 removes a line that uses tf_utils.get_shape_list(). These edits reference the exact same symbol (tf_utils) - one removes the import and the other removes the usage. However, in Python, the usage can be removed before the import without causing a parse error (it would only cause a runtime NameError if executed). Both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step in removing tf_utils dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definition and usage of the `input_shape` variable (lines 80-81), while Edit 1 removes the usage of that same `input_shape` variable (line 89) and replaces it with an alternative implementation. The changed lines in both edits reference the exact same symbol `input_shape`. After making Edit 0, the `input_shape` variable is no longer defined, making Edit 1's removal of its usage the immediate next mechanical step to avoid a NameError. This creates a direct code dependency where one edit removes the definition and the other removes the usage of the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 removes the definition and usage of the `input_shape` variable (lines 80-81), while Edit 1 removes the usage of that same `input_shape` variable (line 89) and replaces it with an alternative implementation. The changed lines in both edits reference the exact same symbol `input_shape`. After making Edit 0, the `input_shape` variable is no longer defined, making Edit 1's removal of its usage the immediate next mechanical step to avoid a NameError. This creates a direct code dependency where one edit removes the definition and the other removes the usage of the same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        7
+    ]
+}

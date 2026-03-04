@@ -1,0 +1,31 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports the 'telemetry' symbol from core.telemetry, and Edit 1 uses that exact same 'telemetry' symbol in the changed lines (await telemetry.trace_code_event). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the usage in Edit 1 possible. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the next logical step to complete the functionality."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports the 'telemetry' symbol from core.telemetry, and Edit 1 uses that exact same 'telemetry' symbol in the changed lines (await telemetry.trace_code_event). This creates an immediate, mechanically obvious code dependency where the import in Edit 0 makes the usage in Edit 1 possible. In Python, both edits can be staged in either order since the usage before import would only cause a runtime NameError, not a parse error. After making either edit, the other becomes the next logical step to complete the functionality."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits modify the exact same error message string from 'Error parsing LLM response' to 'Error parsing response'. Edit 0 changes the log message in the implementation, while Edit 1 updates the corresponding test assertion that matches against this exact error message. The test assertion directly depends on the specific error message format produced by the implementation code. After making either edit, the other becomes immediately necessary to maintain test-code synchronization for the same error message."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits modify the exact same error message string from 'Error parsing LLM response' to 'Error parsing response'. Edit 0 changes the log message in the implementation, while Edit 1 updates the corresponding test assertion that matches against this exact error message. The test assertion directly depends on the specific error message format produced by the implementation code. After making either edit, the other becomes immediately necessary to maintain test-code synchronization for the same error message."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3,
+        4,
+        5,
+        7
+    ]
+}

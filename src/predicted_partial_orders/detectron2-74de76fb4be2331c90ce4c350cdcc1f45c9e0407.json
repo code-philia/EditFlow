@@ -1,0 +1,82 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "This is a cut-and-paste move operation where the exact same function `get_class_to_mesh_name_mapping` is being removed from one file (build.py) and added to another file (utils.py). The function definition, parameters, and implementation are identical. In a cut-and-paste move, the removal must occur before the addition to avoid having duplicate definitions, making this an ordered relationship where edit 0 (removal) must happen before edit 1 (addition)."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 1 defines the function `get_class_to_mesh_name_mapping` and Edit 0 imports that exact same function. The changed lines reference the exact same symbol. After defining the function in Edit 1, importing it in Edit 0 becomes the immediate next step to use it. However, in Python, imports can be written before the function is defined since import errors only occur at runtime/import time, not at parse time. Both edits can be staged in either order without causing parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 1 defines the function `get_class_to_mesh_name_mapping` and Edit 0 imports that exact same function. The changed lines reference the exact same symbol. After defining the function in Edit 1, importing it in Edit 0 becomes the immediate next step to use it. However, in Python, imports can be written before the function is defined since import errors only occur at runtime/import time, not at parse time. Both edits can be staged in either order without causing parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds an import statement 'from .utils import get_class_to_mesh_name_mapping' while Edit 1 removes the definition of the function 'get_class_to_mesh_name_mapping' from the same file. These edits reference the exact same symbol (get_class_to_mesh_name_mapping). After removing the function definition (Edit 1), the import statement (Edit 0) would fail at runtime since the symbol no longer exists in the utils module. However, both edits can be written and parsed in either order - the import won't cause a syntax error even if the function doesn't exist (it would only fail at runtime/import time). This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain code consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'from .utils import get_class_to_mesh_name_mapping' while Edit 1 removes the definition of the function 'get_class_to_mesh_name_mapping' from the same file. These edits reference the exact same symbol (get_class_to_mesh_name_mapping). After removing the function definition (Edit 1), the import statement (Edit 0) would fail at runtime since the symbol no longer exists in the utils module. However, both edits can be written and parsed in either order - the import won't cause a syntax error even if the function doesn't exist (it would only fail at runtime/import time). This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain code consistency."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 removes the function definition `get_class_to_mesh_name_mapping` from the build.py file, while Edit 1 removes the import of that exact same function from another file. These edits reference the exact same symbol and are part of a coordinated removal operation. However, since Edit 1 (removing the import) can be staged and parsed successfully even if the function still exists, while Edit 0 (removing the function definition) would cause a runtime ImportError if the import in Edit 1 still exists, the natural order would be to remove the import first, then remove the definition. But given that both can be parsed in either order (the ImportError only occurs at runtime/import time, not at parse time in Python), this is bi-directional - either edit creates an immediate prompt for the other as part of the same cleanup micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 removes the function definition `get_class_to_mesh_name_mapping` from the build.py file, while Edit 1 removes the import of that exact same function from another file. These edits reference the exact same symbol and are part of a coordinated removal operation. However, since Edit 1 (removing the import) can be staged and parsed successfully even if the function still exists, while Edit 0 (removing the function definition) would cause a runtime ImportError if the import in Edit 1 still exists, the natural order would be to remove the import first, then remove the definition. But given that both can be parsed in either order (the ImportError only occurs at runtime/import time, not at parse time in Python), this is bi-directional - either edit creates an immediate prompt for the other as part of the same cleanup micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 imports both `Dict` and `CfgNode` from their respective modules, while Edit 1 defines a new function that uses both of these exact same imported symbols in its type annotations (`cfg: CfgNode` and `-> Dict[int, str]`). The changed lines in Edit 1 directly reference the same symbols that are being imported in Edit 0. After making Edit 0 (adding the imports), Edit 1 becomes the immediate next step to use those imports. Conversely, if Edit 1 were made first, it would create undefined symbols that would prompt the need for Edit 0. This is a classic import-usage relationship within the same file where both edits reference the exact same symbols."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 imports both `Dict` and `CfgNode` from their respective modules, while Edit 1 defines a new function that uses both of these exact same imported symbols in its type annotations (`cfg: CfgNode` and `-> Dict[int, str]`). The changed lines in Edit 1 directly reference the same symbols that are being imported in Edit 0. After making Edit 0 (adding the imports), Edit 1 becomes the immediate next step to use those imports. Conversely, if Edit 1 were made first, it would create undefined symbols that would prompt the need for Edit 0. This is a classic import-usage relationship within the same file where both edits reference the exact same symbols."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import of `get_class_to_mesh_name_mapping` from `.utils` in the build.py file, while Edit 1 removes an import of the same function `get_class_to_mesh_name_mapping` from `densepose.data.build` in a different file. These edits reference the exact same symbol but in opposite directions - one adds the import while the other removes it. This appears to be a refactoring where the function is being moved from build.py to utils.py, and the import in the second file is being removed (likely because it will import from the new location or no longer needs it). Since Edit 1 removes an import that references the symbol being imported in Edit 0, and both reference the exact same fully qualified symbol, this creates a direct code dependency. However, both edits can be staged independently without parser errors - removing an import doesn't break parsing, and adding an import doesn't break parsing. The relationship is bi-directional as either edit can prompt the other as part of the same refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import of `get_class_to_mesh_name_mapping` from `.utils` in the build.py file, while Edit 1 removes an import of the same function `get_class_to_mesh_name_mapping` from `densepose.data.build` in a different file. These edits reference the exact same symbol but in opposite directions - one adds the import while the other removes it. This appears to be a refactoring where the function is being moved from build.py to utils.py, and the import in the second file is being removed (likely because it will import from the new location or no longer needs it). Since Edit 1 removes an import that references the symbol being imported in Edit 0, and both reference the exact same fully qualified symbol, this creates a direct code dependency. However, both edits can be staged independently without parser errors - removing an import doesn't break parsing, and adding an import doesn't break parsing. The relationship is bi-directional as either edit can prompt the other as part of the same refactoring task."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 removes the import 'from densepose.data.build import get_class_to_mesh_name_mapping' and Edit 1 adds the import 'from ..data.utils import get_class_to_mesh_name_mapping'. These edits reference the exact same symbol (get_class_to_mesh_name_mapping) but are importing it from different locations. This is a refactoring where the import source is being changed from absolute to relative path. Both edits can be staged in either order without causing parse errors - removing the old import first or adding the new import first would both be valid. After making either edit, the other becomes the immediate next step to complete the import refactoring for this symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 removes the import 'from densepose.data.build import get_class_to_mesh_name_mapping' and Edit 1 adds the import 'from ..data.utils import get_class_to_mesh_name_mapping'. These edits reference the exact same symbol (get_class_to_mesh_name_mapping) but are importing it from different locations. This is a refactoring where the import source is being changed from absolute to relative path. Both edits can be staged in either order without causing parse errors - removing the old import first or adding the new import first would both be valid. After making either edit, the other becomes the immediate next step to complete the import refactoring for this symbol."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `get_class_to_mesh_name_mapping` in the file `projects/DensePose/densepose/data/utils.py`. Edit 1 imports this exact same function from that module using `from ..data.utils import get_class_to_mesh_name_mapping`. The changed lines reference the exact same symbol - the function `get_class_to_mesh_name_mapping`. This creates an immediate code dependency where defining the function naturally prompts importing it for use, and importing it requires the function to exist. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time, not at parse time. This is a classic definition-usage relationship for the same symbol across files."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new function `get_class_to_mesh_name_mapping` in the file `projects/DensePose/densepose/data/utils.py`. Edit 1 imports this exact same function from that module using `from ..data.utils import get_class_to_mesh_name_mapping`. The changed lines reference the exact same symbol - the function `get_class_to_mesh_name_mapping`. This creates an immediate code dependency where defining the function naturally prompts importing it for use, and importing it requires the function to exist. In Python, both edits can be staged in either order since the import will only fail at runtime/import-time, not at parse time. This is a classic definition-usage relationship for the same symbol across files."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

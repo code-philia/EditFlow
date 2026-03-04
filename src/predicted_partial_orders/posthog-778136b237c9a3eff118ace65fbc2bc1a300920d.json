@@ -1,0 +1,24 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 removes a print statement from line 29, and Edit 1 adds the exact same print statement to line 31. This is a cut-and-paste move operation where the same line of code is being relocated from one position to another within the same function. The removal must occur before the addition to avoid duplication, making this an ordered relationship where Edit 0 (removal) must happen before Edit 1 (addition)."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a variable 'distinct_id' by assigning it a value based on org_owner.distinct_id. Edit 1 uses this exact same 'distinct_id' variable by replacing the direct reference to 'org_owner.distinct_id' with the variable name. The changed lines reference the exact same symbol 'distinct_id' - one edit creates/defines it and the other edit uses it. This creates an immediate, mechanically obvious code dependency where after making either edit, the other becomes the next required step to maintain code consistency. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a variable 'distinct_id' by assigning it a value based on org_owner.distinct_id. Edit 1 uses this exact same 'distinct_id' variable by replacing the direct reference to 'org_owner.distinct_id' with the variable name. The changed lines reference the exact same symbol 'distinct_id' - one edit creates/defines it and the other edit uses it. This creates an immediate, mechanically obvious code dependency where after making either edit, the other becomes the next required step to maintain code consistency. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        0,
+        3
+    ]
+}

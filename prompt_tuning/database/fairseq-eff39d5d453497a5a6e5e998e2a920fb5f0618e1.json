@@ -1,0 +1,1309 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/facebookresearch/fairseq/commit/eff39d5d453497a5a6e5e998e2a920fb5f0618e1",
+    "commit_message": "quantize_layers_ using variable methods\n\nSummary: allow for moving average per channel and per channel observer to be customized when calling quantize_model_\n\nReviewed By: huihuifan\n\nDifferential Revision: D29686457\n\nfbshipit-source-id: 37b833d27d643e6963c9ab7e0af9b8f889e1a2fc",
+    "commit_snapshots": {
+        "fairseq/modules/quantization/pq/utils.py": [
+            [
+                "# Copyright (c) Facebook, Inc. and its affiliates.\n",
+                "#\n",
+                "# This source code is licensed under the MIT license found in the\n",
+                "# LICENSE file in the root directory of this source tree.\n",
+                "\n",
+                "import logging\n",
+                "import re\n",
+                "from operator import attrgetter, itemgetter\n",
+                "\n",
+                "import numpy as np\n",
+                "import torch.distributed as dist\n",
+                "import torch.nn as nn\n",
+                "\n",
+                "from .modules import PQConv2d, PQEmbedding, PQLinear\n",
+                "from .pq import PQ\n",
+                "\n",
+                "\n",
+                "def quantize_model_(\n",
+                "    model,\n",
+                "    size_tracker,\n",
+                "    layers_to_quantize,\n",
+                "    block_sizes_config,\n",
+                "    n_centroids_config,\n",
+                "    step=0,\n",
+                "    n_iter=15,\n",
+                "    eps=1e-6,\n",
+                "    max_tentatives=100,\n",
+                "    verbose=True,\n",
+                "):\n",
+                "    \"\"\"\n",
+                "    Quantize a model in-place by stages. All the targeted\n",
+                "    layers are replaced by their quantized counterpart,\n",
+                "    and the model is ready for the finetuning of the\n",
+                "    centroids in a standard training loop (no modifications\n",
+                "    required). Note that we do not quantize biases.\n",
+                "\n",
+                "    Args:\n",
+                "        - model: a nn.Module\n",
+                "        - size_tracker: useful for tracking quatization statistics\n",
+                "        - layers_to_quantize: a list containing regexps for\n",
+                "          filtering the layers to quantize at each stage according\n",
+                "          to their name (as in model.named_parameters())\n",
+                "        - block_sizes_config: dict like\n",
+                "          {\n",
+                "              'Conv2d': ('kernel_size', {'(3, 3)': 9, '(1, 1)': 4}),\n",
+                "              'Linear': ('in_features', {'*': 8})\n",
+                "          }\n",
+                "          For instance, all conv2d layers with kernel size 3x3 have\n",
+                "          a block size of 9 and all Linear layers are quantized with\n",
+                "          a block size of 8, irrespective of their size.\n",
+                "        - n_centroids_config: dict like\n",
+                "          {\n",
+                "              'Conv2d': ('kernel_size', {'*': 256}),\n",
+                "              'Linear': ('in_features', {'*': 256})\n",
+                "          }\n",
+                "          For instance, all conv2d layers are quantized with 256 centroids\n",
+                "        - step: the layers to quantize inplace corresponding\n",
+                "          to layers_to_quantize[step]\n",
+                "    \"\"\"\n",
+                "\n",
+                "    quantized_layers = get_layers(model, layers_to_quantize[step])\n",
+                "\n",
+                "    for layer in quantized_layers:\n",
+                "\n",
+                "        # book-keeping\n",
+                "        is_master_process = (not dist.is_initialized()) or (\n",
+                "            dist.is_initialized() and dist.get_rank() == 0\n",
+                "        )\n",
+                "        verbose = verbose and is_master_process\n",
+                "\n",
+                "        # get block size and centroids\n",
+                "        module = attrgetter(layer)(model)\n",
+                "        block_size = get_param(module, layer, block_sizes_config)\n",
+                "        n_centroids = get_param(module, layer, n_centroids_config)\n",
+                "        if verbose:\n",
+                "            logging.info(\n",
+                "                f\"Quantizing layer {layer} with block size {block_size} and {n_centroids} centroids\"\n",
+                "            )\n",
+                "\n",
+                "        # quantize layer\n",
+                "        weight = module.weight.data.clone()\n",
+                "        is_bias = \"bias\" in [x[0] for x in module.named_parameters()]\n",
+                "        bias = module.bias.data.clone() if is_bias else None\n",
+                "        quantizer = PQ(\n",
+                "            weight,\n",
+                "            block_size,\n",
+                "            n_centroids=n_centroids,\n",
+                "            n_iter=n_iter,\n",
+                "            eps=eps,\n",
+                "            max_tentatives=max_tentatives,\n",
+                "            verbose=verbose,\n",
+                "        )\n",
+                "\n",
+                "        # quantization performed on all GPUs with same seed\n",
+                "        quantizer.encode()\n",
+                "        centroids = quantizer.centroids.contiguous()\n",
+                "        assignments = quantizer.assignments.contiguous()\n",
+                "\n",
+                "        # broadcast results to make sure weights are up-to-date\n",
+                "        if dist.is_initialized():\n",
+                "            dist.broadcast(centroids, 0)\n",
+                "            dist.broadcast(assignments, 0)\n",
+                "\n",
+                "        # instantiate the quantized counterpart\n",
+                "        if isinstance(module, nn.Linear):\n",
+                "            out_features, in_features = map(\n",
+                "                lambda k: module.__dict__[k], [\"out_features\", \"in_features\"]\n",
+                "            )\n",
+                "            quantized_module = PQLinear(\n",
+                "                centroids, assignments, bias, in_features, out_features\n",
+                "            )\n",
+                "        elif isinstance(module, nn.Embedding):\n",
+                "            num_embeddings, embedding_dim = map(\n",
+                "                lambda k: module.__dict__[k], [\"num_embeddings\", \"embedding_dim\"]\n",
+                "            )\n",
+                "            quantized_module = PQEmbedding(\n",
+                "                centroids, assignments, num_embeddings, embedding_dim\n",
+                "            )\n",
+                "        elif isinstance(module, nn.Conv2d):\n",
+                "            out_channels, in_channels, kernel_size = map(\n",
+                "                lambda k: module.__dict__[k],\n",
+                "                [\"out_channels\", \"in_channels\", \"kernel_size\"],\n",
+                "            )\n",
+                "            stride, padding, dilation, groups, padding_mode = map(\n",
+                "                lambda k: module.__dict__[k],\n",
+                "                [\"stride\", \"padding\", \"dilation\", \"groups\", \"padding_mode\"],\n",
+                "            )\n",
+                "\n",
+                "            quantized_module = PQConv2d(\n",
+                "                centroids,\n",
+                "                assignments,\n",
+                "                bias,\n",
+                "                in_channels,\n",
+                "                out_channels,\n",
+                "                kernel_size,\n",
+                "                stride=stride,\n",
+                "                padding=padding,\n",
+                "                dilation=dilation,\n",
+                "                groups=groups,\n",
+                "                padding_mode=padding_mode,\n",
+                "            )\n",
+                "        else:\n",
+                "            raise ValueError(f\"Module {module} not yet supported for quantization\")\n",
+                "\n",
+                "        # replace layer by its quantized counterpart\n",
+                "        attrsetter(layer)(model, quantized_module)\n",
+                "\n",
+                "        # update statistics\n",
+                "        size_tracker.update(weight, block_size, n_centroids)\n",
+                "\n",
+                "    # return name of quantized layers\n",
+                "    return quantized_layers\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def get_layers(model, filter_regexp):\n"
+                ],
+                "after": [
+                    "def get_layers(model, filter_regexp, remove_weights=False):\n"
+                ],
+                "parent_version_range": {
+                    "start": 154,
+                    "end": 155
+                },
+                "child_version_range": {
+                    "start": 154,
+                    "end": 155
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_layers",
+                        "signature": "def get_layers(model, filter_regexp):",
+                        "at_line": 154
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: fairseq/modules/quantization/pq/utils.py\nCode:\n151 151        return quantized_layers\n152 152    \n153 153    \n154      - def get_layers(model, filter_regexp):\n    154  + def get_layers(model, filter_regexp, remove_weights=False):\n155 155        \"\"\"\n156 156        Filters out the layers according to a regexp. Note that\n157 157        we omit biases.\n         ...\n",
+                "file_path": "fairseq/modules/quantization/pq/utils.py",
+                "identifiers_before": [
+                    "filter_regexp",
+                    "get_layers",
+                    "model"
+                ],
+                "identifiers_after": [
+                    "filter_regexp",
+                    "get_layers",
+                    "model",
+                    "remove_weights"
+                ],
+                "prefix": [
+                    "    return quantized_layers\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    Filters out the layers according to a regexp. Note that\n",
+                    "    we omit biases.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "get_layers",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/pq/utils.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "get_layers",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/pq/utils.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 37
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/pq/utils.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 154,
+                                    "column": 37
+                                },
+                                "end": {
+                                    "line": 154,
+                                    "column": 51
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/pq/utils.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    \"\"\"\n",
+                "    Filters out the layers according to a regexp. Note that\n",
+                "    we omit biases.\n",
+                "\n",
+                "    Args:\n",
+                "        - model: a nn.Module\n",
+                "        - filter_regexp: a regexp to filter the layers to keep\n",
+                "          according to their name in model.named_parameters().\n",
+                "          For instance, the regexp:\n",
+                "\n",
+                "             down_layers\\\\.[123456]\\\\.(conv[12]|identity\\\\.conv))\n",
+                "\n",
+                "          is keeping blocks down_layers from 1 to 6, and inside\n",
+                "          each block is keeping conv1, conv2 and identity.conv.\n",
+                "\n",
+                "    Remarks:\n",
+                "        - We add (module\\\\.)? at the beginning of the regexp to\n",
+                "          account for the possible use of nn.parallel.DataParallel\n",
+                "    \"\"\"\n",
+                "\n",
+                "    # get all parameter names\n",
+                "    all_layers = map(itemgetter(0), model.named_parameters())\n",
+                "\n",
+                "    # remove biases\n",
+                "    all_layers = filter(lambda x: \"bias\" not in x, all_layers)\n",
+                "\n",
+                "    # remove .weight in all other names (or .weight_orig is spectral norm)\n",
+                "    all_layers = map(lambda x: x.replace(\".weight_orig\", \"\"), all_layers)\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    # remove weights indicates whether the weights extension should be removed, in addition to\n",
+                    "    # weight_orig and weight extension on names\n",
+                    "    if remove_weights:\n",
+                    "        all_layers = map(lambda x: x.replace(\".weights\", \"\"), all_layers)\n"
+                ],
+                "parent_version_range": {
+                    "start": 183,
+                    "end": 183
+                },
+                "child_version_range": {
+                    "start": 183,
+                    "end": 187
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "get_layers",
+                        "signature": "def get_layers(model, filter_regexp):",
+                        "at_line": 154
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: fairseq/modules/quantization/pq/utils.py\nCode:\n           def get_layers(model, filter_regexp):\n               ...\n180 180    \n181 181        # remove .weight in all other names (or .weight_orig is spectral norm)\n182 182        all_layers = map(lambda x: x.replace(\".weight_orig\", \"\"), all_layers)\n    183  +     # remove weights indicates whether the weights extension should be removed, in addition to\n    184  +     # weight_orig and weight extension on names\n    185  +     if remove_weights:\n    186  +         all_layers = map(lambda x: x.replace(\".weights\", \"\"), all_layers)\n183 187        all_layers = map(lambda x: x.replace(\".weight\", \"\"), all_layers)\n184 188    \n185 189        # return filtered layers\n         ...\n",
+                "file_path": "fairseq/modules/quantization/pq/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "all_layers",
+                    "map",
+                    "remove_weights",
+                    "replace",
+                    "x"
+                ],
+                "prefix": [
+                    "\n",
+                    "    # remove .weight in all other names (or .weight_orig is spectral norm)\n",
+                    "    all_layers = map(lambda x: x.replace(\".weight_orig\", \"\"), all_layers)\n"
+                ],
+                "suffix": [
+                    "    all_layers = map(lambda x: x.replace(\".weight\", \"\"), all_layers)\n",
+                    "\n",
+                    "    # return filtered layers\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 185,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 185,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/pq/utils.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    all_layers = map(lambda x: x.replace(\".weight\", \"\"), all_layers)\n",
+                "\n",
+                "    # return filtered layers\n",
+                "    filter_regexp = \"(module\\\\.)?\" + \"(\" + filter_regexp + \")\"\n",
+                "    r = re.compile(filter_regexp)\n",
+                "\n",
+                "    return list(filter(r.match, all_layers))\n",
+                "\n",
+                "\n",
+                "def get_param(module, layer_name, param_config):\n",
+                "    \"\"\"\n",
+                "    Given a quantization configuration, get the right parameter\n",
+                "    for the module to be quantized.\n",
+                "\n",
+                "    Args:\n",
+                "        - module: a nn.Module\n",
+                "        - layer_name: the name of the layer\n",
+                "        - param_config: a dict like\n",
+                "          {\n",
+                "              'Conv2d': ('kernel_size', {'(3, 3)': 9, '(1, 1)': 4}),\n",
+                "              'Linear': ('in_features', {'*': 8})\n",
+                "          }\n",
+                "          For instance, all conv2d layers with kernel size 3x3 have\n",
+                "          a block size of 9 and all Linear layers are quantized with\n",
+                "          a block size of 8, irrespective of their size.\n",
+                "\n",
+                "    Remarks:\n",
+                "        - if 'fuzzy_name' is passed as a parameter, layers whose layer_name\n",
+                "          include 'fuzzy_name' will be assigned the given parameter.\n",
+                "          In the following example, conv.expand layers will have a block\n",
+                "          size of 9 while conv.reduce will have a block size of 4 and all\n",
+                "          other layers will have a block size of 2.\n",
+                "          {\n",
+                "              'Conv2d': ('fuzzy_name', {'expand': 9, 'reduce': 4, '*': 2}),\n",
+                "              'Linear': ('fuzzy_name', {'classifier': 8, 'projection': 4})\n",
+                "          }\n",
+                "\n",
+                "    \"\"\"\n",
+                "\n",
+                "    layer_type = module.__class__.__name__\n",
+                "\n",
+                "    if layer_type not in param_config:\n",
+                "        raise KeyError(f\"Layer type {layer_type} not in config for layer {module}\")\n",
+                "\n",
+                "    feature, params = param_config[module.__class__.__name__]\n",
+                "\n",
+                "    if feature != \"fuzzy_name\":\n",
+                "        feature_value = str(getattr(module, feature))\n",
+                "        if feature_value not in params:\n",
+                "            if \"*\" in params:\n",
+                "                feature_value = \"*\"\n",
+                "            else:\n",
+                "                raise KeyError(\n",
+                "                    f\"{feature}={feature_value} not in config for layer {module}\"\n",
+                "                )\n",
+                "    else:\n",
+                "        feature_values = [name for name in params if name in layer_name]\n",
+                "        if len(feature_values) == 0:\n",
+                "            if \"*\" in params:\n",
+                "                feature_value = \"*\"\n",
+                "            else:\n",
+                "                raise KeyError(f\"name={layer_name} not in config for {module}\")\n",
+                "        else:\n",
+                "            feature_value = feature_values[0]\n",
+                "\n",
+                "    return params[feature_value]\n",
+                "\n",
+                "\n",
+                "class SizeTracker(object):\n",
+                "    \"\"\"\n",
+                "    Class to keep track of the compressed network size with iPQ.\n",
+                "\n",
+                "    Args:\n",
+                "        - model: a nn.Module\n",
+                "\n",
+                "    Remarks:\n",
+                "        - The compressed size is the sum of three components\n",
+                "          for each layer in the network:\n",
+                "              (1) Storing the centroids given by iPQ in fp16\n",
+                "              (2) Storing the assignments of the blocks in int8\n",
+                "              (3) Storing all non-compressed elements such as biases\n",
+                "        - This cost in only valid if we use 256 centroids (then\n",
+                "          indexing can indeed by done with int8).\n",
+                "    \"\"\"\n",
+                "\n",
+                "    def __init__(self, model):\n",
+                "        self.model = model\n",
+                "        self.size_non_compressed_model = self.compute_size()\n",
+                "        self.size_non_quantized = self.size_non_compressed_model\n",
+                "        self.size_index = 0\n",
+                "        self.size_centroids = 0\n",
+                "        self.n_quantized_layers = 0\n",
+                "\n",
+                "    def compute_size(self):\n",
+                "        \"\"\"\n",
+                "        Computes the size of the model (in MB).\n",
+                "        \"\"\"\n",
+                "\n",
+                "        res = 0\n",
+                "        for _, p in self.model.named_parameters():\n",
+                "            res += p.numel()\n",
+                "        return res * 4 / 1024 / 1024\n",
+                "\n",
+                "    def update(self, W, block_size, n_centroids):\n",
+                "        \"\"\"\n",
+                "        Updates the running statistics when quantizing a new layer.\n",
+                "        \"\"\"\n",
+                "\n",
+                "        # bits per weights\n",
+                "        bits_per_weight = np.log2(n_centroids) / block_size\n",
+                "        self.n_quantized_layers += 1\n",
+                "\n",
+                "        # size of indexing the subvectors of size block_size (in MB)\n",
+                "        size_index_layer = bits_per_weight * W.numel() / 8 / 1024 / 1024\n",
+                "        self.size_index += size_index_layer\n",
+                "\n",
+                "        # size of the centroids stored in float16 (in MB)\n",
+                "        size_centroids_layer = n_centroids * block_size * 2 / 1024 / 1024\n",
+                "        self.size_centroids += size_centroids_layer\n",
+                "\n",
+                "        # size of non-compressed layers, e.g. LayerNorms or biases (in MB)\n",
+                "        size_uncompressed_layer = W.numel() * 4 / 1024 / 1024\n",
+                "        self.size_non_quantized -= size_uncompressed_layer\n",
+                "\n",
+                "    def __repr__(self):\n",
+                "        size_compressed = (\n",
+                "            self.size_index + self.size_centroids + self.size_non_quantized\n",
+                "        )\n",
+                "        compression_ratio = self.size_non_compressed_model / size_compressed  # NOQA\n",
+                "        return (\n",
+                "            f\"Non-compressed model size: {self.size_non_compressed_model:.2f} MB. \"\n",
+                "            f\"After quantizing {self.n_quantized_layers} layers, size \"\n",
+                "            f\"(indexing + centroids + other): {self.size_index:.2f} MB + \"\n",
+                "            f\"{self.size_centroids:.2f} MB + {self.size_non_quantized:.2f} MB = \"\n",
+                "            f\"{size_compressed:.2f} MB, compression ratio: {compression_ratio:.2f}x\"\n",
+                "        )\n",
+                "\n",
+                "\n",
+                "def attrsetter(*items):\n",
+                "    def resolve_attr(obj, attr):\n",
+                "        attrs = attr.split(\".\")\n",
+                "        head = attrs[:-1]\n",
+                "        tail = attrs[-1]\n",
+                "\n",
+                "        for name in head:\n",
+                "            obj = getattr(obj, name)\n",
+                "        return obj, tail\n",
+                "\n",
+                "    def g(obj, val):\n",
+                "        for attr in items:\n",
+                "            resolved_obj, resolved_attr = resolve_attr(obj, attr)\n",
+                "            setattr(resolved_obj, resolved_attr, val)\n",
+                "\n",
+                "    return g"
+            ]
+        ],
+        "fairseq/modules/quantization/scalar/utils.py": [
+            [
+                "# Copyright (c) Facebook, Inc. and its affiliates.\n",
+                "#\n",
+                "# This source code is licensed under the MIT license found in the\n",
+                "# LICENSE file in the root directory of this source tree.\n",
+                "\n",
+                "import logging\n",
+                "from operator import attrgetter\n",
+                "\n",
+                "import torch.distributed as dist\n",
+                "import torch.nn as nn\n",
+                "\n",
+                "from ..pq.utils import attrsetter, get_layers\n",
+                "from .modules import ActivationQuantizer, IntConv2d, IntEmbedding, IntLinear\n",
+                "\n",
+                "\n",
+                "MAPPING = {nn.Linear: IntLinear, nn.Embedding: IntEmbedding, nn.Conv2d: IntConv2d}\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def quantize_model_(model, p=0.2, bits=8, update_step=3000):\n"
+                ],
+                "after": [
+                    "def quantize_model_(model, p=0.2, bits=8, update_step=3000, method=\"histogram\", remove_weights=False):\n"
+                ],
+                "parent_version_range": {
+                    "start": 18,
+                    "end": 19
+                },
+                "child_version_range": {
+                    "start": 18,
+                    "end": 19
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "quantize_model_",
+                        "signature": "def quantize_model_(model, p=0.2, bits=8, update_step=3000):",
+                        "at_line": 18
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: fairseq/modules/quantization/scalar/utils.py\nCode:\n15 15    MAPPING = {nn.Linear: IntLinear, nn.Embedding: IntEmbedding, nn.Conv2d: IntConv2d}\n16 16    \n17 17    \n18     - def quantize_model_(model, p=0.2, bits=8, update_step=3000):\n   18  + def quantize_model_(model, p=0.2, bits=8, update_step=3000, method=\"histogram\", remove_weights=False):\n19 19        \"\"\"\n20 20        Replaces all modules with their scalar quantized counterpart and\n21 21        registers hooks to quantize the post-ativations of those modules.\n       ...\n",
+                "file_path": "fairseq/modules/quantization/scalar/utils.py",
+                "identifiers_before": [
+                    "bits",
+                    "model",
+                    "p",
+                    "quantize_model_",
+                    "update_step"
+                ],
+                "identifiers_after": [
+                    "bits",
+                    "method",
+                    "model",
+                    "p",
+                    "quantize_model_",
+                    "remove_weights",
+                    "update_step"
+                ],
+                "prefix": [
+                    "MAPPING = {nn.Linear: IntLinear, nn.Embedding: IntEmbedding, nn.Conv2d: IntConv2d}\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    \"\"\"\n",
+                    "    Replaces all modules with their scalar quantized counterpart and\n",
+                    "    registers hooks to quantize the post-ativations of those modules.\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "model",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "bits",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "model",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 20
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 25
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "bits",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 38
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "method",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 60
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "method",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 60
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 18,
+                                    "column": 80
+                                },
+                                "end": {
+                                    "line": 18,
+                                    "column": 94
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    \"\"\"\n",
+                "    Replaces all modules with their scalar quantized counterpart and\n",
+                "    registers hooks to quantize the post-ativations of those modules.\n",
+                "\n",
+                "    Args:\n",
+                "        - model: a nn.Module\n",
+                "        - p: amount of noise (0 for no noise, 1 to quantize all the weights/activations)\n",
+                "        - bits: number of bits\n",
+                "        - update_step: update quantization parameters every update_step steps\n",
+                "    \"\"\"\n",
+                "\n",
+                "    # quantize all layers\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    quantized_layers = get_layers(model, \"(.*?)\")\n"
+                ],
+                "after": [
+                    "    # remove weights indicates whether the weights extension should be removed, in addition to\n",
+                    "    # weight_orig and weight extension on names\n",
+                    "    quantized_layers = get_layers(model, \"(.*?)\", remove_weights=remove_weights)\n"
+                ],
+                "parent_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "child_version_range": {
+                    "start": 31,
+                    "end": 34
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "quantize_model_",
+                        "signature": "def quantize_model_(model, p=0.2, bits=8, update_step=3000):",
+                        "at_line": 18
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: fairseq/modules/quantization/scalar/utils.py\nCode:\n         def quantize_model_(model, p=0.2, bits=8, update_step=3000):\n             ...\n28 28        \"\"\"\n29 29    \n30 30        # quantize all layers\n31     -     quantized_layers = get_layers(model, \"(.*?)\")\n   31  +     # remove weights indicates whether the weights extension should be removed, in addition to\n   32  +     # weight_orig and weight extension on names\n   33  +     quantized_layers = get_layers(model, \"(.*?)\", remove_weights=remove_weights)\n32 34    \n33 35        for layer in quantized_layers:\n34 36    \n       ...\n",
+                "file_path": "fairseq/modules/quantization/scalar/utils.py",
+                "identifiers_before": [
+                    "get_layers",
+                    "model",
+                    "quantized_layers"
+                ],
+                "identifiers_after": [
+                    "get_layers",
+                    "model",
+                    "quantized_layers",
+                    "remove_weights"
+                ],
+                "prefix": [
+                    "    \"\"\"\n",
+                    "\n",
+                    "    # quantize all layers\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    for layer in quantized_layers:\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "get_layers",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "model",
+                            "position": {
+                                "start": {
+                                    "line": 31,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 31,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "get_layers",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 50
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 64
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "model",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 34
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "remove_weights",
+                            "position": {
+                                "start": {
+                                    "line": 33,
+                                    "column": 65
+                                },
+                                "end": {
+                                    "line": 33,
+                                    "column": 79
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    for layer in quantized_layers:\n",
+                "\n",
+                "        # book-keeping\n",
+                "        is_master_process = (not dist.is_initialized()) or (\n",
+                "            dist.is_initialized() and dist.get_rank() == 0\n",
+                "        )\n",
+                "\n",
+                "        # recover module\n",
+                "        module = attrgetter(layer)(model)\n",
+                "        if is_master_process:\n",
+                "            logging.info(\n",
+                "                f\"Quantizing layer {layer} with bits={bits} and QuantNoise={p}\"\n",
+                "            )\n",
+                "\n",
+                "        # quantization params\n",
+                "        q_params = {\n",
+                "            \"p\": p,\n",
+                "            \"update_step\": update_step,\n",
+                "            \"bits\": bits,\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            \"method\": \"histogram\",\n"
+                ],
+                "after": [
+                    "            \"method\": method,\n"
+                ],
+                "parent_version_range": {
+                    "start": 52,
+                    "end": 53
+                },
+                "child_version_range": {
+                    "start": 54,
+                    "end": 55
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for layer in quantized_layers:",
+                        "start_line": 33,
+                        "end_line": 73
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "quantize_model_",
+                        "signature": "def quantize_model_(model, p=0.2, bits=8, update_step=3000):",
+                        "at_line": 18
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: fairseq/modules/quantization/scalar/utils.py\nCode:\n         def quantize_model_(model, p=0.2, bits=8, update_step=3000):\n             ...\n49 51                \"p\": p,\n50 52                \"update_step\": update_step,\n51 53                \"bits\": bits,\n52     -             \"method\": \"histogram\",\n   54  +             \"method\": method,\n53 55                \"counter\": 0,\n54 56            }\n55 57    \n       ...\n",
+                "file_path": "fairseq/modules/quantization/scalar/utils.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "method"
+                ],
+                "prefix": [
+                    "            \"p\": p,\n",
+                    "            \"update_step\": update_step,\n",
+                    "            \"bits\": bits,\n"
+                ],
+                "suffix": [
+                    "            \"counter\": 0,\n",
+                    "        }\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "method",
+                            "position": {
+                                "start": {
+                                    "line": 54,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 54,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            },
+            [
+                "            \"counter\": 0,\n",
+                "        }\n",
+                "\n",
+                "        # instantiate the quantized counterpart\n",
+                "        if isinstance(module, tuple(MAPPING.keys())):\n",
+                "            QuantizedModule = MAPPING[module.__class__]\n",
+                "            quantized_module = QuantizedModule.__new__(QuantizedModule)\n",
+                "            params = module.__dict__\n",
+                "            params.update(q_params)\n",
+                "            quantized_module.__dict__.update(params)\n",
+                "\n",
+                "        else:\n",
+                "            if is_master_process:\n",
+                "                logging.info(f\"Module {module} not yet supported for quantization\")\n",
+                "            continue\n",
+                "\n",
+                "        # activation quantization\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        a_q = ActivationQuantizer(quantized_module, p=0, bits=bits, method=\"histogram\")\n"
+                ],
+                "after": [
+                    "        a_q = ActivationQuantizer(quantized_module, p=0, bits=bits, method=method)\n"
+                ],
+                "parent_version_range": {
+                    "start": 70,
+                    "end": 71
+                },
+                "child_version_range": {
+                    "start": 72,
+                    "end": 73
+                },
+                "control_flow": [
+                    {
+                        "type": "for_statement",
+                        "statement": "for layer in quantized_layers:",
+                        "start_line": 33,
+                        "end_line": 73
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "quantize_model_",
+                        "signature": "def quantize_model_(model, p=0.2, bits=8, update_step=3000):",
+                        "at_line": 18
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: fairseq/modules/quantization/scalar/utils.py\nCode:\n         def quantize_model_(model, p=0.2, bits=8, update_step=3000):\n             ...\n67 69                continue\n68 70    \n69 71            # activation quantization\n70     -         a_q = ActivationQuantizer(quantized_module, p=0, bits=bits, method=\"histogram\")\n   72  +         a_q = ActivationQuantizer(quantized_module, p=0, bits=bits, method=method)\n71 73    \n72 74            # replace layer by its quantized counterpart\n73 75            attrsetter(layer)(model, quantized_module)\n       ...\n",
+                "file_path": "fairseq/modules/quantization/scalar/utils.py",
+                "identifiers_before": [
+                    "ActivationQuantizer",
+                    "a_q",
+                    "bits",
+                    "method",
+                    "p",
+                    "quantized_module"
+                ],
+                "identifiers_after": [
+                    "ActivationQuantizer",
+                    "a_q",
+                    "bits",
+                    "method",
+                    "p",
+                    "quantized_module"
+                ],
+                "prefix": [
+                    "            continue\n",
+                    "\n",
+                    "        # activation quantization\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        # replace layer by its quantized counterpart\n",
+                    "        attrsetter(layer)(model, quantized_module)\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "bits",
+                            "position": {
+                                "start": {
+                                    "line": 70,
+                                    "column": 62
+                                },
+                                "end": {
+                                    "line": 70,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "bits",
+                            "position": {
+                                "start": {
+                                    "line": 72,
+                                    "column": 62
+                                },
+                                "end": {
+                                    "line": 72,
+                                    "column": 66
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "method",
+                            "position": {
+                                "start": {
+                                    "line": 72,
+                                    "column": 75
+                                },
+                                "end": {
+                                    "line": 72,
+                                    "column": 81
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/fairseq/fairseq/modules/quantization/scalar/utils.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "\n",
+                "        # replace layer by its quantized counterpart\n",
+                "        attrsetter(layer)(model, quantized_module)\n",
+                "\n",
+                "    # return name of quantized layers\n",
+                "    return quantized_layers"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "func update"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                4
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        }
+    ]
+}

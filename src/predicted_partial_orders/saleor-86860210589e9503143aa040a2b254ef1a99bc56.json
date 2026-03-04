@@ -1,0 +1,197 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField (which uses edges/node structure) to a graphene.List (which returns a direct list). Edit 1 updates the corresponding GraphQL query to match this change by removing the edges/node structure and directly accessing the variant fields. These edits reference the exact same GraphQL field ('variants') and form a definition-usage pair where the schema change in edit 0 creates an immediate need to update the query structure in edit 1 to maintain compatibility."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField (which uses edges/node structure) to a graphene.List (which returns a direct list). Edit 1 updates the corresponding GraphQL query to match this change by removing the edges/node structure and directly accessing the variant fields. These edits reference the exact same GraphQL field ('variants') and form a definition-usage pair where the schema change in edit 0 creates an immediate need to update the query structure in edit 1 to maintain compatibility."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new field 'collections' to the Product class using gql_optimizer.field with model_field='collections'. Edit 1 adds a resolver method 'resolve_collections' that references 'self.collections.all()'. The changed lines reference the exact same symbol - the 'collections' field. After adding the field definition in edit 0, the resolver method in edit 1 becomes the immediate next step to provide the resolution logic for that field. This is a definition-usage relationship where both edits reference the same symbol and either can be staged first without causing parse errors."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new field 'collections' to the Product class using gql_optimizer.field with model_field='collections'. Edit 1 adds a resolver method 'resolve_collections' that references 'self.collections.all()'. The changed lines reference the exact same symbol - the 'collections' field. After adding the field definition in edit 0, the resolver method in edit 1 becomes the immediate next step to provide the resolution logic for that field. This is a definition-usage relationship where both edits reference the same symbol and either can be staged first without causing parse errors."
+        },
+        {
+            "src": 0,
+            "tgt": 7,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField (which uses edges/node structure) to a graphene.List (which returns a direct list). Edit 1 updates a test query to match this change by removing the edges/node wrapper and directly accessing the variant fields. Both edits reference the exact same GraphQL field structure for 'variants' - one changes the schema definition and the other updates the corresponding test query to match the new schema. This creates an immediate code-driven dependency where the test query must be updated to match the new field structure."
+        },
+        {
+            "src": 7,
+            "tgt": 0,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField (which uses edges/node structure) to a graphene.List (which returns a direct list). Edit 1 updates a test query to match this change by removing the edges/node wrapper and directly accessing the variant fields. Both edits reference the exact same GraphQL field structure for 'variants' - one changes the schema definition and the other updates the corresponding test query to match the new schema. This creates an immediate code-driven dependency where the test query must be updated to match the new field structure."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical structural substitution pattern within the same class context. Edit 0 changes the 'variants' field from PrefetchingConnectionField(ProductVariant) to graphene.List(ProductVariant, description='List of variants for the product'), and Edit 1 changes the 'images' field from PrefetchingConnectionField(lambda: ProductImage) to graphene.List(ProductImage, description='List of images for the product'). This represents a uniform refactoring pattern where the same before\u2192after transformation (PrefetchingConnectionField \u2192 graphene.List with description) is being applied to multiple fields of the same syntactic construct type (gql_optimizer.field calls) within the same class. Both edits are part of a single, contiguous refactor to change the field type pattern, and either edit can be made first as they don't reference the exact same symbol but follow the identical substitution pattern."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical structural substitution pattern within the same class context. Edit 0 changes the 'variants' field from PrefetchingConnectionField(ProductVariant) to graphene.List(ProductVariant, description='List of variants for the product'), and Edit 1 changes the 'images' field from PrefetchingConnectionField(lambda: ProductImage) to graphene.List(ProductImage, description='List of images for the product'). This represents a uniform refactoring pattern where the same before\u2192after transformation (PrefetchingConnectionField \u2192 graphene.List with description) is being applied to multiple fields of the same syntactic construct type (gql_optimizer.field calls) within the same class. Both edits are part of a single, contiguous refactor to change the field type pattern, and either edit can be made first as they don't reference the exact same symbol but follow the identical substitution pattern."
+        },
+        {
+            "src": 0,
+            "tgt": 8,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField to a graphene.List, which changes the API structure from a connection-based format (with edges/nodes) to a direct list format. Edit 1 updates test code to access variants data using the new direct list format (data['variants'][0]) instead of the old connection format (data['variants']['edges'][0]['node']). Both edits reference the exact same 'variants' field - one changes its definition and the other updates code that consumes this field. This creates an immediate code-driven dependency where the test must be updated to match the new API structure."
+        },
+        {
+            "src": 8,
+            "tgt": 0,
+            "reason": "Edit 0 changes the GraphQL field definition for 'variants' from a PrefetchingConnectionField to a graphene.List, which changes the API structure from a connection-based format (with edges/nodes) to a direct list format. Edit 1 updates test code to access variants data using the new direct list format (data['variants'][0]) instead of the old connection format (data['variants']['edges'][0]['node']). Both edits reference the exact same 'variants' field - one changes its definition and the other updates code that consumes this field. This creates an immediate code-driven dependency where the test must be updated to match the new API structure."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes the GraphQL field definition for 'images' from a PrefetchingConnectionField to a graphene.List, which fundamentally changes the API structure from a connection-based pagination format to a simple list. Edit 1 updates a test query to match this API change by removing the connection-style 'edges { node { ... } }' structure and directly accessing the 'url' field. Both edits reference the exact same GraphQL field ('images') and the test edit becomes immediately necessary after the API structure change to prevent test failures. This is a clear definition-usage relationship where the API change in edit 0 creates an immediate, mechanically obvious prompt for updating the corresponding test query in edit 1."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes the GraphQL field definition for 'images' from a PrefetchingConnectionField to a graphene.List, which fundamentally changes the API structure from a connection-based pagination format to a simple list. Edit 1 updates a test query to match this API change by removing the connection-style 'edges { node { ... } }' structure and directly accessing the 'url' field. Both edits reference the exact same GraphQL field ('images') and the test edit becomes immediately necessary after the API structure change to prevent test failures. This is a clear definition-usage relationship where the API change in edit 0 creates an immediate, mechanically obvious prompt for updating the corresponding test query in edit 1."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 changes the GraphQL field definition for 'collections' from PrefetchingConnectionField to graphene.List, which changes the API response structure. Edit 1 updates the test assertions to match this new structure, changing from accessing 'collections']['edges'][0]['node'] to directly accessing 'collections'][0]. The test is specifically testing the collections field that was modified in edit 0, making this a direct definition-usage relationship where the API change necessitates the corresponding test update."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 changes the GraphQL field definition for 'collections' from PrefetchingConnectionField to graphene.List, which changes the API response structure. Edit 1 updates the test assertions to match this new structure, changing from accessing 'collections']['edges'][0]['node'] to directly accessing 'collections'][0]. The test is specifically testing the collections field that was modified in edit 0, making this a direct definition-usage relationship where the API change necessitates the corresponding test update."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes the Product.collections field from a PrefetchingConnectionField to a graphene.List, which changes the GraphQL schema structure. Edit 1 updates a test query to match this schema change by removing the connection-style pagination syntax (first: 1, edges, node) and using direct field access instead. Both edits reference the exact same 'collections' field on the Product type - edit 0 modifies its definition and edit 1 updates test code that queries this field. This creates a direct code dependency where the test must be updated to match the new schema structure."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes the Product.collections field from a PrefetchingConnectionField to a graphene.List, which changes the GraphQL schema structure. Edit 1 updates a test query to match this schema change by removing the connection-style pagination syntax (first: 1, edges, node) and using direct field access instead. Both edits reference the exact same 'collections' field on the Product type - edit 0 modifies its definition and edit 1 updates test code that queries this field. This creates a direct code dependency where the test must be updated to match the new schema structure."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits perform identical structural transformations within the same GraphQL query string in the same test function. Edit 0 removes the 'edges { node { ... } }' wrapper from the 'images' field, flattening it to just 'url'. Edit 1 performs the exact same structural transformation on the 'variants' field, removing the same 'edges { node { ... } }' wrapper and flattening 'name' and 'stockQuantity'. This is a uniform, synchronized refactoring pattern applied to the same type of syntactic construct (GraphQL field structures) within the same query. Both edits are part of a single micro-task to simplify the GraphQL query structure, and either could be applied first as they operate on independent parts of the same query."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits perform identical structural transformations within the same GraphQL query string in the same test function. Edit 0 removes the 'edges { node { ... } }' wrapper from the 'images' field, flattening it to just 'url'. Edit 1 performs the exact same structural transformation on the 'variants' field, removing the same 'edges { node { ... } }' wrapper and flattening 'name' and 'stockQuantity'. This is a uniform, synchronized refactoring pattern applied to the same type of syntactic construct (GraphQL field structures) within the same query. Both edits are part of a single micro-task to simplify the GraphQL query structure, and either could be applied first as they operate on independent parts of the same query."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits are performing identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'images { edges { node { url } } }' to 'images { url }' and Edit 1 changes 'collections(first: 1) { edges { node { name } } }' to 'collections { name }'. Both are removing the same GraphQL pagination pattern (edges/node structure) and flattening the query structure. This represents a uniform, synchronized substitution pattern applied to the same type of syntactic construct (GraphQL query fields) as part of what appears to be a single refactoring operation to simplify GraphQL queries by removing pagination wrapper structures."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits are performing identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'images { edges { node { url } } }' to 'images { url }' and Edit 1 changes 'collections(first: 1) { edges { node { name } } }' to 'collections { name }'. Both are removing the same GraphQL pagination pattern (edges/node structure) and flattening the query structure. This represents a uniform, synchronized substitution pattern applied to the same type of syntactic construct (GraphQL query fields) as part of what appears to be a single refactoring operation to simplify GraphQL queries by removing pagination wrapper structures."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. They both remove the 'edges { node { ... } }' wrapper pattern and flatten the nested structure to directly access fields. This represents a uniform refactoring pattern applied to the same type of syntactic construct (GraphQL query fragments) with identical before\u2192after transformation logic."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. They both remove the 'edges { node { ... } }' wrapper pattern and flatten the nested structure to directly access fields. This represents a uniform refactoring pattern applied to the same type of syntactic construct (GraphQL query fragments) with identical before\u2192after transformation logic."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Both edits perform the same structural transformation: removing the GraphQL 'edges' and 'node' wrapper pattern and accessing data directly. In edit 0, 'variants { edges { node { name stockQuantity } } }' becomes 'variants { name stockQuantity }'. In edit 1, accessing 'data['collections']['edges'][0]['node']['name']' becomes 'data['collections'][0]['name']'. This is a uniform refactoring pattern applied to the same type of GraphQL response structure, representing a single coherent change to how GraphQL pagination is handled in the test suite."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Both edits perform the same structural transformation: removing the GraphQL 'edges' and 'node' wrapper pattern and accessing data directly. In edit 0, 'variants { edges { node { name stockQuantity } } }' becomes 'variants { name stockQuantity }'. In edit 1, accessing 'data['collections']['edges'][0]['node']['name']' becomes 'data['collections'][0]['name']'. This is a uniform refactoring pattern applied to the same type of GraphQL response structure, representing a single coherent change to how GraphQL pagination is handled in the test suite."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform an identical structural transformation on GraphQL query syntax within the same test file. They both remove the 'edges { node { ... } }' wrapper pattern and flatten the nested structure to direct field access. This represents the same before\u2192after pattern (removing GraphQL edges/node nesting) applied to the same type of syntactic construct (GraphQL query fragments in test assertions). This appears to be part of a single, contiguous refactoring operation to simplify GraphQL query structure across multiple test functions."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform an identical structural transformation on GraphQL query syntax within the same test file. They both remove the 'edges { node { ... } }' wrapper pattern and flatten the nested structure to direct field access. This represents the same before\u2192after pattern (removing GraphQL edges/node nesting) applied to the same type of syntactic construct (GraphQL query fragments in test assertions). This appears to be part of a single, contiguous refactoring operation to simplify GraphQL query structure across multiple test functions."
+        },
+        {
+            "src": 4,
+            "tgt": 8,
+            "reason": "Both edits are making the same structural change to GraphQL query result access patterns - removing the 'edges'/'node' wrapper structure and accessing array elements directly. Edit 0 changes the query structure from 'edges { node { name stockQuantity } }' to just 'name stockQuantity', while Edit 1 changes the result access from 'variants.edges[0].node.price' to 'variants[0].price'. These are synchronized changes that implement the same GraphQL schema modification pattern across different parts of the test suite, representing identical structural substitutions on the same type of syntactic construct (GraphQL query/response handling)."
+        },
+        {
+            "src": 8,
+            "tgt": 4,
+            "reason": "Both edits are making the same structural change to GraphQL query result access patterns - removing the 'edges'/'node' wrapper structure and accessing array elements directly. Edit 0 changes the query structure from 'edges { node { name stockQuantity } }' to just 'name stockQuantity', while Edit 1 changes the result access from 'variants.edges[0].node.price' to 'variants[0].price'. These are synchronized changes that implement the same GraphQL schema modification pattern across different parts of the test suite, representing identical structural substitutions on the same type of syntactic construct (GraphQL query/response handling)."
+        },
+        {
+            "src": 6,
+            "tgt": 8,
+            "reason": "Both edits perform identical structural transformations on GraphQL response data access patterns. Edit 0 changes from accessing `data['collections']['edges'][0]['node']['name']` to `data['collections'][0]['name']`, and edit 1 changes from accessing `data['variants']['edges'][0]['node']['price']` to `data['variants'][0]['price']`. This represents the same before\u2192after pattern (removing GraphQL edges/node wrapper structure) applied to the same type of syntactic construct (nested dictionary/list access in test assertions). Both edits are part of what appears to be a uniform refactoring to simplify GraphQL response access patterns across the test file."
+        },
+        {
+            "src": 8,
+            "tgt": 6,
+            "reason": "Both edits perform identical structural transformations on GraphQL response data access patterns. Edit 0 changes from accessing `data['collections']['edges'][0]['node']['name']` to `data['collections'][0]['name']`, and edit 1 changes from accessing `data['variants']['edges'][0]['node']['price']` to `data['variants'][0]['price']`. This represents the same before\u2192after pattern (removing GraphQL edges/node wrapper structure) applied to the same type of syntactic construct (nested dictionary/list access in test assertions). Both edits are part of what appears to be a uniform refactoring to simplify GraphQL response access patterns across the test file."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Both edits are modifying the same GraphQL query structure and corresponding data access pattern within the same test function. Edit 0 changes the GraphQL query from a nested 'edges/node' structure to a direct array structure for variants.price. Edit 1 updates the corresponding data access code to match this new structure, changing from data['variants']['edges'][0]['node']['price'] to data['variants'][0]['price']. These edits reference the exact same data structure and the second edit is mechanically required after the first to maintain consistency between the query structure and data access pattern. Either edit could be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain the query-access alignment."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Both edits are modifying the same GraphQL query structure and corresponding data access pattern within the same test function. Edit 0 changes the GraphQL query from a nested 'edges/node' structure to a direct array structure for variants.price. Edit 1 updates the corresponding data access code to match this new structure, changing from data['variants']['edges'][0]['node']['price'] to data['variants'][0]['price']. These edits reference the exact same data structure and the second edit is mechanically required after the first to maintain consistency between the query structure and data access pattern. Either edit could be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain the query-access alignment."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'images { edges { node { url } } }' to 'images { url }' and Edit 1 changes 'variants { edges { node { price { amount } } } }' to 'variants { price { amount } }'. Both edits apply the same before\u2192after pattern (removing the edges/node wrapper structure) to the same type of syntactic construct (GraphQL query fields). This represents a uniform refactoring pattern being applied consistently across multiple query structures in the same file, making them part of a single contiguous micro-task with mirrored structural substitutions."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'images { edges { node { url } } }' to 'images { url }' and Edit 1 changes 'variants { edges { node { price { amount } } } }' to 'variants { price { amount } }'. Both edits apply the same before\u2192after pattern (removing the edges/node wrapper structure) to the same type of syntactic construct (GraphQL query fields). This represents a uniform refactoring pattern being applied consistently across multiple query structures in the same file, making them part of a single contiguous micro-task with mirrored structural substitutions."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'collections(first: 1) { edges { node { name } } }' to 'collections { name }', and Edit 1 changes 'variants { edges { node { price { amount } } } }' to 'variants { price { amount } }'. Both edits remove the same GraphQL pagination pattern (edges/node wrapper) and flatten the query structure in exactly the same way. This represents a uniform substitution pattern applied to the same type of syntactic construct (GraphQL query fragments), indicating they are part of a single refactoring operation to simplify GraphQL queries by removing pagination wrappers."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits perform identical structural transformations on GraphQL query syntax within the same test file. Edit 0 changes 'collections(first: 1) { edges { node { name } } }' to 'collections { name }', and Edit 1 changes 'variants { edges { node { price { amount } } } }' to 'variants { price { amount } }'. Both edits remove the same GraphQL pagination pattern (edges/node wrapper) and flatten the query structure in exactly the same way. This represents a uniform substitution pattern applied to the same type of syntactic construct (GraphQL query fragments), indicating they are part of a single refactoring operation to simplify GraphQL queries by removing pagination wrappers."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Both edits are modifying the same GraphQL query and its corresponding test assertions within the same test function. Edit 0 changes the GraphQL query structure from using edges/node pattern to direct access, and Edit 1 updates the assertion code to match the new query structure. The changed lines reference the exact same data structure ('collections') and both edits are part of a single refactoring task to simplify the GraphQL query format. After making either edit, the other becomes immediately necessary to maintain test functionality - the query change makes the assertion fail, and vice versa."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Both edits are modifying the same GraphQL query and its corresponding test assertions within the same test function. Edit 0 changes the GraphQL query structure from using edges/node pattern to direct access, and Edit 1 updates the assertion code to match the new query structure. The changed lines reference the exact same data structure ('collections') and both edits are part of a single refactoring task to simplify the GraphQL query format. After making either edit, the other becomes immediately necessary to maintain test functionality - the query change makes the assertion fail, and vice versa."
+        }
+    ],
+    "allowed_init_edits": [
+        2
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'use_aligner'. Edit 0 adds 'use_aligner' as a parameter to the function signature, and Edit 1 uses that same parameter in a conditional statement within the function body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the function implementation. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of staging order (no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "Both edits reference the exact same symbol 'use_aligner'. Edit 0 adds 'use_aligner' as a parameter to the function signature, and Edit 1 uses that same parameter in a conditional statement within the function body. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the function implementation. Both edits can be staged in either order since Python allows referencing parameters in function bodies regardless of staging order (no parse-time error), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 defines two new variables `face_A` and `face_B` within the function, and Edit 1 uses these exact same variables in the changed lines. The variables `face_A` and `face_B` are referenced in both edits' changed lines - they are defined in Edit 0 and used in Edit 1. This creates an immediate code dependency where Edit 1 cannot function correctly without the definitions from Edit 0, making Edit 0 the mechanically required first step."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 changes the function signature of `convert_one_image` by adding two new parameters (`swap_model=False, use_aligner=False`). Edit 1 updates a call site to this same function by adding the `swap_model` parameter. Both edits reference the exact same symbol `convert_one_image`. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next step to utilize the new parameter. Conversely, if the call site is updated first, the signature change becomes necessary to support the new parameter usage. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 changes the function signature of `convert_one_image` by adding two new parameters (`swap_model=False, use_aligner=False`). Edit 1 updates a call site to this same function by adding the `swap_model` parameter. Both edits reference the exact same symbol `convert_one_image`. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next step to utilize the new parameter. Conversely, if the call site is updated first, the signature change becomes necessary to support the new parameter usage. This is a classic definition-usage relationship for the same symbol."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `convert_one_image` and involve the exact same symbols. Edit 0 adds the `use_aligner` parameter to the function signature, and Edit 1 uses that exact same `use_aligner` parameter in the function body to control conditional logic. The changed lines in both edits reference the same symbols: `use_aligner` (parameter definition vs usage) and `image` (parameter vs usage in function calls). After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows parameter usage before the parameter is defined at parse time (would only cause runtime errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Both edits modify the same function `convert_one_image` and involve the exact same symbols. Edit 0 adds the `use_aligner` parameter to the function signature, and Edit 1 uses that exact same `use_aligner` parameter in the function body to control conditional logic. The changed lines in both edits reference the same symbols: `use_aligner` (parameter definition vs usage) and `image` (parameter vs usage in function calls). After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows parameter usage before the parameter is defined at parse time (would only cause runtime errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Both edits reference the exact same symbol 'aligner' in their changed lines. Edit 0 conditionally creates the aligner object, and Edit 1 conditionally uses that same aligner object. The changes are part of a single micro-task to add conditional aligner usage throughout the function. After making either edit, the other becomes the immediate next step to complete the conditional aligner pattern - if you add the conditional creation without the conditional usage, or vice versa, the code would be incomplete. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'aligner' in their changed lines. Edit 0 conditionally creates the aligner object, and Edit 1 conditionally uses that same aligner object. The changes are part of a single micro-task to add conditional aligner usage throughout the function. After making either edit, the other becomes the immediate next step to complete the conditional aligner pattern - if you add the conditional creation without the conditional usage, or vice versa, the code would be incomplete. Both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 removes a return statement that calls 'superpose(image, new_face, crop)', while Edit 1 adds back a conditional structure that includes the exact same 'superpose(image, new_face, crop)' call in the else branch. The changed lines in both edits reference the exact same function call with identical parameters. Edit 0 creates an immediate code-driven prompt for Edit 1 because removing the return statement leaves the function without a proper return path, and Edit 1 provides the replacement logic that includes the same superpose call. This represents a direct structural dependency where the same symbol usage is being modified across both edits within the same function context."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 removes a return statement that calls 'superpose(image, new_face, crop)', while Edit 1 adds back a conditional structure that includes the exact same 'superpose(image, new_face, crop)' call in the else branch. The changed lines in both edits reference the exact same function call with identical parameters. Edit 0 creates an immediate code-driven prompt for Edit 1 because removing the return statement leaves the function without a proper return path, and Edit 1 provides the replacement logic that includes the same superpose call. This represents a direct structural dependency where the same symbol usage is being modified across both edits within the same function context."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new command-line argument '--swap-model' to the parser with dest='swap_model'. Edit 1 then uses this newly added argument by passing 'self.arguments.swap_model' as a parameter to the convert_one_image function call. The changed line in edit 1 directly references the exact same symbol (swap_model) that was defined in edit 0's changed lines. After adding the argument in edit 0, using it in edit 1 becomes the immediate, mechanically obvious next step to make the new parameter functional. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds a new command-line argument '--swap-model' to the parser with dest='swap_model'. Edit 1 then uses this newly added argument by passing 'self.arguments.swap_model' as a parameter to the convert_one_image function call. The changed line in edit 1 directly references the exact same symbol (swap_model) that was defined in edit 0's changed lines. After adding the argument in edit 0, using it in edit 1 becomes the immediate, mechanically obvious next step to make the new parameter functional. This is a classic definition-usage pattern where both edits reference the exact same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        3,
+        5
+    ]
+}

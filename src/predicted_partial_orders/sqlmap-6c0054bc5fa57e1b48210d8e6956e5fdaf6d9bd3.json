@@ -1,0 +1,68 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution pattern within the same function: changing 'warnMsg' to 'debugMsg' and 'logger.warn' to 'logger.debug'. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (variable assignment and logger method call) in two different locations within the same function scope. Both edits are part of a single, contiguous micro-task to change the logging level from warning to debug throughout this function."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution pattern within the same function: changing 'warnMsg' to 'debugMsg' and 'logger.warn' to 'logger.debug'. This is a uniform refactoring operation where the same before\u2192after pattern is applied to the same type of syntactic construct (variable assignment and logger method call) in two different locations within the same function scope. Both edits are part of a single, contiguous micro-task to change the logging level from warning to debug throughout this function."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 imports the functools module, and Edit 1 uses functools.partial in the changed lines. This creates a direct import-usage relationship where the exact same symbol 'functools' is being imported in Edit 0 and referenced in Edit 1. After making either edit, the other becomes the immediate next step - if you add the import first, you can then use functools.partial; if you try to use functools.partial first, you need the import. Since Python allows referencing undefined modules at parse time (only failing at runtime with ImportError), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 imports the functools module, and Edit 1 uses functools.partial in the changed lines. This creates a direct import-usage relationship where the exact same symbol 'functools' is being imported in Edit 0 and referenced in Edit 1. After making either edit, the other becomes the immediate next step - if you add the import first, you can then use functools.partial; if you try to use functools.partial first, you need the import. Since Python allows referencing undefined modules at parse time (only failing at runtime with ImportError), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 imports the functools module, and Edit 1 uses functools.partial in the changed line. The import creates the symbol 'functools' that is then directly referenced in the usage. This is a classic import-usage pattern where both edits reference the exact same symbol 'functools'. After importing functools, using it becomes the immediate next step, and the usage cannot work without the import being present first. However, in Python, the usage line can be written and parsed even before the import exists (it would only fail at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 imports the functools module, and Edit 1 uses functools.partial in the changed line. The import creates the symbol 'functools' that is then directly referenced in the usage. This is a classic import-usage pattern where both edits reference the exact same symbol 'functools'. After importing functools, using it becomes the immediate next step, and the usage cannot work without the import being present first. However, in Python, the usage line can be written and parsed even before the import exists (it would only fail at runtime), so this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 defines a function named 'process' within the _setRequestParams function, and Edit 1 uses that exact same 'process' function as an argument to functools.partial. The changed line in Edit 1 explicitly references the same 'process' symbol that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 defines a function named 'process' within the _setRequestParams function, and Edit 1 uses that exact same 'process' function as an argument to functools.partial. The changed line in Edit 1 explicitly references the same 'process' symbol that was defined in Edit 0. This creates a direct definition-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the definition (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 defines a function named 'process' within the _setRequestParams function. Edit 1 uses this exact same 'process' function by calling it via functools.partial in two re.sub operations. The changed lines in edit 1 explicitly reference the same 'process' symbol that is defined in edit 0. This creates a direct definition-usage relationship where the function must be defined before it can be used. However, in Python, function definitions within the same scope can be referenced before they are defined in the source code order, as long as the reference occurs after the definition at runtime. Since both edits are within the same function scope and the usage would occur after the definition during execution, this is a bi-directional relationship where either edit could be staged first without causing parse errors."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 defines a function named 'process' within the _setRequestParams function. Edit 1 uses this exact same 'process' function by calling it via functools.partial in two re.sub operations. The changed lines in edit 1 explicitly reference the same 'process' symbol that is defined in edit 0. This creates a direct definition-usage relationship where the function must be defined before it can be used. However, in Python, function definitions within the same scope can be referenced before they are defined in the source code order, as long as the reference occurs after the definition at runtime. Since both edits are within the same function scope and the usage would occur after the definition during execution, this is a bi-directional relationship where either edit could be staged first without causing parse errors."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform identical structural transformations within the same function `_setRequestParams()`. They both replace `re.sub()` calls with `functools.partial(process, repl=...)` calls, following the exact same pattern: adding named capture groups `(?P<name>...)` to regex patterns and wrapping the replacement with `functools.partial(process, repl=...)`. This represents a uniform refactoring pattern applied to multiple regex substitutions in the same function. Both edits reference the same `process` function and `functools.partial`, and both are part of the same micro-task of converting regex substitutions to use a common processing function. Either edit could be made first, and after making either one, the other becomes an obvious next step to maintain consistency in the refactoring pattern."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform identical structural transformations within the same function `_setRequestParams()`. They both replace `re.sub()` calls with `functools.partial(process, repl=...)` calls, following the exact same pattern: adding named capture groups `(?P<name>...)` to regex patterns and wrapping the replacement with `functools.partial(process, repl=...)`. This represents a uniform refactoring pattern applied to multiple regex substitutions in the same function. Both edits reference the same `process` function and `functools.partial`, and both are part of the same micro-task of converting regex substitutions to use a common processing function. Either edit could be made first, and after making either one, the other becomes an obvious next step to maintain consistency in the refactoring pattern."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

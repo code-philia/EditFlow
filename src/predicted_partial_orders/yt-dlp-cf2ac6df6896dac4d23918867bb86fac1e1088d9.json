@@ -1,0 +1,117 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 changes the function signature of `_parse_format_selection` by adding new parameters including `inside_choice=False`. Edit 1 updates a call site to this same function by adding the `inside_choice=True` parameter. Both edits reference the exact same function symbol `_parse_format_selection` and the exact same parameter `inside_choice`. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next step to utilize the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (the call site can reference the new parameter even before it's defined in Python, causing only a runtime error, not a parse error)."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `_parse_format_selection` by adding new parameters including `inside_choice=False`. Edit 1 updates a call site to this same function by adding the `inside_choice=True` parameter. Both edits reference the exact same function symbol `_parse_format_selection` and the exact same parameter `inside_choice`. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next step to utilize the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (the call site can reference the new parameter even before it's defined in Python, causing only a runtime error, not a parse error)."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits modify the same function `_parse_format_selection` and reference the exact same symbols. Edit 0 changes the function signature by adding `inside_group` parameter and removing `endwith` parameter, while also referencing `tokens`. Edit 1 uses the newly added `inside_group` parameter and references the same `tokens` parameter in the changed lines. The `inside_group` parameter added in edit 0 is directly used in the conditional check in edit 1, and both edits reference the same `tokens` parameter. This creates an immediate code dependency where the signature change in edit 0 enables the usage in edit 1, making them bi-directional neighbours in the same micro-task of refactoring this function's parameter handling."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits modify the same function `_parse_format_selection` and reference the exact same symbols. Edit 0 changes the function signature by adding `inside_group` parameter and removing `endwith` parameter, while also referencing `tokens`. Edit 1 uses the newly added `inside_group` parameter and references the same `tokens` parameter in the changed lines. The `inside_group` parameter added in edit 0 is directly used in the conditional check in edit 1, and both edits reference the same `tokens` parameter. This creates an immediate code dependency where the signature change in edit 0 enables the usage in edit 1, making them bi-directional neighbours in the same micro-task of refactoring this function's parameter handling."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds the parameter 'inside_choice' to the function signature of '_parse_format_selection', and Edit 1 uses that exact same parameter 'inside_choice' in a conditional statement within the function body. The changed lines reference the exact same symbol - the 'inside_choice' parameter. After making Edit 0 (adding the parameter), Edit 1 becomes the immediate next step to actually use that parameter. Similarly, Edit 1 also references 'tokens' which is modified in Edit 0's signature. This is a classic definition-usage pattern where the parameter is defined in the signature and then referenced in the body."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds the parameter 'inside_choice' to the function signature of '_parse_format_selection', and Edit 1 uses that exact same parameter 'inside_choice' in a conditional statement within the function body. The changed lines reference the exact same symbol - the 'inside_choice' parameter. After making Edit 0 (adding the parameter), Edit 1 becomes the immediate next step to actually use that parameter. Similarly, Edit 1 also references 'tokens' which is modified in Edit 0's signature. This is a classic definition-usage pattern where the parameter is defined in the signature and then referenced in the body."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 changes the function signature of `_parse_format_selection` by adding new parameters including `inside_merge`. Edit 1 updates a call site of the same function `_parse_format_selection` to use the new `inside_merge` parameter. Both edits reference the exact same function symbol and the exact same parameter `inside_merge`. After making edit 0 (signature change), edit 1 becomes the immediate next step to update the call site to match the new signature. This is a classic definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `_parse_format_selection` by adding new parameters including `inside_merge`. Edit 1 updates a call site of the same function `_parse_format_selection` to use the new `inside_merge` parameter. Both edits reference the exact same function symbol and the exact same parameter `inside_merge`. After making edit 0 (signature change), edit 1 becomes the immediate next step to update the call site to match the new signature. This is a classic definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Edit 0 adds a new parameter 'inside_group' to the function signature of '_parse_format_selection'. Edit 1 updates a call site of the same function '_parse_format_selection' to use the new 'inside_group' parameter. Both edits reference the exact same function symbol and the exact same parameter symbol. After making edit 0 (adding the parameter), edit 1 becomes the immediate next step to update the call site to use the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (no parse error occurs), making it bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'inside_group' to the function signature of '_parse_format_selection'. Edit 1 updates a call site of the same function '_parse_format_selection' to use the new 'inside_group' parameter. Both edits reference the exact same function symbol and the exact same parameter symbol. After making edit 0 (adding the parameter), edit 1 becomes the immediate next step to update the call site to use the new parameter. This is a classic definition-usage relationship where both edits can be staged in either order (no parse error occurs), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "These edits are part of a coordinated refactoring of the same function's parameter handling. Edit 0 changes the logic to check for ')' directly and introduces an 'inside_group' variable check, while Edit 1 modifies the recursive call to _parse_format_selection to pass 'inside_group=True' instead of using the endwith parameter. Both edits reference the same function (_parse_format_selection) and are implementing a synchronized change from using an 'endwith' parameter approach to using an 'inside_group' parameter approach. The changes are mechanically linked - the new inside_group parameter being passed in Edit 1 corresponds to the inside_group variable being checked in Edit 0. This represents a single refactoring task where both changes work together to implement the new parameter-based approach."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "These edits are part of a coordinated refactoring of the same function's parameter handling. Edit 0 changes the logic to check for ')' directly and introduces an 'inside_group' variable check, while Edit 1 modifies the recursive call to _parse_format_selection to pass 'inside_group=True' instead of using the endwith parameter. Both edits reference the same function (_parse_format_selection) and are implementing a synchronized change from using an 'endwith' parameter approach to using an 'inside_group' parameter approach. The changes are mechanically linked - the new inside_group parameter being passed in Edit 1 corresponds to the inside_group variable being checked in Edit 0. This represents a single refactoring task where both changes work together to implement the new parameter-based approach."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits modify the same conditional logic structure within the same function, specifically handling different cases for the same string tokens (',' and other delimiters). Edit 0 changes the condition from 'string == ')'` to handle merge contexts with '/' and ',' tokens, while Edit 1 restructures the comma handling logic by adding a new elif branch for choice contexts before the existing comma handling. These edits are part of the same logical restructuring of the conditional flow for parsing format selection tokens, where both edits work together to properly handle different parsing contexts (merge vs choice) for the same set of delimiter tokens. The changes are complementary and would naturally be made together as part of a single micro-task to refactor the token parsing logic."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits modify the same conditional logic structure within the same function, specifically handling different cases for the same string tokens (',' and other delimiters). Edit 0 changes the condition from 'string == ')'` to handle merge contexts with '/' and ',' tokens, while Edit 1 restructures the comma handling logic by adding a new elif branch for choice contexts before the existing comma handling. These edits are part of the same logical restructuring of the conditional flow for parsing format selection tokens, where both edits work together to properly handle different parsing contexts (merge vs choice) for the same set of delimiter tokens. The changes are complementary and would naturally be made together as part of a single micro-task to refactor the token parsing logic."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "These edits are part of the same micro-task to implement merge format handling. Edit 0 adds logic to handle '/' and ',' tokens when inside_merge is True, while Edit 1 modifies the call to _parse_format_selection to pass inside_merge=True. The changed lines reference the exact same function _parse_format_selection and the same parameter inside_merge. Both edits work together to implement the inside_merge functionality - one adds the parameter usage in the function call, the other adds the logic that uses this parameter. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the merge format feature."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "These edits are part of the same micro-task to implement merge format handling. Edit 0 adds logic to handle '/' and ',' tokens when inside_merge is True, while Edit 1 modifies the call to _parse_format_selection to pass inside_merge=True. The changed lines reference the exact same function _parse_format_selection and the same parameter inside_merge. Both edits work together to implement the inside_merge functionality - one adds the parameter usage in the function call, the other adds the logic that uses this parameter. Either edit can be made first since both are syntactically valid independently, but making either edit creates an immediate prompt for the other to complete the merge format feature."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits modify the same function `_parse_format_selection` and work together to implement a choice parsing mechanism. Edit 0 adds logic to handle comma tokens differently when `inside_choice` is True, while Edit 1 passes the `inside_choice=True` parameter to the recursive call. The parameter added in Edit 1 is directly used by the conditional logic added in Edit 0. These edits reference the same `inside_choice` parameter and implement a coordinated change to the parsing logic within the same function."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits modify the same function `_parse_format_selection` and work together to implement a choice parsing mechanism. Edit 0 adds logic to handle comma tokens differently when `inside_choice` is True, while Edit 1 passes the `inside_choice=True` parameter to the recursive call. The parameter added in Edit 1 is directly used by the conditional logic added in Edit 0. These edits reference the same `inside_choice` parameter and implement a coordinated change to the parsing logic within the same function."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new parameter 'inside_merge' to the function signature of '_parse_format_selection', and Edit 1 uses that exact same parameter 'inside_merge' in a conditional expression within the function body. The changed lines reference the exact same symbol - the 'inside_merge' parameter. After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows parameter usage before the parameter is defined at parse time (would only cause runtime errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'inside_merge' to the function signature of '_parse_format_selection', and Edit 1 uses that exact same parameter 'inside_merge' in a conditional expression within the function body. The changed lines reference the exact same symbol - the 'inside_merge' parameter. After adding the parameter in Edit 0, using it in the function body (Edit 1) becomes the immediate, mechanically obvious next step. Both edits can be staged in either order since Python allows parameter usage before the parameter is defined at parse time (would only cause runtime errors), making this a bi-directional relationship."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits modify calls to the same function `_parse_format_selection` within the same method, changing from using a list parameter `endwith` to using keyword parameters `inside_group` and `inside_merge`. This represents a synchronized refactoring where the function signature is being changed and all call sites need to be updated accordingly. The edits reference the exact same function symbol and are part of a uniform substitution pattern - replacing the second positional parameter with a keyword parameter. Both edits can be staged in either order since they are independent call-site updates, and making either edit would prompt updating the remaining call sites as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits modify calls to the same function `_parse_format_selection` within the same method, changing from using a list parameter `endwith` to using keyword parameters `inside_group` and `inside_merge`. This represents a synchronized refactoring where the function signature is being changed and all call sites need to be updated accordingly. The edits reference the exact same function symbol and are part of a uniform substitution pattern - replacing the second positional parameter with a keyword parameter. Both edits can be staged in either order since they are independent call-site updates, and making either edit would prompt updating the remaining call sites as the next mechanical step."
+        }
+    ],
+    "allowed_init_edits": [
+        0
+    ]
+}

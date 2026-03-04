@@ -1,0 +1,58 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 0 imports SortedDict from django.utils.datastructures, and Edit 1 uses SortedDict in the changed line. This creates a direct import-usage relationship where the exact same symbol (SortedDict) is being imported in one edit and used in another. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 0 imports SortedDict from django.utils.datastructures, and Edit 1 uses SortedDict in the changed line. This creates a direct import-usage relationship where the exact same symbol (SortedDict) is being imported in one edit and used in another. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so both edits can be staged in either order without parser errors. After making either edit, the other becomes the immediate next step to complete the functionality."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports SortedDict from django.utils.datastructures, and Edit 1 uses SortedDict in the changed line to replace dict. This is a classic import-usage pattern where the import creates the symbol that is immediately used in the other edit. Both edits reference the exact same symbol 'SortedDict' - one defines it via import, the other uses it. After making the import, using SortedDict becomes the next mechanical step, and after using SortedDict, the import becomes necessary. Since Python allows usage before import at parse time (only failing at runtime), either edit can be staged first."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports SortedDict from django.utils.datastructures, and Edit 1 uses SortedDict in the changed line to replace dict. This is a classic import-usage pattern where the import creates the symbol that is immediately used in the other edit. Both edits reference the exact same symbol 'SortedDict' - one defines it via import, the other uses it. After making the import, using SortedDict becomes the next mechanical step, and after using SortedDict, the import becomes necessary. Since Python allows usage before import at parse time (only failing at runtime), either edit can be staged first."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits perform identical textual substitutions on the same error message string: changing 'as it is the same the field name' to 'because it is the same as the field name'. Edit 0 modifies the source code that generates this error message in rest_framework/fields.py, while Edit 1 updates the corresponding test assertion in tests/test_fields.py that expects this exact error message. This is a synchronized bulk substitution where both changed lines reference the exact same string content, and both edits are part of a single refactoring task to fix the grammar in this error message across production code and its test."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits perform identical textual substitutions on the same error message string: changing 'as it is the same the field name' to 'because it is the same as the field name'. Edit 0 modifies the source code that generates this error message in rest_framework/fields.py, while Edit 1 updates the corresponding test assertion in tests/test_fields.py that expects this exact error message. This is a synchronized bulk substitution where both changed lines reference the exact same string content, and both edits are part of a single refactoring task to fix the grammar in this error message across production code and its test."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution pattern (dict \u2192 SortedDict) on the same type of syntactic construct (assignment to self.choices) within the same method (__init__ of ChoiceField class). This is a clear bulk-edit pattern where both changes are part of a single, contiguous refactor to replace dict with SortedDict for the choices attribute. The edits are mechanically identical in their substitution pattern and target the same structural element, making either edit naturally prompt the other as part of the same refactoring task."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution pattern (dict \u2192 SortedDict) on the same type of syntactic construct (assignment to self.choices) within the same method (__init__ of ChoiceField class). This is a clear bulk-edit pattern where both changes are part of a single, contiguous refactor to replace dict with SortedDict for the choices attribute. The edits are mechanically identical in their substitution pattern and target the same structural element, making either edit naturally prompt the other as part of the same refactoring task."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "These edits are swapping the positions of two dictionary entries in what appears to be a test data structure. Edit 0 changes line 86 from 'blue' to 'red', and edit 1 changes line 88 from 'red' to 'blue'. This is a coordinated swap operation where both edits reference the exact same literal values ('blue' and 'red') and perform mirrored substitutions as part of a single atomic operation. The edits are structurally identical (same before\u2192after pattern on the same type of construct - dictionary entries in a choices list) and form a synchronized pair that would naturally be performed together in one contiguous micro-task. Either edit can be staged first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "These edits are swapping the positions of two dictionary entries in what appears to be a test data structure. Edit 0 changes line 86 from 'blue' to 'red', and edit 1 changes line 88 from 'red' to 'blue'. This is a coordinated swap operation where both edits reference the exact same literal values ('blue' and 'red') and perform mirrored substitutions as part of a single atomic operation. The edits are structurally identical (same before\u2192after pattern on the same type of construct - dictionary entries in a choices list) and form a synchronized pair that would naturally be performed together in one contiguous micro-task. Either edit can be staged first without causing parse errors, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        3
+    ]
+}

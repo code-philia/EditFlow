@@ -1,0 +1,47 @@
+{
+    "partial_orders": [
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 introduces a new variable 'results' that is initialized as an empty list and populated with rows from the cursor. Edit 1 returns this same 'results' variable. The changed lines reference the exact same symbol 'results' - edit 0 defines and populates it, while edit 1 returns it. This creates an immediate, mechanically obvious code dependency where defining the variable naturally prompts returning it as the next step in the same function. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 introduces a new variable 'results' that is initialized as an empty list and populated with rows from the cursor. Edit 1 returns this same 'results' variable. The changed lines reference the exact same symbol 'results' - edit 0 defines and populates it, while edit 1 returns it. This creates an immediate, mechanically obvious code dependency where defining the variable naturally prompts returning it as the next step in the same function. Both edits can be staged in either order without parser errors, making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 changes the return type annotation of the `run` method from `None` to `Optional[list]`, while Edit 1 adds a `return results` statement within the same method. These edits reference the exact same method and form a direct code dependency - changing the return type annotation creates an immediate, mechanically obvious prompt to add an actual return statement to match the new signature. The changed lines work together to implement a complete signature change where the return type annotation and return statement must be synchronized."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 changes the return type annotation of the `run` method from `None` to `Optional[list]`, while Edit 1 adds a `return results` statement within the same method. These edits reference the exact same method and form a direct code dependency - changing the return type annotation creates an immediate, mechanically obvious prompt to add an actual return statement to match the new signature. The changed lines work together to implement a complete signature change where the return type annotation and return statement must be synchronized."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 0 adds validation logic that raises a ValueError with the message 'List of SQL statements is empty' when an empty SQL list is passed to the run method. Edit 1 adds a test that specifically verifies this exact error behavior by calling the same run method with an empty list and asserting the exact same error message. The test directly validates the implementation added in edit 0, creating a bi-directional relationship where either edit naturally prompts the other as the next step in implementing and verifying this validation feature."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 0 adds validation logic that raises a ValueError with the message 'List of SQL statements is empty' when an empty SQL list is passed to the run method. Edit 1 adds a test that specifically verifies this exact error behavior by calling the same run method with an empty list and asserting the exact same error message. The test directly validates the implementation added in edit 0, creating a bi-directional relationship where either edit naturally prompts the other as the next step in implementing and verifying this validation feature."
+        },
+        {
+            "src": 0,
+            "tgt": 2,
+            "reason": "These edits are bi-directional neighbours because they both modify the same method (`run`) to implement a coordinated change. Edit 0 changes the return type from `None` to `Optional[list]`, while Edit 1 adds the implementation logic to actually collect and return results as a list. The changed lines reference the exact same method symbol and represent two parts of a single coherent modification - changing the signature and adding the corresponding implementation. Either edit could be made first since both are syntactically valid independently, but making either edit creates an immediate, mechanically obvious prompt for the other to complete the coordinated change."
+        },
+        {
+            "src": 2,
+            "tgt": 0,
+            "reason": "These edits are bi-directional neighbours because they both modify the same method (`run`) to implement a coordinated change. Edit 0 changes the return type from `None` to `Optional[list]`, while Edit 1 adds the implementation logic to actually collect and return results as a list. The changed lines reference the exact same method symbol and represent two parts of a single coherent modification - changing the signature and adding the corresponding implementation. Either edit could be made first since both are syntactically valid independently, but making either edit creates an immediate, mechanically obvious prompt for the other to complete the coordinated change."
+        }
+    ],
+    "allowed_init_edits": [
+        3
+    ]
+}

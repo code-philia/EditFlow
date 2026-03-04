@@ -1,0 +1,986 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/ray-project/ray/commit/17766bc8b0da4e2d509b06a98321bb5f86a1d6e2",
+    "commit_message": "[AIR] Update `KerasCallback` to work with `TensorflowPredictor` (#26089)\n\nThe KerasCallback saves the model checkpoint as a file. However, for the saved checkpoint to work with TensorflowPredictor, the model weights needs to be saved under the MODEL_KEY in a dict format.",
+    "commit_snapshots": {
+        "python/ray/air/callbacks/keras.py": [
+            [
+                "from collections import Counter\n",
+                "from typing import Dict, List, Optional, Union\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from ray.air.constants import MODEL_KEY\n"
+                ],
+                "parent_version_range": {
+                    "start": 3,
+                    "end": 3
+                },
+                "child_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: python/ray/air/callbacks/keras.py\nCode:\n  ...\n0 0    from collections import Counter\n1 1    from typing import Dict, List, Optional, Union\n2 2    \n  3  + from ray.air.constants import MODEL_KEY\n3 4    from tensorflow.keras.callbacks import Callback as KerasCallback\n4 5    \n5 6    from ray.air import session\n     ...\n",
+                "file_path": "python/ray/air/callbacks/keras.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "MODEL_KEY",
+                    "air",
+                    "constants",
+                    "ray"
+                ],
+                "prefix": [
+                    "from collections import Counter\n",
+                    "from typing import Dict, List, Optional, Union\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from tensorflow.keras.callbacks import Callback as KerasCallback\n",
+                    "\n",
+                    "from ray.air import session\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "MODEL_KEY",
+                            "position": {
+                                "start": {
+                                    "line": 3,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 3,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/callbacks/keras.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    3
+                ]
+            },
+            [
+                "from tensorflow.keras.callbacks import Callback as KerasCallback\n",
+                "\n",
+                "from ray.air import session\n",
+                "from ray.air.checkpoint import Checkpoint\n",
+                "from ray.util.annotations import PublicAPI\n",
+                "\n",
+                "\n",
+                "class _Callback(KerasCallback):\n",
+                "    \"\"\"Base class for Air's Keras callbacks.\"\"\"\n",
+                "\n",
+                "    _allowed = [\n",
+                "        \"batch_begin\",\n",
+                "        \"batch_end\",\n",
+                "        \"epoch_begin\",\n",
+                "        \"epoch_end\",\n",
+                "        \"train_batch_begin\",\n",
+                "        \"train_batch_end\",\n",
+                "        \"test_batch_begin\",\n",
+                "        \"test_batch_end\",\n",
+                "        \"predict_batch_begin\",\n",
+                "        \"predict_batch_end\",\n",
+                "        \"train_begin\",\n",
+                "        \"train_end\",\n",
+                "        \"test_begin\",\n",
+                "        \"test_end\",\n",
+                "        \"predict_begin\",\n",
+                "        \"predict_end\",\n",
+                "    ]\n",
+                "\n",
+                "    def __init__(self, on: Union[str, List[str]] = \"validation_end\"):\n",
+                "        super(_Callback, self).__init__()\n",
+                "\n",
+                "        if not isinstance(on, list):\n",
+                "            on = [on]\n",
+                "        if any(w not in self._allowed for w in on):\n",
+                "            raise ValueError(\n",
+                "                \"Invalid trigger time selected: {}. Must be one of {}\".format(\n",
+                "                    on, self._allowed\n",
+                "                )\n",
+                "            )\n",
+                "        self._on = on\n",
+                "\n",
+                "    def _handle(self, logs: Dict, when: str):\n",
+                "        raise NotImplementedError\n",
+                "\n",
+                "    def on_batch_begin(self, batch, logs=None):\n",
+                "        if \"batch_begin\" in self._on:\n",
+                "            self._handle(logs, \"batch_begin\")\n",
+                "\n",
+                "    def on_batch_end(self, batch, logs=None):\n",
+                "        if \"batch_end\" in self._on:\n",
+                "            self._handle(logs, \"batch_end\")\n",
+                "\n",
+                "    def on_epoch_begin(self, epoch, logs=None):\n",
+                "        if \"epoch_begin\" in self._on:\n",
+                "            self._handle(logs, \"epoch_begin\")\n",
+                "\n",
+                "    def on_epoch_end(self, epoch, logs=None):\n",
+                "        if \"epoch_end\" in self._on:\n",
+                "            self._handle(logs, \"epoch_end\")\n",
+                "\n",
+                "    def on_train_batch_begin(self, batch, logs=None):\n",
+                "        if \"train_batch_begin\" in self._on:\n",
+                "            self._handle(logs, \"train_batch_begin\")\n",
+                "\n",
+                "    def on_train_batch_end(self, batch, logs=None):\n",
+                "        if \"train_batch_end\" in self._on:\n",
+                "            self._handle(logs, \"train_batch_end\")\n",
+                "\n",
+                "    def on_test_batch_begin(self, batch, logs=None):\n",
+                "        if \"test_batch_begin\" in self._on:\n",
+                "            self._handle(logs, \"test_batch_begin\")\n",
+                "\n",
+                "    def on_test_batch_end(self, batch, logs=None):\n",
+                "        if \"test_batch_end\" in self._on:\n",
+                "            self._handle(logs, \"test_batch_end\")\n",
+                "\n",
+                "    def on_predict_batch_begin(self, batch, logs=None):\n",
+                "        if \"predict_batch_begin\" in self._on:\n",
+                "            self._handle(logs, \"predict_batch_begin\")\n",
+                "\n",
+                "    def on_predict_batch_end(self, batch, logs=None):\n",
+                "        if \"predict_batch_end\" in self._on:\n",
+                "            self._handle(logs, \"predict_batch_end\")\n",
+                "\n",
+                "    def on_train_begin(self, logs=None):\n",
+                "        if \"train_begin\" in self._on:\n",
+                "            self._handle(logs, \"train_begin\")\n",
+                "\n",
+                "    def on_train_end(self, logs=None):\n",
+                "        if \"train_end\" in self._on:\n",
+                "            self._handle(logs, \"train_end\")\n",
+                "\n",
+                "    def on_test_begin(self, logs=None):\n",
+                "        if \"test_begin\" in self._on:\n",
+                "            self._handle(logs, \"test_begin\")\n",
+                "\n",
+                "    def on_test_end(self, logs=None):\n",
+                "        if \"test_end\" in self._on:\n",
+                "            self._handle(logs, \"test_end\")\n",
+                "\n",
+                "    def on_predict_begin(self, logs=None):\n",
+                "        if \"predict_begin\" in self._on:\n",
+                "            self._handle(logs, \"predict_begin\")\n",
+                "\n",
+                "    def on_predict_end(self, logs=None):\n",
+                "        if \"predict_end\" in self._on:\n",
+                "            self._handle(logs, \"predict_end\")\n",
+                "\n",
+                "\n",
+                "@PublicAPI(stability=\"beta\")\n",
+                "class Callback(_Callback):\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        metrics: Optional[Union[str, List[str], Dict[str, str]]] = None,\n",
+                "        on: Union[str, List[str]] = \"epoch_end\",\n",
+                "        frequency: Union[int, List[int]] = 1,\n",
+                "    ):\n",
+                "        \"\"\"\n",
+                "        Args:\n",
+                "            metrics: Metrics to report. If this is a list, each item describes\n",
+                "            the metric key reported to Keras, and it will reported under the\n",
+                "            same name. If this is a dict, each key will be the name reported\n",
+                "            and the respective value will be the metric key reported to Keras.\n",
+                "            If this is None, all Keras logs will be reported.\n",
+                "        on: When to report metrics. Must be one of\n",
+                "            the Keras event hooks (less the ``on_``), e.g.\n",
+                "            \"train_start\", or \"predict_end\". Defaults to \"epoch_end\".\n",
+                "        frequency: Checkpoint frequency. If this is an integer `n`,\n",
+                "            checkpoints are saved every `n` times each hook was called. If\n",
+                "            this is a list, it specifies the checkpoint frequencies for each\n",
+                "            hook individually.\n",
+                "\n",
+                "        You can use this in both TuneSession and TrainSession.\n",
+                "\n",
+                "        Example:\n",
+                "            .. code-block: python\n",
+                "\n",
+                "            ############# Using it in TrainSession ###############\n",
+                "            from ray.air.callbacks.keras import Callback\n",
+                "            def train_loop_per_worker():\n",
+                "                strategy = tf.distribute.MultiWorkerMirroredStrategy()\n",
+                "                with strategy.scope():\n",
+                "                    model = build_model()\n",
+                "                    #model.compile(...)\n",
+                "                model.fit(dataset_shard, callbacks=[Callback()])\n",
+                "        \"\"\"\n",
+                "        if isinstance(frequency, list):\n",
+                "            if not isinstance(on, list) or len(frequency) != len(on):\n",
+                "                raise ValueError(\n",
+                "                    \"If you pass a list for checkpoint frequencies, the `on` \"\n",
+                "                    \"parameter has to be a list with the same length.\"\n",
+                "                )\n",
+                "\n",
+                "        self._frequency = frequency\n",
+                "        super(Callback, self).__init__(on)\n",
+                "        self._metrics = metrics\n",
+                "        self._counter = Counter()\n",
+                "\n",
+                "    def _handle(self, logs: Dict, when: str = None):\n",
+                "        self._counter[when] += 1\n",
+                "\n",
+                "        if isinstance(self._frequency, list):\n",
+                "            index = self._on.index(when)\n",
+                "            freq = self._frequency[index]\n",
+                "        else:\n",
+                "            freq = self._frequency\n",
+                "\n",
+                "        checkpoint = None\n",
+                "        if freq > 0 and self._counter[when] % freq == 0:\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            self.model.save(\"my_model\", overwrite=True)\n",
+                    "            checkpoint = Checkpoint.from_directory(\"my_model\")\n"
+                ],
+                "after": [
+                    "            checkpoint = Checkpoint.from_dict({MODEL_KEY: self.model.get_weights()})\n"
+                ],
+                "parent_version_range": {
+                    "start": 173,
+                    "end": 175
+                },
+                "child_version_range": {
+                    "start": 174,
+                    "end": 175
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if freq > 0 and self._counter[when] % freq == 0:",
+                        "start_line": 172,
+                        "end_line": 174
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "Callback",
+                        "signature": "class Callback(_Callback):",
+                        "at_line": 114
+                    },
+                    {
+                        "type": "function",
+                        "name": "_handle",
+                        "signature": "def _handle(self, logs: Dict, when: str = None):",
+                        "at_line": 162
+                    },
+                    {
+                        "type": "call",
+                        "name": "self.model.save",
+                        "signature": "self.model.save(\"my_model\", overwrite=True)",
+                        "at_line": 173,
+                        "argument": "\"my_model\""
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: python/ray/air/callbacks/keras.py\nCode:\n           class Callback(_Callback):\n               ...\n               def _handle(self, logs: Dict, when: str = None):\n                   ...\n170 171    \n171 172            checkpoint = None\n172 173            if freq > 0 and self._counter[when] % freq == 0:\n173      -             self.model.save(\"my_model\", overwrite=True)\n174      -             checkpoint = Checkpoint.from_directory(\"my_model\")\n    174  +             checkpoint = Checkpoint.from_dict({MODEL_KEY: self.model.get_weights()})\n175 175    \n176 176            if not self._metrics:\n177 177                report_dict = logs\n         ...\n",
+                "file_path": "python/ray/air/callbacks/keras.py",
+                "identifiers_before": [
+                    "Checkpoint",
+                    "checkpoint",
+                    "from_directory",
+                    "model",
+                    "overwrite",
+                    "save",
+                    "self"
+                ],
+                "identifiers_after": [
+                    "Checkpoint",
+                    "MODEL_KEY",
+                    "checkpoint",
+                    "from_dict",
+                    "get_weights",
+                    "model",
+                    "self"
+                ],
+                "prefix": [
+                    "\n",
+                    "        checkpoint = None\n",
+                    "        if freq > 0 and self._counter[when] % freq == 0:\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "        if not self._metrics:\n",
+                    "            report_dict = logs\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "MODEL_KEY",
+                            "position": {
+                                "start": {
+                                    "line": 174,
+                                    "column": 47
+                                },
+                                "end": {
+                                    "line": 174,
+                                    "column": 56
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/callbacks/keras.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "        if not self._metrics:\n",
+                "            report_dict = logs\n",
+                "        else:\n",
+                "            report_dict = {}\n",
+                "            for key in self._metrics:\n",
+                "                if isinstance(self._metrics, dict):\n",
+                "                    metric = self._metrics[key]\n",
+                "                else:\n",
+                "                    metric = key\n",
+                "                report_dict[key] = logs[metric]\n",
+                "\n",
+                "        session.report(report_dict, checkpoint=checkpoint)"
+            ]
+        ],
+        "python/ray/air/tests/test_keras_callback.py": [
+            {
+                "type": "replace",
+                "before": [
+                    "import os\n",
+                    "\n"
+                ],
+                "after": [
+                    "import numpy as np\n"
+                ],
+                "parent_version_range": {
+                    "start": 0,
+                    "end": 2
+                },
+                "child_version_range": {
+                    "start": 0,
+                    "end": 1
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: python/ray/air/tests/test_keras_callback.py\nCode:\n  ...\n0    - import os\n1    - \n  0  + import numpy as np\n2 1    import tensorflow as tf\n3 2    \n4 3    from ray.air import session\n     ...\n",
+                "file_path": "python/ray/air/tests/test_keras_callback.py",
+                "identifiers_before": [
+                    "os"
+                ],
+                "identifiers_after": [
+                    "np",
+                    "numpy"
+                ],
+                "prefix": [],
+                "suffix": [
+                    "import tensorflow as tf\n",
+                    "\n",
+                    "from ray.air import session\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 0,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 0,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 0,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 0,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "np",
+                            "position": {
+                                "start": {
+                                    "line": 0,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 0,
+                                    "column": 18
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "import tensorflow as tf\n",
+                "\n",
+                "from ray.air import session\n",
+                "from ray.air.callbacks.keras import Callback\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from ray.air.constants import MODEL_KEY\n"
+                ],
+                "parent_version_range": {
+                    "start": 6,
+                    "end": 6
+                },
+                "child_version_range": {
+                    "start": 5,
+                    "end": 6
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 3,
+                "hunk_diff": "File: python/ray/air/tests/test_keras_callback.py\nCode:\n  ...\n3 2    \n4 3    from ray.air import session\n5 4    from ray.air.callbacks.keras import Callback\n  5  + from ray.air.constants import MODEL_KEY\n6 6    from ray.air.examples.tf.tensorflow_linear_dataset_example import (\n7 7        build_model,\n8 8        get_dataset,\n     ...\n",
+                "file_path": "python/ray/air/tests/test_keras_callback.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "MODEL_KEY",
+                    "air",
+                    "constants",
+                    "ray"
+                ],
+                "prefix": [
+                    "\n",
+                    "from ray.air import session\n",
+                    "from ray.air.callbacks.keras import Callback\n"
+                ],
+                "suffix": [
+                    "from ray.air.examples.tf.tensorflow_linear_dataset_example import (\n",
+                    "    build_model,\n",
+                    "    get_dataset,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "MODEL_KEY",
+                            "position": {
+                                "start": {
+                                    "line": 5,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 5,
+                                    "column": 39
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "from ray.air.examples.tf.tensorflow_linear_dataset_example import (\n",
+                "    build_model,\n",
+                "    get_dataset,\n",
+                ")\n",
+                "from ray.train.constants import TRAIN_DATASET_KEY\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "from ray.train.tensorflow import TensorflowTrainer, prepare_dataset_shard\n"
+                ],
+                "after": [
+                    "from ray.train.tensorflow import (\n",
+                    "    TensorflowTrainer,\n",
+                    "    prepare_dataset_shard,\n",
+                    "    TensorflowPredictor,\n",
+                    ")\n"
+                ],
+                "parent_version_range": {
+                    "start": 11,
+                    "end": 12
+                },
+                "child_version_range": {
+                    "start": 11,
+                    "end": 16
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: python/ray/air/tests/test_keras_callback.py\nCode:\n  ...\n 8  8        get_dataset,\n 9  9    )\n10 10    from ray.train.constants import TRAIN_DATASET_KEY\n11     - from ray.train.tensorflow import TensorflowTrainer, prepare_dataset_shard\n   11  + from ray.train.tensorflow import (\n   12  +     TensorflowTrainer,\n   13  +     prepare_dataset_shard,\n   14  +     TensorflowPredictor,\n   15  + )\n12 16    \n13 17    \n14 18    def train_func(config: dict):\n       ...\n",
+                "file_path": "python/ray/air/tests/test_keras_callback.py",
+                "identifiers_before": [
+                    "TensorflowTrainer",
+                    "prepare_dataset_shard",
+                    "ray",
+                    "tensorflow",
+                    "train"
+                ],
+                "identifiers_after": [
+                    "TensorflowPredictor",
+                    "TensorflowTrainer",
+                    "prepare_dataset_shard",
+                    "ray",
+                    "tensorflow",
+                    "train"
+                ],
+                "prefix": [
+                    "    get_dataset,\n",
+                    ")\n",
+                    "from ray.train.constants import TRAIN_DATASET_KEY\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "def train_func(config: dict):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "TensorflowPredictor",
+                            "position": {
+                                "start": {
+                                    "line": 14,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 14,
+                                    "column": 23
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "def train_func(config: dict):\n",
+                "    strategy = tf.distribute.MultiWorkerMirroredStrategy()\n",
+                "    with strategy.scope():\n",
+                "        # Model building/compiling need to be within `strategy.scope()`.\n",
+                "        multi_worker_model = build_model()\n",
+                "        multi_worker_model.compile(\n",
+                "            optimizer=tf.keras.optimizers.SGD(learning_rate=config.get(\"lr\", 1e-3)),\n",
+                "            loss=tf.keras.losses.mean_squared_error,\n",
+                "            metrics=[tf.keras.metrics.mean_squared_error],\n",
+                "        )\n",
+                "\n",
+                "    dataset = session.get_dataset_shard(\"train\")\n",
+                "\n",
+                "    for _ in range(config.get(\"epoch\", 3)):\n",
+                "        tf_dataset = prepare_dataset_shard(\n",
+                "            dataset.to_tf(\n",
+                "                label_column=\"y\",\n",
+                "                output_signature=(\n",
+                "                    tf.TensorSpec(shape=(None, 1), dtype=tf.float32),\n",
+                "                    tf.TensorSpec(shape=(None), dtype=tf.float32),\n",
+                "                ),\n",
+                "                batch_size=32,\n",
+                "            )\n",
+                "        )\n",
+                "        multi_worker_model.fit(tf_dataset, callbacks=[Callback()])\n",
+                "\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "def test_keras_callback():\n"
+                ],
+                "after": [
+                    "def test_keras_callback_e2e():\n"
+                ],
+                "parent_version_range": {
+                    "start": 41,
+                    "end": 42
+                },
+                "child_version_range": {
+                    "start": 45,
+                    "end": 46
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_keras_callback",
+                        "signature": "def test_keras_callback():",
+                        "at_line": 41
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: python/ray/air/tests/test_keras_callback.py\nCode:\n38 42            multi_worker_model.fit(tf_dataset, callbacks=[Callback()])\n39 43    \n40 44    \n41     - def test_keras_callback():\n   45  + def test_keras_callback_e2e():\n42 46        epochs = 3\n43 47        scaling_config = {\"num_workers\": 2}\n44 48        config = {\n       ...\n",
+                "file_path": "python/ray/air/tests/test_keras_callback.py",
+                "identifiers_before": [
+                    "test_keras_callback"
+                ],
+                "identifiers_after": [
+                    "test_keras_callback_e2e"
+                ],
+                "prefix": [
+                    "        multi_worker_model.fit(tf_dataset, callbacks=[Callback()])\n",
+                    "\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    epochs = 3\n",
+                    "    scaling_config = {\"num_workers\": 2}\n",
+                    "    config = {\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    epochs = 3\n",
+                "    scaling_config = {\"num_workers\": 2}\n",
+                "    config = {\n",
+                "        \"epochs\": epochs,\n",
+                "    }\n",
+                "    trainer = TensorflowTrainer(\n",
+                "        train_loop_per_worker=train_func,\n",
+                "        train_loop_config=config,\n",
+                "        scaling_config=scaling_config,\n",
+                "        datasets={TRAIN_DATASET_KEY: get_dataset()},\n",
+                "    )\n",
+                "    checkpoint = trainer.fit().checkpoint\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    with checkpoint.as_directory() as ckpt_dir:\n",
+                    "        assert os.path.exists(os.path.join(ckpt_dir, \"saved_model.pb\"))\n"
+                ],
+                "after": [
+                    "    checkpoint_dict = checkpoint.to_dict()\n",
+                    "    assert MODEL_KEY in checkpoint_dict\n",
+                    "\n",
+                    "    predictor = TensorflowPredictor.from_checkpoint(\n",
+                    "        checkpoint, model_definition=build_model\n",
+                    "    )\n",
+                    "\n",
+                    "    items = np.random.uniform(0, 1, size=(10, 1))\n",
+                    "    predictor.predict(data=items)\n"
+                ],
+                "parent_version_range": {
+                    "start": 54,
+                    "end": 56
+                },
+                "child_version_range": {
+                    "start": 58,
+                    "end": 67
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with checkpoint.as_directory() as ckpt_dir:",
+                        "start_line": 54,
+                        "end_line": 55
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "test_keras_callback",
+                        "signature": "def test_keras_callback():",
+                        "at_line": 41
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: python/ray/air/tests/test_keras_callback.py\nCode:\n         def test_keras_callback():\n             ...\n51 55            datasets={TRAIN_DATASET_KEY: get_dataset()},\n52 56        )\n53 57        checkpoint = trainer.fit().checkpoint\n54     -     with checkpoint.as_directory() as ckpt_dir:\n55     -         assert os.path.exists(os.path.join(ckpt_dir, \"saved_model.pb\"))\n   58  +     checkpoint_dict = checkpoint.to_dict()\n   59  +     assert MODEL_KEY in checkpoint_dict\n   60  + \n   61  +     predictor = TensorflowPredictor.from_checkpoint(\n   62  +         checkpoint, model_definition=build_model\n   63  +     )\n   64  + \n   65  +     items = np.random.uniform(0, 1, size=(10, 1))\n   66  +     predictor.predict(data=items)\n56 67    \n57 68    \n58 69    if __name__ == \"__main__\":\n       ...\n",
+                "file_path": "python/ray/air/tests/test_keras_callback.py",
+                "identifiers_before": [
+                    "as_directory",
+                    "checkpoint",
+                    "ckpt_dir",
+                    "exists",
+                    "join",
+                    "os",
+                    "path"
+                ],
+                "identifiers_after": [
+                    "MODEL_KEY",
+                    "TensorflowPredictor",
+                    "build_model",
+                    "checkpoint",
+                    "checkpoint_dict",
+                    "data",
+                    "from_checkpoint",
+                    "items",
+                    "model_definition",
+                    "np",
+                    "predict",
+                    "predictor",
+                    "random",
+                    "size",
+                    "to_dict",
+                    "uniform"
+                ],
+                "prefix": [
+                    "        datasets={TRAIN_DATASET_KEY: get_dataset()},\n",
+                    "    )\n",
+                    "    checkpoint = trainer.fit().checkpoint\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "\n",
+                    "if __name__ == \"__main__\":\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 17
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "os",
+                            "position": {
+                                "start": {
+                                    "line": 55,
+                                    "column": 30
+                                },
+                                "end": {
+                                    "line": 55,
+                                    "column": 32
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "MODEL_KEY",
+                            "position": {
+                                "start": {
+                                    "line": 59,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 59,
+                                    "column": 20
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "np",
+                            "position": {
+                                "start": {
+                                    "line": 65,
+                                    "column": 12
+                                },
+                                "end": {
+                                    "line": 65,
+                                    "column": 14
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "TensorflowPredictor",
+                            "position": {
+                                "start": {
+                                    "line": 61,
+                                    "column": 16
+                                },
+                                "end": {
+                                    "line": 61,
+                                    "column": 35
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ray/python/ray/air/tests/test_keras_callback.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "\n",
+                "if __name__ == \"__main__\":\n",
+                "    import sys\n",
+                "\n",
+                "    import pytest\n",
+                "\n",
+                "    sys.exit(pytest.main([\"-v\", \"-x\", __file__]))"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                1
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement and test"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import use"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import use"
+        }
+    ]
+}

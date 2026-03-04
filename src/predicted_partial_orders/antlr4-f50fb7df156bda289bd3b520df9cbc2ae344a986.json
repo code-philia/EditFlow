@@ -1,0 +1,39 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 adds an import statement 'from antlr4.IntervalSet import Interval' and Edit 1 uses the imported 'Interval' class to replace a tuple with 'Interval(0, len(self.tokens)-1)'. The changed lines reference the exact same symbol 'Interval' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where using Interval in Edit 1 requires the import from Edit 0. In Python, using an undefined symbol like Interval would cause a NameError at runtime, but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds an import statement 'from antlr4.IntervalSet import Interval' and Edit 1 uses the imported 'Interval' class to replace a tuple with 'Interval(0, len(self.tokens)-1)'. The changed lines reference the exact same symbol 'Interval' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where using Interval in Edit 1 requires the import from Edit 0. In Python, using an undefined symbol like Interval would cause a NameError at runtime, but both edits can be parsed and staged in either order since Python allows referencing undefined names at parse time. This is a classic import-usage relationship within the same file."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 removes a comment '# Get all tokens from lexer until EOF#/' from above the fill() method definition. Edit 1 adds a proper docstring to the same fill() method with the content 'Get all tokens from lexer until EOF'. Both edits are modifying documentation for the exact same method (fill), with edit 1 essentially replacing the removed comment with a proper Python docstring format. This represents a direct transformation of the same documentation content for the same symbol, making them part of a single refactoring task where the comment removal and docstring addition are mechanically linked steps."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 removes a comment '# Get all tokens from lexer until EOF#/' from above the fill() method definition. Edit 1 adds a proper docstring to the same fill() method with the content 'Get all tokens from lexer until EOF'. Both edits are modifying documentation for the exact same method (fill), with edit 1 essentially replacing the removed comment with a proper Python docstring format. This represents a direct transformation of the same documentation content for the same symbol, making them part of a single refactoring task where the comment removal and docstring addition are mechanically linked steps."
+        },
+        {
+            "src": 7,
+            "tgt": 8,
+            "reason": "Edit 0 removes a comment line above the function definition, while Edit 1 adds a docstring inside the same function. Both edits relate to the same function `testPreservesOrderOfContiguousInserts` and involve moving the same explanatory text (about the GitHub issue fix) from a comment format to a docstring format. This appears to be a refactoring where the comment is being converted to proper documentation. The edits reference the same function and the same explanatory content, representing a coordinated transformation of documentation format. Either edit could be applied first - removing the comment or adding the docstring - and both would be part of the same documentation improvement task."
+        },
+        {
+            "src": 8,
+            "tgt": 7,
+            "reason": "Edit 0 removes a comment line above the function definition, while Edit 1 adds a docstring inside the same function. Both edits relate to the same function `testPreservesOrderOfContiguousInserts` and involve moving the same explanatory text (about the GitHub issue fix) from a comment format to a docstring format. This appears to be a refactoring where the comment is being converted to proper documentation. The edits reference the same function and the same explanatory content, representing a coordinated transformation of documentation format. Either edit could be applied first - removing the comment or adding the docstring - and both would be part of the same documentation improvement task."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        2,
+        3
+    ]
+}

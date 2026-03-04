@@ -1,0 +1,79 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports OrderedSet from .tools, and Edit 1 uses OrderedSet() in the same file. This creates a direct import-usage relationship where the changed lines reference the exact same symbol 'OrderedSet'. After importing OrderedSet in edit 0, using it in edit 1 becomes the natural next step. In Python, using an undefined symbol is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports OrderedSet from .tools, and Edit 1 uses OrderedSet() in the same file. This creates a direct import-usage relationship where the changed lines reference the exact same symbol 'OrderedSet'. After importing OrderedSet in edit 0, using it in edit 1 becomes the natural next step. In Python, using an undefined symbol is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order without parser errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a new field '_inherit_children': OrderedSet() to a class definition, while Edit 1 adds OrderedSet to the import statement in a different file. These edits reference the exact same symbol (OrderedSet) where Edit 0 creates usage of OrderedSet and Edit 1 makes that symbol available through import. This creates a direct code dependency - the usage in Edit 0 requires the import in Edit 1 to be available. However, in Python, both edits can be written and parsed in either order since the usage would only fail at runtime/import time with a NameError, not at parse time. Therefore, this is a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new field '_inherit_children': OrderedSet() to a class definition, while Edit 1 adds OrderedSet to the import statement in a different file. These edits reference the exact same symbol (OrderedSet) where Edit 0 creates usage of OrderedSet and Edit 1 makes that symbol available through import. This creates a direct code dependency - the usage in Edit 0 requires the import in Edit 1 to be available. However, in Python, both edits can be written and parsed in either order since the usage would only fail at runtime/import time with a NameError, not at parse time. Therefore, this is a bi-directional definition-usage relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds the '_inherit_children' attribute initialization to a class dictionary, while Edit 1 uses that same '_inherit_children' attribute by calling the add() method on it. The changed lines reference the exact same symbol '_inherit_children' - Edit 0 creates it as an OrderedSet() and Edit 1 accesses it via parent_class._inherit_children.add(). This creates a direct code dependency where Edit 1 cannot execute successfully without Edit 0 having first initialized the '_inherit_children' attribute. However, since both edits can be written and parsed in either order (Edit 1 would only fail at runtime with an AttributeError), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds the '_inherit_children' attribute initialization to a class dictionary, while Edit 1 uses that same '_inherit_children' attribute by calling the add() method on it. The changed lines reference the exact same symbol '_inherit_children' - Edit 0 creates it as an OrderedSet() and Edit 1 accesses it via parent_class._inherit_children.add(). This creates a direct code dependency where Edit 1 cannot execute successfully without Edit 0 having first initialized the '_inherit_children' attribute. However, since both edits can be written and parsed in either order (Edit 1 would only fail at runtime with an AttributeError), this is bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports OrderedSet from openerp.tools, and Edit 1 uses OrderedSet() to create an instance. This is a classic import-usage relationship where the changed lines reference the exact same symbol 'OrderedSet'. After importing OrderedSet in edit 0, edit 1 becomes the immediate next step to use it. In Python, using an undefined symbol like OrderedSet() before importing it would cause a NameError at runtime, but both edits can be written and parsed in either order since Python allows referencing undefined names at parse time."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports OrderedSet from openerp.tools, and Edit 1 uses OrderedSet() to create an instance. This is a classic import-usage relationship where the changed lines reference the exact same symbol 'OrderedSet'. After importing OrderedSet in edit 0, edit 1 becomes the immediate next step to use it. In Python, using an undefined symbol like OrderedSet() before importing it would cause a NameError at runtime, but both edits can be written and parsed in either order since Python allows referencing undefined names at parse time."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 removes the variable 'models_to_load' and replaces it with 'loaded_models', while Edit 1 updates the return statement to use 'loaded_models' instead of the removed 'models_to_load'. The changed lines reference the exact same symbol - first Edit 0 removes 'models_to_load' and introduces 'loaded_models', then Edit 1 updates the usage of that same symbol. After making Edit 0, the code in Edit 1's location would reference an undefined variable 'models_to_load', making Edit 1 the immediate next mechanical step to fix this reference. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 removes the variable 'models_to_load' and replaces it with 'loaded_models', while Edit 1 updates the return statement to use 'loaded_models' instead of the removed 'models_to_load'. The changed lines reference the exact same symbol - first Edit 0 removes 'models_to_load' and introduces 'loaded_models', then Edit 1 updates the usage of that same symbol. After making Edit 0, the code in Edit 1's location would reference an undefined variable 'models_to_load', making Edit 1 the immediate next mechanical step to fix this reference. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 defines a new function `mark_loaded` and removes the old `models_to_load` list, while Edit 1 calls that exact same `mark_loaded` function and removes the usage of the old `models_to_load` list. The changed lines in Edit 1 directly reference the `mark_loaded` symbol that was defined in Edit 0's changed lines. This creates an immediate code dependency where defining `mark_loaded` naturally prompts its usage as the next step, and vice versa - using `mark_loaded` requires its definition. Both edits can be staged in either order since Python allows function calls before definitions (runtime error only), making this bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 defines a new function `mark_loaded` and removes the old `models_to_load` list, while Edit 1 calls that exact same `mark_loaded` function and removes the usage of the old `models_to_load` list. The changed lines in Edit 1 directly reference the `mark_loaded` symbol that was defined in Edit 0's changed lines. This creates an immediate code dependency where defining `mark_loaded` naturally prompts its usage as the next step, and vice versa - using `mark_loaded` requires its definition. Both edits can be staged in either order since Python allows function calls before definitions (runtime error only), making this bi-directional."
+        },
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 imports OrderedSet from .tools, and Edit 1 uses OrderedSet in the code by creating an instance 'loaded_models = OrderedSet()'. The changed lines reference the exact same symbol - OrderedSet. Edit 0 makes OrderedSet available for import, and Edit 1 uses that imported symbol. This creates an immediate code dependency where importing OrderedSet enables its usage in the second edit."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 imports OrderedSet from .tools, and Edit 1 uses OrderedSet in the code by creating an instance 'loaded_models = OrderedSet()'. The changed lines reference the exact same symbol - OrderedSet. Edit 0 makes OrderedSet available for import, and Edit 1 uses that imported symbol. This creates an immediate code dependency where importing OrderedSet enables its usage in the second edit."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        6,
+        5
+    ]
+}

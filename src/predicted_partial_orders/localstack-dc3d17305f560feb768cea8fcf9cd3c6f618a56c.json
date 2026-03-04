@@ -1,0 +1,126 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Edit 1 defines the symbol DDB_AGENT_JAR_PATH as a constant, and Edit 0 uses that exact same symbol in an f-string. This creates a direct definition-usage relationship where the symbol defined in Edit 1 is explicitly referenced in the changed line of Edit 0. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Edit 1 defines the symbol DDB_AGENT_JAR_PATH as a constant, and Edit 0 uses that exact same symbol in an f-string. This creates a direct definition-usage relationship where the symbol defined in Edit 1 is explicitly referenced in the changed line of Edit 0. Since this is Python, both edits can be parsed and staged in either order (the usage before definition would only cause a runtime NameError, not a parse error), making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 5,
+            "reason": "Edit 1 defines the symbol DDB_AGENT_JAR_PATH by assigning it a value, while Edit 0 imports that exact same symbol. This creates a definition-usage relationship where the symbol must be defined before it can be imported. However, in Python, imports can reference symbols that don't exist yet (they will fail at runtime/import time, not parse time). Since both edits can be written and parsed in either order, and the failure would only occur at import/runtime, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 0,
+            "reason": "Edit 1 defines the symbol DDB_AGENT_JAR_PATH by assigning it a value, while Edit 0 imports that exact same symbol. This creates a definition-usage relationship where the symbol must be defined before it can be imported. However, in Python, imports can reference symbols that don't exist yet (they will fail at runtime/import time, not parse time). Since both edits can be written and parsed in either order, and the failure would only occur at import/runtime, this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 imports DDB_AGENT_JAR_PATH from localstack.services.install, and Edit 1 uses that exact same symbol DDB_AGENT_JAR_PATH in a Java agent configuration string. The import in Edit 0 makes the symbol available for use, and Edit 1 references that imported symbol directly. This creates an immediate code dependency where importing the symbol naturally prompts its usage, and using the symbol requires it to be imported. Both edits reference the exact same symbol and either can be staged first without causing parse errors (Python allows usage before import at parse time, only failing at runtime)."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 imports DDB_AGENT_JAR_PATH from localstack.services.install, and Edit 1 uses that exact same symbol DDB_AGENT_JAR_PATH in a Java agent configuration string. The import in Edit 0 makes the symbol available for use, and Edit 1 references that imported symbol directly. This creates an immediate code dependency where importing the symbol naturally prompts its usage, and using the symbol requires it to be imported. Both edits reference the exact same symbol and either can be staged first without causing parse errors (Python allows usage before import at parse time, only failing at runtime)."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Edit 0 defines a new variable MAVEN_REPO with the value 'https://repo1.maven.org/maven2', and Edit 1 replaces the hardcoded string 'https://repo1.maven.org/maven2/' with a reference to MAVEN_REPO. This is a classic definition-usage pattern where the exact same symbol (MAVEN_REPO) is being defined in one edit and referenced in another. After making either edit, the other becomes the immediate next step to complete the refactoring. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Edit 0 defines a new variable MAVEN_REPO with the value 'https://repo1.maven.org/maven2', and Edit 1 replaces the hardcoded string 'https://repo1.maven.org/maven2/' with a reference to MAVEN_REPO. This is a classic definition-usage pattern where the exact same symbol (MAVEN_REPO) is being defined in one edit and referenced in another. After making either edit, the other becomes the immediate next step to complete the refactoring. Both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Both edits reference the exact same symbol MAVEN_REPO in their changed lines. Edit 0 replaces a hardcoded Maven repository URL with MAVEN_REPO, and Edit 1 adds new lines that use MAVEN_REPO in URL construction. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where using MAVEN_REPO in one location naturally prompts its use in similar URL construction patterns. This represents a uniform substitution pattern where hardcoded Maven URLs are being replaced with the MAVEN_REPO constant."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol MAVEN_REPO in their changed lines. Edit 0 replaces a hardcoded Maven repository URL with MAVEN_REPO, and Edit 1 adds new lines that use MAVEN_REPO in URL construction. The changed lines in both edits explicitly reference the same symbol, creating a direct code dependency where using MAVEN_REPO in one location naturally prompts its use in similar URL construction patterns. This represents a uniform substitution pattern where hardcoded Maven URLs are being replaced with the MAVEN_REPO constant."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 1 defines the MAVEN_REPO variable with the value 'https://repo1.maven.org/maven2', and Edit 0 uses this exact same MAVEN_REPO variable to replace the hardcoded string 'https://repo1.maven.org/maven2/' in the URL_LOCALSTACK_FAT_JAR definition. The changed lines reference the exact same symbol (MAVEN_REPO), creating a direct definition-usage relationship. After making either edit, the other becomes the immediate next step - if you define MAVEN_REPO, you'd naturally want to use it to replace the hardcoded string, and if you try to use MAVEN_REPO without defining it, you'd get a NameError prompting you to define it. Since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 1 defines the MAVEN_REPO variable with the value 'https://repo1.maven.org/maven2', and Edit 0 uses this exact same MAVEN_REPO variable to replace the hardcoded string 'https://repo1.maven.org/maven2/' in the URL_LOCALSTACK_FAT_JAR definition. The changed lines reference the exact same symbol (MAVEN_REPO), creating a direct definition-usage relationship. After making either edit, the other becomes the immediate next step - if you define MAVEN_REPO, you'd naturally want to use it to replace the hardcoded string, and if you try to use MAVEN_REPO without defining it, you'd get a NameError prompting you to define it. Since Python allows referencing undefined variables at parse time (only failing at runtime), both edits can be staged in either order, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "This is a cut-and-paste move operation where the MAVEN_REPO constant is being moved from line 108 to line 71. Edit 1 removes the definition of MAVEN_REPO from its original location, while Edit 0 adds it to a new location. The variable MAVEN_REPO is referenced on line 109 in the URL_ASPECTJRT definition, so the removal (Edit 1) must happen after the addition (Edit 0) to avoid creating an undefined variable reference. If Edit 1 were applied first, it would remove the definition while it's still being used, creating a NameError when the code is executed."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Edit 0 changes the DDB_PATCH_URL_PREFIX variable by updating its URL value. Edit 1 adds new variables (DDB_AGENT_JAR_URL and JAVASSIST_JAR_URL) that directly reference and use the DDB_PATCH_URL_PREFIX variable in their definitions. The changed line in edit 0 modifies the exact same symbol (DDB_PATCH_URL_PREFIX) that is referenced in the changed lines of edit 1. This creates an immediate code dependency where the new URL definitions in edit 1 depend on the updated DDB_PATCH_URL_PREFIX value from edit 0. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Edit 0 changes the DDB_PATCH_URL_PREFIX variable by updating its URL value. Edit 1 adds new variables (DDB_AGENT_JAR_URL and JAVASSIST_JAR_URL) that directly reference and use the DDB_PATCH_URL_PREFIX variable in their definitions. The changed line in edit 0 modifies the exact same symbol (DDB_PATCH_URL_PREFIX) that is referenced in the changed lines of edit 1. This creates an immediate code dependency where the new URL definitions in edit 1 depend on the updated DDB_PATCH_URL_PREFIX value from edit 0. Both edits can be staged in either order without parser errors, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 removes the definitions of DDB_PATCH_CLASS1 and DDB_PATCH_CLASS2 constants, while Edit 1 removes code that uses these exact same constants (in the classes list and subsequent loop). The changed lines in Edit 1 directly reference the symbols being removed in Edit 0. However, both edits can be staged independently - removing the usage doesn't create a syntax error, and removing the definitions doesn't create a syntax error (though it would cause a NameError at runtime if the usage remained). Since both edits reference the exact same symbols and either edit naturally prompts the other as the next mechanical step in removing this patching functionality, this is a bi-directional relationship."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 removes the definitions of DDB_PATCH_CLASS1 and DDB_PATCH_CLASS2 constants, while Edit 1 removes code that uses these exact same constants (in the classes list and subsequent loop). The changed lines in Edit 1 directly reference the symbols being removed in Edit 0. However, both edits can be staged independently - removing the usage doesn't create a syntax error, and removing the definitions doesn't create a syntax error (though it would cause a NameError at runtime if the usage remained). Since both edits reference the exact same symbols and either edit naturally prompts the other as the next mechanical step in removing this patching functionality, this is a bi-directional relationship."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Edit 0 defines four new constants (DDB_AGENT_JAR_URL, DDB_AGENT_JAR_PATH, JAVASSIST_JAR_URL, JAVASSIST_JAR_PATH) at the module level. Edit 1 uses these exact same symbols in its changed lines - specifically referencing DDB_AGENT_JAR_PATH, DDB_AGENT_JAR_URL, JAVASSIST_JAR_PATH, and JAVASSIST_JAR_URL in the download function calls. This creates a direct definition-usage relationship where the exact same symbols are being defined in one edit and referenced in another. Since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Edit 0 defines four new constants (DDB_AGENT_JAR_URL, DDB_AGENT_JAR_PATH, JAVASSIST_JAR_URL, JAVASSIST_JAR_PATH) at the module level. Edit 1 uses these exact same symbols in its changed lines - specifically referencing DDB_AGENT_JAR_PATH, DDB_AGENT_JAR_URL, JAVASSIST_JAR_PATH, and JAVASSIST_JAR_URL in the download function calls. This creates a direct definition-usage relationship where the exact same symbols are being defined in one edit and referenced in another. Since Python allows referencing undefined variables at parse time (they only fail at runtime), both edits can be staged in either order, making this a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "Edit 0 adds new constant definitions that reference MAVEN_REPO in their values (specifically JAVASSIST_JAR_URL uses f\"{MAVEN_REPO}/org/javassist/javassist/3.28.0-GA/javassist-3.28.0-GA.jar\"). Edit 1 removes the definition of MAVEN_REPO. If edit 1 is applied first (removing MAVEN_REPO), then edit 0 would reference an undefined symbol, causing a NameError at runtime when these constants are evaluated. However, since Python allows referencing undefined variables at parse time and only fails at runtime, both edits can be written and parsed in either order. The relationship is bi-directional because the changed lines reference the exact same symbol (MAVEN_REPO), and making either edit creates an immediate prompt for the other to maintain code consistency."
+        },
+        {
+            "src": 6,
+            "tgt": 5,
+            "reason": "Edit 0 adds new constant definitions that reference MAVEN_REPO in their values (specifically JAVASSIST_JAR_URL uses f\"{MAVEN_REPO}/org/javassist/javassist/3.28.0-GA/javassist-3.28.0-GA.jar\"). Edit 1 removes the definition of MAVEN_REPO. If edit 1 is applied first (removing MAVEN_REPO), then edit 0 would reference an undefined symbol, causing a NameError at runtime when these constants are evaluated. However, since Python allows referencing undefined variables at parse time and only fails at runtime, both edits can be written and parsed in either order. The relationship is bi-directional because the changed lines reference the exact same symbol (MAVEN_REPO), and making either edit creates an immediate prompt for the other to maintain code consistency."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 defines the variable MAVEN_REPO with the value 'https://repo1.maven.org/maven2', and edit 1 uses this exact same variable MAVEN_REPO in the JAVASSIST_JAR_URL assignment. The changed lines reference the exact same symbol - MAVEN_REPO. After making edit 0 (defining MAVEN_REPO), edit 1 becomes the immediate next step to use this newly defined variable. Conversely, if edit 1 were made first, it would reference an undefined variable, creating an immediate prompt to define MAVEN_REPO in edit 0. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 defines the variable MAVEN_REPO with the value 'https://repo1.maven.org/maven2', and edit 1 uses this exact same variable MAVEN_REPO in the JAVASSIST_JAR_URL assignment. The changed lines reference the exact same symbol - MAVEN_REPO. After making edit 0 (defining MAVEN_REPO), edit 1 becomes the immediate next step to use this newly defined variable. Conversely, if edit 1 were made first, it would reference an undefined variable, creating an immediate prompt to define MAVEN_REPO in edit 0. This is a classic definition-usage relationship where both edits reference the exact same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        1,
+        0,
+        2,
+        4,
+        7
+    ]
+}

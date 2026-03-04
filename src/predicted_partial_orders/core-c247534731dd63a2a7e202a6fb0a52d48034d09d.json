@@ -1,0 +1,148 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'vol.Optional(\"level\"): int' to 'vol.Optional(\"level\"): vol.Any(int, None)' in websocket command schema definitions. This is a clear bulk-edit pattern where the same before\u2192after transformation is applied to the same construct type (vol.Optional parameter definitions) across multiple locations in the same file. This represents a single, contiguous refactor operation where both changes would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Both edits perform an identical textual substitution on the same type of syntactic construct. They both change 'vol.Optional(\"level\"): int' to 'vol.Optional(\"level\"): vol.Any(int, None)' in websocket command schema definitions. This is a clear bulk-edit pattern where the same before\u2192after transformation is applied to the same construct type (vol.Optional parameter definitions) across multiple locations in the same file. This represents a single, contiguous refactor operation where both changes would naturally be made together as part of the same micro-task."
+        },
+        {
+            "src": 2,
+            "tgt": 4,
+            "reason": "Edit 0 changes the FloorEntry class attribute 'level' from 'int = 0' to 'int | None = None', modifying the type annotation and default value. Edit 1 updates a test assertion that expects the 'level' field to be None instead of 0, directly testing the exact same FloorEntry.level attribute that was modified in edit 0. The test is verifying the behavior of the same symbol (FloorEntry.level) that was changed in the production code. This creates a direct code dependency where the test must be updated to match the new default value of the FloorEntry.level attribute."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 changes the FloorEntry class attribute 'level' from 'int = 0' to 'int | None = None', modifying the type annotation and default value. Edit 1 updates a test assertion that expects the 'level' field to be None instead of 0, directly testing the exact same FloorEntry.level attribute that was modified in edit 0. The test is verifying the behavior of the same symbol (FloorEntry.level) that was changed in the production code. This creates a direct code dependency where the test must be updated to match the new default value of the FloorEntry.level attribute."
+        },
+        {
+            "src": 2,
+            "tgt": 6,
+            "reason": "Edit 0 changes the FloorEntry class to make the 'level' field accept None values (int | None = None), while Edit 1 updates a test to use None as the level value instead of 1. These edits reference the same 'level' attribute of the FloorEntry class - Edit 0 modifies the type definition to allow None, and Edit 1 updates test data to use None. This creates a direct code dependency where the test change aligns with the type system change, making them part of the same micro-task of allowing None values for the level field."
+        },
+        {
+            "src": 6,
+            "tgt": 2,
+            "reason": "Edit 0 changes the FloorEntry class to make the 'level' field accept None values (int | None = None), while Edit 1 updates a test to use None as the level value instead of 1. These edits reference the same 'level' attribute of the FloorEntry class - Edit 0 modifies the type definition to allow None, and Edit 1 updates test data to use None. This creates a direct code dependency where the test change aligns with the type system change, making them part of the same micro-task of allowing None values for the level field."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Edit 0 changes the FloorEntry class attribute 'level' from 'int = 0' to 'int | None = None', making it nullable. Edit 1 updates a test that was using 'level': 1 to 'level': None. These edits reference the exact same symbol (the 'level' attribute of FloorEntry) and are part of a synchronized change to make the level field nullable. The test update is the immediate, mechanically obvious next step after changing the type definition to allow None values. Either edit could be staged first since both are syntactically valid, but together they form a cohesive change to the same symbol."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Edit 0 changes the FloorEntry class attribute 'level' from 'int = 0' to 'int | None = None', making it nullable. Edit 1 updates a test that was using 'level': 1 to 'level': None. These edits reference the exact same symbol (the 'level' attribute of FloorEntry) and are part of a synchronized change to make the level field nullable. The test update is the immediate, mechanically obvious next step after changing the type definition to allow None values. Either edit could be staged first since both are syntactically valid, but together they form a cohesive change to the same symbol."
+        },
+        {
+            "src": 2,
+            "tgt": 8,
+            "reason": "Both edits reference the exact same symbol 'level' attribute of the FloorEntry class. Edit 0 changes the type annotation and default value of the 'level' attribute from 'int = 0' to 'int | None = None'. Edit 1 updates the corresponding test assertion to check that 'floor.level is None' instead of 'floor.level == 0'. This is a classic definition-usage relationship where changing the default value in the class definition requires updating the test that verifies that default value. Both edits can be staged in either order without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 8,
+            "tgt": 2,
+            "reason": "Both edits reference the exact same symbol 'level' attribute of the FloorEntry class. Edit 0 changes the type annotation and default value of the 'level' attribute from 'int = 0' to 'int | None = None'. Edit 1 updates the corresponding test assertion to check that 'floor.level is None' instead of 'floor.level == 0'. This is a classic definition-usage relationship where changing the default value in the class definition requires updating the test that verifies that default value. Both edits can be staged in either order without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits change the type annotation of the 'level' parameter from 'int = 0' to 'int | None = None'. Edit 0 changes the type in the FloorEntry class definition, while Edit 1 changes the same parameter type in the async_create method signature. These are synchronized type changes for the same conceptual parameter across related parts of the codebase - the FloorEntry class and the method that creates FloorEntry instances. This represents a uniform substitution pattern (changing 'int = 0' to 'int | None = None') applied to the same logical parameter in related contexts. Both edits can be made in either order without causing parse errors, and they form part of a single refactoring task to allow null values for the level parameter."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits change the type annotation of the 'level' parameter from 'int = 0' to 'int | None = None'. Edit 0 changes the type in the FloorEntry class definition, while Edit 1 changes the same parameter type in the async_create method signature. These are synchronized type changes for the same conceptual parameter across related parts of the codebase - the FloorEntry class and the method that creates FloorEntry instances. This represents a uniform substitution pattern (changing 'int = 0' to 'int | None = None') applied to the same logical parameter in related contexts. Both edits can be made in either order without causing parse errors, and they form part of a single refactoring task to allow null values for the level parameter."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 changes the default parameter value for 'level' in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test assertion to expect 'level': None instead of 'level': 0. These edits reference the same 'level' parameter/attribute - the test is verifying the behavior of the exact same parameter that was modified in the production code. The test change is the immediate, mechanically obvious next step after changing the default parameter value, as the test assertion must be updated to match the new expected behavior. Both edits are part of the same micro-task of changing the level parameter's default value and ensuring tests pass."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 changes the default parameter value for 'level' in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test assertion to expect 'level': None instead of 'level': 0. These edits reference the same 'level' parameter/attribute - the test is verifying the behavior of the exact same parameter that was modified in the production code. The test change is the immediate, mechanically obvious next step after changing the default parameter value, as the test assertion must be updated to match the new expected behavior. Both edits are part of the same micro-task of changing the level parameter's default value and ensuring tests pass."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the default parameter value for 'level' in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test that calls this method, changing the expected 'level' value from 0 to None to match the new default. Both edits reference the exact same parameter 'level' of the same method - one changes the signature and the other updates the corresponding test expectation. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain consistency between the method signature and its test."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the default parameter value for 'level' in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test that calls this method, changing the expected 'level' value from 0 to None to match the new default. Both edits reference the exact same parameter 'level' of the same method - one changes the signature and the other updates the corresponding test expectation. This creates a bi-directional relationship where either edit naturally prompts the other as the next mechanical step to maintain consistency between the method signature and its test."
+        },
+        {
+            "src": 4,
+            "tgt": 5,
+            "reason": "Both edits perform an identical textual substitution (changing 'level': 0 to 'level': None) on the same type of syntactic construct (dictionary entries in test data). They are part of a uniform refactor pattern within the same test file, changing the expected level value from 0 to None across multiple test functions. This represents a bulk-edit synchronization where both edits apply the same before\u2192after pattern to the same construct type as part of a single, contiguous refactor operation."
+        },
+        {
+            "src": 5,
+            "tgt": 4,
+            "reason": "Both edits perform an identical textual substitution (changing 'level': 0 to 'level': None) on the same type of syntactic construct (dictionary entries in test data). They are part of a uniform refactor pattern within the same test file, changing the expected level value from 0 to None across multiple test functions. This represents a bulk-edit synchronization where both edits apply the same before\u2192after pattern to the same construct type as part of a single, contiguous refactor operation."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (changing 'level' values from integers to None in test data dictionaries). They are part of the same refactoring pattern within the same test file, making either edit naturally prompt the other as part of a single, contiguous bulk update operation. The edits reference the same structural pattern and would occur in one uninterrupted micro-task."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (changing 'level' values from integers to None in test data dictionaries). They are part of the same refactoring pattern within the same test file, making either edit naturally prompt the other as part of a single, contiguous bulk update operation. The edits reference the same structural pattern and would occur in one uninterrupted micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 8,
+            "reason": "Edit 0 changes the default value of the 'level' parameter in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test assertion to expect floor.level to be None instead of 0. Both edits reference the exact same 'level' attribute/parameter - one changes the default value in the method signature, and the other updates the test expectation to match this change. This is a classic test-production code synchronization where the test assertion is updated to match the exact implementation change for the same symbol."
+        },
+        {
+            "src": 8,
+            "tgt": 3,
+            "reason": "Edit 0 changes the default value of the 'level' parameter in the FloorRegistry.async_create method from 0 to None. Edit 1 updates a test assertion to expect floor.level to be None instead of 0. Both edits reference the exact same 'level' attribute/parameter - one changes the default value in the method signature, and the other updates the test expectation to match this change. This is a classic test-production code synchronization where the test assertion is updated to match the exact implementation change for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 7,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (changing 'level' parameter values from integers to None in test data dictionaries). They are part of what appears to be a uniform refactoring pattern across test cases, where level values are being standardized to None. The edits target the same structural element (level parameter in test data) with the same before\u2192after pattern, making this a bulk-edit synchronization case."
+        },
+        {
+            "src": 7,
+            "tgt": 5,
+            "reason": "Both edits perform identical textual substitutions on the same type of syntactic construct (changing 'level' parameter values from integers to None in test data dictionaries). They are part of what appears to be a uniform refactoring pattern across test cases, where level values are being standardized to None. The edits target the same structural element (level parameter in test data) with the same before\u2192after pattern, making this a bulk-edit synchronization case."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Both edits change the exact same value ('level': 1 to 'level': None) in the same test function, performing identical textual substitutions on the same type of syntactic construct (dictionary value assignments). This represents a bulk uniform substitution pattern where both changes are part of a single, contiguous refactor operation within the same test method. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency in the test data."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Both edits change the exact same value ('level': 1 to 'level': None) in the same test function, performing identical textual substitutions on the same type of syntactic construct (dictionary value assignments). This represents a bulk uniform substitution pattern where both changes are part of a single, contiguous refactor operation within the same test method. Either edit can be made first, and after making either one, the other becomes the natural next step to maintain consistency in the test data."
+        },
+        {
+            "src": 2,
+            "tgt": 5,
+            "reason": "Edit 0 changes the FloorEntry class definition to make the 'level' field accept None values (int | None = None), while Edit 1 updates a test that creates a floor entry to use None instead of 0 for the level field. Both edits reference the exact same 'level' attribute of FloorEntry - one modifies the class definition to allow None values, and the other updates test code to use the new None default. This creates a direct code dependency where the test change aligns with the class definition change for the same symbol."
+        },
+        {
+            "src": 5,
+            "tgt": 2,
+            "reason": "Edit 0 changes the FloorEntry class definition to make the 'level' field accept None values (int | None = None), while Edit 1 updates a test that creates a floor entry to use None instead of 0 for the level field. Both edits reference the exact same 'level' attribute of FloorEntry - one modifies the class definition to allow None values, and the other updates test code to use the new None default. This creates a direct code dependency where the test change aligns with the class definition change for the same symbol."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        1
+    ]
+}

@@ -1,0 +1,97 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 adds 'client_id': acting_client.id to an event dictionary, and Edit 1 retrieves a Client object using event['client_id']. Both edits reference the exact same symbol - the 'client_id' field in the event dictionary. Edit 0 creates the field that Edit 1 consumes, establishing a direct producer-consumer relationship. This is a definition-usage pattern where the changed lines reference the same symbol, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'client_id': acting_client.id to an event dictionary, and Edit 1 retrieves a Client object using event['client_id']. Both edits reference the exact same symbol - the 'client_id' field in the event dictionary. Edit 0 creates the field that Edit 1 consumes, establishing a direct producer-consumer relationship. This is a definition-usage pattern where the changed lines reference the same symbol, making either edit prompt the other as the next mechanical step."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates the call site of this exact same function to pass the new `client` parameter (request.client). This is a classic definition-usage relationship where the changed lines reference the exact same symbol. After making edit 0, edit 1 becomes immediately necessary to fix the function call, and vice versa - either edit can be made first since Python allows both the definition and call site to exist independently (the call would just fail at runtime if parameters don't match, but both can be parsed and staged)."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates the call site of this exact same function to pass the new `client` parameter (request.client). This is a classic definition-usage relationship where the changed lines reference the exact same symbol. After making edit 0, edit 1 becomes immediately necessary to fix the function call, and vice versa - either edit can be made first since Python allows both the definition and call site to exist independently (the call would just fail at runtime if parameters don't match, but both can be parsed and staged)."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates the call site to pass the new `client` parameter (request.client) when calling this exact same function. The changed lines reference the exact same symbol - the `do_mark_stream_messages_as_read` function. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next mechanical step to match the new signature. Both edits can be staged in either order since Python allows function calls with mismatched signatures at parse time (they only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates the call site to pass the new `client` parameter (request.client) when calling this exact same function. The changed lines reference the exact same symbol - the `do_mark_stream_messages_as_read` function. After making the signature change in edit 0, the call site in edit 1 becomes the immediate next mechanical step to match the new signature. Both edits can be staged in either order since Python allows function calls with mismatched signatures at parse time (they only fail at runtime), making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 7,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates a call site to match this new signature by adding the `client` argument. Both edits reference the exact same function symbol, and after making the signature change in edit 0, the call site in edit 1 becomes immediately necessary to fix the argument mismatch. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError), making it bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 1,
+            "reason": "Edit 0 changes the function signature of `do_mark_stream_messages_as_read` by adding a `client` parameter and changing `stream` from Optional[Stream] to Stream. Edit 1 updates a call site to match this new signature by adding the `client` argument. Both edits reference the exact same function symbol, and after making the signature change in edit 0, the call site in edit 1 becomes immediately necessary to fix the argument mismatch. This is a classic definition-usage relationship where both edits can be staged in either order (the call site with extra arguments won't cause a parse error, just a runtime TypeError), making it bi-directional."
+        },
+        {
+            "src": 3,
+            "tgt": 7,
+            "reason": "Both edits are updating calls to the same function `do_mark_stream_messages_as_read` by adding a `client` parameter in the same position. Edit 0 adds `request.client` as the second parameter, and Edit 1 adds `client` as the second parameter. This indicates the function signature was changed to require an additional `client` parameter, and both call sites need to be updated to match the new signature. The changed lines in both edits reference the exact same function symbol and perform the same type of parameter addition update. Either call site could be updated first, and after making either edit, the other becomes an immediate next step to maintain consistency with the updated function signature."
+        },
+        {
+            "src": 7,
+            "tgt": 3,
+            "reason": "Both edits are updating calls to the same function `do_mark_stream_messages_as_read` by adding a `client` parameter in the same position. Edit 0 adds `request.client` as the second parameter, and Edit 1 adds `client` as the second parameter. This indicates the function signature was changed to require an additional `client` parameter, and both call sites need to be updated to match the new signature. The changed lines in both edits reference the exact same function symbol and perform the same type of parameter addition update. Either call site could be updated first, and after making either edit, the other becomes an immediate next step to maintain consistency with the updated function signature."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 adds 'Client' to the import statement at the top of the file, while Edit 1 uses 'Client.objects.get()' in the consume method. The changed lines reference the exact same symbol 'Client' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing Client enables its usage in the method. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 adds 'Client' to the import statement at the top of the file, while Edit 1 uses 'Client.objects.get()' in the consume method. The changed lines reference the exact same symbol 'Client' - Edit 0 imports it and Edit 1 uses it. This creates an immediate code dependency where importing Client enables its usage in the method. In Python, the usage can be written before the import (it would only fail at runtime), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 6,
+            "tgt": 7,
+            "reason": "Edit 0 defines a variable 'client' by retrieving it from the database, and Edit 1 uses that exact same 'client' variable as a parameter in a function call. The changed lines reference the exact same symbol 'client' within the same function scope. After making Edit 0, the newly defined 'client' variable creates an immediate, mechanically obvious prompt to use it in the function call in Edit 1. This is a classic definition-usage pattern where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 7,
+            "tgt": 6,
+            "reason": "Edit 0 defines a variable 'client' by retrieving it from the database, and Edit 1 uses that exact same 'client' variable as a parameter in a function call. The changed lines reference the exact same symbol 'client' within the same function scope. After making Edit 0, the newly defined 'client' variable creates an immediate, mechanically obvious prompt to use it in the function call in Edit 1. This is a classic definition-usage pattern where both edits can be staged in either order (no parse errors), making it bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 3,
+            "reason": "Both edits are making identical structural changes to calls of the same function `do_mark_stream_messages_as_read`. In both cases, the exact same parameter `request.client` is being added in the same position (second parameter) to calls of the same function. This represents a uniform, synchronized substitution pattern where the same function signature change is being applied consistently across multiple call sites. The edits reference the exact same symbol (the function `do_mark_stream_messages_as_read`) and perform identical before\u2192after transformations on the same type of syntactic construct (function calls). Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 3,
+            "tgt": 2,
+            "reason": "Both edits are making identical structural changes to calls of the same function `do_mark_stream_messages_as_read`. In both cases, the exact same parameter `request.client` is being added in the same position (second parameter) to calls of the same function. This represents a uniform, synchronized substitution pattern where the same function signature change is being applied consistently across multiple call sites. The edits reference the exact same symbol (the function `do_mark_stream_messages_as_read`) and perform identical before\u2192after transformations on the same type of syntactic construct (function calls). Either edit could be made first, and after making either one, the other would be the natural next step to maintain consistency in the codebase."
+        },
+        {
+            "src": 2,
+            "tgt": 7,
+            "reason": "Both edits are updating calls to the same function `do_mark_stream_messages_as_read` by adding a `client` parameter in the same position. This represents a function signature change where all call sites need to be updated to match the new signature. The edits reference the exact same symbol (the function being called) and both are part of the same mechanical refactoring task - updating all callers after the function signature was changed. Either edit could be made first since both are syntactically valid call-site updates, and making either edit creates an immediate prompt to update the remaining call sites for consistency."
+        },
+        {
+            "src": 7,
+            "tgt": 2,
+            "reason": "Both edits are updating calls to the same function `do_mark_stream_messages_as_read` by adding a `client` parameter in the same position. This represents a function signature change where all call sites need to be updated to match the new signature. The edits reference the exact same symbol (the function being called) and both are part of the same mechanical refactoring task - updating all callers after the function signature was changed. Either edit could be made first since both are syntactically valid call-site updates, and making either edit creates an immediate prompt to update the remaining call sites for consistency."
+        }
+    ],
+    "allowed_init_edits": [
+        5
+    ]
+}

@@ -1,0 +1,2769 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/comfyanonymous/ComfyUI/commit/aaa9017302b75cf4453b5f8a58788e121f8e0a39",
+    "commit_message": "Add attention mask support to sub quad attention.",
+    "commit_snapshots": {
+        "comfy/ldm/modules/attention.py": [
+            [
+                "from inspect import isfunction\n",
+                "import math\n",
+                "import torch\n",
+                "import torch.nn.functional as F\n",
+                "from torch import nn, einsum\n",
+                "from einops import rearrange, repeat\n",
+                "from typing import Optional, Any\n",
+                "from functools import partial\n",
+                "\n",
+                "\n",
+                "from .diffusionmodules.util import checkpoint, AlphaBlender, timestep_embedding\n",
+                "from .sub_quadratic_attention import efficient_dot_product_attention\n",
+                "\n",
+                "from comfy import model_management\n",
+                "\n",
+                "if model_management.xformers_enabled():\n",
+                "    import xformers\n",
+                "    import xformers.ops\n",
+                "\n",
+                "from comfy.cli_args import args\n",
+                "import comfy.ops\n",
+                "ops = comfy.ops.disable_weight_init\n",
+                "\n",
+                "# CrossAttn precision handling\n",
+                "if args.dont_upcast_attention:\n",
+                "    print(\"disabling upcasting of attention\")\n",
+                "    _ATTN_PRECISION = \"fp16\"\n",
+                "else:\n",
+                "    _ATTN_PRECISION = \"fp32\"\n",
+                "\n",
+                "\n",
+                "def exists(val):\n",
+                "    return val is not None\n",
+                "\n",
+                "\n",
+                "def uniq(arr):\n",
+                "    return{el: True for el in arr}.keys()\n",
+                "\n",
+                "\n",
+                "def default(val, d):\n",
+                "    if exists(val):\n",
+                "        return val\n",
+                "    return d\n",
+                "\n",
+                "\n",
+                "def max_neg_value(t):\n",
+                "    return -torch.finfo(t.dtype).max\n",
+                "\n",
+                "\n",
+                "def init_(tensor):\n",
+                "    dim = tensor.shape[-1]\n",
+                "    std = 1 / math.sqrt(dim)\n",
+                "    tensor.uniform_(-std, std)\n",
+                "    return tensor\n",
+                "\n",
+                "\n",
+                "# feedforward\n",
+                "class GEGLU(nn.Module):\n",
+                "    def __init__(self, dim_in, dim_out, dtype=None, device=None, operations=ops):\n",
+                "        super().__init__()\n",
+                "        self.proj = operations.Linear(dim_in, dim_out * 2, dtype=dtype, device=device)\n",
+                "\n",
+                "    def forward(self, x):\n",
+                "        x, gate = self.proj(x).chunk(2, dim=-1)\n",
+                "        return x * F.gelu(gate)\n",
+                "\n",
+                "\n",
+                "class FeedForward(nn.Module):\n",
+                "    def __init__(self, dim, dim_out=None, mult=4, glu=False, dropout=0., dtype=None, device=None, operations=ops):\n",
+                "        super().__init__()\n",
+                "        inner_dim = int(dim * mult)\n",
+                "        dim_out = default(dim_out, dim)\n",
+                "        project_in = nn.Sequential(\n",
+                "            operations.Linear(dim, inner_dim, dtype=dtype, device=device),\n",
+                "            nn.GELU()\n",
+                "        ) if not glu else GEGLU(dim, inner_dim, dtype=dtype, device=device, operations=operations)\n",
+                "\n",
+                "        self.net = nn.Sequential(\n",
+                "            project_in,\n",
+                "            nn.Dropout(dropout),\n",
+                "            operations.Linear(inner_dim, dim_out, dtype=dtype, device=device)\n",
+                "        )\n",
+                "\n",
+                "    def forward(self, x):\n",
+                "        return self.net(x)\n",
+                "\n",
+                "def Normalize(in_channels, dtype=None, device=None):\n",
+                "    return torch.nn.GroupNorm(num_groups=32, num_channels=in_channels, eps=1e-6, affine=True, dtype=dtype, device=device)\n",
+                "\n",
+                "def attention_basic(q, k, v, heads, mask=None):\n",
+                "    b, _, dim_head = q.shape\n",
+                "    dim_head //= heads\n",
+                "    scale = dim_head ** -0.5\n",
+                "\n",
+                "    h = heads\n",
+                "    q, k, v = map(\n",
+                "        lambda t: t.unsqueeze(3)\n",
+                "        .reshape(b, -1, heads, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b * heads, -1, dim_head)\n",
+                "        .contiguous(),\n",
+                "        (q, k, v),\n",
+                "    )\n",
+                "\n",
+                "    # force cast to fp32 to avoid overflowing\n",
+                "    if _ATTN_PRECISION ==\"fp32\":\n",
+                "        sim = einsum('b i d, b j d -> b i j', q.float(), k.float()) * scale\n",
+                "    else:\n",
+                "        sim = einsum('b i d, b j d -> b i j', q, k) * scale\n",
+                "\n",
+                "    del q, k\n",
+                "\n",
+                "    if exists(mask):\n",
+                "        if mask.dtype == torch.bool:\n",
+                "            mask = rearrange(mask, 'b ... -> b (...)') #TODO: check if this bool part matches pytorch attention\n",
+                "            max_neg_value = -torch.finfo(sim.dtype).max\n",
+                "            mask = repeat(mask, 'b j -> (b h) () j', h=h)\n",
+                "            sim.masked_fill_(~mask, max_neg_value)\n",
+                "        else:\n",
+                "            sim += mask\n",
+                "\n",
+                "    # attention, what we cannot get enough of\n",
+                "    sim = sim.softmax(dim=-1)\n",
+                "\n",
+                "    out = einsum('b i j, b j d -> b i d', sim.to(v.dtype), v)\n",
+                "    out = (\n",
+                "        out.unsqueeze(0)\n",
+                "        .reshape(b, heads, -1, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b, -1, heads * dim_head)\n",
+                "    )\n",
+                "    return out\n",
+                "\n",
+                "\n",
+                "def attention_sub_quad(query, key, value, heads, mask=None):\n",
+                "    b, _, dim_head = query.shape\n",
+                "    dim_head //= heads\n",
+                "\n",
+                "    scale = dim_head ** -0.5\n",
+                "    query = query.unsqueeze(3).reshape(b, -1, heads, dim_head).permute(0, 2, 1, 3).reshape(b * heads, -1, dim_head)\n",
+                "    value = value.unsqueeze(3).reshape(b, -1, heads, dim_head).permute(0, 2, 1, 3).reshape(b * heads, -1, dim_head)\n",
+                "\n",
+                "    key = key.unsqueeze(3).reshape(b, -1, heads, dim_head).permute(0, 2, 3, 1).reshape(b * heads, dim_head, -1)\n",
+                "\n",
+                "    dtype = query.dtype\n",
+                "    upcast_attention = _ATTN_PRECISION ==\"fp32\" and query.dtype != torch.float32\n",
+                "    if upcast_attention:\n",
+                "        bytes_per_token = torch.finfo(torch.float32).bits//8\n",
+                "    else:\n",
+                "        bytes_per_token = torch.finfo(query.dtype).bits//8\n",
+                "    batch_x_heads, q_tokens, _ = query.shape\n",
+                "    _, _, k_tokens = key.shape\n",
+                "    qk_matmul_size_bytes = batch_x_heads * bytes_per_token * q_tokens * k_tokens\n",
+                "\n",
+                "    mem_free_total, mem_free_torch = model_management.get_free_memory(query.device, True)\n",
+                "\n",
+                "    kv_chunk_size_min = None\n",
+                "    kv_chunk_size = None\n",
+                "    query_chunk_size = None\n",
+                "\n",
+                "    for x in [4096, 2048, 1024, 512, 256]:\n",
+                "        count = mem_free_total / (batch_x_heads * bytes_per_token * x * 4.0)\n",
+                "        if count >= k_tokens:\n",
+                "            kv_chunk_size = k_tokens\n",
+                "            query_chunk_size = x\n",
+                "            break\n",
+                "\n",
+                "    if query_chunk_size is None:\n",
+                "        query_chunk_size = 512\n",
+                "\n",
+                "    hidden_states = efficient_dot_product_attention(\n",
+                "        query,\n",
+                "        key,\n",
+                "        value,\n",
+                "        query_chunk_size=query_chunk_size,\n",
+                "        kv_chunk_size=kv_chunk_size,\n",
+                "        kv_chunk_size_min=kv_chunk_size_min,\n",
+                "        use_checkpoint=False,\n",
+                "        upcast_attention=upcast_attention,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "        mask=mask,\n"
+                ],
+                "parent_version_range": {
+                    "start": 179,
+                    "end": 179
+                },
+                "child_version_range": {
+                    "start": 179,
+                    "end": 180
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "attention_sub_quad",
+                        "signature": "def attention_sub_quad(query, key, value, heads, mask=None):",
+                        "at_line": 134
+                    },
+                    {
+                        "type": "call",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "efficient_dot_product_attention(\n        query,\n        key,\n        value,\n        query_chunk_size=query_chunk_size,\n        kv_chunk_size=kv_chunk_size,\n        kv_chunk_size_min=kv_chunk_size_min,\n        use_checkpoint=False,\n        upcast_attention=upcast_attention,\n    )",
+                        "at_line": 170,
+                        "argument": "upcast_attention=..."
+                    }
+                ],
+                "idx": 0,
+                "hunk_diff": "File: comfy/ldm/modules/attention.py\nCode:\n           def attention_sub_quad(query, key, value, heads, mask=None):\n               ...\n               efficient_dot_product_attention(\n        query,\n        key,\n        value,\n        query_chunk_size=query_chunk_size,\n        kv_chunk_size=kv_chunk_size,\n        kv_chunk_size_min=kv_chunk_size_min,\n        use_checkpoint=False,\n        upcast_attention=upcast_attention,\n    )\n                   ...\n176 176            kv_chunk_size_min=kv_chunk_size_min,\n177 177            use_checkpoint=False,\n178 178            upcast_attention=upcast_attention,\n    179  +         mask=mask,\n179 180        )\n180 181    \n181 182        hidden_states = hidden_states.to(dtype)\n         ...\n",
+                "file_path": "comfy/ldm/modules/attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "        kv_chunk_size_min=kv_chunk_size_min,\n",
+                    "        use_checkpoint=False,\n",
+                    "        upcast_attention=upcast_attention,\n"
+                ],
+                "suffix": [
+                    "    )\n",
+                    "\n",
+                    "    hidden_states = hidden_states.to(dtype)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 179,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 179,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/attention.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    12
+                ]
+            },
+            [
+                "    )\n",
+                "\n",
+                "    hidden_states = hidden_states.to(dtype)\n",
+                "\n",
+                "    hidden_states = hidden_states.unflatten(0, (-1, heads)).transpose(1,2).flatten(start_dim=2)\n",
+                "    return hidden_states\n",
+                "\n",
+                "def attention_split(q, k, v, heads, mask=None):\n",
+                "    b, _, dim_head = q.shape\n",
+                "    dim_head //= heads\n",
+                "    scale = dim_head ** -0.5\n",
+                "\n",
+                "    h = heads\n",
+                "    q, k, v = map(\n",
+                "        lambda t: t.unsqueeze(3)\n",
+                "        .reshape(b, -1, heads, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b * heads, -1, dim_head)\n",
+                "        .contiguous(),\n",
+                "        (q, k, v),\n",
+                "    )\n",
+                "\n",
+                "    r1 = torch.zeros(q.shape[0], q.shape[1], v.shape[2], device=q.device, dtype=q.dtype)\n",
+                "\n",
+                "    mem_free_total = model_management.get_free_memory(q.device)\n",
+                "\n",
+                "    if _ATTN_PRECISION ==\"fp32\":\n",
+                "        element_size = 4\n",
+                "    else:\n",
+                "        element_size = q.element_size()\n",
+                "\n",
+                "    gb = 1024 ** 3\n",
+                "    tensor_size = q.shape[0] * q.shape[1] * k.shape[1] * element_size\n",
+                "    modifier = 3\n",
+                "    mem_required = tensor_size * modifier\n",
+                "    steps = 1\n",
+                "\n",
+                "\n",
+                "    if mem_required > mem_free_total:\n",
+                "        steps = 2**(math.ceil(math.log(mem_required / mem_free_total, 2)))\n",
+                "        # print(f\"Expected tensor size:{tensor_size/gb:0.1f}GB, cuda free:{mem_free_cuda/gb:0.1f}GB \"\n",
+                "        #      f\"torch free:{mem_free_torch/gb:0.1f} total:{mem_free_total/gb:0.1f} steps:{steps}\")\n",
+                "\n",
+                "    if steps > 64:\n",
+                "        max_res = math.floor(math.sqrt(math.sqrt(mem_free_total / 2.5)) / 8) * 64\n",
+                "        raise RuntimeError(f'Not enough memory, use lower resolution (max approx. {max_res}x{max_res}). '\n",
+                "                            f'Need: {mem_required/64/gb:0.1f}GB free, Have:{mem_free_total/gb:0.1f}GB free')\n",
+                "\n",
+                "    # print(\"steps\", steps, mem_required, mem_free_total, modifier, q.element_size(), tensor_size)\n",
+                "    first_op_done = False\n",
+                "    cleared_cache = False\n",
+                "    while True:\n",
+                "        try:\n",
+                "            slice_size = q.shape[1] // steps if (q.shape[1] % steps) == 0 else q.shape[1]\n",
+                "            for i in range(0, q.shape[1], slice_size):\n",
+                "                end = i + slice_size\n",
+                "                if _ATTN_PRECISION ==\"fp32\":\n",
+                "                    with torch.autocast(enabled=False, device_type = 'cuda'):\n",
+                "                        s1 = einsum('b i d, b j d -> b i j', q[:, i:end].float(), k.float()) * scale\n",
+                "                else:\n",
+                "                    s1 = einsum('b i d, b j d -> b i j', q[:, i:end], k) * scale\n",
+                "\n",
+                "                if mask is not None:\n",
+                "                    if len(mask.shape) == 2:\n",
+                "                        s1 += mask[i:end]\n",
+                "                    else:\n",
+                "                        s1 += mask[:, i:end]\n",
+                "\n",
+                "                s2 = s1.softmax(dim=-1).to(v.dtype)\n",
+                "                del s1\n",
+                "                first_op_done = True\n",
+                "\n",
+                "                r1[:, i:end] = einsum('b i j, b j d -> b i d', s2, v)\n",
+                "                del s2\n",
+                "            break\n",
+                "        except model_management.OOM_EXCEPTION as e:\n",
+                "            if first_op_done == False:\n",
+                "                model_management.soft_empty_cache(True)\n",
+                "                if cleared_cache == False:\n",
+                "                    cleared_cache = True\n",
+                "                    print(\"out of memory error, emptying cache and trying again\")\n",
+                "                    continue\n",
+                "                steps *= 2\n",
+                "                if steps > 64:\n",
+                "                    raise e\n",
+                "                print(\"out of memory error, increasing steps and trying again\", steps)\n",
+                "            else:\n",
+                "                raise e\n",
+                "\n",
+                "    del q, k, v\n",
+                "\n",
+                "    r1 = (\n",
+                "        r1.unsqueeze(0)\n",
+                "        .reshape(b, heads, -1, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b, -1, heads * dim_head)\n",
+                "    )\n",
+                "    return r1\n",
+                "\n",
+                "BROKEN_XFORMERS = False\n",
+                "try:\n",
+                "    x_vers = xformers.__version__\n",
+                "    #I think 0.0.23 is also broken (q with bs bigger than 65535 gives CUDA error)\n",
+                "    BROKEN_XFORMERS = x_vers.startswith(\"0.0.21\") or x_vers.startswith(\"0.0.22\") or x_vers.startswith(\"0.0.23\")\n",
+                "except:\n",
+                "    pass\n",
+                "\n",
+                "def attention_xformers(q, k, v, heads, mask=None):\n",
+                "    b, _, dim_head = q.shape\n",
+                "    dim_head //= heads\n",
+                "    if BROKEN_XFORMERS:\n",
+                "        if b * heads > 65535:\n",
+                "            return attention_pytorch(q, k, v, heads, mask)\n",
+                "\n",
+                "    q, k, v = map(\n",
+                "        lambda t: t.unsqueeze(3)\n",
+                "        .reshape(b, -1, heads, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b * heads, -1, dim_head)\n",
+                "        .contiguous(),\n",
+                "        (q, k, v),\n",
+                "    )\n",
+                "\n",
+                "    if mask is not None:\n",
+                "        pad = 8 - q.shape[1] % 8\n",
+                "        mask_out = torch.empty([q.shape[0], q.shape[1], q.shape[1] + pad], dtype=q.dtype, device=q.device)\n",
+                "        mask_out[:, :, :mask.shape[-1]] = mask\n",
+                "        mask = mask_out[:, :, :mask.shape[-1]]\n",
+                "\n",
+                "    out = xformers.ops.memory_efficient_attention(q, k, v, attn_bias=mask)\n",
+                "\n",
+                "    out = (\n",
+                "        out.unsqueeze(0)\n",
+                "        .reshape(b, heads, -1, dim_head)\n",
+                "        .permute(0, 2, 1, 3)\n",
+                "        .reshape(b, -1, heads * dim_head)\n",
+                "    )\n",
+                "    return out\n",
+                "\n",
+                "def attention_pytorch(q, k, v, heads, mask=None):\n",
+                "    b, _, dim_head = q.shape\n",
+                "    dim_head //= heads\n",
+                "    q, k, v = map(\n",
+                "        lambda t: t.view(b, -1, heads, dim_head).transpose(1, 2),\n",
+                "        (q, k, v),\n",
+                "    )\n",
+                "\n",
+                "    out = torch.nn.functional.scaled_dot_product_attention(q, k, v, attn_mask=mask, dropout_p=0.0, is_causal=False)\n",
+                "    out = (\n",
+                "        out.transpose(1, 2).reshape(b, -1, heads * dim_head)\n",
+                "    )\n",
+                "    return out\n",
+                "\n",
+                "\n",
+                "optimized_attention = attention_basic\n",
+                "optimized_attention_masked = attention_basic\n",
+                "\n",
+                "if model_management.xformers_enabled():\n",
+                "    print(\"Using xformers cross attention\")\n",
+                "    optimized_attention = attention_xformers\n",
+                "elif model_management.pytorch_attention_enabled():\n",
+                "    print(\"Using pytorch cross attention\")\n",
+                "    optimized_attention = attention_pytorch\n",
+                "else:\n",
+                "    if args.use_split_cross_attention:\n",
+                "        print(\"Using split optimization for cross attention\")\n",
+                "        optimized_attention = attention_split\n",
+                "    else:\n",
+                "        print(\"Using sub quadratic optimization for cross attention, if you have memory or speed issues try using: --use-split-cross-attention\")\n",
+                "        optimized_attention = attention_sub_quad\n",
+                "\n",
+                "if model_management.pytorch_attention_enabled():\n",
+                "    optimized_attention_masked = attention_pytorch\n",
+                "\n",
+                "def optimized_attention_for_device(device, mask=False):\n",
+                "    if device == torch.device(\"cpu\"): #TODO\n",
+                "        if model_management.pytorch_attention_enabled():\n",
+                "            return attention_pytorch\n",
+                "        else:\n",
+                "            return attention_basic\n",
+                "    if mask:\n",
+                "        return optimized_attention_masked\n",
+                "\n",
+                "    return optimized_attention\n",
+                "\n",
+                "\n",
+                "class CrossAttention(nn.Module):\n",
+                "    def __init__(self, query_dim, context_dim=None, heads=8, dim_head=64, dropout=0., dtype=None, device=None, operations=ops):\n",
+                "        super().__init__()\n",
+                "        inner_dim = dim_head * heads\n",
+                "        context_dim = default(context_dim, query_dim)\n",
+                "\n",
+                "        self.heads = heads\n",
+                "        self.dim_head = dim_head\n",
+                "\n",
+                "        self.to_q = operations.Linear(query_dim, inner_dim, bias=False, dtype=dtype, device=device)\n",
+                "        self.to_k = operations.Linear(context_dim, inner_dim, bias=False, dtype=dtype, device=device)\n",
+                "        self.to_v = operations.Linear(context_dim, inner_dim, bias=False, dtype=dtype, device=device)\n",
+                "\n",
+                "        self.to_out = nn.Sequential(operations.Linear(inner_dim, query_dim, dtype=dtype, device=device), nn.Dropout(dropout))\n",
+                "\n",
+                "    def forward(self, x, context=None, value=None, mask=None):\n",
+                "        q = self.to_q(x)\n",
+                "        context = default(context, x)\n",
+                "        k = self.to_k(context)\n",
+                "        if value is not None:\n",
+                "            v = self.to_v(value)\n",
+                "            del value\n",
+                "        else:\n",
+                "            v = self.to_v(context)\n",
+                "\n",
+                "        if mask is None:\n",
+                "            out = optimized_attention(q, k, v, self.heads)\n",
+                "        else:\n",
+                "            out = optimized_attention_masked(q, k, v, self.heads, mask)\n",
+                "        return self.to_out(out)\n",
+                "\n",
+                "\n",
+                "class BasicTransformerBlock(nn.Module):\n",
+                "    def __init__(self, dim, n_heads, d_head, dropout=0., context_dim=None, gated_ff=True, checkpoint=True, ff_in=False, inner_dim=None,\n",
+                "                 disable_self_attn=False, disable_temporal_crossattention=False, switch_temporal_ca_to_sa=False, dtype=None, device=None, operations=ops):\n",
+                "        super().__init__()\n",
+                "\n",
+                "        self.ff_in = ff_in or inner_dim is not None\n",
+                "        if inner_dim is None:\n",
+                "            inner_dim = dim\n",
+                "\n",
+                "        self.is_res = inner_dim == dim\n",
+                "\n",
+                "        if self.ff_in:\n",
+                "            self.norm_in = operations.LayerNorm(dim, dtype=dtype, device=device)\n",
+                "            self.ff_in = FeedForward(dim, dim_out=inner_dim, dropout=dropout, glu=gated_ff, dtype=dtype, device=device, operations=operations)\n",
+                "\n",
+                "        self.disable_self_attn = disable_self_attn\n",
+                "        self.attn1 = CrossAttention(query_dim=inner_dim, heads=n_heads, dim_head=d_head, dropout=dropout,\n",
+                "                              context_dim=context_dim if self.disable_self_attn else None, dtype=dtype, device=device, operations=operations)  # is a self-attention if not self.disable_self_attn\n",
+                "        self.ff = FeedForward(inner_dim, dim_out=dim, dropout=dropout, glu=gated_ff, dtype=dtype, device=device, operations=operations)\n",
+                "\n",
+                "        if disable_temporal_crossattention:\n",
+                "            if switch_temporal_ca_to_sa:\n",
+                "                raise ValueError\n",
+                "            else:\n",
+                "                self.attn2 = None\n",
+                "        else:\n",
+                "            context_dim_attn2 = None\n",
+                "            if not switch_temporal_ca_to_sa:\n",
+                "                context_dim_attn2 = context_dim\n",
+                "\n",
+                "            self.attn2 = CrossAttention(query_dim=inner_dim, context_dim=context_dim_attn2,\n",
+                "                                heads=n_heads, dim_head=d_head, dropout=dropout, dtype=dtype, device=device, operations=operations)  # is self-attn if context is none\n",
+                "            self.norm2 = operations.LayerNorm(inner_dim, dtype=dtype, device=device)\n",
+                "\n",
+                "        self.norm1 = operations.LayerNorm(inner_dim, dtype=dtype, device=device)\n",
+                "        self.norm3 = operations.LayerNorm(inner_dim, dtype=dtype, device=device)\n",
+                "        self.checkpoint = checkpoint\n",
+                "        self.n_heads = n_heads\n",
+                "        self.d_head = d_head\n",
+                "        self.switch_temporal_ca_to_sa = switch_temporal_ca_to_sa\n",
+                "\n",
+                "    def forward(self, x, context=None, transformer_options={}):\n",
+                "        return checkpoint(self._forward, (x, context, transformer_options), self.parameters(), self.checkpoint)\n",
+                "\n",
+                "    def _forward(self, x, context=None, transformer_options={}):\n",
+                "        extra_options = {}\n",
+                "        block = transformer_options.get(\"block\", None)\n",
+                "        block_index = transformer_options.get(\"block_index\", 0)\n",
+                "        transformer_patches = {}\n",
+                "        transformer_patches_replace = {}\n",
+                "\n",
+                "        for k in transformer_options:\n",
+                "            if k == \"patches\":\n",
+                "                transformer_patches = transformer_options[k]\n",
+                "            elif k == \"patches_replace\":\n",
+                "                transformer_patches_replace = transformer_options[k]\n",
+                "            else:\n",
+                "                extra_options[k] = transformer_options[k]\n",
+                "\n",
+                "        extra_options[\"n_heads\"] = self.n_heads\n",
+                "        extra_options[\"dim_head\"] = self.d_head\n",
+                "\n",
+                "        if self.ff_in:\n",
+                "            x_skip = x\n",
+                "            x = self.ff_in(self.norm_in(x))\n",
+                "            if self.is_res:\n",
+                "                x += x_skip\n",
+                "\n",
+                "        n = self.norm1(x)\n",
+                "        if self.disable_self_attn:\n",
+                "            context_attn1 = context\n",
+                "        else:\n",
+                "            context_attn1 = None\n",
+                "        value_attn1 = None\n",
+                "\n",
+                "        if \"attn1_patch\" in transformer_patches:\n",
+                "            patch = transformer_patches[\"attn1_patch\"]\n",
+                "            if context_attn1 is None:\n",
+                "                context_attn1 = n\n",
+                "            value_attn1 = context_attn1\n",
+                "            for p in patch:\n",
+                "                n, context_attn1, value_attn1 = p(n, context_attn1, value_attn1, extra_options)\n",
+                "\n",
+                "        if block is not None:\n",
+                "            transformer_block = (block[0], block[1], block_index)\n",
+                "        else:\n",
+                "            transformer_block = None\n",
+                "        attn1_replace_patch = transformer_patches_replace.get(\"attn1\", {})\n",
+                "        block_attn1 = transformer_block\n",
+                "        if block_attn1 not in attn1_replace_patch:\n",
+                "            block_attn1 = block\n",
+                "\n",
+                "        if block_attn1 in attn1_replace_patch:\n",
+                "            if context_attn1 is None:\n",
+                "                context_attn1 = n\n",
+                "                value_attn1 = n\n",
+                "            n = self.attn1.to_q(n)\n",
+                "            context_attn1 = self.attn1.to_k(context_attn1)\n",
+                "            value_attn1 = self.attn1.to_v(value_attn1)\n",
+                "            n = attn1_replace_patch[block_attn1](n, context_attn1, value_attn1, extra_options)\n",
+                "            n = self.attn1.to_out(n)\n",
+                "        else:\n",
+                "            n = self.attn1(n, context=context_attn1, value=value_attn1)\n",
+                "\n",
+                "        if \"attn1_output_patch\" in transformer_patches:\n",
+                "            patch = transformer_patches[\"attn1_output_patch\"]\n",
+                "            for p in patch:\n",
+                "                n = p(n, extra_options)\n",
+                "\n",
+                "        x += n\n",
+                "        if \"middle_patch\" in transformer_patches:\n",
+                "            patch = transformer_patches[\"middle_patch\"]\n",
+                "            for p in patch:\n",
+                "                x = p(x, extra_options)\n",
+                "\n",
+                "        if self.attn2 is not None:\n",
+                "            n = self.norm2(x)\n",
+                "            if self.switch_temporal_ca_to_sa:\n",
+                "                context_attn2 = n\n",
+                "            else:\n",
+                "                context_attn2 = context\n",
+                "            value_attn2 = None\n",
+                "            if \"attn2_patch\" in transformer_patches:\n",
+                "                patch = transformer_patches[\"attn2_patch\"]\n",
+                "                value_attn2 = context_attn2\n",
+                "                for p in patch:\n",
+                "                    n, context_attn2, value_attn2 = p(n, context_attn2, value_attn2, extra_options)\n",
+                "\n",
+                "            attn2_replace_patch = transformer_patches_replace.get(\"attn2\", {})\n",
+                "            block_attn2 = transformer_block\n",
+                "            if block_attn2 not in attn2_replace_patch:\n",
+                "                block_attn2 = block\n",
+                "\n",
+                "            if block_attn2 in attn2_replace_patch:\n",
+                "                if value_attn2 is None:\n",
+                "                    value_attn2 = context_attn2\n",
+                "                n = self.attn2.to_q(n)\n",
+                "                context_attn2 = self.attn2.to_k(context_attn2)\n",
+                "                value_attn2 = self.attn2.to_v(value_attn2)\n",
+                "                n = attn2_replace_patch[block_attn2](n, context_attn2, value_attn2, extra_options)\n",
+                "                n = self.attn2.to_out(n)\n",
+                "            else:\n",
+                "                n = self.attn2(n, context=context_attn2, value=value_attn2)\n",
+                "\n",
+                "        if \"attn2_output_patch\" in transformer_patches:\n",
+                "            patch = transformer_patches[\"attn2_output_patch\"]\n",
+                "            for p in patch:\n",
+                "                n = p(n, extra_options)\n",
+                "\n",
+                "        x += n\n",
+                "        if self.is_res:\n",
+                "            x_skip = x\n",
+                "        x = self.ff(self.norm3(x))\n",
+                "        if self.is_res:\n",
+                "            x += x_skip\n",
+                "\n",
+                "        return x\n",
+                "\n",
+                "\n",
+                "class SpatialTransformer(nn.Module):\n",
+                "    \"\"\"\n",
+                "    Transformer block for image-like data.\n",
+                "    First, project the input (aka embedding)\n",
+                "    and reshape to b, t, d.\n",
+                "    Then apply standard transformer action.\n",
+                "    Finally, reshape to image\n",
+                "    NEW: use_linear for more efficiency instead of the 1x1 convs\n",
+                "    \"\"\"\n",
+                "    def __init__(self, in_channels, n_heads, d_head,\n",
+                "                 depth=1, dropout=0., context_dim=None,\n",
+                "                 disable_self_attn=False, use_linear=False,\n",
+                "                 use_checkpoint=True, dtype=None, device=None, operations=ops):\n",
+                "        super().__init__()\n",
+                "        if exists(context_dim) and not isinstance(context_dim, list):\n",
+                "            context_dim = [context_dim] * depth\n",
+                "        self.in_channels = in_channels\n",
+                "        inner_dim = n_heads * d_head\n",
+                "        self.norm = operations.GroupNorm(num_groups=32, num_channels=in_channels, eps=1e-6, affine=True, dtype=dtype, device=device)\n",
+                "        if not use_linear:\n",
+                "            self.proj_in = operations.Conv2d(in_channels,\n",
+                "                                     inner_dim,\n",
+                "                                     kernel_size=1,\n",
+                "                                     stride=1,\n",
+                "                                     padding=0, dtype=dtype, device=device)\n",
+                "        else:\n",
+                "            self.proj_in = operations.Linear(in_channels, inner_dim, dtype=dtype, device=device)\n",
+                "\n",
+                "        self.transformer_blocks = nn.ModuleList(\n",
+                "            [BasicTransformerBlock(inner_dim, n_heads, d_head, dropout=dropout, context_dim=context_dim[d],\n",
+                "                                   disable_self_attn=disable_self_attn, checkpoint=use_checkpoint, dtype=dtype, device=device, operations=operations)\n",
+                "                for d in range(depth)]\n",
+                "        )\n",
+                "        if not use_linear:\n",
+                "            self.proj_out = operations.Conv2d(inner_dim,in_channels,\n",
+                "                                                  kernel_size=1,\n",
+                "                                                  stride=1,\n",
+                "                                                  padding=0, dtype=dtype, device=device)\n",
+                "        else:\n",
+                "            self.proj_out = operations.Linear(in_channels, inner_dim, dtype=dtype, device=device)\n",
+                "        self.use_linear = use_linear\n",
+                "\n",
+                "    def forward(self, x, context=None, transformer_options={}):\n",
+                "        # note: if no context is given, cross-attention defaults to self-attention\n",
+                "        if not isinstance(context, list):\n",
+                "            context = [context] * len(self.transformer_blocks)\n",
+                "        b, c, h, w = x.shape\n",
+                "        x_in = x\n",
+                "        x = self.norm(x)\n",
+                "        if not self.use_linear:\n",
+                "            x = self.proj_in(x)\n",
+                "        x = rearrange(x, 'b c h w -> b (h w) c').contiguous()\n",
+                "        if self.use_linear:\n",
+                "            x = self.proj_in(x)\n",
+                "        for i, block in enumerate(self.transformer_blocks):\n",
+                "            transformer_options[\"block_index\"] = i\n",
+                "            x = block(x, context=context[i], transformer_options=transformer_options)\n",
+                "        if self.use_linear:\n",
+                "            x = self.proj_out(x)\n",
+                "        x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w).contiguous()\n",
+                "        if not self.use_linear:\n",
+                "            x = self.proj_out(x)\n",
+                "        return x + x_in\n",
+                "\n",
+                "\n",
+                "class SpatialVideoTransformer(SpatialTransformer):\n",
+                "    def __init__(\n",
+                "        self,\n",
+                "        in_channels,\n",
+                "        n_heads,\n",
+                "        d_head,\n",
+                "        depth=1,\n",
+                "        dropout=0.0,\n",
+                "        use_linear=False,\n",
+                "        context_dim=None,\n",
+                "        use_spatial_context=False,\n",
+                "        timesteps=None,\n",
+                "        merge_strategy: str = \"fixed\",\n",
+                "        merge_factor: float = 0.5,\n",
+                "        time_context_dim=None,\n",
+                "        ff_in=False,\n",
+                "        checkpoint=False,\n",
+                "        time_depth=1,\n",
+                "        disable_self_attn=False,\n",
+                "        disable_temporal_crossattention=False,\n",
+                "        max_time_embed_period: int = 10000,\n",
+                "        dtype=None, device=None, operations=ops\n",
+                "    ):\n",
+                "        super().__init__(\n",
+                "            in_channels,\n",
+                "            n_heads,\n",
+                "            d_head,\n",
+                "            depth=depth,\n",
+                "            dropout=dropout,\n",
+                "            use_checkpoint=checkpoint,\n",
+                "            context_dim=context_dim,\n",
+                "            use_linear=use_linear,\n",
+                "            disable_self_attn=disable_self_attn,\n",
+                "            dtype=dtype, device=device, operations=operations\n",
+                "        )\n",
+                "        self.time_depth = time_depth\n",
+                "        self.depth = depth\n",
+                "        self.max_time_embed_period = max_time_embed_period\n",
+                "\n",
+                "        time_mix_d_head = d_head\n",
+                "        n_time_mix_heads = n_heads\n",
+                "\n",
+                "        time_mix_inner_dim = int(time_mix_d_head * n_time_mix_heads)\n",
+                "\n",
+                "        inner_dim = n_heads * d_head\n",
+                "        if use_spatial_context:\n",
+                "            time_context_dim = context_dim\n",
+                "\n",
+                "        self.time_stack = nn.ModuleList(\n",
+                "            [\n",
+                "                BasicTransformerBlock(\n",
+                "                    inner_dim,\n",
+                "                    n_time_mix_heads,\n",
+                "                    time_mix_d_head,\n",
+                "                    dropout=dropout,\n",
+                "                    context_dim=time_context_dim,\n",
+                "                    # timesteps=timesteps,\n",
+                "                    checkpoint=checkpoint,\n",
+                "                    ff_in=ff_in,\n",
+                "                    inner_dim=time_mix_inner_dim,\n",
+                "                    disable_self_attn=disable_self_attn,\n",
+                "                    disable_temporal_crossattention=disable_temporal_crossattention,\n",
+                "                    dtype=dtype, device=device, operations=operations\n",
+                "                )\n",
+                "                for _ in range(self.depth)\n",
+                "            ]\n",
+                "        )\n",
+                "\n",
+                "        assert len(self.time_stack) == len(self.transformer_blocks)\n",
+                "\n",
+                "        self.use_spatial_context = use_spatial_context\n",
+                "        self.in_channels = in_channels\n",
+                "\n",
+                "        time_embed_dim = self.in_channels * 4\n",
+                "        self.time_pos_embed = nn.Sequential(\n",
+                "            operations.Linear(self.in_channels, time_embed_dim, dtype=dtype, device=device),\n",
+                "            nn.SiLU(),\n",
+                "            operations.Linear(time_embed_dim, self.in_channels, dtype=dtype, device=device),\n",
+                "        )\n",
+                "\n",
+                "        self.time_mixer = AlphaBlender(\n",
+                "            alpha=merge_factor, merge_strategy=merge_strategy\n",
+                "        )\n",
+                "\n",
+                "    def forward(\n",
+                "        self,\n",
+                "        x: torch.Tensor,\n",
+                "        context: Optional[torch.Tensor] = None,\n",
+                "        time_context: Optional[torch.Tensor] = None,\n",
+                "        timesteps: Optional[int] = None,\n",
+                "        image_only_indicator: Optional[torch.Tensor] = None,\n",
+                "        transformer_options={}\n",
+                "    ) -> torch.Tensor:\n",
+                "        _, _, h, w = x.shape\n",
+                "        x_in = x\n",
+                "        spatial_context = None\n",
+                "        if exists(context):\n",
+                "            spatial_context = context\n",
+                "\n",
+                "        if self.use_spatial_context:\n",
+                "            assert (\n",
+                "                context.ndim == 3\n",
+                "            ), f\"n dims of spatial context should be 3 but are {context.ndim}\"\n",
+                "\n",
+                "            if time_context is None:\n",
+                "                time_context = context\n",
+                "            time_context_first_timestep = time_context[::timesteps]\n",
+                "            time_context = repeat(\n",
+                "                time_context_first_timestep, \"b ... -> (b n) ...\", n=h * w\n",
+                "            )\n",
+                "        elif time_context is not None and not self.use_spatial_context:\n",
+                "            time_context = repeat(time_context, \"b ... -> (b n) ...\", n=h * w)\n",
+                "            if time_context.ndim == 2:\n",
+                "                time_context = rearrange(time_context, \"b c -> b 1 c\")\n",
+                "\n",
+                "        x = self.norm(x)\n",
+                "        if not self.use_linear:\n",
+                "            x = self.proj_in(x)\n",
+                "        x = rearrange(x, \"b c h w -> b (h w) c\")\n",
+                "        if self.use_linear:\n",
+                "            x = self.proj_in(x)\n",
+                "\n",
+                "        num_frames = torch.arange(timesteps, device=x.device)\n",
+                "        num_frames = repeat(num_frames, \"t -> b t\", b=x.shape[0] // timesteps)\n",
+                "        num_frames = rearrange(num_frames, \"b t -> (b t)\")\n",
+                "        t_emb = timestep_embedding(num_frames, self.in_channels, repeat_only=False, max_period=self.max_time_embed_period).to(x.dtype)\n",
+                "        emb = self.time_pos_embed(t_emb)\n",
+                "        emb = emb[:, None, :]\n",
+                "\n",
+                "        for it_, (block, mix_block) in enumerate(\n",
+                "            zip(self.transformer_blocks, self.time_stack)\n",
+                "        ):\n",
+                "            transformer_options[\"block_index\"] = it_\n",
+                "            x = block(\n",
+                "                x,\n",
+                "                context=spatial_context,\n",
+                "                transformer_options=transformer_options,\n",
+                "            )\n",
+                "\n",
+                "            x_mix = x\n",
+                "            x_mix = x_mix + emb\n",
+                "\n",
+                "            B, S, C = x_mix.shape\n",
+                "            x_mix = rearrange(x_mix, \"(b t) s c -> (b s) t c\", t=timesteps)\n",
+                "            x_mix = mix_block(x_mix, context=time_context) #TODO: transformer_options\n",
+                "            x_mix = rearrange(\n",
+                "                x_mix, \"(b s) t c -> (b t) s c\", s=S, b=B // timesteps, c=C, t=timesteps\n",
+                "            )\n",
+                "\n",
+                "            x = self.time_mixer(x_spatial=x, x_temporal=x_mix, image_only_indicator=image_only_indicator)\n",
+                "\n",
+                "        if self.use_linear:\n",
+                "            x = self.proj_out(x)\n",
+                "        x = rearrange(x, \"b (h w) c -> b c h w\", h=h, w=w)\n",
+                "        if not self.use_linear:\n",
+                "            x = self.proj_out(x)\n",
+                "        out = x + x_in\n",
+                "        return out\n",
+                "\n",
+                ""
+            ]
+        ],
+        "comfy/ldm/modules/sub_quadratic_attention.py": [
+            [
+                "# original source:\n",
+                "#   https://github.com/AminRezaei0x443/memory-efficient-attention/blob/1bc0d9e6ac5f82ea43a375135c4e1d3896ee1694/memory_efficient_attention/attention_torch.py\n",
+                "# license:\n",
+                "#   MIT\n",
+                "# credit:\n",
+                "#   Amin Rezaei (original author)\n",
+                "#   Alex Birch (optimized algorithm for 3D tensors, at the expense of removing bias, masking and callbacks)\n",
+                "# implementation of:\n",
+                "#   Self-attention Does Not Need O(n2) Memory\":\n",
+                "#   https://arxiv.org/abs/2112.05682v2\n",
+                "\n",
+                "from functools import partial\n",
+                "import torch\n",
+                "from torch import Tensor\n",
+                "from torch.utils.checkpoint import checkpoint\n",
+                "import math\n",
+                "\n",
+                "try:\n",
+                "\tfrom typing import Optional, NamedTuple, List, Protocol\n",
+                "except ImportError:\n",
+                "\tfrom typing import Optional, NamedTuple, List\n",
+                "\tfrom typing_extensions import Protocol\n",
+                "\n",
+                "from torch import Tensor\n",
+                "from typing import List\n",
+                "\n",
+                "from comfy import model_management\n",
+                "\n",
+                "def dynamic_slice(\n",
+                "    x: Tensor,\n",
+                "    starts: List[int],\n",
+                "    sizes: List[int],\n",
+                ") -> Tensor:\n",
+                "    slicing = [slice(start, start + size) for start, size in zip(starts, sizes)]\n",
+                "    return x[slicing]\n",
+                "\n",
+                "class AttnChunk(NamedTuple):\n",
+                "    exp_values: Tensor\n",
+                "    exp_weights_sum: Tensor\n",
+                "    max_score: Tensor\n",
+                "\n",
+                "class SummarizeChunk(Protocol):\n",
+                "    @staticmethod\n",
+                "    def __call__(\n",
+                "        query: Tensor,\n",
+                "        key_t: Tensor,\n",
+                "        value: Tensor,\n",
+                "    ) -> AttnChunk: ...\n",
+                "\n",
+                "class ComputeQueryChunkAttn(Protocol):\n",
+                "    @staticmethod\n",
+                "    def __call__(\n",
+                "        query: Tensor,\n",
+                "        key_t: Tensor,\n",
+                "        value: Tensor,\n",
+                "    ) -> Tensor: ...\n",
+                "\n",
+                "def _summarize_chunk(\n",
+                "    query: Tensor,\n",
+                "    key_t: Tensor,\n",
+                "    value: Tensor,\n",
+                "    scale: float,\n",
+                "    upcast_attention: bool,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    mask,\n"
+                ],
+                "parent_version_range": {
+                    "start": 63,
+                    "end": 63
+                },
+                "child_version_range": {
+                    "start": 63,
+                    "end": 64
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_summarize_chunk",
+                        "signature": "def _summarize_chunk(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->AttnChunk:",
+                        "at_line": 57
+                    }
+                ],
+                "idx": 1,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n         def _summarize_chunk(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->AttnChunk:\n             ...\n60 60        value: Tensor,\n61 61        scale: float,\n62 62        upcast_attention: bool,\n   63  +     mask,\n63 64    ) -> AttnChunk:\n64 65        if upcast_attention:\n65 66            with torch.autocast(enabled=False, device_type = 'cuda'):\n       ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "    value: Tensor,\n",
+                    "    scale: float,\n",
+                    "    upcast_attention: bool,\n"
+                ],
+                "suffix": [
+                    ") -> AttnChunk:\n",
+                    "    if upcast_attention:\n",
+                    "        with torch.autocast(enabled=False, device_type = 'cuda'):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 63,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 63,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 1,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    3,
+                    7
+                ]
+            },
+            [
+                ") -> AttnChunk:\n",
+                "    if upcast_attention:\n",
+                "        with torch.autocast(enabled=False, device_type = 'cuda'):\n",
+                "            query = query.float()\n",
+                "            key_t = key_t.float()\n",
+                "            attn_weights = torch.baddbmm(\n",
+                "                torch.empty(1, 1, 1, device=query.device, dtype=query.dtype),\n",
+                "                query,\n",
+                "                key_t,\n",
+                "                alpha=scale,\n",
+                "                beta=0,\n",
+                "            )\n",
+                "    else:\n",
+                "        attn_weights = torch.baddbmm(\n",
+                "            torch.empty(1, 1, 1, device=query.device, dtype=query.dtype),\n",
+                "            query,\n",
+                "            key_t,\n",
+                "            alpha=scale,\n",
+                "            beta=0,\n",
+                "        )\n",
+                "    max_score, _ = torch.max(attn_weights, -1, keepdim=True)\n",
+                "    max_score = max_score.detach()\n",
+                "    attn_weights -= max_score\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if mask is not None:\n",
+                    "        attn_weights += mask\n"
+                ],
+                "parent_version_range": {
+                    "start": 86,
+                    "end": 86
+                },
+                "child_version_range": {
+                    "start": 87,
+                    "end": 89
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_summarize_chunk",
+                        "signature": "def _summarize_chunk(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->AttnChunk:",
+                        "at_line": 57
+                    }
+                ],
+                "idx": 2,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n         def _summarize_chunk(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->AttnChunk:\n             ...\n83 84        max_score, _ = torch.max(attn_weights, -1, keepdim=True)\n84 85        max_score = max_score.detach()\n85 86        attn_weights -= max_score\n   87  +     if mask is not None:\n   88  +         attn_weights += mask\n86 89        torch.exp(attn_weights, out=attn_weights)\n87 90        exp_weights = attn_weights.to(value.dtype)\n88 91        exp_values = torch.bmm(exp_weights, value)\n       ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "attn_weights",
+                    "mask"
+                ],
+                "prefix": [
+                    "    max_score, _ = torch.max(attn_weights, -1, keepdim=True)\n",
+                    "    max_score = max_score.detach()\n",
+                    "    attn_weights -= max_score\n"
+                ],
+                "suffix": [
+                    "    torch.exp(attn_weights, out=attn_weights)\n",
+                    "    exp_weights = attn_weights.to(value.dtype)\n",
+                    "    exp_values = torch.bmm(exp_weights, value)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 87,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 87,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 1,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 88,
+                                    "column": 24
+                                },
+                                "end": {
+                                    "line": 88,
+                                    "column": 28
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    8
+                ]
+            },
+            [
+                "    torch.exp(attn_weights, out=attn_weights)\n",
+                "    exp_weights = attn_weights.to(value.dtype)\n",
+                "    exp_values = torch.bmm(exp_weights, value)\n",
+                "    max_score = max_score.squeeze(-1)\n",
+                "    return AttnChunk(exp_values, exp_weights.sum(dim=-1), max_score)\n",
+                "\n",
+                "def _query_chunk_attention(\n",
+                "    query: Tensor,\n",
+                "    key_t: Tensor,\n",
+                "    value: Tensor,\n",
+                "    summarize_chunk: SummarizeChunk,\n",
+                "    kv_chunk_size: int,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    mask,\n"
+                ],
+                "parent_version_range": {
+                    "start": 98,
+                    "end": 98
+                },
+                "child_version_range": {
+                    "start": 101,
+                    "end": 102
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_query_chunk_attention",
+                        "signature": "def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:",
+                        "at_line": 92
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:\n               ...\n 95  98        value: Tensor,\n 96  99        summarize_chunk: SummarizeChunk,\n 97 100        kv_chunk_size: int,\n    101  +     mask,\n 98 102    ) -> Tensor:\n 99 103        batch_x_heads, k_channels_per_head, k_tokens = key_t.shape\n100 104        _, _, v_channels_per_head = value.shape\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "    value: Tensor,\n",
+                    "    summarize_chunk: SummarizeChunk,\n",
+                    "    kv_chunk_size: int,\n"
+                ],
+                "suffix": [
+                    ") -> Tensor:\n",
+                    "    batch_x_heads, k_channels_per_head, k_tokens = key_t.shape\n",
+                    "    _, _, v_channels_per_head = value.shape\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 101,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 101,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    1,
+                    7
+                ]
+            },
+            [
+                ") -> Tensor:\n",
+                "    batch_x_heads, k_channels_per_head, k_tokens = key_t.shape\n",
+                "    _, _, v_channels_per_head = value.shape\n",
+                "\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    def chunk_scanner(chunk_idx: int) -> AttnChunk:\n"
+                ],
+                "after": [
+                    "    def chunk_scanner(chunk_idx: int, mask) -> AttnChunk:\n"
+                ],
+                "parent_version_range": {
+                    "start": 102,
+                    "end": 103
+                },
+                "child_version_range": {
+                    "start": 106,
+                    "end": 107
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_query_chunk_attention",
+                        "signature": "def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:",
+                        "at_line": 92
+                    },
+                    {
+                        "type": "function",
+                        "name": "chunk_scanner",
+                        "signature": "def chunk_scanner(chunk_idx: int)->AttnChunk:",
+                        "at_line": 102
+                    }
+                ],
+                "idx": 4,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:\n               ...\n 99 103        batch_x_heads, k_channels_per_head, k_tokens = key_t.shape\n100 104        _, _, v_channels_per_head = value.shape\n101 105    \n102      -     def chunk_scanner(chunk_idx: int) -> AttnChunk:\n    106  +     def chunk_scanner(chunk_idx: int, mask) -> AttnChunk:\n103 107            key_chunk = dynamic_slice(\n104 108                key_t,\n105 109                (0, 0, chunk_idx),\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [
+                    "AttnChunk",
+                    "chunk_idx",
+                    "chunk_scanner",
+                    "int"
+                ],
+                "identifiers_after": [
+                    "AttnChunk",
+                    "chunk_idx",
+                    "chunk_scanner",
+                    "int",
+                    "mask"
+                ],
+                "prefix": [
+                    "    batch_x_heads, k_channels_per_head, k_tokens = key_t.shape\n",
+                    "    _, _, v_channels_per_head = value.shape\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "        key_chunk = dynamic_slice(\n",
+                    "            key_t,\n",
+                    "            (0, 0, chunk_idx),\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "chunk_scanner",
+                            "position": {
+                                "start": {
+                                    "line": 102,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 102,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 6,
+                        "detail": {
+                            "identifier": "chunk_scanner",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "chunk_idx",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 5,
+                        "detail": {
+                            "identifier": "chunk_idx",
+                            "position": {
+                                "start": {
+                                    "line": 106,
+                                    "column": 22
+                                },
+                                "end": {
+                                    "line": 106,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 4,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "        key_chunk = dynamic_slice(\n",
+                "            key_t,\n",
+                "            (0, 0, chunk_idx),\n",
+                "            (batch_x_heads, k_channels_per_head, kv_chunk_size)\n",
+                "        )\n",
+                "        value_chunk = dynamic_slice(\n",
+                "            value,\n",
+                "            (0, chunk_idx, 0),\n",
+                "            (batch_x_heads, kv_chunk_size, v_channels_per_head)\n",
+                "        )\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        return summarize_chunk(query, key_chunk, value_chunk)\n"
+                ],
+                "after": [
+                    "        if mask is not None:\n",
+                    "            mask = mask[:,:,chunk_idx:chunk_idx + kv_chunk_size]\n",
+                    "\n",
+                    "        return summarize_chunk(query, key_chunk, value_chunk, mask=mask)\n"
+                ],
+                "parent_version_range": {
+                    "start": 113,
+                    "end": 114
+                },
+                "child_version_range": {
+                    "start": 117,
+                    "end": 121
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_query_chunk_attention",
+                        "signature": "def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:",
+                        "at_line": 92
+                    },
+                    {
+                        "type": "function",
+                        "name": "chunk_scanner",
+                        "signature": "def chunk_scanner(chunk_idx: int)->AttnChunk:",
+                        "at_line": 102
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:\n               ...\n               def chunk_scanner(chunk_idx: int)->AttnChunk:\n                   ...\n110 114                (0, chunk_idx, 0),\n111 115                (batch_x_heads, kv_chunk_size, v_channels_per_head)\n112 116            )\n113      -         return summarize_chunk(query, key_chunk, value_chunk)\n    117  +         if mask is not None:\n    118  +             mask = mask[:,:,chunk_idx:chunk_idx + kv_chunk_size]\n    119  + \n    120  +         return summarize_chunk(query, key_chunk, value_chunk, mask=mask)\n114 121    \n115 122        chunks: List[AttnChunk] = [\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [
+                    "key_chunk",
+                    "query",
+                    "summarize_chunk",
+                    "value_chunk"
+                ],
+                "identifiers_after": [
+                    "chunk_idx",
+                    "key_chunk",
+                    "kv_chunk_size",
+                    "mask",
+                    "query",
+                    "summarize_chunk",
+                    "value_chunk"
+                ],
+                "prefix": [
+                    "            (0, chunk_idx, 0),\n",
+                    "            (batch_x_heads, kv_chunk_size, v_channels_per_head)\n",
+                    "        )\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    chunks: List[AttnChunk] = [\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "chunk_idx",
+                            "position": {
+                                "start": {
+                                    "line": 118,
+                                    "column": 28
+                                },
+                                "end": {
+                                    "line": 118,
+                                    "column": 37
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "chunk_idx",
+                            "position": {
+                                "start": {
+                                    "line": 118,
+                                    "column": 38
+                                },
+                                "end": {
+                                    "line": 118,
+                                    "column": 47
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 5,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    chunks: List[AttnChunk] = [\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        chunk_scanner(chunk) for chunk in torch.arange(0, k_tokens, kv_chunk_size)\n"
+                ],
+                "after": [
+                    "        chunk_scanner(chunk, mask) for chunk in torch.arange(0, k_tokens, kv_chunk_size)\n"
+                ],
+                "parent_version_range": {
+                    "start": 116,
+                    "end": 117
+                },
+                "child_version_range": {
+                    "start": 123,
+                    "end": 124
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_query_chunk_attention",
+                        "signature": "def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:",
+                        "at_line": 92
+                    },
+                    {
+                        "type": "call",
+                        "name": "chunk_scanner",
+                        "signature": "chunk_scanner(chunk)",
+                        "at_line": 116,
+                        "argument": "chunk"
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _query_chunk_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    summarize_chunk: SummarizeChunk,\n    kv_chunk_size: int,\n)->Tensor:\n               ...\n114 121    \n115 122        chunks: List[AttnChunk] = [\n116      -         chunk_scanner(chunk) for chunk in torch.arange(0, k_tokens, kv_chunk_size)\n    123  +         chunk_scanner(chunk, mask) for chunk in torch.arange(0, k_tokens, kv_chunk_size)\n117 124        ]\n118 125        acc_chunk = AttnChunk(*map(torch.stack, zip(*chunks)))\n119 126        chunk_values, chunk_weights, chunk_max = acc_chunk\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [
+                    "arange",
+                    "chunk",
+                    "chunk_scanner",
+                    "k_tokens",
+                    "kv_chunk_size",
+                    "torch"
+                ],
+                "identifiers_after": [
+                    "arange",
+                    "chunk",
+                    "chunk_scanner",
+                    "k_tokens",
+                    "kv_chunk_size",
+                    "mask",
+                    "torch"
+                ],
+                "prefix": [
+                    "\n",
+                    "    chunks: List[AttnChunk] = [\n"
+                ],
+                "suffix": [
+                    "    ]\n",
+                    "    acc_chunk = AttnChunk(*map(torch.stack, zip(*chunks)))\n",
+                    "    chunk_values, chunk_weights, chunk_max = acc_chunk\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "chunk_scanner",
+                            "position": {
+                                "start": {
+                                    "line": 116,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 116,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 29
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 33
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 4,
+                        "detail": {
+                            "identifier": "chunk_scanner",
+                            "position": {
+                                "start": {
+                                    "line": 123,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 123,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 6,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "    ]\n",
+                "    acc_chunk = AttnChunk(*map(torch.stack, zip(*chunks)))\n",
+                "    chunk_values, chunk_weights, chunk_max = acc_chunk\n",
+                "\n",
+                "    global_max, _ = torch.max(chunk_max, 0, keepdim=True)\n",
+                "    max_diffs = torch.exp(chunk_max - global_max)\n",
+                "    chunk_values *= torch.unsqueeze(max_diffs, -1)\n",
+                "    chunk_weights *= max_diffs\n",
+                "\n",
+                "    all_values = chunk_values.sum(dim=0)\n",
+                "    all_weights = torch.unsqueeze(chunk_weights, -1).sum(dim=0)\n",
+                "    return all_values / all_weights\n",
+                "\n",
+                "# TODO: refactor CrossAttention#get_attention_scores to share code with this\n",
+                "def _get_attention_scores_no_kv_chunking(\n",
+                "    query: Tensor,\n",
+                "    key_t: Tensor,\n",
+                "    value: Tensor,\n",
+                "    scale: float,\n",
+                "    upcast_attention: bool,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    mask,\n"
+                ],
+                "parent_version_range": {
+                    "start": 137,
+                    "end": 137
+                },
+                "child_version_range": {
+                    "start": 144,
+                    "end": 145
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_get_attention_scores_no_kv_chunking",
+                        "signature": "def _get_attention_scores_no_kv_chunking(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->Tensor:",
+                        "at_line": 131
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _get_attention_scores_no_kv_chunking(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->Tensor:\n               ...\n134 141        value: Tensor,\n135 142        scale: float,\n136 143        upcast_attention: bool,\n    144  +     mask,\n137 145    ) -> Tensor:\n138 146        if upcast_attention:\n139 147            with torch.autocast(enabled=False, device_type = 'cuda'):\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "    value: Tensor,\n",
+                    "    scale: float,\n",
+                    "    upcast_attention: bool,\n"
+                ],
+                "suffix": [
+                    ") -> Tensor:\n",
+                    "    if upcast_attention:\n",
+                    "        with torch.autocast(enabled=False, device_type = 'cuda'):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 144,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 144,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 8,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 144,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 144,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 7,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": [
+                    1,
+                    3
+                ]
+            },
+            [
+                ") -> Tensor:\n",
+                "    if upcast_attention:\n",
+                "        with torch.autocast(enabled=False, device_type = 'cuda'):\n",
+                "            query = query.float()\n",
+                "            key_t = key_t.float()\n",
+                "            attn_scores = torch.baddbmm(\n",
+                "                torch.empty(1, 1, 1, device=query.device, dtype=query.dtype),\n",
+                "                query,\n",
+                "                key_t,\n",
+                "                alpha=scale,\n",
+                "                beta=0,\n",
+                "            )\n",
+                "    else:\n",
+                "        attn_scores = torch.baddbmm(\n",
+                "            torch.empty(1, 1, 1, device=query.device, dtype=query.dtype),\n",
+                "            query,\n",
+                "            key_t,\n",
+                "            alpha=scale,\n",
+                "            beta=0,\n",
+                "        )\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if mask is not None:\n",
+                    "        attn_scores += mask\n"
+                ],
+                "parent_version_range": {
+                    "start": 158,
+                    "end": 158
+                },
+                "child_version_range": {
+                    "start": 166,
+                    "end": 168
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "_get_attention_scores_no_kv_chunking",
+                        "signature": "def _get_attention_scores_no_kv_chunking(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->Tensor:",
+                        "at_line": 131
+                    }
+                ],
+                "idx": 8,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def _get_attention_scores_no_kv_chunking(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    scale: float,\n    upcast_attention: bool,\n)->Tensor:\n               ...\n155 163                beta=0,\n156 164            )\n157 165    \n    166  +     if mask is not None:\n    167  +         attn_scores += mask\n158 168        try:\n159 169            attn_probs = attn_scores.softmax(dim=-1)\n160 170            del attn_scores\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "attn_scores",
+                    "mask"
+                ],
+                "prefix": [
+                    "            beta=0,\n",
+                    "        )\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    try:\n",
+                    "        attn_probs = attn_scores.softmax(dim=-1)\n",
+                    "        del attn_scores\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 166,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 166,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 7,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 167,
+                                    "column": 23
+                                },
+                                "end": {
+                                    "line": 167,
+                                    "column": 27
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 8,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    2
+                ]
+            },
+            [
+                "    try:\n",
+                "        attn_probs = attn_scores.softmax(dim=-1)\n",
+                "        del attn_scores\n",
+                "    except model_management.OOM_EXCEPTION:\n",
+                "        print(\"ran out of memory while running softmax in  _get_attention_scores_no_kv_chunking, trying slower in place softmax instead\")\n",
+                "        attn_scores -= attn_scores.max(dim=-1, keepdim=True).values\n",
+                "        torch.exp(attn_scores, out=attn_scores)\n",
+                "        summed = torch.sum(attn_scores, dim=-1, keepdim=True)\n",
+                "        attn_scores /= summed\n",
+                "        attn_probs = attn_scores\n",
+                "\n",
+                "    hidden_states_slice = torch.bmm(attn_probs.to(value.dtype), value)\n",
+                "    return hidden_states_slice\n",
+                "\n",
+                "class ScannedChunk(NamedTuple):\n",
+                "    chunk_idx: int\n",
+                "    attn_chunk: AttnChunk\n",
+                "\n",
+                "def efficient_dot_product_attention(\n",
+                "    query: Tensor,\n",
+                "    key_t: Tensor,\n",
+                "    value: Tensor,\n",
+                "    query_chunk_size=1024,\n",
+                "    kv_chunk_size: Optional[int] = None,\n",
+                "    kv_chunk_size_min: Optional[int] = None,\n",
+                "    use_checkpoint=True,\n",
+                "    upcast_attention=False,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    mask = None,\n"
+                ],
+                "parent_version_range": {
+                    "start": 185,
+                    "end": 185
+                },
+                "child_version_range": {
+                    "start": 195,
+                    "end": 196
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):",
+                        "at_line": 176
+                    }
+                ],
+                "idx": 9,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):\n               ...\n182 192        kv_chunk_size_min: Optional[int] = None,\n183 193        use_checkpoint=True,\n184 194        upcast_attention=False,\n    195  +     mask = None,\n185 196    ):\n186 197        \"\"\"Computes efficient dot-product attention given query, transposed key, and value.\n187 198          This is efficient version of attention presented in\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "    kv_chunk_size_min: Optional[int] = None,\n",
+                    "    use_checkpoint=True,\n",
+                    "    upcast_attention=False,\n"
+                ],
+                "suffix": [
+                    "):\n",
+                    "    \"\"\"Computes efficient dot-product attention given query, transposed key, and value.\n",
+                    "      This is efficient version of attention presented in\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 10,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 12,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 195,
+                                    "column": 4
+                                },
+                                "end": {
+                                    "line": 195,
+                                    "column": 8
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "parameter",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 9,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "):\n",
+                "    \"\"\"Computes efficient dot-product attention given query, transposed key, and value.\n",
+                "      This is efficient version of attention presented in\n",
+                "      https://arxiv.org/abs/2112.05682v2 which comes with O(sqrt(n)) memory requirements.\n",
+                "      Args:\n",
+                "        query: queries for calculating attention with shape of\n",
+                "          `[batch * num_heads, tokens, channels_per_head]`.\n",
+                "        key_t: keys for calculating attention with shape of\n",
+                "          `[batch * num_heads, channels_per_head, tokens]`.\n",
+                "        value: values to be used in attention with shape of\n",
+                "          `[batch * num_heads, tokens, channels_per_head]`.\n",
+                "        query_chunk_size: int: query chunks size\n",
+                "        kv_chunk_size: Optional[int]: key/value chunks size. if None: defaults to sqrt(key_tokens)\n",
+                "        kv_chunk_size_min: Optional[int]: key/value minimum chunk size. only considered when kv_chunk_size is None. changes `sqrt(key_tokens)` into `max(sqrt(key_tokens), kv_chunk_size_min)`, to ensure our chunk sizes don't get too small (smaller chunks = more chunks = less concurrent work done).\n",
+                "        use_checkpoint: bool: whether to use checkpointing (recommended True for training, False for inference)\n",
+                "      Returns:\n",
+                "        Output of shape `[batch * num_heads, query_tokens, channels_per_head]`.\n",
+                "      \"\"\"\n",
+                "    batch_x_heads, q_tokens, q_channels_per_head = query.shape\n",
+                "    _, _, k_tokens = key_t.shape\n",
+                "    scale = q_channels_per_head ** -0.5\n",
+                "\n",
+                "    kv_chunk_size = min(kv_chunk_size or int(math.sqrt(k_tokens)), k_tokens)\n",
+                "    if kv_chunk_size_min is not None:\n",
+                "        kv_chunk_size = max(kv_chunk_size, kv_chunk_size_min)\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "    if mask is not None and len(mask.shape) == 2:\n",
+                    "        mask = mask.unsqueeze(0)\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 211,
+                    "end": 211
+                },
+                "child_version_range": {
+                    "start": 222,
+                    "end": 225
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):",
+                        "at_line": 176
+                    }
+                ],
+                "idx": 10,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):\n               ...\n208 219        if kv_chunk_size_min is not None:\n209 220            kv_chunk_size = max(kv_chunk_size, kv_chunk_size_min)\n210 221    \n    222  +     if mask is not None and len(mask.shape) == 2:\n    223  +         mask = mask.unsqueeze(0)\n    224  + \n211 225        def get_query_chunk(chunk_idx: int) -> Tensor:\n212 226            return dynamic_slice(\n213 227                query,\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "len",
+                    "mask",
+                    "shape",
+                    "unsqueeze"
+                ],
+                "prefix": [
+                    "    if kv_chunk_size_min is not None:\n",
+                    "        kv_chunk_size = max(kv_chunk_size, kv_chunk_size_min)\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "    def get_query_chunk(chunk_idx: int) -> Tensor:\n",
+                    "        return dynamic_slice(\n",
+                    "            query,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 222,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 222,
+                                    "column": 11
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 222,
+                                    "column": 32
+                                },
+                                "end": {
+                                    "line": 222,
+                                    "column": 36
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 223,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 223,
+                                    "column": 12
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 223,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 223,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 10,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "    def get_query_chunk(chunk_idx: int) -> Tensor:\n",
+                "        return dynamic_slice(\n",
+                "            query,\n",
+                "            (0, chunk_idx, 0),\n",
+                "            (batch_x_heads, min(query_chunk_size, q_tokens), q_channels_per_head)\n",
+                "        )\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "    \n"
+                ],
+                "after": [
+                    "\n",
+                    "    def get_mask_chunk(chunk_idx: int) -> Tensor:\n",
+                    "        if mask is None:\n",
+                    "            return None\n",
+                    "        chunk = min(query_chunk_size, q_tokens)\n",
+                    "        return mask[:,chunk_idx:chunk_idx + chunk]\n",
+                    "\n"
+                ],
+                "parent_version_range": {
+                    "start": 217,
+                    "end": 218
+                },
+                "child_version_range": {
+                    "start": 231,
+                    "end": 238
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):",
+                        "at_line": 176
+                    }
+                ],
+                "idx": 11,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):\n               ...\n214 228                (0, chunk_idx, 0),\n215 229                (batch_x_heads, min(query_chunk_size, q_tokens), q_channels_per_head)\n216 230            )\n217      -     \n    231  + \n    232  +     def get_mask_chunk(chunk_idx: int) -> Tensor:\n    233  +         if mask is None:\n    234  +             return None\n    235  +         chunk = min(query_chunk_size, q_tokens)\n    236  +         return mask[:,chunk_idx:chunk_idx + chunk]\n    237  + \n218 238        summarize_chunk: SummarizeChunk = partial(_summarize_chunk, scale=scale, upcast_attention=upcast_attention)\n219 239        summarize_chunk: SummarizeChunk = partial(checkpoint, summarize_chunk) if use_checkpoint else summarize_chunk\n220 240        compute_query_chunk_attn: ComputeQueryChunkAttn = partial(\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "Tensor",
+                    "chunk",
+                    "chunk_idx",
+                    "get_mask_chunk",
+                    "int",
+                    "mask",
+                    "min",
+                    "q_tokens",
+                    "query_chunk_size"
+                ],
+                "prefix": [
+                    "            (0, chunk_idx, 0),\n",
+                    "            (batch_x_heads, min(query_chunk_size, q_tokens), q_channels_per_head)\n",
+                    "        )\n"
+                ],
+                "suffix": [
+                    "    summarize_chunk: SummarizeChunk = partial(_summarize_chunk, scale=scale, upcast_attention=upcast_attention)\n",
+                    "    summarize_chunk: SummarizeChunk = partial(checkpoint, summarize_chunk) if use_checkpoint else summarize_chunk\n",
+                    "    compute_query_chunk_attn: ComputeQueryChunkAttn = partial(\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 233,
+                                    "column": 11
+                                },
+                                "end": {
+                                    "line": 233,
+                                    "column": 15
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    },
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 236,
+                                    "column": 15
+                                },
+                                "end": {
+                                    "line": 236,
+                                    "column": 19
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [
+                    {
+                        "to_hunk_idx": 13,
+                        "detail": {
+                            "identifier": "get_mask_chunk",
+                            "position": {
+                                "start": {
+                                    "line": 232,
+                                    "column": 8
+                                },
+                                "end": {
+                                    "line": 232,
+                                    "column": 22
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "function",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 11,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "other_clones": []
+            },
+            [
+                "    summarize_chunk: SummarizeChunk = partial(_summarize_chunk, scale=scale, upcast_attention=upcast_attention)\n",
+                "    summarize_chunk: SummarizeChunk = partial(checkpoint, summarize_chunk) if use_checkpoint else summarize_chunk\n",
+                "    compute_query_chunk_attn: ComputeQueryChunkAttn = partial(\n",
+                "        _get_attention_scores_no_kv_chunking,\n",
+                "        scale=scale,\n",
+                "        upcast_attention=upcast_attention\n",
+                "    ) if k_tokens <= kv_chunk_size else (\n",
+                "        # fast-path for when there's just 1 key-value chunk per query chunk (this is just sliced attention btw)\n",
+                "        partial(\n",
+                "            _query_chunk_attention,\n",
+                "            kv_chunk_size=kv_chunk_size,\n",
+                "            summarize_chunk=summarize_chunk,\n",
+                "        )\n",
+                "    )\n",
+                "\n",
+                "    if q_tokens <= query_chunk_size:\n",
+                "        # fast-path for when there's just 1 query chunk\n",
+                "        return compute_query_chunk_attn(\n",
+                "            query=query,\n",
+                "            key_t=key_t,\n",
+                "            value=value,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            mask=mask,\n"
+                ],
+                "parent_version_range": {
+                    "start": 239,
+                    "end": 239
+                },
+                "child_version_range": {
+                    "start": 259,
+                    "end": 260
+                },
+                "control_flow": [
+                    {
+                        "type": "if_statement",
+                        "statement": "if q_tokens <= query_chunk_size:",
+                        "start_line": 233,
+                        "end_line": 239
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):",
+                        "at_line": 176
+                    },
+                    {
+                        "type": "call",
+                        "name": "compute_query_chunk_attn",
+                        "signature": "compute_query_chunk_attn(\n            query=query,\n            key_t=key_t,\n            value=value,\n        )",
+                        "at_line": 235,
+                        "argument": "value=..."
+                    }
+                ],
+                "idx": 12,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):\n               ...\n               compute_query_chunk_attn(\n            query=query,\n            key_t=key_t,\n            value=value,\n        )\n                   ...\n236 256                query=query,\n237 257                key_t=key_t,\n238 258                value=value,\n    259  +             mask=mask,\n239 260            )\n240 261        \n241 262        # TODO: maybe we should use torch.empty_like(query) to allocate storage in-advance,\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "mask"
+                ],
+                "prefix": [
+                    "            query=query,\n",
+                    "            key_t=key_t,\n",
+                    "            value=value,\n"
+                ],
+                "suffix": [
+                    "        )\n",
+                    "    \n",
+                    "    # TODO: maybe we should use torch.empty_like(query) to allocate storage in-advance,\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 9,
+                        "detail": {
+                            "identifier": "mask",
+                            "position": {
+                                "start": {
+                                    "line": 259,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 259,
+                                    "column": 21
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 12,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    0
+                ]
+            },
+            [
+                "        )\n",
+                "    \n",
+                "    # TODO: maybe we should use torch.empty_like(query) to allocate storage in-advance,\n",
+                "    # and pass slices to be mutated, instead of torch.cat()ing the returned slices\n",
+                "    res = torch.cat([\n",
+                "        compute_query_chunk_attn(\n",
+                "            query=get_query_chunk(i * query_chunk_size),\n",
+                "            key_t=key_t,\n",
+                "            value=value,\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "            mask=get_mask_chunk(i * query_chunk_size)\n"
+                ],
+                "parent_version_range": {
+                    "start": 248,
+                    "end": 248
+                },
+                "child_version_range": {
+                    "start": 269,
+                    "end": 270
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "function",
+                        "name": "efficient_dot_product_attention",
+                        "signature": "def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):",
+                        "at_line": 176
+                    },
+                    {
+                        "type": "call",
+                        "name": "torch.cat",
+                        "signature": "torch.cat([\n        compute_query_chunk_attn(\n            query=get_query_chunk(i * query_chunk_size),\n            key_t=key_t,\n            value=value,\n        ) for i in range(math.ceil(q_tokens / query_chunk_size))\n    ], dim=1)",
+                        "at_line": 243,
+                        "argument": "[\n        compute_query_chunk_..."
+                    },
+                    {
+                        "type": "call",
+                        "name": "compute_query_chunk_attn",
+                        "signature": "compute_query_chunk_attn(\n            query=get_query_chunk(i * query_chunk_size),\n            key_t=key_t,\n            value=value,\n        )",
+                        "at_line": 244,
+                        "argument": "value=..."
+                    }
+                ],
+                "idx": 13,
+                "hunk_diff": "File: comfy/ldm/modules/sub_quadratic_attention.py\nCode:\n           def efficient_dot_product_attention(\n    query: Tensor,\n    key_t: Tensor,\n    value: Tensor,\n    query_chunk_size=1024,\n    kv_chunk_size: Optional[int] = None,\n    kv_chunk_size_min: Optional[int] = None,\n    use_checkpoint=True,\n    upcast_attention=False,\n):\n               ...\n               torch.cat([\n        compute_query_chunk_attn(\n            query=get_query_chunk(i * query_chunk_size),\n            key_t=key_t,\n            value=value,\n        ) for i in range(math.ceil(q_tokens / query_chunk_size))\n    ], dim=1)\n                   ...\n                   compute_query_chunk_attn(\n            query=get_query_chunk(i * query_chunk_size),\n            key_t=key_t,\n            value=value,\n        )\n                       ...\n245 266                query=get_query_chunk(i * query_chunk_size),\n246 267                key_t=key_t,\n247 268                value=value,\n    269  +             mask=get_mask_chunk(i * query_chunk_size)\n248 270            ) for i in range(math.ceil(q_tokens / query_chunk_size))\n249 271        ], dim=1)\n250 272        return res\n         ...\n",
+                "file_path": "comfy/ldm/modules/sub_quadratic_attention.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "get_mask_chunk",
+                    "i",
+                    "mask",
+                    "query_chunk_size"
+                ],
+                "prefix": [
+                    "            query=get_query_chunk(i * query_chunk_size),\n",
+                    "            key_t=key_t,\n",
+                    "            value=value,\n"
+                ],
+                "suffix": [
+                    "        ) for i in range(math.ceil(q_tokens / query_chunk_size))\n",
+                    "    ], dim=1)\n",
+                    "    return res"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [
+                    {
+                        "to_hunk_idx": 11,
+                        "detail": {
+                            "identifier": "get_mask_chunk",
+                            "position": {
+                                "start": {
+                                    "line": 269,
+                                    "column": 17
+                                },
+                                "end": {
+                                    "line": 269,
+                                    "column": 31
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/ComfyUI/comfy/ldm/modules/sub_quadratic_attention.py",
+                            "hunk_idx": 13,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        ) for i in range(math.ceil(q_tokens / query_chunk_size))\n",
+                "    ], dim=1)\n",
+                "    return res"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                9
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                0,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "copy code"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow: (3) -> (6)"
+        },
+        {
+            "edit_hunk_pair": [
+                3,
+                7
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and implement"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def (4) and call (6)"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "implement (5) and call (6)"
+        },
+        {
+            "edit_hunk_pair": [
+                7,
+                8
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                10
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def and use"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                11
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def (9) and use (11) of var mask"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                12
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def (9) and use (12) of var mask"
+        },
+        {
+            "edit_hunk_pair": [
+                9,
+                13
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def (9) and use (13) of var mask"
+        },
+        {
+            "edit_hunk_pair": [
+                11,
+                13
+            ],
+            "edit_order": "bi-directional",
+            "reason": "def (11) and use (13) of func get_mask_chunk"
+        }
+    ]
+}

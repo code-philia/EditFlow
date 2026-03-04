@@ -1,0 +1,78 @@
+{
+    "partial_orders": [
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'trading_mode' parameter to the function signature, and Edit 1 uses that exact same 'trading_mode' parameter in the function body to determine the candle_type. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the body. Both edits reference the exact same symbol 'trading_mode', and after adding the parameter in the signature, using it in the body becomes the natural next step in the same micro-task."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 adds a 'trading_mode' parameter to the function signature, and Edit 1 uses that exact same 'trading_mode' parameter in the function body to determine the candle_type. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the body. Both edits reference the exact same symbol 'trading_mode', and after adding the parameter in the signature, using it in the body becomes the natural next step in the same micro-task."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'trading_mode' parameter to the refresh_backtest_ohlcv_data function call, while Edit 1 adds code that uses this 'trading_mode' parameter within the refresh_backtest_ohlcv_data function implementation. However, the function signature in Edit 1 does not show the trading_mode parameter being added to the function definition itself. Without the parameter being added to the function signature, Edit 1's code that references 'trading_mode' would cause a NameError when executed. This suggests Edit 0 (adding the parameter to the call) should come after the function signature is updated to accept the trading_mode parameter, making this an ordered relationship where the function definition must be updated before the call site."
+        },
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 1 adds a 'trading_mode' parameter to the function signature of refresh_backtest_ohlcv_data, while Edit 0 adds the same 'trading_mode' parameter to the call site of that exact same function. The changed lines reference the exact same symbol (the trading_mode parameter of refresh_backtest_ohlcv_data). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the function signature, you must update the call site, and vice versa. Both edits can be written and parsed in either order in Python (the call site with an extra parameter would cause a TypeError at runtime, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 1 adds a 'trading_mode' parameter to the function signature of refresh_backtest_ohlcv_data, while Edit 0 adds the same 'trading_mode' parameter to the call site of that exact same function. The changed lines reference the exact same symbol (the trading_mode parameter of refresh_backtest_ohlcv_data). After making either edit, the other becomes the immediate next step to maintain code consistency - if you add the parameter to the function signature, you must update the call site, and vice versa. Both edits can be written and parsed in either order in Python (the call site with an extra parameter would cause a TypeError at runtime, not a parse error), making this a bi-directional relationship."
+        },
+        {
+            "src": 0,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'trading_mode' parameter to a function call for refresh_backtest_ohlcv_data, but Edit 1 references a 'trading_mode' variable that is not defined in the function signature shown. The function signature in Edit 1 shows parameters including 'candle_type' but no 'trading_mode' parameter. For these edits to work together, the function signature would need to be updated to accept the 'trading_mode' parameter that Edit 0 is trying to pass. Since Edit 1 references 'trading_mode' without it being defined as a parameter, this would likely cause a NameError at runtime. However, both edits can be written and parsed independently - the issue would only manifest at runtime when the function is called."
+        },
+        {
+            "src": 3,
+            "tgt": 0,
+            "reason": "Edit 0 adds a 'trading_mode' parameter to a function call for refresh_backtest_ohlcv_data, but Edit 1 references a 'trading_mode' variable that is not defined in the function signature shown. The function signature in Edit 1 shows parameters including 'candle_type' but no 'trading_mode' parameter. For these edits to work together, the function signature would need to be updated to accept the 'trading_mode' parameter that Edit 0 is trying to pass. Since Edit 1 references 'trading_mode' without it being defined as a parameter, this would likely cause a NameError at runtime. However, both edits can be written and parsed independently - the issue would only manifest at runtime when the function is called."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Both edits modify the same function signature (refresh_backtest_ohlcv_data) by changing its parameter list. Edit 0 adds a 'trading_mode: str' parameter and repositions the timerange parameter, while Edit 1 removes the 'candle_type: CandleType = CandleType.SPOT' parameter. These are both part of the same function signature modification task and would naturally be done together as part of a single refactoring operation. The changed lines reference the exact same function symbol and both edits are mechanically required to complete the signature change. Either edit can be applied first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Both edits modify the same function signature (refresh_backtest_ohlcv_data) by changing its parameter list. Edit 0 adds a 'trading_mode: str' parameter and repositions the timerange parameter, while Edit 1 removes the 'candle_type: CandleType = CandleType.SPOT' parameter. These are both part of the same function signature modification task and would naturally be done together as part of a single refactoring operation. The changed lines reference the exact same function symbol and both edits are mechanically required to complete the signature change. Either edit can be applied first without causing parse errors, making this bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 adds a new parameter 'trading_mode' to the function signature, while Edit 1 uses that exact same parameter in the function body. The changed lines in Edit 1 explicitly reference the 'trading_mode' parameter that was added in Edit 0's signature change. Additionally, both edits reference the same 'datadir' and 'timerange' parameters. This creates a direct code dependency where adding the parameter in the signature (Edit 0) enables its usage in the body (Edit 1). Since this is Python, both edits can be parsed and staged in either order - the parameter can be added to the signature before being used, or the usage can be written before the parameter is added to the signature (it would just be a NameError at runtime). This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same function modification task."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new parameter 'trading_mode' to the function signature, while Edit 1 uses that exact same parameter in the function body. The changed lines in Edit 1 explicitly reference the 'trading_mode' parameter that was added in Edit 0's signature change. Additionally, both edits reference the same 'datadir' and 'timerange' parameters. This creates a direct code dependency where adding the parameter in the signature (Edit 0) enables its usage in the body (Edit 1). Since this is Python, both edits can be parsed and staged in either order - the parameter can be added to the signature before being used, or the usage can be written before the parameter is added to the signature (it would just be a NameError at runtime). This represents a bi-directional relationship where either edit naturally prompts the other as the next mechanical step within the same function modification task."
+        },
+        {
+            "src": 4,
+            "tgt": 2,
+            "reason": "Edit 0 removes the candle_type parameter from the function signature, while Edit 1 adds code that uses the candle_type parameter extensively (lines 285, 288, 295). The changed lines in Edit 1 explicitly reference and assign values to the candle_type symbol that Edit 0 removes from the function signature. This creates a direct code dependency where Edit 1's added code would fail with a NameError if the candle_type parameter is not available in the function signature. Edit 0 must be reverted or the parameter must remain for Edit 1's code to function properly."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Both edits reference and assign values to the exact same symbol 'candle_type' within the same function scope. Edit 0 assigns 'candle_type = CandleType.FUTURES if trading_mode == 'futures' else CandleType.SPOT_' and Edit 1 later assigns 'candle_type = CandleType.MARK' within a conditional block. Both edits are modifying the same variable symbol in the same function context, creating a direct code linkage where both assignments affect the same symbol that gets passed to the _download_pair_history function calls. The edits can be applied in either order as both are valid assignments to the same variable, making this a bi-directional relationship."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Both edits reference and assign values to the exact same symbol 'candle_type' within the same function scope. Edit 0 assigns 'candle_type = CandleType.FUTURES if trading_mode == 'futures' else CandleType.SPOT_' and Edit 1 later assigns 'candle_type = CandleType.MARK' within a conditional block. Both edits are modifying the same variable symbol in the same function context, creating a direct code linkage where both assignments affect the same symbol that gets passed to the _download_pair_history function calls. The edits can be applied in either order as both are valid assignments to the same variable, making this a bi-directional relationship."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        6
+    ]
+}

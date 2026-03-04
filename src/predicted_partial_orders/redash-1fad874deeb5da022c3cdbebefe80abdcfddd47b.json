@@ -1,0 +1,54 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the implementation of the `get_login_url` function by adding logic to handle the case when `current_org` is None. Edit 1 adds an import for `get_login_url` in the test file. These edits reference the exact same symbol (`get_login_url`) and appear to be part of the same development session where the function is being modified and then imported for testing. The import edit creates an immediate prompt to test the newly modified function behavior, making this a bi-directional relationship where either edit could naturally prompt the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the implementation of the `get_login_url` function by adding logic to handle the case when `current_org` is None. Edit 1 adds an import for `get_login_url` in the test file. These edits reference the exact same symbol (`get_login_url`) and appear to be part of the same development session where the function is being modified and then imported for testing. The import edit creates an immediate prompt to test the newly modified function behavior, making this a bi-directional relationship where either edit could naturally prompt the other as the next mechanical step."
+        },
+        {
+            "src": 0,
+            "tgt": 6,
+            "reason": "Edit 0 modifies the get_login_url function by adding a condition to handle when current_org is None in multi-org mode, returning '/' as the login URL. Edit 1 adds test cases specifically for the get_login_url function, including a test that verifies the exact behavior added in Edit 0 (when multi-org is enabled and org doesn't exist, it should return '/'). The test directly calls and asserts on the exact same function that was modified in Edit 0, creating a direct test-production code synchronization relationship where the test validates the new implementation behavior."
+        },
+        {
+            "src": 6,
+            "tgt": 0,
+            "reason": "Edit 0 modifies the get_login_url function by adding a condition to handle when current_org is None in multi-org mode, returning '/' as the login URL. Edit 1 adds test cases specifically for the get_login_url function, including a test that verifies the exact behavior added in Edit 0 (when multi-org is enabled and org doesn't exist, it should return '/'). The test directly calls and asserts on the exact same function that was modified in Edit 0, creating a direct test-production code synchronization relationship where the test validates the new implementation behavior."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 adds 'from tests import BaseTestCase' to line 4, while Edit 1 removes 'from tests import BaseTestCase' from line 9. This is a classic cut-and-paste move operation where the same import statement is being relocated from one position to another within the same file. The removal must occur before the addition to avoid having duplicate imports, making this an ordered relationship where Edit 1 (removal) must happen before Edit 0 (addition)."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Both edits reference the exact same symbol 'BaseTestCase' in their changed lines. Edit 0 imports BaseTestCase, and Edit 1 uses BaseTestCase as a parent class in the new TestGetLoginUrl class definition. This creates a direct definition-usage relationship where the import in Edit 0 makes the BaseTestCase symbol available for use in Edit 1. In Python, using an undefined symbol in a class definition is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order. After making either edit, the other becomes the immediate next step to complete the code dependency."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Both edits reference the exact same symbol 'BaseTestCase' in their changed lines. Edit 0 imports BaseTestCase, and Edit 1 uses BaseTestCase as a parent class in the new TestGetLoginUrl class definition. This creates a direct definition-usage relationship where the import in Edit 0 makes the BaseTestCase symbol available for use in Edit 1. In Python, using an undefined symbol in a class definition is allowed at parse time and only fails at runtime with a NameError, so both edits can be staged in either order. After making either edit, the other becomes the immediate next step to complete the code dependency."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 imports the `get_login_url` function from the authentication module, and Edit 1 uses that exact same `get_login_url` function in test assertions. The changed lines in both edits reference the exact same symbol - `get_login_url`. After importing the function in Edit 0, Edit 1 becomes the immediate next step to test/use that imported function. This is a classic import-usage pattern within the same file where both edits reference the same symbol and either could be staged first (the import allows the usage, and the usage validates the import)."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 imports the `get_login_url` function from the authentication module, and Edit 1 uses that exact same `get_login_url` function in test assertions. The changed lines in both edits reference the exact same symbol - `get_login_url`. After importing the function in Edit 0, Edit 1 becomes the immediate next step to test/use that imported function. This is a classic import-usage pattern within the same file where both edits reference the same symbol and either could be staged first (the import allows the usage, and the usage validates the import)."
+        }
+    ],
+    "allowed_init_edits": [
+        5,
+        1,
+        2
+    ]
+}

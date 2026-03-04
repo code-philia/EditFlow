@@ -1,0 +1,1296 @@
+{
+    "language": "python",
+    "commit_url": "https://github.com/celery/celery/commit/c22e68395868665737b56199f257fae75b91dd2c",
+    "commit_message": "Fixes failing security test case.  Closes #3624",
+    "commit_snapshots": {
+        "celery/security/serialization.py": [
+            [
+                "# -*- coding: utf-8 -*-\n",
+                "\"\"\"Secure serializer.\"\"\"\n",
+                "from __future__ import absolute_import, unicode_literals\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "import sys\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 4,
+                    "end": 6
+                },
+                "child_version_range": {
+                    "start": 4,
+                    "end": 4
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 0,
+                "hunk_diff": "File: celery/security/serialization.py\nCode:\n  ...\n1 1    \"\"\"Secure serializer.\"\"\"\n2 2    from __future__ import absolute_import, unicode_literals\n3 3    \n4    - import sys\n5    - \n6 4    from kombu.serialization import registry, dumps, loads\n7 5    from kombu.utils.encoding import bytes_to_str, str_to_bytes, ensure_bytes\n8 6    \n     ...\n",
+                "file_path": "celery/security/serialization.py",
+                "identifiers_before": [
+                    "sys"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\"\"\"Secure serializer.\"\"\"\n",
+                    "from __future__ import absolute_import, unicode_literals\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from kombu.serialization import registry, dumps, loads\n",
+                    "from kombu.utils.encoding import bytes_to_str, str_to_bytes, ensure_bytes\n",
+                    "\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 4,
+                                    "column": 7
+                                },
+                                "end": {
+                                    "line": 4,
+                                    "column": 10
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "import",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/security/serialization.py",
+                            "hunk_idx": 0,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "from kombu.serialization import registry, dumps, loads\n",
+                "from kombu.utils.encoding import bytes_to_str, str_to_bytes, ensure_bytes\n",
+                "\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from celery.five import bytes_if_py2\n"
+                ],
+                "parent_version_range": {
+                    "start": 9,
+                    "end": 9
+                },
+                "child_version_range": {
+                    "start": 7,
+                    "end": 8
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 1,
+                "hunk_diff": "File: celery/security/serialization.py\nCode:\n  ...\n 6  4    from kombu.serialization import registry, dumps, loads\n 7  5    from kombu.utils.encoding import bytes_to_str, str_to_bytes, ensure_bytes\n 8  6    \n    7  + from celery.five import bytes_if_py2\n 9  8    from celery.utils.serialization import b64encode, b64decode\n10  9    \n11 10    from .certificate import Certificate, FSCertStore\n       ...\n",
+                "file_path": "celery/security/serialization.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bytes_if_py2",
+                    "celery",
+                    "five"
+                ],
+                "prefix": [
+                    "from kombu.serialization import registry, dumps, loads\n",
+                    "from kombu.utils.encoding import bytes_to_str, str_to_bytes, ensure_bytes\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "from celery.utils.serialization import b64encode, b64decode\n",
+                    "\n",
+                    "from .certificate import Certificate, FSCertStore\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    4
+                ]
+            },
+            [
+                "from celery.utils.serialization import b64encode, b64decode\n",
+                "\n",
+                "from .certificate import Certificate, FSCertStore\n",
+                "from .key import PrivateKey\n",
+                "from .utils import reraise_errors\n",
+                "\n",
+                "__all__ = ['SecureSerializer', 'register_auth']\n",
+                "\n"
+            ],
+            {
+                "type": "delete",
+                "before": [
+                    "PY3 = sys.version_info[0] == 3\n",
+                    "\n"
+                ],
+                "after": [],
+                "parent_version_range": {
+                    "start": 17,
+                    "end": 19
+                },
+                "child_version_range": {
+                    "start": 16,
+                    "end": 16
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 2,
+                "hunk_diff": "File: celery/security/serialization.py\nCode:\n  ...\n14 13    \n15 14    __all__ = ['SecureSerializer', 'register_auth']\n16 15    \n17     - PY3 = sys.version_info[0] == 3\n18     - \n19 16    \n20 17    class SecureSerializer(object):\n21 18        \"\"\"Signed serializer.\"\"\"\n       ...\n",
+                "file_path": "celery/security/serialization.py",
+                "identifiers_before": [
+                    "PY3",
+                    "sys",
+                    "version_info"
+                ],
+                "identifiers_after": [],
+                "prefix": [
+                    "\n",
+                    "__all__ = ['SecureSerializer', 'register_auth']\n",
+                    "\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "class SecureSerializer(object):\n",
+                    "    \"\"\"Signed serializer.\"\"\"\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 0,
+                        "detail": {
+                            "identifier": "sys",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 6
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 9
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/security/serialization.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [
+                    {
+                        "to_hunk_idx": 3,
+                        "detail": {
+                            "identifier": "PY3",
+                            "position": {
+                                "start": {
+                                    "line": 17,
+                                    "column": 0
+                                },
+                                "end": {
+                                    "line": 17,
+                                    "column": 3
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "variable",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/security/serialization.py",
+                            "hunk_idx": 2,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "class SecureSerializer(object):\n",
+                "    \"\"\"Signed serializer.\"\"\"\n",
+                "\n",
+                "    def __init__(self, key=None, cert=None, cert_store=None,\n",
+                "                 digest='sha1', serializer='json'):\n",
+                "        self._key = key\n",
+                "        self._cert = cert\n",
+                "        self._cert_store = cert_store\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        self._digest = str_to_bytes(digest) if not PY3 else digest\n"
+                ],
+                "after": [
+                    "        self._digest = bytes_if_py2(digest)\n"
+                ],
+                "parent_version_range": {
+                    "start": 28,
+                    "end": 29
+                },
+                "child_version_range": {
+                    "start": 25,
+                    "end": 26
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "SecureSerializer",
+                        "signature": "class SecureSerializer(object):",
+                        "at_line": 20
+                    },
+                    {
+                        "type": "function",
+                        "name": "__init__",
+                        "signature": "def __init__(self, key=None, cert=None, cert_store=None,\n                 digest='sha1', serializer='json'):",
+                        "at_line": 23
+                    }
+                ],
+                "idx": 3,
+                "hunk_diff": "File: celery/security/serialization.py\nCode:\n         class SecureSerializer(object):\n             ...\n             def __init__(self, key=None, cert=None, cert_store=None,\n                 digest='sha1', serializer='json'):\n                 ...\n25 22            self._key = key\n26 23            self._cert = cert\n27 24            self._cert_store = cert_store\n28     -         self._digest = str_to_bytes(digest) if not PY3 else digest\n   25  +         self._digest = bytes_if_py2(digest)\n29 26            self._serializer = serializer\n30 27    \n31 28        def serialize(self, data):\n       ...\n",
+                "file_path": "celery/security/serialization.py",
+                "identifiers_before": [
+                    "PY3",
+                    "_digest",
+                    "digest",
+                    "self",
+                    "str_to_bytes"
+                ],
+                "identifiers_after": [
+                    "_digest",
+                    "bytes_if_py2",
+                    "digest",
+                    "self"
+                ],
+                "prefix": [
+                    "        self._key = key\n",
+                    "        self._cert = cert\n",
+                    "        self._cert_store = cert_store\n"
+                ],
+                "suffix": [
+                    "        self._serializer = serializer\n",
+                    "\n",
+                    "    def serialize(self, data):\n"
+                ],
+                "base_dependency_callee": [
+                    {
+                        "to_hunk_idx": 2,
+                        "detail": {
+                            "identifier": "PY3",
+                            "position": {
+                                "start": {
+                                    "line": 28,
+                                    "column": 51
+                                },
+                                "end": {
+                                    "line": 28,
+                                    "column": 54
+                                }
+                            },
+                            "type": "identifier",
+                            "kind": "unknown",
+                            "abs_file_path": "/data2/chenyan/repos/celery/celery/security/serialization.py",
+                            "hunk_idx": 3,
+                            "dependency_checked": true
+                        }
+                    }
+                ],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "        self._serializer = serializer\n",
+                "\n",
+                "    def serialize(self, data):\n",
+                "        \"\"\"Serialize data structure into string.\"\"\"\n",
+                "        assert self._key is not None\n",
+                "        assert self._cert is not None\n",
+                "        with reraise_errors('Unable to serialize: {0!r}', (Exception,)):\n",
+                "            content_type, content_encoding, body = dumps(\n",
+                "                bytes_to_str(data), serializer=self._serializer)\n",
+                "            # What we sign is the serialized body, not the body itself.\n",
+                "            # this way the receiver doesn't have to decode the contents\n",
+                "            # to verify the signature (and thus avoiding potential flaws\n",
+                "            # in the decoding step).\n",
+                "            body = ensure_bytes(body)\n",
+                "            return self._pack(body, content_type, content_encoding,\n",
+                "                              signature=self._key.sign(body, self._digest),\n",
+                "                              signer=self._cert.get_id())\n",
+                "\n",
+                "    def deserialize(self, data):\n",
+                "        \"\"\"Deserialize data structure from string.\"\"\"\n",
+                "        assert self._cert_store is not None\n",
+                "        with reraise_errors('Unable to deserialize: {0!r}', (Exception,)):\n",
+                "            payload = self._unpack(data)\n",
+                "            signature, signer, body = (payload['signature'],\n",
+                "                                       payload['signer'],\n",
+                "                                       payload['body'])\n",
+                "            self._cert_store[signer].verify(body, signature, self._digest)\n",
+                "        return loads(bytes_to_str(body), payload['content_type'],\n",
+                "                     payload['content_encoding'], force=True)\n",
+                "\n",
+                "    def _pack(self, body, content_type, content_encoding, signer, signature,\n",
+                "              sep=str_to_bytes('\\x00\\x01')):\n",
+                "        fields = sep.join(\n",
+                "            ensure_bytes(s) for s in [signer, signature, content_type,\n",
+                "                                      content_encoding, body]\n",
+                "        )\n",
+                "        return b64encode(fields)\n",
+                "\n",
+                "    def _unpack(self, payload, sep=str_to_bytes('\\x00\\x01')):\n",
+                "        raw_payload = b64decode(ensure_bytes(payload))\n",
+                "        first_sep = raw_payload.find(sep)\n",
+                "\n",
+                "        signer = raw_payload[:first_sep]\n",
+                "        signer_cert = self._cert_store[signer]\n",
+                "\n",
+                "        sig_len = signer_cert._cert.get_pubkey().bits() >> 3\n",
+                "        signature = raw_payload[\n",
+                "            first_sep + len(sep):first_sep + len(sep) + sig_len\n",
+                "        ]\n",
+                "        end_of_sig = first_sep + len(sep) + sig_len + len(sep)\n",
+                "\n",
+                "        v = raw_payload[end_of_sig:].split(sep)\n",
+                "\n",
+                "        return {\n",
+                "            'signer': signer,\n",
+                "            'signature': signature,\n",
+                "            'content_type': bytes_to_str(v[0]),\n",
+                "            'content_encoding': bytes_to_str(v[1]),\n",
+                "            'body': bytes_to_str(v[2]),\n",
+                "        }\n",
+                "\n",
+                "\n",
+                "def register_auth(key=None, cert=None, store=None, digest='sha1',\n",
+                "                  serializer='json'):\n",
+                "    \"\"\"Register security serializer.\"\"\"\n",
+                "    s = SecureSerializer(key and PrivateKey(key),\n",
+                "                         cert and Certificate(cert),\n",
+                "                         store and FSCertStore(store),\n",
+                "                         digest=digest, serializer=serializer)\n",
+                "    registry.register('auth', s.serialize, s.deserialize,\n",
+                "                      content_type='application/data',\n",
+                "                      content_encoding='utf-8')"
+            ]
+        ],
+        "t/unit/security/test_key.py": [
+            [
+                "from __future__ import absolute_import, unicode_literals\n",
+                "import pytest\n",
+                "from celery.exceptions import SecurityError\n"
+            ],
+            {
+                "type": "insert",
+                "before": [],
+                "after": [
+                    "from celery.five import bytes_if_py2\n"
+                ],
+                "parent_version_range": {
+                    "start": 3,
+                    "end": 3
+                },
+                "child_version_range": {
+                    "start": 3,
+                    "end": 4
+                },
+                "control_flow": [],
+                "structural_path": [],
+                "idx": 4,
+                "hunk_diff": "File: t/unit/security/test_key.py\nCode:\n  ...\n0 0    from __future__ import absolute_import, unicode_literals\n1 1    import pytest\n2 2    from celery.exceptions import SecurityError\n  3  + from celery.five import bytes_if_py2\n3 4    from celery.security.key import PrivateKey\n4 5    from . import CERT1, KEY1, KEY2\n5 6    from .case import SecurityCase\n     ...\n",
+                "file_path": "t/unit/security/test_key.py",
+                "identifiers_before": [],
+                "identifiers_after": [
+                    "bytes_if_py2",
+                    "celery",
+                    "five"
+                ],
+                "prefix": [
+                    "from __future__ import absolute_import, unicode_literals\n",
+                    "import pytest\n",
+                    "from celery.exceptions import SecurityError\n"
+                ],
+                "suffix": [
+                    "from celery.security.key import PrivateKey\n",
+                    "from . import CERT1, KEY1, KEY2\n",
+                    "from .case import SecurityCase\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    1
+                ]
+            },
+            [
+                "from celery.security.key import PrivateKey\n",
+                "from . import CERT1, KEY1, KEY2\n",
+                "from .case import SecurityCase\n",
+                "\n",
+                "\n",
+                "class test_PrivateKey(SecurityCase):\n",
+                "\n",
+                "    def test_valid_private_key(self):\n",
+                "        PrivateKey(KEY1)\n",
+                "        PrivateKey(KEY2)\n",
+                "\n",
+                "    def test_invalid_private_key(self):\n",
+                "        with pytest.raises((SecurityError, TypeError)):\n",
+                "            PrivateKey(None)\n",
+                "        with pytest.raises(SecurityError):\n",
+                "            PrivateKey('')\n",
+                "        with pytest.raises(SecurityError):\n",
+                "            PrivateKey('foo')\n",
+                "        with pytest.raises(SecurityError):\n",
+                "            PrivateKey(KEY1[:20] + KEY1[21:])\n",
+                "        with pytest.raises(SecurityError):\n",
+                "            PrivateKey(CERT1)\n",
+                "\n",
+                "    def test_sign(self):\n",
+                "        pkey = PrivateKey(KEY1)\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        pkey.sign('test', b'sha1')\n"
+                ],
+                "after": [
+                    "        pkey.sign('test', bytes_if_py2('sha1'))\n"
+                ],
+                "parent_version_range": {
+                    "start": 28,
+                    "end": 29
+                },
+                "child_version_range": {
+                    "start": 29,
+                    "end": 30
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "test_PrivateKey",
+                        "signature": "class test_PrivateKey(SecurityCase):",
+                        "at_line": 8
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_sign",
+                        "signature": "def test_sign(self):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "call",
+                        "name": "pkey.sign",
+                        "signature": "pkey.sign('test', b'sha1')",
+                        "at_line": 28,
+                        "argument": "'test'"
+                    }
+                ],
+                "idx": 5,
+                "hunk_diff": "File: t/unit/security/test_key.py\nCode:\n         class test_PrivateKey(SecurityCase):\n             ...\n25 26    \n26 27        def test_sign(self):\n27 28            pkey = PrivateKey(KEY1)\n28     -         pkey.sign('test', b'sha1')\n   29  +         pkey.sign('test', bytes_if_py2('sha1'))\n29 30            with pytest.raises(ValueError):\n       ...\n",
+                "file_path": "t/unit/security/test_key.py",
+                "identifiers_before": [
+                    "pkey",
+                    "sign"
+                ],
+                "identifiers_after": [
+                    "bytes_if_py2",
+                    "pkey",
+                    "sign"
+                ],
+                "prefix": [
+                    "\n",
+                    "    def test_sign(self):\n",
+                    "        pkey = PrivateKey(KEY1)\n"
+                ],
+                "suffix": [
+                    "        with pytest.raises(ValueError):\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    6
+                ]
+            },
+            [
+                "        with pytest.raises(ValueError):\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "            pkey.sign('test', b'unknown')\n"
+                ],
+                "after": [
+                    "            pkey.sign('test', bytes_if_py2('unknown'))"
+                ],
+                "parent_version_range": {
+                    "start": 30,
+                    "end": 31
+                },
+                "child_version_range": {
+                    "start": 31,
+                    "end": 32
+                },
+                "control_flow": [
+                    {
+                        "type": "with_statement",
+                        "statement": "with pytest.raises(ValueError):",
+                        "start_line": 29,
+                        "end_line": 30
+                    }
+                ],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "test_PrivateKey",
+                        "signature": "class test_PrivateKey(SecurityCase):",
+                        "at_line": 8
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_sign",
+                        "signature": "def test_sign(self):",
+                        "at_line": 26
+                    },
+                    {
+                        "type": "call",
+                        "name": "pkey.sign",
+                        "signature": "pkey.sign('test', b'unknown')",
+                        "at_line": 30,
+                        "argument": "'test'"
+                    }
+                ],
+                "idx": 6,
+                "hunk_diff": "File: t/unit/security/test_key.py\nCode:\n         class test_PrivateKey(SecurityCase):\n             ...\n             def test_sign(self):\n                 ...\n29 30            with pytest.raises(ValueError):\n30     -             pkey.sign('test', b'unknown')\n   31  +             pkey.sign('test', bytes_if_py2('unknown'))\n       ...\n",
+                "file_path": "t/unit/security/test_key.py",
+                "identifiers_before": [
+                    "pkey",
+                    "sign"
+                ],
+                "identifiers_after": [
+                    "bytes_if_py2",
+                    "pkey",
+                    "sign"
+                ],
+                "prefix": [
+                    "        with pytest.raises(ValueError):\n"
+                ],
+                "suffix": [],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": [
+                    5
+                ]
+            }
+        ],
+        "t/unit/worker/test_consumer.py": [
+            [
+                "from __future__ import absolute_import, unicode_literals\n",
+                "\n",
+                "import errno\n",
+                "import pytest\n",
+                "import socket\n",
+                "\n",
+                "from collections import deque\n",
+                "\n",
+                "from case import ContextMock, Mock, call, patch, skip\n",
+                "from billiard.exceptions import RestartFreqExceeded\n",
+                "\n",
+                "from celery.worker.consumer.agent import Agent\n",
+                "from celery.worker.consumer.consumer import CLOSE, Consumer, dump_body\n",
+                "from celery.worker.consumer.gossip import Gossip\n",
+                "from celery.worker.consumer.heart import Heart\n",
+                "from celery.worker.consumer.mingle import Mingle\n",
+                "from celery.worker.consumer.tasks import Tasks\n",
+                "from celery.utils.collections import LimitedSet\n",
+                "\n",
+                "\n",
+                "class test_Consumer:\n",
+                "\n",
+                "    def get_consumer(self, no_hub=False, **kwargs):\n",
+                "        consumer = Consumer(\n",
+                "            on_task_request=Mock(),\n",
+                "            init_callback=Mock(),\n",
+                "            pool=Mock(),\n",
+                "            app=self.app,\n",
+                "            timer=Mock(),\n",
+                "            controller=Mock(),\n",
+                "            hub=None if no_hub else Mock(),\n",
+                "            **kwargs\n",
+                "        )\n",
+                "        consumer.blueprint = Mock(name='blueprint')\n",
+                "        consumer._restart_state = Mock(name='_restart_state')\n",
+                "        consumer.connection = _amqp_connection()\n",
+                "        consumer.connection_errors = (socket.error, OSError,)\n",
+                "        consumer.conninfo = consumer.connection\n",
+                "        return consumer\n",
+                "\n",
+                "    def test_repr(self):\n",
+                "        assert repr(self.get_consumer())\n",
+                "\n",
+                "    def test_taskbuckets_defaultdict(self):\n",
+                "        c = self.get_consumer()\n",
+                "        assert c.task_buckets['fooxasdwx.wewe'] is None\n",
+                "\n",
+                "    @skip.if_python3(reason='buffer type not available')\n",
+                "    def test_dump_body_buffer(self):\n",
+                "        msg = Mock()\n",
+                "        msg.body = 'str'\n"
+            ],
+            {
+                "type": "replace",
+                "before": [
+                    "        assert dump_body(msg, buffer(msg.body))\n"
+                ],
+                "after": [
+                    "        assert dump_body(msg, buffer(msg.body))  # noqa: F821\n"
+                ],
+                "parent_version_range": {
+                    "start": 51,
+                    "end": 52
+                },
+                "child_version_range": {
+                    "start": 51,
+                    "end": 52
+                },
+                "control_flow": [],
+                "structural_path": [
+                    {
+                        "type": "class",
+                        "name": "test_Consumer",
+                        "signature": "class test_Consumer:",
+                        "at_line": 20
+                    },
+                    {
+                        "type": "function",
+                        "name": "test_dump_body_buffer",
+                        "signature": "def test_dump_body_buffer(self):",
+                        "at_line": 48
+                    }
+                ],
+                "idx": 7,
+                "hunk_diff": "File: t/unit/worker/test_consumer.py\nCode:\n         class test_Consumer:\n             ...\n48 48        def test_dump_body_buffer(self):\n49 49            msg = Mock()\n50 50            msg.body = 'str'\n51     -         assert dump_body(msg, buffer(msg.body))\n   51  +         assert dump_body(msg, buffer(msg.body))  # noqa: F821\n52 52    \n53 53        def test_sets_heartbeat(self):\n54 54            c = self.get_consumer(amqheartbeat=10)\n       ...\n",
+                "file_path": "t/unit/worker/test_consumer.py",
+                "identifiers_before": [
+                    "body",
+                    "buffer",
+                    "dump_body",
+                    "msg"
+                ],
+                "identifiers_after": [
+                    "body",
+                    "buffer",
+                    "dump_body",
+                    "msg"
+                ],
+                "prefix": [
+                    "    def test_dump_body_buffer(self):\n",
+                    "        msg = Mock()\n",
+                    "        msg.body = 'str'\n"
+                ],
+                "suffix": [
+                    "\n",
+                    "    def test_sets_heartbeat(self):\n",
+                    "        c = self.get_consumer(amqheartbeat=10)\n"
+                ],
+                "base_dependency_callee": [],
+                "base_dependency_caller": [],
+                "head_dependency_callee": [],
+                "head_dependency_caller": [],
+                "other_clones": []
+            },
+            [
+                "\n",
+                "    def test_sets_heartbeat(self):\n",
+                "        c = self.get_consumer(amqheartbeat=10)\n",
+                "        assert c.amqheartbeat == 10\n",
+                "        self.app.conf.broker_heartbeat = 20\n",
+                "        c = self.get_consumer(amqheartbeat=None)\n",
+                "        assert c.amqheartbeat == 20\n",
+                "\n",
+                "    def test_gevent_bug_disables_connection_timeout(self):\n",
+                "        with patch('celery.worker.consumer.consumer._detect_environment') as d:\n",
+                "            d.return_value = 'gevent'\n",
+                "            self.app.conf.broker_connection_timeout = 33.33\n",
+                "            self.get_consumer()\n",
+                "            assert self.app.conf.broker_connection_timeout is None\n",
+                "\n",
+                "    def test_limit_moved_to_pool(self):\n",
+                "        with patch('celery.worker.consumer.consumer.task_reserved') as reserv:\n",
+                "            c = self.get_consumer()\n",
+                "            c.on_task_request = Mock(name='on_task_request')\n",
+                "            request = Mock(name='request')\n",
+                "            c._limit_move_to_pool(request)\n",
+                "            reserv.assert_called_with(request)\n",
+                "            c.on_task_request.assert_called_with(request)\n",
+                "\n",
+                "    def test_update_prefetch_count(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c._update_qos_eventually = Mock(name='update_qos')\n",
+                "        c.initial_prefetch_count = None\n",
+                "        c.pool.num_processes = None\n",
+                "        c.prefetch_multiplier = 10\n",
+                "        assert c._update_prefetch_count(1) is None\n",
+                "        c.initial_prefetch_count = 10\n",
+                "        c.pool.num_processes = 10\n",
+                "        c._update_prefetch_count(8)\n",
+                "        c._update_qos_eventually.assert_called_with(8)\n",
+                "        assert c.initial_prefetch_count == 10 * 10\n",
+                "\n",
+                "    def test_flush_events(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c.event_dispatcher = None\n",
+                "        c._flush_events()\n",
+                "        c.event_dispatcher = Mock(name='evd')\n",
+                "        c._flush_events()\n",
+                "        c.event_dispatcher.flush.assert_called_with()\n",
+                "\n",
+                "    def test_on_send_event_buffered(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c.hub = None\n",
+                "        c.on_send_event_buffered()\n",
+                "        c.hub = Mock(name='hub')\n",
+                "        c.on_send_event_buffered()\n",
+                "        c.hub._ready.add.assert_called_with(c._flush_events)\n",
+                "\n",
+                "    def test_limit_task(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c.timer = Mock()\n",
+                "\n",
+                "        bucket = Mock()\n",
+                "        request = Mock()\n",
+                "        bucket.can_consume.return_value = True\n",
+                "        bucket.contents = deque()\n",
+                "\n",
+                "        c._limit_task(request, bucket, 3)\n",
+                "        bucket.can_consume.assert_called_with(3)\n",
+                "        bucket.expected_time.assert_called_with(3)\n",
+                "        c.timer.call_after.assert_called_with(\n",
+                "            bucket.expected_time(), c._on_bucket_wakeup, (bucket, 3),\n",
+                "            priority=c._limit_order,\n",
+                "        )\n",
+                "\n",
+                "        bucket.can_consume.return_value = False\n",
+                "        bucket.expected_time.return_value = 3.33\n",
+                "        limit_order = c._limit_order\n",
+                "        c._limit_task(request, bucket, 4)\n",
+                "        assert c._limit_order == limit_order + 1\n",
+                "        bucket.can_consume.assert_called_with(4)\n",
+                "        c.timer.call_after.assert_called_with(\n",
+                "            3.33, c._on_bucket_wakeup, (bucket, 4),\n",
+                "            priority=c._limit_order,\n",
+                "        )\n",
+                "        bucket.expected_time.assert_called_with(4)\n",
+                "\n",
+                "    def test_start_blueprint_raises_EMFILE(self):\n",
+                "        c = self.get_consumer()\n",
+                "        exc = c.blueprint.start.side_effect = OSError()\n",
+                "        exc.errno = errno.EMFILE\n",
+                "\n",
+                "        with pytest.raises(OSError):\n",
+                "            c.start()\n",
+                "\n",
+                "    def test_max_restarts_exceeded(self):\n",
+                "        c = self.get_consumer()\n",
+                "\n",
+                "        def se(*args, **kwargs):\n",
+                "            c.blueprint.state = CLOSE\n",
+                "            raise RestartFreqExceeded()\n",
+                "        c._restart_state.step.side_effect = se\n",
+                "        c.blueprint.start.side_effect = socket.error()\n",
+                "\n",
+                "        with patch('celery.worker.consumer.consumer.sleep') as sleep:\n",
+                "            c.start()\n",
+                "            sleep.assert_called_with(1)\n",
+                "\n",
+                "    def test_no_retry_raises_error(self):\n",
+                "        self.app.conf.broker_connection_retry = False\n",
+                "        c = self.get_consumer()\n",
+                "        c.blueprint.start.side_effect = socket.error()\n",
+                "        with pytest.raises(socket.error):\n",
+                "            c.start()\n",
+                "\n",
+                "    def _closer(self, c):\n",
+                "        def se(*args, **kwargs):\n",
+                "            c.blueprint.state = CLOSE\n",
+                "        return se\n",
+                "\n",
+                "    def test_collects_at_restart(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c.connection.collect.side_effect = MemoryError()\n",
+                "        c.blueprint.start.side_effect = socket.error()\n",
+                "        c.blueprint.restart.side_effect = self._closer(c)\n",
+                "        c.start()\n",
+                "        c.connection.collect.assert_called_with()\n",
+                "\n",
+                "    def test_register_with_event_loop(self):\n",
+                "        c = self.get_consumer()\n",
+                "        c.register_with_event_loop(Mock(name='loop'))\n",
+                "\n",
+                "    def test_on_close_clears_semaphore_timer_and_reqs(self):\n",
+                "        with patch('celery.worker.consumer.consumer.reserved_requests') as res:\n",
+                "            c = self.get_consumer()\n",
+                "            c.on_close()\n",
+                "            c.controller.semaphore.clear.assert_called_with()\n",
+                "            c.timer.clear.assert_called_with()\n",
+                "            res.clear.assert_called_with()\n",
+                "            c.pool.flush.assert_called_with()\n",
+                "\n",
+                "            c.controller = None\n",
+                "            c.timer = None\n",
+                "            c.pool = None\n",
+                "            c.on_close()\n",
+                "\n",
+                "    def test_connect_error_handler(self):\n",
+                "        self.app._connection = _amqp_connection()\n",
+                "        conn = self.app._connection.return_value\n",
+                "        c = self.get_consumer()\n",
+                "        assert c.connect()\n",
+                "        conn.ensure_connection.assert_called()\n",
+                "        errback = conn.ensure_connection.call_args[0][0]\n",
+                "        errback(Mock(), 0)\n",
+                "\n",
+                "\n",
+                "class test_Heart:\n",
+                "\n",
+                "    def test_start(self):\n",
+                "        c = Mock()\n",
+                "        c.timer = Mock()\n",
+                "        c.event_dispatcher = Mock()\n",
+                "\n",
+                "        with patch('celery.worker.heartbeat.Heart') as hcls:\n",
+                "            h = Heart(c)\n",
+                "            assert h.enabled\n",
+                "            assert h.heartbeat_interval is None\n",
+                "            assert c.heart is None\n",
+                "\n",
+                "            h.start(c)\n",
+                "            assert c.heart\n",
+                "            hcls.assert_called_with(c.timer, c.event_dispatcher,\n",
+                "                                    h.heartbeat_interval)\n",
+                "            c.heart.start.assert_called_with()\n",
+                "\n",
+                "    def test_start_heartbeat_interval(self):\n",
+                "        c = Mock()\n",
+                "        c.timer = Mock()\n",
+                "        c.event_dispatcher = Mock()\n",
+                "\n",
+                "        with patch('celery.worker.heartbeat.Heart') as hcls:\n",
+                "            h = Heart(c, False, 20)\n",
+                "            assert h.enabled\n",
+                "            assert h.heartbeat_interval == 20\n",
+                "            assert c.heart is None\n",
+                "\n",
+                "            h.start(c)\n",
+                "            assert c.heart\n",
+                "            hcls.assert_called_with(c.timer, c.event_dispatcher,\n",
+                "                                    h.heartbeat_interval)\n",
+                "            c.heart.start.assert_called_with()\n",
+                "\n",
+                "\n",
+                "class test_Tasks:\n",
+                "\n",
+                "    def test_stop(self):\n",
+                "        c = Mock()\n",
+                "        tasks = Tasks(c)\n",
+                "        assert c.task_consumer is None\n",
+                "        assert c.qos is None\n",
+                "\n",
+                "        c.task_consumer = Mock()\n",
+                "        tasks.stop(c)\n",
+                "\n",
+                "    def test_stop_already_stopped(self):\n",
+                "        c = Mock()\n",
+                "        tasks = Tasks(c)\n",
+                "        tasks.stop(c)\n",
+                "\n",
+                "\n",
+                "class test_Agent:\n",
+                "\n",
+                "    def test_start(self):\n",
+                "        c = Mock()\n",
+                "        agent = Agent(c)\n",
+                "        agent.instantiate = Mock()\n",
+                "        agent.agent_cls = 'foo:Agent'\n",
+                "        assert agent.create(c) is not None\n",
+                "        agent.instantiate.assert_called_with(agent.agent_cls, c.connection)\n",
+                "\n",
+                "\n",
+                "class test_Mingle:\n",
+                "\n",
+                "    def test_start_no_replies(self):\n",
+                "        c = Mock()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        mingle = Mingle(c)\n",
+                "        I = c.app.control.inspect.return_value = Mock()\n",
+                "        I.hello.return_value = {}\n",
+                "        mingle.start(c)\n",
+                "\n",
+                "    def test_start(self):\n",
+                "        c = Mock()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        mingle = Mingle(c)\n",
+                "        assert mingle.enabled\n",
+                "\n",
+                "        Aig = LimitedSet()\n",
+                "        Big = LimitedSet()\n",
+                "        Aig.add('Aig-1')\n",
+                "        Aig.add('Aig-2')\n",
+                "        Big.add('Big-1')\n",
+                "\n",
+                "        I = c.app.control.inspect.return_value = Mock()\n",
+                "        I.hello.return_value = {\n",
+                "            'A@example.com': {\n",
+                "                'clock': 312,\n",
+                "                'revoked': Aig._data,\n",
+                "            },\n",
+                "            'B@example.com': {\n",
+                "                'clock': 29,\n",
+                "                'revoked': Big._data,\n",
+                "            },\n",
+                "            'C@example.com': {\n",
+                "                'error': 'unknown method',\n",
+                "            },\n",
+                "        }\n",
+                "\n",
+                "        our_revoked = c.controller.state.revoked = LimitedSet()\n",
+                "\n",
+                "        mingle.start(c)\n",
+                "        I.hello.assert_called_with(c.hostname, our_revoked._data)\n",
+                "        c.app.clock.adjust.assert_has_calls([\n",
+                "            call(312), call(29),\n",
+                "        ], any_order=True)\n",
+                "        assert 'Aig-1' in our_revoked\n",
+                "        assert 'Aig-2' in our_revoked\n",
+                "        assert 'Big-1' in our_revoked\n",
+                "\n",
+                "\n",
+                "def _amqp_connection():\n",
+                "    connection = ContextMock(name='Connection')\n",
+                "    connection.return_value = ContextMock(name='connection')\n",
+                "    connection.return_value.transport.driver_type = 'amqp'\n",
+                "    return connection\n",
+                "\n",
+                "\n",
+                "class test_Gossip:\n",
+                "\n",
+                "    def test_init(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        assert g.enabled\n",
+                "        assert c.gossip is g\n",
+                "\n",
+                "    def test_callbacks(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        on_node_join = Mock(name='on_node_join')\n",
+                "        on_node_join2 = Mock(name='on_node_join2')\n",
+                "        on_node_leave = Mock(name='on_node_leave')\n",
+                "        on_node_lost = Mock(name='on.node_lost')\n",
+                "        g.on.node_join.add(on_node_join)\n",
+                "        g.on.node_join.add(on_node_join2)\n",
+                "        g.on.node_leave.add(on_node_leave)\n",
+                "        g.on.node_lost.add(on_node_lost)\n",
+                "\n",
+                "        worker = Mock(name='worker')\n",
+                "        g.on_node_join(worker)\n",
+                "        on_node_join.assert_called_with(worker)\n",
+                "        on_node_join2.assert_called_with(worker)\n",
+                "        g.on_node_leave(worker)\n",
+                "        on_node_leave.assert_called_with(worker)\n",
+                "        g.on_node_lost(worker)\n",
+                "        on_node_lost.assert_called_with(worker)\n",
+                "\n",
+                "    def test_election(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.start(c)\n",
+                "        g.election('id', 'topic', 'action')\n",
+                "        assert g.consensus_replies['id'] == []\n",
+                "        g.dispatcher.send.assert_called_with(\n",
+                "            'worker-elect', id='id', topic='topic', cver=1, action='action',\n",
+                "        )\n",
+                "\n",
+                "    def test_call_task(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.start(c)\n",
+                "        signature = g.app.signature = Mock(name='app.signature')\n",
+                "        task = Mock()\n",
+                "        g.call_task(task)\n",
+                "        signature.assert_called_with(task)\n",
+                "        signature.return_value.apply_async.assert_called_with()\n",
+                "\n",
+                "        signature.return_value.apply_async.side_effect = MemoryError()\n",
+                "        with patch('celery.worker.consumer.gossip.logger') as logger:\n",
+                "            g.call_task(task)\n",
+                "            logger.exception.assert_called()\n",
+                "\n",
+                "    def Event(self, id='id', clock=312,\n",
+                "              hostname='foo@example.com', pid=4312,\n",
+                "              topic='topic', action='action', cver=1):\n",
+                "        return {\n",
+                "            'id': id,\n",
+                "            'clock': clock,\n",
+                "            'hostname': hostname,\n",
+                "            'pid': pid,\n",
+                "            'topic': topic,\n",
+                "            'action': action,\n",
+                "            'cver': cver,\n",
+                "        }\n",
+                "\n",
+                "    def test_on_elect(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.start(c)\n",
+                "\n",
+                "        event = self.Event('id1')\n",
+                "        g.on_elect(event)\n",
+                "        in_heap = g.consensus_requests['id1']\n",
+                "        assert in_heap\n",
+                "        g.dispatcher.send.assert_called_with('worker-elect-ack', id='id1')\n",
+                "\n",
+                "        event.pop('clock')\n",
+                "        with patch('celery.worker.consumer.gossip.logger') as logger:\n",
+                "            g.on_elect(event)\n",
+                "            logger.exception.assert_called()\n",
+                "\n",
+                "    def Consumer(self, hostname='foo@x.com', pid=4312):\n",
+                "        c = Mock()\n",
+                "        c.app.connection = _amqp_connection()\n",
+                "        c.hostname = hostname\n",
+                "        c.pid = pid\n",
+                "        return c\n",
+                "\n",
+                "    def setup_election(self, g, c):\n",
+                "        g.start(c)\n",
+                "        g.clock = self.app.clock\n",
+                "        assert 'idx' not in g.consensus_replies\n",
+                "        assert g.on_elect_ack({'id': 'idx'}) is None\n",
+                "\n",
+                "        g.state.alive_workers.return_value = [\n",
+                "            'foo@x.com', 'bar@x.com', 'baz@x.com',\n",
+                "        ]\n",
+                "        g.consensus_replies['id1'] = []\n",
+                "        g.consensus_requests['id1'] = []\n",
+                "        e1 = self.Event('id1', 1, 'foo@x.com')\n",
+                "        e2 = self.Event('id1', 2, 'bar@x.com')\n",
+                "        e3 = self.Event('id1', 3, 'baz@x.com')\n",
+                "        g.on_elect(e1)\n",
+                "        g.on_elect(e2)\n",
+                "        g.on_elect(e3)\n",
+                "        assert len(g.consensus_requests['id1']) == 3\n",
+                "\n",
+                "        with patch('celery.worker.consumer.gossip.info'):\n",
+                "            g.on_elect_ack(e1)\n",
+                "            assert len(g.consensus_replies['id1']) == 1\n",
+                "            g.on_elect_ack(e2)\n",
+                "            assert len(g.consensus_replies['id1']) == 2\n",
+                "            g.on_elect_ack(e3)\n",
+                "            with pytest.raises(KeyError):\n",
+                "                g.consensus_replies['id1']\n",
+                "\n",
+                "    def test_on_elect_ack_win(self):\n",
+                "        c = self.Consumer(hostname='foo@x.com')  # I will win\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        handler = g.election_handlers['topic'] = Mock()\n",
+                "        self.setup_election(g, c)\n",
+                "        handler.assert_called_with('action')\n",
+                "\n",
+                "    def test_on_elect_ack_lose(self):\n",
+                "        c = self.Consumer(hostname='bar@x.com')  # I will lose\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        handler = g.election_handlers['topic'] = Mock()\n",
+                "        self.setup_election(g, c)\n",
+                "        handler.assert_not_called()\n",
+                "\n",
+                "    def test_on_elect_ack_win_but_no_action(self):\n",
+                "        c = self.Consumer(hostname='foo@x.com')  # I will win\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.election_handlers = {}\n",
+                "        with patch('celery.worker.consumer.gossip.logger') as logger:\n",
+                "            self.setup_election(g, c)\n",
+                "            logger.exception.assert_called()\n",
+                "\n",
+                "    def test_on_node_join(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        with patch('celery.worker.consumer.gossip.debug') as debug:\n",
+                "            g.on_node_join(c)\n",
+                "            debug.assert_called_with('%s joined the party', 'foo@x.com')\n",
+                "\n",
+                "    def test_on_node_leave(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        with patch('celery.worker.consumer.gossip.debug') as debug:\n",
+                "            g.on_node_leave(c)\n",
+                "            debug.assert_called_with('%s left', 'foo@x.com')\n",
+                "\n",
+                "    def test_on_node_lost(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        with patch('celery.worker.consumer.gossip.info') as info:\n",
+                "            g.on_node_lost(c)\n",
+                "            info.assert_called_with('missed heartbeat from %s', 'foo@x.com')\n",
+                "\n",
+                "    def test_register_timer(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.register_timer()\n",
+                "        c.timer.call_repeatedly.assert_called_with(g.interval, g.periodic)\n",
+                "        tref = g._tref\n",
+                "        g.register_timer()\n",
+                "        tref.cancel.assert_called_with()\n",
+                "\n",
+                "    def test_periodic(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        g.on_node_lost = Mock()\n",
+                "        state = g.state = Mock()\n",
+                "        worker = Mock()\n",
+                "        state.workers = {'foo': worker}\n",
+                "        worker.alive = True\n",
+                "        worker.hostname = 'foo'\n",
+                "        g.periodic()\n",
+                "\n",
+                "        worker.alive = False\n",
+                "        g.periodic()\n",
+                "        g.on_node_lost.assert_called_with(worker)\n",
+                "        with pytest.raises(KeyError):\n",
+                "            state.workers['foo']\n",
+                "\n",
+                "    def test_on_message__task(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        assert g.enabled\n",
+                "        message = Mock(name='message')\n",
+                "        message.delivery_info = {'routing_key': 'task.failed'}\n",
+                "        g.on_message(Mock(name='prepare'), message)\n",
+                "\n",
+                "    def test_on_message(self):\n",
+                "        c = self.Consumer()\n",
+                "        c.app.connection_for_read = _amqp_connection()\n",
+                "        g = Gossip(c)\n",
+                "        assert g.enabled\n",
+                "        prepare = Mock()\n",
+                "        prepare.return_value = 'worker-online', {}\n",
+                "        c.app.events.State.assert_called_with(\n",
+                "            on_node_join=g.on_node_join,\n",
+                "            on_node_leave=g.on_node_leave,\n",
+                "            max_tasks_in_memory=1,\n",
+                "        )\n",
+                "        g.update_state = Mock()\n",
+                "        worker = Mock()\n",
+                "        g.on_node_join = Mock()\n",
+                "        g.on_node_leave = Mock()\n",
+                "        g.update_state.return_value = worker, 1\n",
+                "        message = Mock()\n",
+                "        message.delivery_info = {'routing_key': 'worker-online'}\n",
+                "        message.headers = {'hostname': 'other'}\n",
+                "\n",
+                "        handler = g.event_handlers['worker-online'] = Mock()\n",
+                "        g.on_message(prepare, message)\n",
+                "        handler.assert_called_with(message.payload)\n",
+                "        g.event_handlers = {}\n",
+                "\n",
+                "        g.on_message(prepare, message)\n",
+                "\n",
+                "        message.delivery_info = {'routing_key': 'worker-offline'}\n",
+                "        prepare.return_value = 'worker-offline', {}\n",
+                "        g.on_message(prepare, message)\n",
+                "\n",
+                "        message.delivery_info = {'routing_key': 'worker-baz'}\n",
+                "        prepare.return_value = 'worker-baz', {}\n",
+                "        g.update_state.return_value = worker, 0\n",
+                "        g.on_message(prepare, message)\n",
+                "\n",
+                "        message.headers = {'hostname': g.hostname}\n",
+                "        g.on_message(prepare, message)\n",
+                "        g.clock.forward.assert_called_with()"
+            ]
+        ]
+    },
+    "partial_orders": [
+        {
+            "edit_hunk_pair": [
+                0,
+                2
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and import"
+        },
+        {
+            "edit_hunk_pair": [
+                1,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "use and import"
+        },
+        {
+            "edit_hunk_pair": [
+                2,
+                3
+            ],
+            "edit_order": "bi-directional",
+            "reason": "data flow"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                5
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                4,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "import and use"
+        },
+        {
+            "edit_hunk_pair": [
+                5,
+                6
+            ],
+            "edit_order": "bi-directional",
+            "reason": "clone"
+        }
+    ]
+}

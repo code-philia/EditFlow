@@ -1,0 +1,28 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 1,
+            "reason": "Edit 0 adds 'import sys' and Edit 1 uses 'sys.version_info[0]' in the same file. This is a classic import-usage pattern where the changed lines reference the exact same symbol 'sys'. After adding the import in Edit 0, using sys in Edit 1 becomes the immediate next step. In Python, using an undefined symbol like 'sys' before importing it would cause a NameError at runtime, but both edits can be parsed and staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 1,
+            "tgt": 0,
+            "reason": "Edit 0 adds 'import sys' and Edit 1 uses 'sys.version_info[0]' in the same file. This is a classic import-usage pattern where the changed lines reference the exact same symbol 'sys'. After adding the import in Edit 0, using sys in Edit 1 becomes the immediate next step. In Python, using an undefined symbol like 'sys' before importing it would cause a NameError at runtime, but both edits can be parsed and staged in either order, making this bi-directional rather than ordered."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 imports the symbol 'iteritems' from sklearn.externals.six, and Edit 1 uses that exact same imported symbol 'iteritems' in its changed line. The import creates the symbol that is then referenced in the usage. This is a classic import-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 imports the symbol 'iteritems' from sklearn.externals.six, and Edit 1 uses that exact same imported symbol 'iteritems' in its changed line. The import creates the symbol that is then referenced in the usage. This is a classic import-usage relationship where both edits reference the exact same symbol. In Python, the usage can be written before the import (it would only fail at runtime with a NameError), so either edit can be staged first, making this bi-directional."
+        }
+    ],
+    "allowed_init_edits": [
+        2,
+        5
+    ]
+}

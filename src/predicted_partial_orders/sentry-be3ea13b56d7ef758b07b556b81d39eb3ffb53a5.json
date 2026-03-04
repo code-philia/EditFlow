@@ -1,0 +1,124 @@
+{
+    "partial_orders": [
+        {
+            "src": 0,
+            "tgt": 4,
+            "reason": "Edit 0 defines a constant MAX_POINTS at the module level, and Edit 1 uses that exact same constant in a conditional check. The changed lines reference the exact same symbol - MAX_POINTS is defined in edit 0 and referenced in edit 1. After defining MAX_POINTS in edit 0, using it in edit 1 becomes the immediate, mechanically obvious next step. This is a classic definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 4,
+            "tgt": 0,
+            "reason": "Edit 0 defines a constant MAX_POINTS at the module level, and Edit 1 uses that exact same constant in a conditional check. The changed lines reference the exact same symbol - MAX_POINTS is defined in edit 0 and referenced in edit 1. After defining MAX_POINTS in edit 0, using it in edit 1 becomes the immediate, mechanically obvious next step. This is a classic definition-usage relationship where both edits reference the same symbol."
+        },
+        {
+            "src": 1,
+            "tgt": 3,
+            "reason": "Edit 0 changes a call to `get_rollup(request)` to `get_rollup(request, params)`, adding a second parameter. Edit 1 changes the method signature of `get_rollup` from `def get_rollup(self, request):` to `def get_rollup(self, request, params):`, adding the same second parameter. Both edits reference the exact same symbol (the `get_rollup` method) and create an immediate code dependency - after making either edit, the other becomes mechanically necessary to maintain consistency between the method signature and its call site. This is a classic signature-caller synchronization pattern where both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 3,
+            "tgt": 1,
+            "reason": "Edit 0 changes a call to `get_rollup(request)` to `get_rollup(request, params)`, adding a second parameter. Edit 1 changes the method signature of `get_rollup` from `def get_rollup(self, request):` to `def get_rollup(self, request, params):`, adding the same second parameter. Both edits reference the exact same symbol (the `get_rollup` method) and create an immediate code dependency - after making either edit, the other becomes mechanically necessary to maintain consistency between the method signature and its call site. This is a classic signature-caller synchronization pattern where both edits can be staged in either order without causing parse errors."
+        },
+        {
+            "src": 1,
+            "tgt": 2,
+            "reason": "Edit 0 adds a new line `params = self.get_filter_params(request, organization)` and modifies the call to `self.get_rollup(request, params)` to include the `params` parameter. Edit 1 removes the exact same line `params = self.get_filter_params(request, organization)` that was added in edit 0. These edits reference the exact same symbol (`params`) and the exact same method call (`self.get_filter_params(request, organization)`). Edit 0 moves the params assignment earlier in the code and adds it as a parameter to get_rollup, while edit 1 removes the later duplicate assignment. This is a code reorganization where the same symbol is being moved/consolidated, creating a direct code dependency between the edits."
+        },
+        {
+            "src": 2,
+            "tgt": 1,
+            "reason": "Edit 0 adds a new line `params = self.get_filter_params(request, organization)` and modifies the call to `self.get_rollup(request, params)` to include the `params` parameter. Edit 1 removes the exact same line `params = self.get_filter_params(request, organization)` that was added in edit 0. These edits reference the exact same symbol (`params`) and the exact same method call (`self.get_filter_params(request, organization)`). Edit 0 moves the params assignment earlier in the code and adds it as a parameter to get_rollup, while edit 1 removes the later duplicate assignment. This is a code reorganization where the same symbol is being moved/consolidated, creating a direct code dependency between the edits."
+        },
+        {
+            "src": 1,
+            "tgt": 4,
+            "reason": "Edit 0 changes the call to get_rollup() to include a 'params' parameter, while Edit 1 modifies the get_rollup() method to use this 'params' parameter in its implementation. The changed line in Edit 0 calls get_rollup(request, params) and the changed lines in Edit 1 reference params['end'] and params['start']. This creates a direct code dependency where Edit 0 passes the params argument that Edit 1's implementation expects to receive and use. Either edit can be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain functional correctness."
+        },
+        {
+            "src": 4,
+            "tgt": 1,
+            "reason": "Edit 0 changes the call to get_rollup() to include a 'params' parameter, while Edit 1 modifies the get_rollup() method to use this 'params' parameter in its implementation. The changed line in Edit 0 calls get_rollup(request, params) and the changed lines in Edit 1 reference params['end'] and params['start']. This creates a direct code dependency where Edit 0 passes the params argument that Edit 1's implementation expects to receive and use. Either edit can be made first since both are syntactically valid, but making either edit creates an immediate prompt for the other to maintain functional correctness."
+        },
+        {
+            "src": 1,
+            "tgt": 5,
+            "reason": "Both edits modify calls to the same method `self.get_rollup()` in the same class. Edit 0 changes the call from `self.get_rollup(request)` to `self.get_rollup(request, params)` by adding a `params` parameter. Edit 1 removes the call to `self.get_rollup(request)` entirely. However, these are different call sites of the same method - one is being modified to add a parameter while the other is being removed. The changed lines reference the exact same method symbol `self.get_rollup`, and both edits appear to be part of refactoring this method's usage pattern. Since both edits can be applied in either order (removing a call and modifying another call are independent operations that don't create parse errors), this is bi-directional."
+        },
+        {
+            "src": 5,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the same method `self.get_rollup()` in the same class. Edit 0 changes the call from `self.get_rollup(request)` to `self.get_rollup(request, params)` by adding a `params` parameter. Edit 1 removes the call to `self.get_rollup(request)` entirely. However, these are different call sites of the same method - one is being modified to add a parameter while the other is being removed. The changed lines reference the exact same method symbol `self.get_rollup`, and both edits appear to be part of refactoring this method's usage pattern. Since both edits can be applied in either order (removing a call and modifying another call are independent operations that don't create parse errors), this is bi-directional."
+        },
+        {
+            "src": 1,
+            "tgt": 6,
+            "reason": "Both edits modify calls to the same method `self.get_rollup()` by adding a second parameter. Edit 0 changes `self.get_rollup(request)` to `self.get_rollup(request, params)` and Edit 1 changes `self.get_rollup(request)` to `self.get_rollup(request, snuba_args)`. This represents a synchronized pattern where the same method signature is being updated consistently across multiple call sites. Both edits perform an identical structural substitution (adding a second parameter to the same method call) and target the same type of syntactic construct (method calls to `get_rollup`). This appears to be part of a single refactoring operation to update the method signature consistently."
+        },
+        {
+            "src": 6,
+            "tgt": 1,
+            "reason": "Both edits modify calls to the same method `self.get_rollup()` by adding a second parameter. Edit 0 changes `self.get_rollup(request)` to `self.get_rollup(request, params)` and Edit 1 changes `self.get_rollup(request)` to `self.get_rollup(request, snuba_args)`. This represents a synchronized pattern where the same method signature is being updated consistently across multiple call sites. Both edits perform an identical structural substitution (adding a second parameter to the same method call) and target the same type of syntactic construct (method calls to `get_rollup`). This appears to be part of a single refactoring operation to update the method signature consistently."
+        },
+        {
+            "src": 3,
+            "tgt": 4,
+            "reason": "Edit 0 adds a 'params' parameter to the get_rollup method signature, and Edit 1 uses that exact same 'params' parameter in the method body by accessing params['end'] and params['start']. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the body. Both edits reference the exact same symbol 'params' and making either edit creates an immediate code-driven prompt for the other - adding the parameter makes it available for use in the body, while using the parameter in the body requires it to be defined in the signature. This is a classic parameter addition with corresponding usage pattern within the same function."
+        },
+        {
+            "src": 4,
+            "tgt": 3,
+            "reason": "Edit 0 adds a 'params' parameter to the get_rollup method signature, and Edit 1 uses that exact same 'params' parameter in the method body by accessing params['end'] and params['start']. This creates a direct definition-usage relationship where the parameter defined in the signature is immediately referenced in the body. Both edits reference the exact same symbol 'params' and making either edit creates an immediate code-driven prompt for the other - adding the parameter makes it available for use in the body, while using the parameter in the body requires it to be defined in the signature. This is a classic parameter addition with corresponding usage pattern within the same function."
+        },
+        {
+            "src": 3,
+            "tgt": 5,
+            "reason": "Edit 0 changes the signature of the get_rollup method by adding a 'params' parameter, while Edit 1 shows a call to get_rollup with only the 'request' argument. After making Edit 0, the call site in Edit 1 would need to be updated to pass the additional 'params' argument to match the new signature. However, both edits can be written and parsed independently - the call site would only fail at runtime with a TypeError for missing argument. Since this is a runtime error rather than a parse-time error, and both edits reference the exact same method symbol (get_rollup), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 5,
+            "tgt": 3,
+            "reason": "Edit 0 changes the signature of the get_rollup method by adding a 'params' parameter, while Edit 1 shows a call to get_rollup with only the 'request' argument. After making Edit 0, the call site in Edit 1 would need to be updated to pass the additional 'params' argument to match the new signature. However, both edits can be written and parsed independently - the call site would only fail at runtime with a TypeError for missing argument. Since this is a runtime error rather than a parse-time error, and both edits reference the exact same method symbol (get_rollup), this is a bi-directional relationship where either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 7,
+            "reason": "Edit 0 adds validation logic that raises an InvalidSearchQuery exception when the interval and date range would create too many results. Edit 1 adds a test method that specifically tests this validation by sending a request with a very small interval ('1s') over a 24-hour period, which would trigger the validation error and expect a 400 status code. The test directly validates the behavior implemented in edit 0 - they reference the same validation logic and error condition."
+        },
+        {
+            "src": 7,
+            "tgt": 4,
+            "reason": "Edit 0 adds validation logic that raises an InvalidSearchQuery exception when the interval and date range would create too many results. Edit 1 adds a test method that specifically tests this validation by sending a request with a very small interval ('1s') over a 24-hour period, which would trigger the validation error and expect a 400 status code. The test directly validates the behavior implemented in edit 0 - they reference the same validation logic and error condition."
+        },
+        {
+            "src": 5,
+            "tgt": 6,
+            "reason": "This is a cut-and-paste move operation where the same line of code `rollup = self.get_rollup(request)` is being removed from one location (line 84) and added to another location (line 98) with an additional parameter `snuba_args`. The removal must occur before the addition to avoid having duplicate lines, making this an ordered relationship where edit 0 (removal) must happen before edit 1 (addition)."
+        },
+        {
+            "src": 3,
+            "tgt": 6,
+            "reason": "Edit 0 changes the signature of the get_rollup method by adding a 'params' parameter. Edit 1 adds a call to get_rollup with the new signature (passing both 'request' and 'snuba_args' parameters). The changed lines reference the exact same symbol - the get_rollup method. After making edit 0 (signature change), edit 1 becomes the immediate next step to update the call site to match the new signature. Conversely, if edit 1 were made first, it would create a call with the wrong number of arguments, making edit 0 the immediate next step to fix the signature. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 6,
+            "tgt": 3,
+            "reason": "Edit 0 changes the signature of the get_rollup method by adding a 'params' parameter. Edit 1 adds a call to get_rollup with the new signature (passing both 'request' and 'snuba_args' parameters). The changed lines reference the exact same symbol - the get_rollup method. After making edit 0 (signature change), edit 1 becomes the immediate next step to update the call site to match the new signature. Conversely, if edit 1 were made first, it would create a call with the wrong number of arguments, making edit 0 the immediate next step to fix the signature. This is a classic definition-usage relationship where both edits reference the same symbol and either edit naturally prompts the other as the next mechanical step."
+        },
+        {
+            "src": 4,
+            "tgt": 6,
+            "reason": "Edit 0 modifies the get_rollup method by adding validation logic that checks if the interval and date range would create too many results, raising an InvalidSearchQuery exception if so. Edit 1 adds a call to get_rollup method in the get_v1_results method. These edits reference the exact same symbol (the get_rollup method) - edit 0 modifies its implementation while edit 1 calls it. After modifying get_rollup's behavior to include validation (edit 0), calling it in get_v1_results (edit 1) becomes a natural next step to utilize the enhanced functionality. Either edit can be made first since both are syntactically valid independently, but they form a definition-usage pair for the same method."
+        },
+        {
+            "src": 6,
+            "tgt": 4,
+            "reason": "Edit 0 modifies the get_rollup method by adding validation logic that checks if the interval and date range would create too many results, raising an InvalidSearchQuery exception if so. Edit 1 adds a call to get_rollup method in the get_v1_results method. These edits reference the exact same symbol (the get_rollup method) - edit 0 modifies its implementation while edit 1 calls it. After modifying get_rollup's behavior to include validation (edit 0), calling it in get_v1_results (edit 1) becomes a natural next step to utilize the enhanced functionality. Either edit can be made first since both are syntactically valid independently, but they form a definition-usage pair for the same method."
+        }
+    ],
+    "allowed_init_edits": [
+        0,
+        2,
+        7
+    ]
+}
