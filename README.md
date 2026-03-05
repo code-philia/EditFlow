@@ -61,6 +61,7 @@ Start the corresponding backend service before using each module:
 ### 2. Batch simulation (Digital twin simulator)
 - Set `Suggestion type` and `System under test` in `src/simulation/main.py: __main__`;
 - Run the batch simulation command: `python -m simulation.main` at `src` directory (ensure the Digital twin simulator backend service is running first);
+- 👉 We highly encourage users to use [Historian](https://github.com/code-philia/Historian) as the Digital twin simulator, where we have extracted it as a standalone benchmark repository for evaluation and continuous updates.
 
 ### 3. EditFlow Optimization (Optimize existing code editing assistants)
 - Start the EditFlow Optimization backend service: Run `python src/optimization_server.py` at project root directory (port 5002);
