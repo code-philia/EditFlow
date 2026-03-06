@@ -84,7 +84,7 @@ Start the corresponding backend service before using each module:
 ### Deploy as a user
 
 For end-users, simply follow the instructions:
-1. install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=CodePhilia.code-trace).[TBD]
+1. install the extension from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=CodePhilia.EditFlow).
 
 2. Install Python and dependencies:
     * Python 3.10 +
